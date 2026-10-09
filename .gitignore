@@ -66,3 +66,7 @@ coverage/
 
 # macOS
 .DS_Store
+# Letöltési csomagok és DMG köztes fájlok (nem kerülnek a repóba)
+landingpage/downloads/
+/dist/
+*.dmg

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RadRecon</title>
+</head>
+<body>
+  <p>Redirecting...</p>
+
+  <noscript>
+    <p>JavaScript is disabled. <a href="en/index.html">Continue to English</a></p>
+  </noscript>
+
+  <script>
+    (function () {
+      const LANGUAGES = {
+        en: 'en/index.html',
+        hu: 'hu/index.html',
+        de: 'de/index.html',
+        fr: 'fr/index.html',
+        it: 'it/index.html',
+        es: 'es/index.html'
+      };
+
+      function normalizeLanguageCode(value) {
+        return String(value || '').split('-')[0].trim().toLowerCase();
+      }
+
+      function detectLanguage() {
+        try {
+          const preferredLanguages = Array.isArray(navigator.languages) ? navigator.languages : [];
+
+          for (const language of preferredLanguages) {
+            const normalized = normalizeLanguageCode(language);
+            if (Object.prototype.hasOwnProperty.call(LANGUAGES, normalized)) {
+              return normalized;
+            }
+          }
+
+          const primaryLanguage = normalizeLanguageCode(navigator.language);
+          if (Object.prototype.hasOwnProperty.call(LANGUAGES, primaryLanguage)) {
+            return primaryLanguage;
+          }
+        } catch (error) {
+          return 'en';
+        }
+
+        return 'en';
+      }
+
+      try {
+        const language = detectLanguage();
+        const target = LANGUAGES[language] || LANGUAGES.en;
+        window.location.replace(new URL(target, window.location.href).toString());
+      } catch (error) {
+        window.location.replace(new URL(LANGUAGES.en, window.location.href).toString());
+      }
+    })();
+  </script>
+</body>
+</html>

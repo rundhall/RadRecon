@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supprimer vos données RadRecon</title>
+  <meta name="description" content="Comment supprimer les données stockées par l’application RadRecon. RadRecon n’a pas de comptes utilisateur.">
+  <link rel="alternate" hreflang="en" href="../../delete-account/en/delete-account.html">
+  <link rel="alternate" hreflang="hu" href="../../delete-account/hu/delete-account.html">
+  <link rel="alternate" hreflang="de" href="../../delete-account/de/delete-account.html">
+  <link rel="alternate" hreflang="fr" href="../../delete-account/fr/delete-account.html">
+  <link rel="alternate" hreflang="it" href="../../delete-account/it/delete-account.html">
+  <link rel="alternate" hreflang="es" href="../../delete-account/es/delete-account.html">
+  <link rel="icon" type="image/png" href="../../pics/logo.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="../../fr/index.html" class="logo" aria-label="RadRecon"><img src="../../pics/logo.png" alt="RadRecon" style="height: 36px; vertical-align: middle;"><span class="logo-text">RadRecon</span></a>
+      <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav>
+        <a href="../../fr/index.html#features">Fonctionnalités</a>
+        <a href="../../fr/index.html#how-it-works">Comment ça marche</a>
+        <a href="../../fr/index.html#screenshots">Captures d’écran</a>
+        <a href="../../fr/index.html#audience">Pour qui</a>
+        <a href="../../fr/index.html#faq">FAQ</a>
+        <a href="../../fr/index.html#cta" class="btn btn-primary">Commencer</a>
+        <div class="lang-switch"><select id="language-select" aria-label="Language"><option value="en">EN</option><option value="hu">HU</option><option value="de">DE</option><option value="fr" selected>FR</option><option value="it">IT</option><option value="es">ES</option></select></div>
+      </nav>
+    </div>
+  </header>
+
+    <main class="legal-page">
+      <div class="container">
+
+<h1>Supprimer vos données RadRecon</h1>
+<p>RadRecon est développé par Dr. Petrányi János Tamás. L’application n’a ni compte utilisateur, ni inscription, ni service cloud. Toutes les données que vous saisissez sont stockées localement sur votre propre appareil : il n’existe donc aucun compte à supprimer sur un serveur. Cette page explique comment supprimer vos données.</p>
+
+<h2>Supprimer dans l’application</h2>
+<ul>
+<li>Relevés, points de mesure : ouvrez la liste des relevés ou des points et supprimez les entrées dont vous n’avez plus besoin.</li>
+<li>Instruments, sources et personnes : ouvrez la liste correspondante depuis l’écran principal et supprimez les entrées.</li>
+</ul>
+
+<h2>Tout supprimer en désinstallant</h2>
+<p>Sur Android et iPhone, la désinstallation de RadRecon supprime la base de données et les fichiers stockés par l’application sur l’appareil. Sous Windows, macOS et Linux, le dossier de données de l’application peut subsister après la désinstallation : supprimez d’abord les entrées dans l’application ou demandez-nous de l’aide. La suppression est irréversible ; exportez donc au préalable ce que vous souhaitez conserver (procès-verbal Word, JSON ou CSV).</p>
+
+<h2>Fichiers hors de l’application</h2>
+<ul>
+<li>Les procès-verbaux, fichiers JSON et CSV exportés ou partagés avec d’autres applications sont des copies extérieures à RadRecon. Supprimez-les dans l’application ou à l’endroit où vous les avez enregistrés ou envoyés.</li>
+<li>Si les sauvegardes de l’appareil sont activées dans les réglages de votre téléphone ou ordinateur, les données de l’application peuvent aussi figurer dans ces sauvegardes. Vous pouvez supprimer la sauvegarde dans les réglages du service de sauvegarde.</li>
+</ul>
+
+<h2>Correspondance avec nous</h2>
+<p>Si vous nous avez écrit par e-mail, vous pouvez demander la suppression de cette correspondance. Envoyez une demande à <a href="mailto:info@radrecon.hu">info@radrecon.hu</a> avec l’objet « Demande de suppression de données ». Nous accusons réception sous 5 jours ouvrés et effectuons la suppression sous 30 jours.</p>
+
+<p><a href="../../privacy/fr/privacy.html">Lire la Politique de confidentialité</a></p>
+<p>Dernière mise à jour : 02/10/2026.</p>
+
+      </div>
+    </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2026 RadRecon. Code source sous <a href="https://github.com/rundhall/RadRecon/blob/main/LICENSE" target="_blank" rel="noopener">licence Apache 2.0</a>.</p>
+      <div class="footer-links">
+        <a href="../../privacy/fr/privacy.html">Politique de confidentialité</a>
+        <a href="../../delete-account/fr/delete-account.html">Supprimer vos données</a>
+        <a href="../../terms/fr/terms.html">Conditions d’utilisation</a>
+        <a href="../../user_manual/fr/manual.html">Manuel d’utilisation</a>
+        <a href="../../contact/fr/contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../script.js"></script>
+  <script>
+    const select = document.getElementById('language-select');
+    if (select) {
+      const m = window.location.pathname.match(/\/(en|hu|de|fr|it|es)(?:\/|$)/);
+      const currentLang = m ? m[1] : (document.documentElement.lang || 'en').split('-')[0].toLowerCase();
+      document.documentElement.lang = currentLang;
+      select.value = currentLang;
+      select.addEventListener('change', (e) => {
+        const next = e.target.value;
+        if (!next || next === currentLang) return;
+        window.location.href = '../' + next + '/delete-account.html';
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "_comment": "Single source for the website and the app. Add entries only with the person's or organization's consent. roles: testing, development, review, translation, other.",
+  "updated": "2026-10-03",
+  "organizations": [],
+  "people": [
+    {
+      "name": "János Petrányi"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RadRecon adatkezelési tájékoztató</title>
+  <meta name="description" content="A RadRecon a felmérési adatokat azon az eszközön tárolja, amelyen rögzítetted őket. Az alkalmazáshoz nem kell fiók, és nem tölti fel a helyi adatbázist RadRecon-felhőbe vagy háttérrendszerbe.">
+  <link rel="icon" type="image/png" href="../../pics/logo.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="../../hu/index.html" class="logo" aria-label="RadRecon"><img src="../../pics/logo.png" alt="RadRecon" style="height: 36px; vertical-align: middle;"><span class="logo-text">RadRecon</span></a>
+      <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav>
+        <a href="../../hu/index.html#features">Funkciók</a>
+        <a href="../../hu/index.html#how-it-works">Hogyan működik</a>
+        <a href="../../hu/index.html#screenshots">Képernyőképek</a>
+        <a href="../../hu/index.html#audience">Kinek készült</a>
+        <a href="../../hu/index.html#faq">GYIK</a>
+        <a href="../../hu/index.html#cta" class="btn btn-primary">Kezdés</a>
+        <div class="lang-switch"><select id="language-select" aria-label="Language"><option value="en">EN</option><option value="hu" selected>HU</option><option value="de">DE</option><option value="fr">FR</option><option value="it">IT</option><option value="es">ES</option></select></div>
+      </nav>
+    </div>
+  </header>
+  <main class="legal-page">
+    <div class="container">
+      <h1>RadRecon adatkezelési tájékoztató</h1>
+      <p>A RadRecon a felmérési adatokat azon az eszközön tárolja, amelyen rögzítetted őket. Az alkalmazáshoz nem kell fiók, és nem tölti fel a helyi adatbázist RadRecon-felhőbe vagy háttérrendszerbe.</p>
+      <h2>Az eszközön tárolt adatok</h2>
+      <p>A rekordok tartalmazhatják a felmérési munkameneteket, mérési értékeket és mértékegységeket, időpontokat, megjegyzéseket, GPS-koordinátákat és pontosságot, műszer- és sugárforrás-adatokat, valamint beállításokat. A helyadatot az alkalmazás csak engedély megadása és azt igénylő funkció használata esetén éri el.</p>
+      <h2>Tárolás és megőrzés</h2>
+      <p>Az alkalmazás helyi SQLite-adatbázist használ. Az adatok az eszközön maradnak, amíg nem törlöd őket, vagy nem törlöd az alkalmazás adatait. Az operációs rendszer biztonsági mentései a beállításaid szerint másolhatják az alkalmazás adatait. Az exportált fájlok és biztonsági másolatok külön példányok.</p>
+      <h2>Hálózati kapcsolatok</h2>
+      <p>Térkép megjelenítésekor az OpenStreetMap megkaphatja az IP-címedet, a kért térképcsempék koordinátáit és a szokásos kérésadatokat; a csempékből következtetni lehet a megtekintett területre. A beállított Modbus/TCP-műszerrel az alkalmazás a megadott címen kommunikál. A helyadat-, értesítési, fájlválasztási és megosztási funkciók az operációs rendszer szolgáltatásait használják.</p>
+      <h2>Export és választási lehetőségek</h2>
+      <p>Az alkalmazásban nincs analitikai vagy hirdetési SDK, és a fejlesztő nem kapja meg a mérési adatokat. Te választod ki az exportált fájlok mentési vagy megosztási helyét. A külső alkalmazásokra, térképszolgáltatókra, műszerekre és platformokra azok saját szabályai vonatkoznak.</p>
+      <h2>Jogok és kapcsolat</h2>
+      <p>A rendelkezésre álló alkalmazásfunkciókkal és az eszköz beállításaival megtekintheted, módosíthatod, exportálhatod vagy törölheted az adatokat. A helymeghatározási engedélyt a készülék beállításaiban tilthatod le vagy vonhatod vissza. Kérdés esetén: info@radrecon.hu.</p>
+      <p><a href="https://operations.osmfoundation.org/policies/tiles/">OpenStreetMap térképcsempe-szabályzat</a></p>
+    </div>
+  </main>
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2026 RadRecon.</p>
+      <div class="footer-links"><a href="../../privacy/hu/privacy.html">Adatvédelem</a><a href="../../terms/hu/terms.html">Feltételek</a><a href="../../user_manual/hu/manual.html">Használati útmutató</a><a href="../../delete-account/hu/delete-account.html">Adatok törlése</a><a href="../../contact/hu/contact.html">Kapcsolat</a></div>
+    </div>
+  </footer>
+  <script src="../../script.js"></script>
+  <script>
+    const select = document.getElementById('language-select');
+    if (select) {
+      select.addEventListener('change', (e) => {
+        const next = e.target.value;
+        if (!next || next === 'hu') return;
+        window.location.href = '../' + next + '/privacy.html';
+      });
+    }
+  </script>
+</body>
+</html>

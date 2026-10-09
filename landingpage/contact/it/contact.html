@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contatti e assistenza</title>
+  <meta name="description" content="Per domande su RadRecon o sul sito, contatta il fornitore via e-mail.">
+  <link rel="icon" type="image/png" href="../../pics/logo.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="../../it/index.html" class="logo" aria-label="RadRecon"><img src="../../pics/logo.png" alt="RadRecon" style="height: 36px; vertical-align: middle;"><span class="logo-text">RadRecon</span></a>
+      <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav>
+        <a href="../../it/index.html#features">Funzionalità</a>
+        <a href="../../it/index.html#how-it-works">Come funziona</a>
+        <a href="../../it/index.html#screenshots">Schermate</a>
+        <a href="../../it/index.html#audience">Per chi è</a>
+        <a href="../../it/index.html#faq">FAQ</a>
+        <a href="../../it/index.html#cta" class="btn btn-primary">Inizia</a>
+        <div class="lang-switch"><select id="language-select" aria-label="Language"><option value="en">EN</option><option value="hu">HU</option><option value="de">DE</option><option value="fr">FR</option><option value="it" selected>IT</option><option value="es">ES</option></select></div>
+      </nav>
+    </div>
+  </header>
+  <main class="legal-page">
+    <div class="container">
+      <h1>Contatti e assistenza</h1>
+      <p>Per domande su RadRecon o sul sito, contatta il fornitore via e-mail.</p>
+      <p><a href="mailto:info@radrecon.hu">info@radrecon.hu</a></p>
+      <h2>Guida</h2>
+      <p>Per un problema tecnico, indica dispositivo e sistema operativo, versione RadRecon, passaggi per riprodurre il problema e messaggi di errore. Non inviare dati sensibili se non è necessario.</p>
+      <h2>Contatto privacy</h2>
+      <p>RadRecon conserva i rilievi localmente sul dispositivo su cui vengono inseriti. Non serve un account e il database locale non viene caricato su un cloud o backend RadRecon.</p>
+    </div>
+  </main>
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2026 RadRecon.</p>
+      <div class="footer-links"><a href="../../privacy/it/privacy.html">Privacy</a><a href="../../terms/it/terms.html">Condizioni</a><a href="../../user_manual/it/manual.html">Guida</a><a href="../../delete-account/it/delete-account.html">Rimuovi dati</a><a href="../../contact/it/contact.html">Contatti</a></div>
+    </div>
+  </footer>
+  <script src="../../script.js"></script>
+  <script>
+    const select = document.getElementById('language-select');
+    if (select) {
+      select.addEventListener('change', (e) => {
+        const next = e.target.value;
+        if (!next || next === 'it') return;
+        window.location.href = '../' + next + '/contact.html';
+      });
+    }
+  </script>
+</body>
+</html>

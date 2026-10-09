@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RadRecon Benutzerhandbuch</title>
+  <meta name="description" content="Benutzerhandbuch für die RadRecon-App für Strahlenmessungen im Feld.">
+  <link rel="alternate" hreflang="en" href="../../user_manual/en/manual.html">
+  <link rel="alternate" hreflang="hu" href="../../user_manual/hu/manual.html">
+  <link rel="alternate" hreflang="de" href="../../user_manual/de/manual.html">
+  <link rel="alternate" hreflang="fr" href="../../user_manual/fr/manual.html">
+  <link rel="alternate" hreflang="it" href="../../user_manual/it/manual.html">
+  <link rel="alternate" hreflang="es" href="../../user_manual/es/manual.html">
+  <link rel="icon" type="image/png" href="../../pics/logo.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="../../de/index.html" class="logo" aria-label="RadRecon"><img src="../../pics/logo.png" alt="RadRecon" style="height: 36px; vertical-align: middle;"><span class="logo-text">RadRecon</span></a>
+      <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav>
+        <a href="../../de/index.html#features">Funktionen</a>
+        <a href="../../de/index.html#how-it-works">So funktioniert's</a>
+        <a href="../../de/index.html#screenshots">Screenshots</a>
+        <a href="../../de/index.html#audience">Für wen</a>
+        <a href="../../de/index.html#faq">FAQ</a>
+        <a href="../../de/index.html#cta" class="btn btn-primary">Loslegen</a>
+        <div class="lang-switch"><select id="language-select" aria-label="Language"><option value="en">EN</option><option value="hu">HU</option><option value="de" selected>DE</option><option value="fr">FR</option><option value="it">IT</option><option value="es">ES</option></select></div>
+      </nav>
+    </div>
+  </header>
+
+    <main class="legal-page">
+      <div class="container">
+
+<h1>RadRecon Benutzerhandbuch</h1>
+<p>Zuletzt aktualisiert: 03.10.2026</p>
+<p>Die App ist auf Englisch und Ungarisch verfügbar. In diesem Handbuch stehen die Bezeichnungen von Schaltflächen und Menüpunkten in fett und in der englischen Fassung der App.</p>
+
+<h2>Inhalt</h2>
+<ol>
+<li><a href="#m1">Einführung</a></li>
+<li><a href="#m2">Hauptbildschirm und Einstellungen</a></li>
+<li><a href="#m3">Messgeräte</a></li>
+<li><a href="#m4">Strahlenquellen</a></li>
+<li><a href="#m5">Personen</a></li>
+<li><a href="#m6">Dosen</a></li>
+<li><a href="#m7">Wechsel zwischen Firmen</a></li>
+<li><a href="#m8">Messkampagne starten</a></li>
+<li><a href="#m9">Messpunkt erfassen</a></li>
+<li><a href="#m10">Quellen an einem Punkt</a></li>
+<li><a href="#m11">Karte</a></li>
+<li><a href="#m12">Werkzeuge</a></li>
+<li><a href="#m13">Abschließen, Export und Import</a></li>
+<li><a href="#m14">Fehlerbehebung</a></li>
+<li><a href="#m15">Wichtiger Hinweis</a></li>
+</ol>
+
+<h2 id="m1">1. Einführung</h2>
+<p>RadRecon erfasst Strahlenmessungen im Feld. Jeder Messpunkt trägt seine GPS-Position, Zeit, Messgerät, Wert und Einheit, optional ein Foto und eine Notiz. Die Punkte einer Messkampagne werden auf einer Karte angezeigt und können als Word-Protokoll, als JSON oder als CSV exportiert werden.</p>
+<p>Die App läuft unter Android, iPhone, Windows, macOS und Linux. Alle Daten werden auf dem Gerät gespeichert. Es gibt kein Konto und keine Registrierung. Eine Internetverbindung ist nur für den Kartenhintergrund und, falls Sie sie nutzen, für Messgeräte im Netzwerk nötig.</p>
+
+<h2 id="m2">2. Hauptbildschirm und Einstellungen</h2>
+<p>Der Hauptbildschirm listet Ihre Messkampagnen auf, die neueste zuerst. Mit <strong>New survey</strong> legen Sie eine neue an. Über die obere Leiste erreichen Sie Messgeräte, Strahlenquellen, Personen und die Einstellungen. Die Listen der Messgeräte, Quellen und Personen haben ein Suchfeld.</p>
+<h3>Einstellungen</h3>
+<ul>
+<li><strong>Language:</strong> Englisch, Ungarisch oder die Sprache des Telefons.</li>
+<li><strong>Appearance:</strong> helles, dunkles oder System-Design.</li>
+<li><strong>Alert thresholds:</strong> ein Grenzwert je Messart. Erreicht oder überschreitet ein erfasster Wert ihn, warnt die App mit Ton und Pop-up. Bleibt ein Feld leer, gibt es für diese Art keinen Alarm.</li>
+<li><strong>Expiry notifications:</strong> standardmäßig aus. Eingeschaltet erinnert die App um 8:00 Uhr an bevorstehende Abläufe von Quellen (Nutzungsdauer, Prüfung) und Personen (ärztliche Untersuchung, Unterweisung). Sie wählen den Vorlauf: am Tag selbst, 1 Tag, 2 Tage oder 1 Woche vorher. Benachrichtigungen müssen in den Telefoneinstellungen erlaubt sein.</li>
+<li><strong>Switch company:</strong> öffnet den Firmenwechsel, siehe Kapitel 7.</li>
+<li><strong>Save database to file / Load database from file:</strong> speichert alle Daten in einer Sicherungsdatei oder lädt eine solche Datei, zum Beispiel auf einem neuen Handy. Das Laden überschreibt alle Daten auf dem Gerät.</li>
+<li><strong>Clear database:</strong> löscht alle Messkampagnen, Punkte, Messgeräte, Quellen, Personen und Fotos dauerhaft vom Gerät. Erstellen Sie vorher eine Sicherung.</li>
+<li><strong>Contributors:</strong> Dank an die Freiwilligen und Organisationen, die RadRecon mit aufbauen, und wie Sie sich anschließen können.</li>
+</ul>
+
+<h2 id="m3">3. Messgeräte</h2>
+<p>Legen Sie Ihre Messgeräte einmal an und wählen Sie sie beim Erfassen von Punkten aus. Öffnen Sie die Messgeräteliste und drücken Sie <strong>New instrument</strong>.</p>
+<ul>
+<li><strong>Instrument name / type</strong> (Pflichtfeld), <strong>Serial number</strong>, <strong>Last calibration date</strong> und <strong>Calibration factor</strong>.</li>
+<li><strong>Reachable over WiFi Modbus/TCP:</strong> einschalten und IP-Adresse oder Host, Port (zum Beispiel 502), Modbus Unit ID (Slave-Adresse) und Registeradresse (Start-Holding-Register des Messwerts, float32) eingeben.</li>
+</ul>
+<p>Beim Löschen eines Messgeräts bleiben frühere Messungen erhalten, nur der Verweis auf das Gerät wird entfernt. Über das Listenmenü lassen sich die Messgeräte als CSV importieren und exportieren.</p>
+
+<h2 id="m4">4. Strahlenquellen</h2>
+<p>Quellen werden in einem Register geführt, das Sie vom Hauptbildschirm öffnen. Sie werden einmal angelegt und bei Bedarf Messpunkten zugeordnet. Eine Quelle hat:</p>
+<ul>
+<li>eine eindeutige Kennung und das Nuklid (aus der Liste oder von Hand eingegeben);</li>
+<li>Aktivität bei Herstellung (MBq) und Aktivitätsfehler (±%);</li>
+<li>Herstellungsdatum, Ablauf der Nutzungsdauer und Datum der nächsten Prüfung.</li>
+</ul>
+<p>Für bekannte Nuklide speichert die App Halbwertszeit und Gammakonstante und berechnet die aktuelle Aktivität. Bei einem unbekannten Nuklid lassen sich die Daten speichern, der Vergleich entfällt. Über das Listenmenü lassen sich die Quellen als CSV importieren und exportieren.</p>
+
+<h2 id="m5">5. Personen</h2>
+<p>Das Personenregister enthält die an Messkampagnen beteiligten Mitarbeitenden: Name, Ablauf der ärztlichen Untersuchung und Ablauf der Unterweisung. Innerhalb einer Messkampagne öffnen Sie das Personensymbol und fügen mit <strong>Assign person</strong> Personen zu dieser Messkampagne hinzu. Entfernen Sie eine Person aus der Messkampagne, bleibt sie im Register. Löschen Sie sie aus dem Register, verschwindet sie auch aus jeder Messkampagne. Über das Listenmenü lassen sich die Personen als CSV importieren und exportieren.</p>
+
+<h2 id="m6">6. Dosen</h2>
+<p>RadRecon kann die Dosis jeder Person führen. Dosen werden in µSv gespeichert. Die Personenliste zeigt die Jahresdosis jeder Person nach Quelle aufgeteilt und hat eine Auswahl <strong>Year</strong>.</p>
+<ul>
+<li><strong>Online (from detector):</strong> Bei der automatischen Protokollierung von einem per Modbus verbundenen Messgerät integriert die App die gemessene Dosisleistung über die Zeit. Beim Beenden der Protokollierung wird die Dosis für die der Messkampagne zugeordneten Personen gespeichert. Das funktioniert nur mit Dosisleistungsmessungen, und die App meldet längere Datenlücken. Ist der Messkampagne keine Person zugeordnet, wird die Dosis nicht gespeichert.</li>
+<li><strong>Manual:</strong> Öffnen Sie in einer Messkampagne das Personensymbol und tippen Sie auf eine Person, um die Online- und die manuelle Dosis für diese Messkampagne einzugeben oder zu korrigieren.</li>
+<li><strong>Passive dosimetry:</strong> Ergebnisse einer monatlichen oder zweimonatlichen Auswertung, unabhängig von einer Messkampagne. Drücken Sie in der Personenliste bei der Person auf <strong>Manage doses</strong>, dann auf <strong>Add passive dosimetry</strong>, und geben Sie die Dosis mit <strong>Evaluation period start</strong> und <strong>Evaluation period end</strong> ein. Die Dosis zählt für das Jahr, in dem der Zeitraum endet.</li>
+</ul>
+<p>Beim Abschluss einer Messkampagne können Sie mit <strong>Review doses</strong> die Dosis jedes Teilnehmers vor dem Abschluss korrigieren. Der Dosisbildschirm einer Person listet alle Einträge des Jahres mit der Summe auf, und jeder Eintrag lässt sich bearbeiten oder löschen. Mit <strong>Import doses (CSV)</strong> und <strong>Export doses (CSV)</strong> im Menü der Personenliste übernehmen oder exportieren Sie Dosen.</p>
+<p>Die Dosiswerte unterstützen Ihre Dokumentation und ersetzen nicht die amtliche Personendosimetrie. Gleichen Sie sie mit den Ergebnissen Ihrer zugelassenen Messstelle ab.</p>
+
+<h2 id="m7">7. Wechsel zwischen Firmen</h2>
+<p>Wenn Sie für mehrere Firmen arbeiten, können Sie die Daten jeder Firma getrennt halten. Öffnen Sie die Einstellungen und drücken Sie auf <strong>Switch company</strong>. Der Bildschirm zeigt die <strong>Active company</strong> und die Liste der gespeicherten Firmen.</p>
+<ul>
+<li><strong>Switch:</strong> Wählen Sie eine Firma aus der Liste und bestätigen Sie. Vor dem Laden der anderen Firma werden die aktuellen Daten automatisch unter der aktiven Firma gesichert, es geht also nichts verloren.</li>
+<li><strong>New company:</strong> legt eine leere Firma mit dem eingegebenen Namen an.</li>
+<li><strong>Add company from backup file:</strong> fügt eine Firma aus einer Sicherungsdatei hinzu, zum Beispiel beim Umzug auf ein neues Handy.</li>
+<li>Das Löschen der Sicherung einer Firma entfernt sie aus dem Ordner. Die aktuell geladenen Daten bleiben unberührt.</li>
+<li><strong>Choose folder:</strong> Standardmäßig liegen die Firmen in einem privaten Ordner der App, auf den andere Apps nicht zugreifen können. Wählen Sie einen Ordner wie Downloads oder einen Cloud-Speicher, um die Sicherungen über Ihren Dateimanager zu erreichen, und machen Sie das mit <strong>Back to default folder</strong> rückgängig.</li>
+</ul>
+<p>Jede Firma wird als eine Sicherungsdatei mit Datenbank und Fotos gespeichert.</p>
+
+<h2 id="m8">8. Messkampagne starten</h2>
+<ol>
+<li>Drücken Sie auf dem Hauptbildschirm <strong>New survey</strong>.</li>
+<li>Geben Sie den Namen und optional den Ort ein. Lassen Sie den Namen leer, schlägt die App „Survey – Datum“ vor.</li>
+<li>Drücken Sie <strong>Start</strong>. Die Messkampagne öffnet sich mit leerer Punktliste.</li>
+</ol>
+<p>Name und Ort lassen sich später über das Bearbeiten-Symbol ändern, dort ordnen Sie auch die beteiligten Personen zu.</p>
+
+<h2 id="m9">9. Messpunkt erfassen</h2>
+<p>Drücken Sie in der Messkampagne <strong>New point</strong>.</p>
+<ul>
+<li><strong>Measurement type:</strong> Dosisleistung, Oberflächenkontamination, Zählrate (cps), Neutronenzählrate (cps) oder Probenahme.</li>
+<li><strong>Location name, Measured value und Unit.</strong> Jede Art hat eine Standardeinheit.</li>
+<li><strong>Distance from source</strong> und <strong>Nuclide</strong>, aus denen die App eine schnelle Aktivitätsschätzung aus dem Messwert ableitet.</li>
+<li><strong>Instrument:</strong> wählen Sie eines aus Ihrer Liste oder legen Sie mit der Plus-Schaltfläche ein neues an. Bei einem Modbus-Gerät lesen Sie den Wert mit <strong>Modbus query</strong> direkt ein.</li>
+<li><strong>Position:</strong> Breite und Länge, mit <strong>Live GPS</strong> für die aktuelle Position oder <strong>On the map</strong> zum Wählen auf der Karte.</li>
+<li><strong>This is the source position (max value):</strong> markiert den Punkt mit dem höchsten Messwert.</li>
+<li><strong>A physical sample was taken here:</strong> Behälterkennung, Menge und Probenahmeverfahren eingeben.</li>
+<li><strong>Notes</strong> und ein <strong>Foto</strong>, aufgenommen mit der Kamera oder aus der Galerie gewählt.</li>
+</ul>
+<p>Erreicht oder überschreitet der Wert die Schwelle seiner Art, zeigt die App den Alarm. Jede spätere Änderung an einem Punkt wird im Änderungsverlauf festgehalten, sodass der ursprüngliche Wert nachvollziehbar bleibt.</p>
+
+<h2 id="m10">10. Quellen an einem Punkt</h2>
+<p>Wählen Sie im Punktbildschirm <strong>Manage radioactive source(s)</strong> und ordnen Sie Quellen aus dem Register zu. Geben Sie für jede den Abstand zum Messpunkt ein. Die App zeigt dann:</p>
+<ul>
+<li>die aktuelle Aktivität, zerfallskorrigiert bis zum Messdatum;</li>
+<li>die berechnete Dosisleistung jeder Quelle und die Summe aller Quellen;</li>
+<li>die am Punkt gemessene Dosisleistung und die Differenz (gemessen minus berechnet).</li>
+</ul>
+<p>Quellen mit unbekanntem Nuklid bleiben außerhalb der Summe, eine abgelaufene Nutzungsdauer wird durch eine Warnung angezeigt. Lässt sich die Einheit nicht automatisch umrechnen, entfällt der Vergleich. Das Lösen einer Quelle entfernt nur die Verknüpfung, nicht die Quelle aus dem Register.</p>
+
+<h2 id="m11">11. Karte</h2>
+<p>Die Karte zeigt alle Punkte der Messkampagne. Mit dem Kamerasymbol speichern Sie einen Screenshot der Karte, der beim Export des Protokolls angehängt wird. In der Punktliste erledigt <strong>Save list screenshot</strong> dasselbe für die Liste. Der Kartenhintergrund benötigt eine Internetverbindung.</p>
+
+<h2 id="m12">12. Werkzeuge</h2>
+<p>Die Werkzeuge finden Sie im Menü der Messkampagne (drei Punkte).</p>
+<ul>
+<li><strong>Automatic logging:</strong> erfasst Punkte von einem Modbus/TCP-Messgerät im Zeitintervall (mindestens 1 Sekunde) oder Wegintervall (mindestens 1 Meter). Angezeigt werden erfasste Punkte, letzter Wert und fehlgeschlagene Messungen. Die Erfassung läuft nur, solange dieser Bildschirm geöffnet ist. Sperrt das Telefon oder wechseln Sie die App, pausiert sie und muss neu gestartet werden.</li>
+<li><strong>Distance measurement:</strong> Entfernung und Richtung von Ihrer aktuellen Position oder einem gewählten Startpunkt zu einem Zielpunkt. Mit <strong>Live tracking</strong> aktualisieren sich die Werte beim Gehen in Pfeilrichtung.</li>
+<li><strong>Isotope calculator:</strong> rechnet Aktivität (MBq) in Dosisleistung (µSv/h) in einer Entfernung um oder eine gemessene Dosisleistung zurück in Aktivität. Eingebaute Nuklide: Co-60, Cs-137, Ir-192, Ra-226, I-131, Na-22 und Am-241.</li>
+<li><strong>Source search:</strong> schätzt aus den bereits erfassten Punkten der Messkampagne die Richtung, in der die gewählte Messart ansteigt. Bei weniger als 4 Punkten wird die Schätzung als unzuverlässig gekennzeichnet. Erfassen Sie weitere Punkte an verschiedenen Stellen des Suchgebiets.</li>
+</ul>
+
+<h2 id="m13">13. Abschließen, Export und Import</h2>
+<ul>
+<li><strong>Close survey:</strong> das Protokoll zeigt dann das Datum als Endzeit. Punkte werden nicht gesperrt und lassen sich weiter bearbeiten.</li>
+<li><strong>Export protocol:</strong> erstellt ein Word-Protokoll mit Punktliste und angehängten Bildern. Es wird als ZIP-Datei geliefert, die das Dokument und einen Ordner mit den Fotos enthält.</li>
+<li><strong>Export points (data, JSON):</strong> eine Datendatei, die eine andere RadRecon-Installation importieren kann.</li>
+<li><strong>Export points (table, CSV):</strong> eine Tabelle für Excel mit Position, Genauigkeit, Messgerät, Zeitstempel, Probenahme, Notizen, geschätzter Aktivität, zugeordneten Quellen und berechneter Dosisleistung.</li>
+<li><strong>Import points (JSON):</strong> lädt Punkte aus einer JSON-Datei. Fehlende Messgeräte und Quellen werden angelegt, Punkte ohne gültige GPS-Position oder mit unbekannter Messart werden mit einer Warnung übersprungen.</li>
+</ul>
+<p>Beim Import einer CSV-Datei in die Liste der Messgeräte, Quellen oder Personen wählen Sie, was mit einem übereinstimmenden Datensatz geschieht: <strong>Replace existing record</strong>, <strong>Skip matching record</strong> oder <strong>Import as a duplicate</strong>.</p>
+
+<h2 id="m14">14. Fehlerbehebung</h2>
+<ul>
+<li><strong>Keine GPS-Position:</strong> prüfen Sie, ob die Ortungsdienste eingeschaltet sind und RadRecon den Standort nutzen darf, und drücken Sie dann <strong>Refresh GPS</strong>. In Gebäuden kann die Genauigkeit schlecht sein, der Genauigkeitsradius wird mit dem Punkt gespeichert.</li>
+<li><strong>Modbus-Abfrage schlägt fehl:</strong> prüfen Sie, ob Telefon und Messgerät im selben WLAN sind und ob IP-Adresse, Port, Unit ID und Registeradresse stimmen.</li>
+<li><strong>Kein Kartenhintergrund:</strong> die Kartenkacheln benötigen eine Internetverbindung.</li>
+<li><strong>Keine Ablaufbenachrichtigungen:</strong> schalten Sie sie in den Einstellungen ein und erlauben Sie Benachrichtigungen für RadRecon in den Telefoneinstellungen.</li>
+</ul>
+<p>Bleibt ein Problem bestehen, schreiben Sie an <a href="mailto:info@radrecon.hu">info@radrecon.hu</a>.</p>
+
+<h2 id="m15">15. Wichtiger Hinweis</h2>
+<p>RadRecon ist ein Hilfsmittel für Dokumentation und Berechnung, kein Messgerät. Berechnete Werte und die Richtung der Quellensuche dienen nur als Anhaltspunkt. Prüfen Sie sie für offizielle Unterlagen anhand einer maßgeblichen Quelle und befolgen Sie die Anweisungen Ihres Strahlenschutzbeauftragten. Siehe <a href="../../terms/de/terms.html">Nutzungsbedingungen</a>.</p>
+
+      </div>
+    </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2026 RadRecon. Quellcode unter der <a href="https://github.com/rundhall/RadRecon/blob/main/LICENSE" target="_blank" rel="noopener">Apache License 2.0</a>.</p>
+      <div class="footer-links">
+        <a href="../../privacy/de/privacy.html">Datenschutzerklärung</a>
+        <a href="../../delete-account/de/delete-account.html">Daten löschen</a>
+        <a href="../../terms/de/terms.html">Nutzungsbedingungen</a>
+        <a href="../../user_manual/de/manual.html">Benutzerhandbuch</a>
+        <a href="../../contact/de/contact.html">Kontakt</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../script.js"></script>
+  <script>
+    const select = document.getElementById('language-select');
+    if (select) {
+      const m = window.location.pathname.match(/\/(en|hu|de|fr|it|es)(?:\/|$)/);
+      const currentLang = m ? m[1] : (document.documentElement.lang || 'en').split('-')[0].toLowerCase();
+      document.documentElement.lang = currentLang;
+      select.value = currentLang;
+      select.addEventListener('change', (e) => {
+        const next = e.target.value;
+        if (!next || next === currentLang) return;
+        window.location.href = '../' + next + '/manual.html';
+      });
+    }
+  </script>
+</body>
+</html>

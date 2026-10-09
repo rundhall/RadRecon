@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informativa sulla privacy RadRecon</title>
+  <meta name="description" content="RadRecon conserva i rilievi localmente sul dispositivo su cui vengono inseriti. Non serve un account e il database locale non viene caricato su un cloud o backend RadRecon.">
+  <link rel="icon" type="image/png" href="../../pics/logo.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="../../it/index.html" class="logo" aria-label="RadRecon"><img src="../../pics/logo.png" alt="RadRecon" style="height: 36px; vertical-align: middle;"><span class="logo-text">RadRecon</span></a>
+      <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav>
+        <a href="../../it/index.html#features">Funzionalità</a>
+        <a href="../../it/index.html#how-it-works">Come funziona</a>
+        <a href="../../it/index.html#screenshots">Schermate</a>
+        <a href="../../it/index.html#audience">Per chi è</a>
+        <a href="../../it/index.html#faq">FAQ</a>
+        <a href="../../it/index.html#cta" class="btn btn-primary">Inizia</a>
+        <div class="lang-switch"><select id="language-select" aria-label="Language"><option value="en">EN</option><option value="hu">HU</option><option value="de">DE</option><option value="fr">FR</option><option value="it" selected>IT</option><option value="es">ES</option></select></div>
+      </nav>
+    </div>
+  </header>
+  <main class="legal-page">
+    <div class="container">
+      <h1>Informativa sulla privacy RadRecon</h1>
+      <p>RadRecon conserva i rilievi localmente sul dispositivo su cui vengono inseriti. Non serve un account e il database locale non viene caricato su un cloud o backend RadRecon.</p>
+      <h2>Informazioni memorizzate sul dispositivo</h2>
+      <p>I dati possono includere sessioni, valori e unità, date, note, coordinate e precisione GPS, dettagli di strumenti e sorgenti e impostazioni. La posizione viene usata solo con autorizzazione e quando serve a una funzione.</p>
+      <h2>Archiviazione e conservazione</h2>
+      <p>L’app usa un database SQLite locale. I dati restano sul dispositivo finché non li elimini o cancelli i dati dell’app. I backup del sistema possono copiare i dati secondo le impostazioni del dispositivo. Esportazioni e backup possono restare separatamente.</p>
+      <h2>Connessioni di rete</h2>
+      <p>Quando viene mostrata una mappa, OpenStreetMap può ricevere indirizzo IP, coordinate dei tasselli richiesti e normali dati della richiesta; le coordinate possono indicare l’area visualizzata. Uno strumento Modbus/TCP configurato comunica all’indirizzo scelto. Posizione, notifiche, selezione e condivisione file usano i servizi del sistema operativo.</p>
+      <h2>Esportazioni e scelte</h2>
+      <p>L’app non include SDK di analisi o pubblicità e non invia misure allo sviluppatore. Scegli tu dove salvare o condividere i file esportati. App, destinatari, mappe, strumenti e piattaforme esterni seguono le proprie regole.</p>
+      <h2>Diritti e contatti</h2>
+      <p>Puoi consultare, modificare, esportare o eliminare i dati con le funzioni dell’app e le impostazioni del dispositivo, e revocare il permesso di posizione. Domande: info@radrecon.hu.</p>
+      <p><a href="https://operations.osmfoundation.org/policies/tiles/">OpenStreetMap tile usage policy</a></p>
+    </div>
+  </main>
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2026 RadRecon.</p>
+      <div class="footer-links"><a href="../../privacy/it/privacy.html">Privacy</a><a href="../../terms/it/terms.html">Condizioni</a><a href="../../user_manual/it/manual.html">Guida</a><a href="../../delete-account/it/delete-account.html">Rimuovi dati</a><a href="../../contact/it/contact.html">Contatti</a></div>
+    </div>
+  </footer>
+  <script src="../../script.js"></script>
+  <script>
+    const select = document.getElementById('language-select');
+    if (select) {
+      select.addEventListener('change', (e) => {
+        const next = e.target.value;
+        if (!next || next === 'it') return;
+        window.location.href = '../' + next + '/privacy.html';
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manuale utente di RadRecon</title>
+  <meta name="description" content="Manuale utente dell’app di rilevamenti radiologici RadRecon.">
+  <link rel="alternate" hreflang="en" href="../../user_manual/en/manual.html">
+  <link rel="alternate" hreflang="hu" href="../../user_manual/hu/manual.html">
+  <link rel="alternate" hreflang="de" href="../../user_manual/de/manual.html">
+  <link rel="alternate" hreflang="fr" href="../../user_manual/fr/manual.html">
+  <link rel="alternate" hreflang="it" href="../../user_manual/it/manual.html">
+  <link rel="alternate" hreflang="es" href="../../user_manual/es/manual.html">
+  <link rel="icon" type="image/png" href="../../pics/logo.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="../../it/index.html" class="logo" aria-label="RadRecon"><img src="../../pics/logo.png" alt="RadRecon" style="height: 36px; vertical-align: middle;"><span class="logo-text">RadRecon</span></a>
+      <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav>
+        <a href="../../it/index.html#features">Funzionalità</a>
+        <a href="../../it/index.html#how-it-works">Come funziona</a>
+        <a href="../../it/index.html#screenshots">Schermate</a>
+        <a href="../../it/index.html#audience">Per chi è</a>
+        <a href="../../it/index.html#faq">FAQ</a>
+        <a href="../../it/index.html#cta" class="btn btn-primary">Inizia</a>
+        <div class="lang-switch"><select id="language-select" aria-label="Language"><option value="en">EN</option><option value="hu">HU</option><option value="de">DE</option><option value="fr">FR</option><option value="it" selected>IT</option><option value="es">ES</option></select></div>
+      </nav>
+    </div>
+  </header>
+
+    <main class="legal-page">
+      <div class="container">
+
+<h1>Manuale utente di RadRecon</h1>
+<p>Ultimo aggiornamento: 03/10/2026</p>
+<p>L’app è disponibile in inglese e ungherese. In questo manuale i nomi dei pulsanti e delle voci di menu sono in grassetto e corrispondono alla versione inglese dell’app.</p>
+
+<h2>Indice</h2>
+<ol>
+<li><a href="#m1">Introduzione</a></li>
+<li><a href="#m2">Schermata principale e impostazioni</a></li>
+<li><a href="#m3">Strumenti</a></li>
+<li><a href="#m4">Sorgenti radioattive</a></li>
+<li><a href="#m5">Persone</a></li>
+<li><a href="#m6">Dosi</a></li>
+<li><a href="#m7">Cambiare azienda</a></li>
+<li><a href="#m8">Avviare un rilevamento</a></li>
+<li><a href="#m9">Registrare un punto di misura</a></li>
+<li><a href="#m10">Sorgenti su un punto</a></li>
+<li><a href="#m11">Mappa</a></li>
+<li><a href="#m12">Strumenti di lavoro</a></li>
+<li><a href="#m13">Chiusura, esportazione e importazione</a></li>
+<li><a href="#m14">Risoluzione dei problemi</a></li>
+<li><a href="#m15">Avviso importante</a></li>
+</ol>
+
+<h2 id="m1">1. Introduzione</h2>
+<p>RadRecon registra rilevamenti radiologici sul campo. Ogni punto di misura porta la sua posizione GPS, l’ora, lo strumento, il valore e l’unità, e facoltativamente una foto e una nota. I punti di un rilevamento sono mostrati su una mappa e possono essere esportati come verbale Word, JSON o CSV.</p>
+<p>L’app funziona su Android, iPhone, Windows, macOS e Linux. Tutti i dati sono memorizzati sul dispositivo. Non ci sono account né registrazione. La connessione a internet serve solo per lo sfondo della mappa e, se li usate, per gli strumenti in rete.</p>
+
+<h2 id="m2">2. Schermata principale e impostazioni</h2>
+<p>La schermata principale elenca i vostri rilevamenti, dal più recente. Usate <strong>New survey</strong> per aggiungerne uno. La barra superiore dà accesso a strumenti, sorgenti radioattive, persone e impostazioni. Gli elenchi di strumenti, sorgenti e persone hanno un campo di ricerca.</p>
+<h3>Impostazioni</h3>
+<ul>
+<li><strong>Language:</strong> inglese, ungherese o la lingua del telefono.</li>
+<li><strong>Appearance:</strong> tema chiaro, scuro o di sistema.</li>
+<li><strong>Alert thresholds:</strong> un limite per ogni tipo di misura. Quando un valore registrato lo raggiunge o lo supera, l’app avvisa con un suono e una finestra. Lasciate vuoto un campo per non avere allarmi su quel tipo.</li>
+<li><strong>Expiry notifications:</strong> disattivate per impostazione predefinita. Se attivate, l’app ricorda alle 8:00 le prossime scadenze di sorgenti (vita utile, controllo) e persone (visita medica, formazione). Scegliete l’anticipo: il giorno stesso, 1 giorno, 2 giorni o 1 settimana prima. Le notifiche devono essere consentite nelle impostazioni del telefono.</li>
+<li><strong>Switch company:</strong> apre il selettore di azienda, vedere la sezione 7.</li>
+<li><strong>Save database to file / Load database from file:</strong> salva tutti i dati in un file di backup o carica un file del genere, ad esempio su un nuovo telefono. Il caricamento sovrascrive tutti i dati sul dispositivo.</li>
+<li><strong>Clear database:</strong> elimina definitivamente dal dispositivo tutti i rilevamenti, punti, strumenti, sorgenti, persone e foto. Fate prima un backup.</li>
+<li><strong>Contributors:</strong> ringraziamenti ai volontari e alle organizzazioni che aiutano a costruire RadRecon, e come unirsi a loro.</li>
+</ul>
+
+<h2 id="m3">3. Strumenti</h2>
+<p>Aggiungete i vostri strumenti una sola volta e selezionateli quando registrate i punti. Aprite l’elenco degli strumenti e premete <strong>New instrument</strong>.</p>
+<ul>
+<li><strong>Instrument name / type</strong> (obbligatorio), <strong>Serial number</strong>, <strong>Last calibration date</strong> e <strong>Calibration factor</strong>.</li>
+<li><strong>Reachable over WiFi Modbus/TCP:</strong> attivate l’opzione e inserite indirizzo IP o host, porta (ad esempio 502), Modbus Unit ID (indirizzo slave) e indirizzo del registro (registro di holding iniziale del valore misurato, float32).</li>
+</ul>
+<p>Eliminando uno strumento le misure passate restano; viene rimosso solo il riferimento allo strumento. Dal menu dell’elenco si possono importare ed esportare gli strumenti in CSV.</p>
+
+<h2 id="m4">4. Sorgenti radioattive</h2>
+<p>Le sorgenti sono conservate in un registro che si apre dalla schermata principale, inserite una volta sola e associate ai punti di misura quando serve. Una sorgente ha:</p>
+<ul>
+<li>un identificativo univoco e il nuclide (dall’elenco o inserito a mano);</li>
+<li>attività alla fabbricazione (MBq) ed errore di attività (±%);</li>
+<li>data di fabbricazione, scadenza della vita utile e data del prossimo controllo.</li>
+</ul>
+<p>Per i nuclidi noti l’app memorizza il tempo di dimezzamento e la costante gamma e calcola l’attività attuale. Per un nuclide sconosciuto i dati si possono salvare, ma il confronto viene saltato. Dal menu dell’elenco si possono importare ed esportare le sorgenti in CSV.</p>
+
+<h2 id="m5">5. Persone</h2>
+<p>Il registro delle persone contiene il personale che partecipa ai rilevamenti: nome, scadenza della visita medica e scadenza della formazione. All’interno di un rilevamento aprite l’icona delle persone e usate <strong>Assign person</strong> per aggiungerle a quel rilevamento. Rimuovere una persona da un rilevamento la lascia nel registro. Eliminarla dal registro la toglie anche da ogni rilevamento. Dal menu dell’elenco si possono importare ed esportare le persone in CSV.</p>
+
+<h2 id="m6">6. Dosi</h2>
+<p>RadRecon può tenere la dose di ogni persona. Le dosi sono salvate in µSv. L’elenco delle persone mostra la dose annuale di ciascuna, suddivisa per fonte, e ha un selettore <strong>Year</strong>.</p>
+<ul>
+<li><strong>Online (from detector):</strong> durante la registrazione automatica da uno strumento collegato via Modbus, l’app integra nel tempo il rateo di dose misurato. All’arresto della registrazione, la dose viene salvata per le persone assegnate al rilevamento. Funziona solo con misure di rateo di dose, e l’app segnala eventuali lacune di dati più lunghe. Se al rilevamento non è assegnata nessuna persona, la dose non viene salvata.</li>
+<li><strong>Manual:</strong> in un rilevamento aprite l’icona delle persone e toccate una persona per inserire o correggere la dose online e manuale per quel rilevamento.</li>
+<li><strong>Passive dosimetry:</strong> risultati di una valutazione mensile o bimestrale, indipendenti da qualsiasi rilevamento. Nell’elenco delle persone premete <strong>Manage doses</strong> accanto alla persona, poi <strong>Add passive dosimetry</strong>, e inserite la dose con <strong>Evaluation period start</strong> ed <strong>Evaluation period end</strong>. La dose conta per l’anno in cui termina il periodo.</li>
+</ul>
+<p>Alla chiusura di un rilevamento, <strong>Review doses</strong> permette di correggere la dose di ogni partecipante prima di chiudere. La schermata delle dosi di una persona elenca tutte le voci dell’anno con il totale, e ogni voce può essere modificata o eliminata. Con <strong>Import doses (CSV)</strong> ed <strong>Export doses (CSV)</strong> nel menu dell’elenco delle persone importate ed esportate le dosi.</p>
+<p>I valori di dose supportano la tenuta dei vostri registri e non sostituiscono la dosimetria personale ufficiale. Confrontateli con i risultati del vostro servizio di dosimetria autorizzato.</p>
+
+<h2 id="m7">7. Cambiare azienda</h2>
+<p>Se lavorate per più aziende, potete tenere separati i dati di ciascuna. Aprite le impostazioni e premete <strong>Switch company</strong>. La schermata mostra la <strong>Active company</strong> e l’elenco delle aziende salvate.</p>
+<ul>
+<li><strong>Switch:</strong> scegliete un’azienda dall’elenco e confermate. Prima di caricare l’altra azienda, i dati attuali vengono salvati automaticamente sotto l’azienda attiva, quindi non si perde nulla.</li>
+<li><strong>New company:</strong> crea un’azienda vuota con il nome inserito.</li>
+<li><strong>Add company from backup file:</strong> aggiunge un’azienda da un file di backup, ad esempio quando passate a un nuovo telefono.</li>
+<li>Eliminare il backup di un’azienda lo rimuove dalla cartella. I dati attualmente caricati non vengono toccati.</li>
+<li><strong>Choose folder:</strong> per impostazione predefinita le aziende sono in una cartella privata dell’app, inaccessibile alle altre app. Scegliete una cartella come Download o un archivio cloud per raggiungere i backup dal gestore file, e annullate con <strong>Back to default folder</strong>.</li>
+</ul>
+<p>Ogni azienda è salvata come un unico file di backup con database e foto.</p>
+
+<h2 id="m8">8. Avviare un rilevamento</h2>
+<ol>
+<li>Nella schermata principale premete <strong>New survey</strong>.</li>
+<li>Inserite il nome e, facoltativamente, il luogo. Se lasciate vuoto il nome, l’app propone “Survey – data”.</li>
+<li>Premete <strong>Start</strong>. Il rilevamento si apre con un elenco di punti vuoto.</li>
+</ol>
+<p>Nome e luogo si possono modificare in seguito con l’icona di modifica, ed è lì che assegnate il personale partecipante.</p>
+
+<h2 id="m9">9. Registrare un punto di misura</h2>
+<p>Nel rilevamento premete <strong>New point</strong>.</p>
+<ul>
+<li><strong>Measurement type:</strong> rateo di dose, contaminazione superficiale, conteggi (cps), conteggi neutronici (cps) o campionamento.</li>
+<li><strong>Location name, Measured value e Unit.</strong> Ogni tipo ha un’unità predefinita.</li>
+<li><strong>Distance from source</strong> e <strong>Nuclide</strong>, da cui l’app ricava una stima rapida dell’attività dal valore misurato.</li>
+<li><strong>Instrument:</strong> sceglietene uno dall’elenco o aggiungetene uno nuovo con il pulsante più. Per uno strumento Modbus usate <strong>Modbus query</strong> per leggere direttamente il valore.</li>
+<li><strong>Position:</strong> latitudine e longitudine, con <strong>Live GPS</strong> per acquisire la posizione attuale o <strong>On the map</strong> per sceglierla sulla mappa.</li>
+<li><strong>This is the source position (max value):</strong> contrassegna il punto con il valore più alto.</li>
+<li><strong>A physical sample was taken here:</strong> inserite ID del contenitore, quantità e metodo di campionamento.</li>
+<li><strong>Notes</strong> e una <strong>foto</strong> scattata con la fotocamera o scelta dalla galleria.</li>
+</ul>
+<p>Se il valore raggiunge o supera la soglia del suo tipo, l’app mostra l’allarme. Ogni modifica successiva a un punto viene scritta nella sua cronologia, così il valore originale resta tracciabile.</p>
+
+<h2 id="m10">10. Sorgenti su un punto</h2>
+<p>Nella schermata del punto scegliete <strong>Manage radioactive source(s)</strong> e associate sorgenti dal registro. Per ciascuna inserite la distanza dal punto di misura. L’app mostra poi:</p>
+<ul>
+<li>l’attività attuale, corretta per il decadimento fino alla data della misura;</li>
+<li>il rateo di dose calcolato di ogni sorgente e il totale di tutte le sorgenti;</li>
+<li>il rateo di dose misurato nel punto e la differenza (misurato meno calcolato).</li>
+</ul>
+<p>Le sorgenti con nuclide sconosciuto sono escluse dal totale e una vita utile scaduta è segnalata con un avviso. Se l’unità di misura non può essere convertita automaticamente, non viene fatto alcun confronto. Scollegare una sorgente rimuove solo il collegamento, non la sorgente dal registro.</p>
+
+<h2 id="m11">11. Mappa</h2>
+<p>La mappa mostra tutti i punti del rilevamento. Con l’icona della fotocamera salvate una schermata della mappa, che viene allegata all’esportazione del verbale. Dall’elenco dei punti, <strong>Save list screenshot</strong> fa lo stesso per l’elenco. Lo sfondo della mappa richiede una connessione a internet.</p>
+
+<h2 id="m12">12. Strumenti di lavoro</h2>
+<p>Gli strumenti di lavoro si trovano nel menu del rilevamento (tre puntini).</p>
+<ul>
+<li><strong>Automatic logging:</strong> registra punti da uno strumento Modbus/TCP a intervalli di tempo (almeno 1 secondo) o di distanza (almeno 1 metro). Mostra i punti registrati, l’ultimo valore e le letture fallite. La registrazione funziona solo finché questa schermata è aperta; se il telefono si blocca o passate a un’altra app, si mette in pausa e va riavviata.</li>
+<li><strong>Distance measurement:</strong> distanza e direzione dalla vostra posizione attuale o da un punto di partenza scelto fino a un punto di destinazione. Con <strong>Live tracking</strong> i valori si aggiornano mentre camminate nella direzione della freccia.</li>
+<li><strong>Isotope calculator:</strong> converte l’attività (MBq) in rateo di dose (µSv/h) a una distanza, o un rateo di dose misurato in attività. Nuclidi integrati: Co-60, Cs-137, Ir-192, Ra-226, I-131, Na-22 e Am-241.</li>
+<li><strong>Source search:</strong> stima la direzione in cui aumenta il tipo di misura scelto, dai punti già registrati nel rilevamento. Con meno di 4 punti la stima è segnalata come inaffidabile. Registrate più punti in luoghi diversi dell’area di ricerca.</li>
+</ul>
+
+<h2 id="m13">13. Chiusura, esportazione e importazione</h2>
+<ul>
+<li><strong>Close survey:</strong> il verbale mostra poi la data come ora di fine. I punti non vengono bloccati e restano modificabili.</li>
+<li><strong>Export protocol:</strong> crea un verbale Word con l’elenco dei punti e le immagini allegate. Viene consegnato come file ZIP che contiene il documento e una cartella con le foto.</li>
+<li><strong>Export points (data, JSON):</strong> un file di dati che un’altra installazione di RadRecon può importare.</li>
+<li><strong>Export points (table, CSV):</strong> una tabella per Excel con posizione, precisione, strumento, data e ora, campionamento, note, attività stimata, sorgenti associate e rateo di dose calcolato.</li>
+<li><strong>Import points (JSON):</strong> carica punti da un file JSON. Gli strumenti e le sorgenti mancanti vengono creati; i punti senza posizione GPS valida o con tipo di misura sconosciuto vengono saltati con un avviso.</li>
+</ul>
+<p>Quando importate un CSV nell’elenco di strumenti, sorgenti o persone, scegliete cosa fare con un record corrispondente: <strong>Replace existing record</strong>, <strong>Skip matching record</strong> o <strong>Import as a duplicate</strong>.</p>
+
+<h2 id="m14">14. Risoluzione dei problemi</h2>
+<ul>
+<li><strong>Nessuna posizione GPS:</strong> verificate che i servizi di localizzazione siano attivi e che RadRecon possa usare la posizione, poi premete <strong>Refresh GPS</strong>. Al chiuso la precisione può essere scarsa; il raggio di precisione viene salvato con il punto.</li>
+<li><strong>La richiesta Modbus non riesce:</strong> verificate che telefono e strumento siano sulla stessa rete WiFi e che indirizzo IP, porta, Unit ID e indirizzo del registro siano corretti.</li>
+<li><strong>Nessuno sfondo della mappa:</strong> i riquadri della mappa richiedono una connessione a internet.</li>
+<li><strong>Nessuna notifica di scadenza:</strong> attivatele nelle impostazioni e consentite le notifiche di RadRecon nelle impostazioni del telefono.</li>
+</ul>
+<p>Se il problema persiste, scrivete a <a href="mailto:info@radrecon.hu">info@radrecon.hu</a>.</p>
+
+<h2 id="m15">15. Avviso importante</h2>
+<p>RadRecon è un ausilio per la documentazione e il calcolo, non uno strumento di misura. I valori calcolati e la direzione della ricerca della sorgente sono solo orientativi. Verificateli su una fonte autorevole per i documenti ufficiali e seguite le istruzioni del vostro esperto di radioprotezione. Vedi i <a href="../../terms/it/terms.html">Termini e condizioni</a>.</p>
+
+      </div>
+    </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2026 RadRecon. Codice sorgente con <a href="https://github.com/rundhall/RadRecon/blob/main/LICENSE" target="_blank" rel="noopener">licenza Apache 2.0</a>.</p>
+      <div class="footer-links">
+        <a href="../../privacy/it/privacy.html">Informativa sulla privacy</a>
+        <a href="../../delete-account/it/delete-account.html">Elimina i tuoi dati</a>
+        <a href="../../terms/it/terms.html">Termini e condizioni</a>
+        <a href="../../user_manual/it/manual.html">Manuale utente</a>
+        <a href="../../contact/it/contact.html">Contatti</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../script.js"></script>
+  <script>
+    const select = document.getElementById('language-select');
+    if (select) {
+      const m = window.location.pathname.match(/\/(en|hu|de|fr|it|es)(?:\/|$)/);
+      const currentLang = m ? m[1] : (document.documentElement.lang || 'en').split('-')[0].toLowerCase();
+      document.documentElement.lang = currentLang;
+      select.value = currentLang;
+      select.addEventListener('change', (e) => {
+        const next = e.target.value;
+        if (!next || next === currentLang) return;
+        window.location.href = '../' + next + '/manual.html';
+      });
+    }
+  </script>
+</body>
+</html>

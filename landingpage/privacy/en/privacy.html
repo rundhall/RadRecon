@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RadRecon Privacy Policy</title>
+  <meta name="description" content="RadRecon stores survey records locally on the device where they are entered. The App does not require an account and does not upload the local survey database to a RadRecon cloud service or backend.">
+  <link rel="icon" type="image/png" href="../../pics/logo.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="../../en/index.html" class="logo" aria-label="RadRecon"><img src="../../pics/logo.png" alt="RadRecon" style="height: 36px; vertical-align: middle;"><span class="logo-text">RadRecon</span></a>
+      <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav>
+        <a href="../../en/index.html#features">Features</a>
+        <a href="../../en/index.html#how-it-works">How It Works</a>
+        <a href="../../en/index.html#screenshots">Screenshots</a>
+        <a href="../../en/index.html#audience">Who It's For</a>
+        <a href="../../en/index.html#faq">FAQ</a>
+        <a href="../../en/index.html#cta" class="btn btn-primary">Get Started</a>
+        <div class="lang-switch"><select id="language-select" aria-label="Language"><option value="en" selected>EN</option><option value="hu">HU</option><option value="de">DE</option><option value="fr">FR</option><option value="it">IT</option><option value="es">ES</option></select></div>
+      </nav>
+    </div>
+  </header>
+  <main class="legal-page">
+    <div class="container">
+      <h1>RadRecon Privacy Policy</h1>
+      <p>RadRecon stores survey records locally on the device where they are entered. The App does not require an account and does not upload the local survey database to a RadRecon cloud service or backend.</p>
+      <h2>Information stored on the device</h2>
+      <p>Records can include survey sessions, measurement values and units, timestamps, notes, GPS coordinates and accuracy, instrument and radiation-source details, and app settings. Location is accessed only after permission is granted and when you use a feature that needs it.</p>
+      <h2>Storage and retention</h2>
+      <p>The App uses a local SQLite database. Records remain on the device until you delete them or clear the App data. Operating-system backups may copy app data according to your device settings. Exported copies and backups may remain separately.</p>
+      <h2>Network connections</h2>
+      <p>When a map is displayed, OpenStreetMap may receive your IP address, requested tile coordinates and standard request information; tile coordinates can indicate the map area viewed. A configured Modbus/TCP instrument receives communications from the App at the address you provide. Location, notifications, file selection and sharing use operating-system services.</p>
+      <h2>Exports and your choices</h2>
+      <p>The App has no analytics or advertising SDK and does not send measurement records to its developer. You choose where exported files are saved or shared. Other apps, recipients, map providers, instrument owners and platform providers apply their own policies.</p>
+      <h2>Your rights and contact</h2>
+      <p>You can view, edit, export or delete records using available app functions and device settings, and can deny or revoke location permission in your operating-system settings. For questions about this policy, contact info@radrecon.hu.</p>
+      <p><a href="https://operations.osmfoundation.org/policies/tiles/">OpenStreetMap tile usage policy</a></p>
+    </div>
+  </main>
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2026 RadRecon.</p>
+      <div class="footer-links"><a href="../../privacy/en/privacy.html">Privacy Policy</a><a href="../../terms/en/terms.html">Terms</a><a href="../../user_manual/en/manual.html">User Guide</a><a href="../../delete-account/en/delete-account.html">Remove data</a><a href="../../contact/en/contact.html">Contact</a></div>
+    </div>
+  </footer>
+  <script src="../../script.js"></script>
+  <script>
+    const select = document.getElementById('language-select');
+    if (select) {
+      select.addEventListener('change', (e) => {
+        const next = e.target.value;
+        if (!next || next === 'en') return;
+        window.location.href = '../' + next + '/privacy.html';
+      });
+    }
+  </script>
+</body>
+</html>

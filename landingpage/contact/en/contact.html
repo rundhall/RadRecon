@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact RadRecon Support</title>
+  <meta name="description" content="For questions about RadRecon or this website, contact the publisher by email.">
+  <link rel="icon" type="image/png" href="../../pics/logo.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="../../en/index.html" class="logo" aria-label="RadRecon"><img src="../../pics/logo.png" alt="RadRecon" style="height: 36px; vertical-align: middle;"><span class="logo-text">RadRecon</span></a>
+      <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav>
+        <a href="../../en/index.html#features">Features</a>
+        <a href="../../en/index.html#how-it-works">How It Works</a>
+        <a href="../../en/index.html#screenshots">Screenshots</a>
+        <a href="../../en/index.html#audience">Who It's For</a>
+        <a href="../../en/index.html#faq">FAQ</a>
+        <a href="../../en/index.html#cta" class="btn btn-primary">Get Started</a>
+        <div class="lang-switch"><select id="language-select" aria-label="Language"><option value="en" selected>EN</option><option value="hu">HU</option><option value="de">DE</option><option value="fr">FR</option><option value="it">IT</option><option value="es">ES</option></select></div>
+      </nav>
+    </div>
+  </header>
+  <main class="legal-page">
+    <div class="container">
+      <h1>Contact RadRecon Support</h1>
+      <p>For questions about RadRecon or this website, contact the publisher by email.</p>
+      <p><a href="mailto:info@radrecon.hu">info@radrecon.hu</a></p>
+      <h2>User guide</h2>
+      <p>For technical support, include your device and operating-system version, RadRecon version, steps to reproduce the issue and any error message. Do not send sensitive measurement data unless it is necessary.</p>
+      <h2>Privacy contact</h2>
+      <p>RadRecon stores survey records locally on the device where they are entered. The App does not require an account and does not upload the local survey database to a RadRecon cloud service or backend.</p>
+    </div>
+  </main>
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2026 RadRecon.</p>
+      <div class="footer-links"><a href="../../privacy/en/privacy.html">Privacy Policy</a><a href="../../terms/en/terms.html">Terms</a><a href="../../user_manual/en/manual.html">User Guide</a><a href="../../delete-account/en/delete-account.html">Remove data</a><a href="../../contact/en/contact.html">Contact</a></div>
+    </div>
+  </footer>
+  <script src="../../script.js"></script>
+  <script>
+    const select = document.getElementById('language-select');
+    if (select) {
+      select.addEventListener('change', (e) => {
+        const next = e.target.value;
+        if (!next || next === 'en') return;
+        window.location.href = '../' + next + '/contact.html';
+      });
+    }
+  </script>
+</body>
+</html>

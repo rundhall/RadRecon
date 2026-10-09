@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RadRecon felhasználói kézikönyv</title>
+  <meta name="description" content="Felhasználói kézikönyv a RadRecon terepi sugárzásmérési apphoz.">
+  <link rel="alternate" hreflang="en" href="../../user_manual/en/manual.html">
+  <link rel="alternate" hreflang="hu" href="../../user_manual/hu/manual.html">
+  <link rel="alternate" hreflang="de" href="../../user_manual/de/manual.html">
+  <link rel="alternate" hreflang="fr" href="../../user_manual/fr/manual.html">
+  <link rel="alternate" hreflang="it" href="../../user_manual/it/manual.html">
+  <link rel="alternate" hreflang="es" href="../../user_manual/es/manual.html">
+  <link rel="icon" type="image/png" href="../../pics/logo.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="../../hu/index.html" class="logo" aria-label="RadRecon"><img src="../../pics/logo.png" alt="RadRecon" style="height: 36px; vertical-align: middle;"><span class="logo-text">RadRecon</span></a>
+      <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav>
+        <a href="../../hu/index.html#features">Funkciók</a>
+        <a href="../../hu/index.html#how-it-works">Hogyan működik</a>
+        <a href="../../hu/index.html#screenshots">Képernyőképek</a>
+        <a href="../../hu/index.html#audience">Kinek készült</a>
+        <a href="../../hu/index.html#faq">GYIK</a>
+        <a href="../../hu/index.html#cta" class="btn btn-primary">Kezdés</a>
+        <div class="lang-switch"><select id="language-select" aria-label="Language"><option value="en">EN</option><option value="hu" selected>HU</option><option value="de">DE</option><option value="fr">FR</option><option value="it">IT</option><option value="es">ES</option></select></div>
+      </nav>
+    </div>
+  </header>
+
+    <main class="legal-page">
+      <div class="container">
+
+<h1>RadRecon felhasználói kézikönyv</h1>
+<p>Utolsó frissítés: 2026. 10. 03.</p>
+
+<h2>Tartalom</h2>
+<ol>
+<li><a href="#m1">Bevezetés</a></li>
+<li><a href="#m2">Főképernyő és beállítások</a></li>
+<li><a href="#m3">Műszerek</a></li>
+<li><a href="#m4">Sugárforrások</a></li>
+<li><a href="#m5">Személyek</a></li>
+<li><a href="#m6">Dózisok</a></li>
+<li><a href="#m7">Váltás a cégek között</a></li>
+<li><a href="#m8">Felmérés indítása</a></li>
+<li><a href="#m9">Mérési pont rögzítése</a></li>
+<li><a href="#m10">Források egy ponton</a></li>
+<li><a href="#m11">Térkép</a></li>
+<li><a href="#m12">Eszközök</a></li>
+<li><a href="#m13">Lezárás, export és import</a></li>
+<li><a href="#m14">Hibaelhárítás</a></li>
+<li><a href="#m15">Fontos tudnivaló</a></li>
+</ol>
+
+<h2 id="m1">1. Bevezetés</h2>
+<p>A RadRecon terepi sugárzásmérési felméréseket rögzít. Minden mérési pont hordozza a GPS-pozícióját, az időpontját, a műszert, az értéket és a mértékegységet, igény szerint fotót és megjegyzést. A felmérés pontjai térképen jelennek meg, és exportálhatók Word jegyzőkönyvként, JSON-ban vagy CSV-ben.</p>
+<p>Az app Androidon, iPhone-on, Windowson, macOS-en és Linuxon fut, angol és magyar nyelven. Minden adat az eszközön tárolódik. Nincs fiók és nincs regisztráció. Internetkapcsolat csak a térkép hátteréhez kell, illetve, ha használod, a hálózaton elérhető műszerekhez.</p>
+
+<h2 id="m2">2. Főképernyő és beállítások</h2>
+<p>A főképernyő a felméréseidet listázza, legfrissebb elöl. Újat az <strong>Új felmérés</strong> gombbal vehetsz fel. A felső sávból a műszerek, a sugárforrások, a személyek és a beállítások érhetők el. A műszerek, források és személyek listái keresőmezővel rendelkeznek.</p>
+<h3>Beállítások</h3>
+<ul>
+<li><strong>Nyelv:</strong> angol, magyar, vagy a telefon nyelve.</li>
+<li><strong>Megjelenés:</strong> világos, sötét vagy rendszer téma.</li>
+<li><strong>Riasztási küszöbök:</strong> mérési típusonként egy határérték. Ha egy rögzített érték eléri vagy meghaladja, az app hangjelzéssel és felugró ablakkal figyelmeztet. Üresen hagyott mező esetén az adott típusra nincs riasztás.</li>
+<li><strong>Értesítés a lejáratokról:</strong> alapból kikapcsolt. Bekapcsolva az app reggel 8:00-kor emlékeztet a források (szolgálati idő, felülvizsgálat) és a személyek (orvosi alkalmassági vizsga, oktatás) közelgő lejáratára. Megadhatod, mennyivel előbb: aznap, 1 nappal, 2 nappal vagy 1 héttel korábban. Az értesítéseket a telefon beállításaiban engedélyezni kell.</li>
+<li><strong>Cégváltás:</strong> megnyitja a cégváltót, lásd a 7. fejezetet.</li>
+<li><strong>Adatbázis mentése fájlba / Adatbázis betöltése fájlból:</strong> az összes adatot egyetlen mentésfájlba menti, vagy betölt egy ilyen fájlt, például új telefonon. A betöltés felülírja az eszközön lévő összes adatot.</li>
+<li><strong>Adatbázis törlése:</strong> véglegesen töröl minden felmérést, pontot, műszert, forrást, személyt és fotót az eszközről. Előtte készíts mentést.</li>
+<li><strong>Közreműködők:</strong> köszönet az önkénteseknek és a szervezeteknek, akik segítenek a RadRecon építésében, és hogyan csatlakozhatsz hozzájuk.</li>
+</ul>
+
+<h2 id="m3">3. Műszerek</h2>
+<p>A műszereidet egyszer vedd fel, és a pontok rögzítésekor csak kiválasztod őket. Nyisd meg a műszerek listáját, és nyomd meg az <strong>Új műszer</strong> gombot.</p>
+<ul>
+<li><strong>Műszer neve / típusa</strong> (kötelező), <strong>sorozatszám</strong>, <strong>utolsó kalibráció dátuma</strong> és <strong>kalibrációs tényező</strong>.</li>
+<li><strong>WiFi Modbus/TCP-n elérhető:</strong> kapcsold be, és add meg az IP-címet vagy hostot, a portot (például 502), a Modbus Unit ID-t (slave cím) és a regiszter címét (a mért érték kezdő holding regisztere, float32).</li>
+</ul>
+<p>A műszer törlésekor a korábbi mérések megmaradnak, csak a műszerre való hivatkozás törlődik belőlük. A lista menüjéből a műszerek CSV-ben importálhatók és exportálhatók.</p>
+
+<h2 id="m4">4. Sugárforrások</h2>
+<p>A források nyilvántartása a főképernyőről nyitható meg, a forrásokat egyszer kell felvenni, és szükség szerint a mérési pontokhoz rendelhetők. Egy forrás adatai:</p>
+<ul>
+<li>egyedi azonosító és a nuklid (listából vagy kézzel megadva);</li>
+<li>gyártáskori aktivitás (MBq) és az aktivitás hibája (±%);</li>
+<li>gyártás dátuma, szolgálati idő lejárata és következő felülvizsgálat dátuma.</li>
+</ul>
+<p>Ismert nuklidoknál az app tárolja a felezési időt és a gamma-állandót, és kiszámolja az aktuális aktivitást. Ismeretlen nuklidnál az adatok menthetők, de az összevetés kimarad. A lista menüjéből a források CSV-ben importálhatók és exportálhatók.</p>
+
+<h2 id="m5">5. Személyek</h2>
+<p>A személyek nyilvántartása a felmérésekben részt vevő munkatársakat tartalmazza: név, orvosi alkalmassági vizsga lejárata és oktatás lejárata. Egy felmérésen belül a személyek ikonjával nyisd meg a listát, és a <strong>Személy hozzárendelése</strong> gombbal add őket az adott felméréshez. Ha egy személyt eltávolítasz a felmérésből, a nyilvántartásban megmarad. Ha a nyilvántartásból törlöd, minden felmérésből is kikerül. A lista menüjéből a személyek CSV-ben importálhatók és exportálhatók.</p>
+
+<h2 id="m6">6. Dózisok</h2>
+<p>A RadRecon személyenként nyilvántartja a dózisokat. A dózisok µSv-ben tárolódnak. A személyek listája mutatja mindenki éves dózisát forrás szerinti bontásban, és van <strong>Év</strong> választó.</p>
+<ul>
+<li><strong>Online (detektorból):</strong> Modbus-szal csatlakoztatott műszerről történő automatikus naplózás közben az app időben integrálja a mért dózisteljesítményt. A naplózás leállításakor a dózis elmentődik a felméréshez rendelt személyeknek. Ez csak dózisteljesítmény-mérésnél működik, és az app jelzi, ha hosszabb adatkiesés volt. Ha a felméréshez nincs személy rendelve, a dózis nem mentődik.</li>
+<li><strong>Manuális:</strong> a felmérésen belül nyisd meg a személyek ikont, és koppints egy személyre, hogy az adott felméréshez megadd vagy javítsd az online és a manuális dózisát.</li>
+<li><strong>Passzív dozimetria:</strong> havi vagy kéthavi kiértékelés eredménye, felméréstől függetlenül. A személyek listáján nyomd meg a személynél a <strong>Dózisok kezelése</strong> ikont, majd a <strong>Passzív dozimetria rögzítése</strong> gombot, és add meg a dózist a <strong>Kiértékelési időszak kezdete</strong> és a <strong>Kiértékelési időszak vége</strong> mezőkkel. A dózis abba az évbe számít, amelyben az időszak véget ér.</li>
+</ul>
+<p>Felmérés lezárásakor a <strong>Dózisok ellenőrzése</strong> lehetővé teszi, hogy lezárás előtt javítsd minden résztvevő dózisát. A személy dózis-képernyője az év összes bejegyzését listázza összesítéssel, és minden bejegyzés szerkeszthető vagy törölhető. A személyek listájának menüjében a <strong>Dózisok importálása (CSV)</strong> és az <strong>Dózisok exportálása (CSV)</strong> menüponttal viheted be és ki a dózisokat.</p>
+<p>A dózisadatok a nyilvántartás vezetését segítik, a hivatalos személyi dozimetriát nem helyettesítik. Vesd össze őket a jóváhagyott dozimetriai szolgáltatód eredményeivel.</p>
+
+<h2 id="m7">7. Váltás a cégek között</h2>
+<p>Ha több cégnél dolgozol, az egyes cégek adatait külön tarthatod. Nyisd meg a beállításokat, és nyomd meg a <strong>Cégváltás</strong> gombot. A képernyő az <strong>Aktív cég</strong>et és a mentett cégek listáját mutatja.</p>
+<ul>
+<li><strong>Váltás:</strong> válassz egy céget a listából, és hagyd jóvá. A másik cég betöltése előtt az aktuális adatok automatikusan elmentődnek az aktív cég alá, így semmi nem vész el.</li>
+<li><strong>Új cég:</strong> üres céget hoz létre a megadott névvel.</li>
+<li><strong>Cég hozzáadása mentésfájlból:</strong> mentésfájlból ad hozzá egy céget, például új telefonra költözéskor.</li>
+<li>Egy cég mentésének törlése eltávolítja a mentést a mappából. A most betöltött adatokat nem érinti.</li>
+<li><strong>Mappa kiválasztása:</strong> alapból a cégek az app saját, más appok számára elérhetetlen mappájában vannak. Válassz egy mappát (például Letöltések vagy felhőtárhely), hogy a fájlkezelőből elérd a mentéseket, és a <strong>Vissza az alapértelmezett mappához</strong> gombbal állítsd vissza.</li>
+</ul>
+<p>Minden cég egyetlen mentésfájlként tárolódik az adatbázisával és a fotóival.</p>
+
+<h2 id="m8">8. Felmérés indítása</h2>
+<ol>
+<li>A főképernyőn nyomd meg az <strong>Új felmérés</strong> gombot.</li>
+<li>Add meg a nevet és igény szerint a helyszínt. Ha a nevet üresen hagyod, az app a „Felmérés – dátum” címet javasolja.</li>
+<li>Nyomd meg az <strong>Indítás</strong> gombot. A felmérés üres pontlistával nyílik meg.</li>
+</ol>
+<p>A név és a helyszín később a szerkesztés ikonnal módosítható, itt rendelheted hozzá a mérésben részt vevő személyeket is.</p>
+
+<h2 id="m9">9. Mérési pont rögzítése</h2>
+<p>A felmérésben nyomd meg az <strong>Új pont</strong> gombot.</p>
+<ul>
+<li><strong>Mérés típusa:</strong> dózisteljesítmény, felületi szennyezettség, beütésszám (cps), neutron beütésszám (cps) vagy mintavétel.</li>
+<li><strong>Helyszín neve, mért érték és mértékegység.</strong> Minden típushoz tartozik alapértelmezett mértékegység.</li>
+<li><strong>Távolság a forrástól</strong> és <strong>nuklid</strong>, amelyekből az app gyors aktivitásbecslést ad a mért értékből.</li>
+<li><strong>Műszer:</strong> válassz a listádból, vagy vegyél fel újat a plusz gombbal. Modbus-műszernél a <strong>Modbus lekérdezés</strong> gombbal közvetlenül beolvashatod az értéket.</li>
+<li><strong>Pozíció:</strong> szélesség és hosszúság, az <strong>Élő GPS</strong> gombbal a jelenlegi pozíció, a <strong>Térképen</strong> gombbal a térképen kijelölt pozíció vehető fel.</li>
+<li><strong>Ez a forrás pozíció (max. érték):</strong> a legnagyobb mérési értékű pont megjelölése.</li>
+<li><strong>Fizikai mintavétel történt itt:</strong> add meg a tároló azonosítóját, a mennyiséget és a mintavételi módszert.</li>
+<li><strong>Megjegyzés</strong> és <strong>fotó</strong>, amelyet a kamerával készítesz vagy a galériából választasz.</li>
+</ul>
+<p>Ha az érték eléri vagy meghaladja a típusához megadott küszöböt, az app megjeleníti a riasztást. A pontok minden későbbi módosítása bekerül a módosítási előzményekbe, így az eredeti érték visszakövethető marad.</p>
+
+<h2 id="m10">10. Források egy ponton</h2>
+<p>A pont képernyőjén válaszd a <strong>Radioaktív forrás(ok) kezelése</strong> lehetőséget, és rendelj hozzá forrásokat a nyilvántartásból. Mindegyikhez add meg a mérési ponttól mért távolságát. Az app ezután megjeleníti:</p>
+<ul>
+<li>az aktuális aktivitást, a mérés dátumáig bomlásra korrigálva;</li>
+<li>az egyes források számított dózisteljesítményét és az összes forrás összegét;</li>
+<li>a ponton mért dózisteljesítményt és a különbséget (mért mínusz számított).</li>
+</ul>
+<p>Az ismeretlen nuklidú források kimaradnak az összegből, a lejárt szolgálati időt figyelmeztetés jelzi. Ha a mértékegység nem váltható át automatikusan, az összevetés elmarad. A forrás leválasztása csak a kapcsolatot szünteti meg, a forrás a nyilvántartásban marad.</p>
+
+<h2 id="m11">11. Térkép</h2>
+<p>A térkép a felmérés összes pontját mutatja. A fényképezőgép ikonnal képernyőképet menthetsz a térképről, amely a jegyzőkönyv exportálásakor csatolódik. A pontok listájáról a <strong>Lista képernyőkép mentése</strong> ugyanezt teszi a listával. A térkép hátteréhez internetkapcsolat kell.</p>
+
+<h2 id="m12">12. Eszközök</h2>
+<p>Az eszközök a felmérés menüjében (három pont) találhatók.</p>
+<ul>
+<li><strong>Automatikus mérés:</strong> egy Modbus/TCP műszerről időközönként (legalább 1 másodperc) vagy távolságközönként (legalább 1 méter) rögzít pontokat. Mutatja a rögzített pontok számát, az utolsó értéket és a sikertelen leolvasásokat. A naplózás csak addig működik, amíg ez a képernyő nyitva van. Ha a telefon zárolódik vagy másik appra váltasz, szünetel, és újra kell indítanod.</li>
+<li><strong>Távolságmérés:</strong> távolság és irány a jelenlegi pozíciódtól vagy egy választott kiindulási ponttól egy célpontig. Az <strong>Élő követés</strong> bekapcsolásakor az értékek menet közben frissülnek, a nyíl irányába haladva.</li>
+<li><strong>Izotóp kalkulátor:</strong> aktivitásból (MBq) dózisteljesítményt (µSv/h) számol adott távolságra, vagy a mért dózisteljesítményből aktivitást. Beépített nuklidok: Co-60, Cs-137, Ir-192, Ra-226, I-131, Na-22 és Am-241.</li>
+<li><strong>Forráskereső:</strong> a felmérésben már rögzített pontokból megbecsli, melyik irányban nő a kiválasztott mérési típus értéke. 4-nél kevesebb pontnál a becslés megbízhatatlanként van jelölve. Vegyél fel több pontot a keresési terület különböző helyein.</li>
+</ul>
+
+<h2 id="m13">13. Lezárás, export és import</h2>
+<ul>
+<li><strong>Lezárás:</strong> a jegyzőkönyv ezután a dátumot mutatja befejezési időként. A pontok nem záródnak le, így még szerkeszthetők.</li>
+<li><strong>Jegyzőkönyv exportálása:</strong> Word jegyzőkönyvet készít a pontlistával és a csatolt képekkel. ZIP fájlként érkezik, amely a dokumentumot és egy mappát tartalmaz a fotókkal.</li>
+<li><strong>Pontok exportálása (adat, JSON):</strong> adatfájl, amelyet egy másik RadRecon telepítés be tud importálni.</li>
+<li><strong>Pontok exportálása (táblázat, CSV):</strong> Excelhez való táblázat a pozícióval, pontossággal, műszerrel, időbélyeggel, mintavétellel, megjegyzéssel, becsült aktivitással, csatolt forrásokkal és számított dózisteljesítménnyel.</li>
+<li><strong>Pontok importálása (JSON):</strong> pontokat tölt be JSON fájlból. A hiányzó műszerek és források létrejönnek, az érvényes GPS-pozíció nélküli vagy ismeretlen mérési típusú pontok figyelmeztetéssel kimaradnak.</li>
+</ul>
+<p>Ha CSV-t importálsz a műszerek, források vagy személyek listájába, választhatod, mi történjen az egyező rekorddal: <strong>Meglévő rekord cseréje</strong>, <strong>Az egyező rekord kihagyása</strong> vagy <strong>Importálás duplikátumként</strong>.</p>
+
+<h2 id="m14">14. Hibaelhárítás</h2>
+<ul>
+<li><strong>Nincs GPS-pozíció:</strong> ellenőrizd, hogy a helyszolgáltatások be vannak kapcsolva, és a RadRecon használhatja a helyadatot, majd nyomd meg a <strong>GPS frissítése</strong> gombot. Épületben a pontosság gyenge lehet, a pontossági sugár a ponttal együtt tárolódik.</li>
+<li><strong>A Modbus lekérdezés sikertelen:</strong> ellenőrizd, hogy a telefon és a műszer ugyanazon a WiFi hálózaton van-e, és hogy az IP-cím, a port, a Unit ID és a regiszter címe helyes-e.</li>
+<li><strong>Nincs térkép háttér:</strong> a térképcsempék letöltéséhez internetkapcsolat kell.</li>
+<li><strong>Nem jönnek lejárati értesítések:</strong> kapcsold be őket a beállításokban, és engedélyezd a RadRecon értesítéseit a telefon beállításaiban.</li>
+</ul>
+<p>Ha a probléma megmarad, írj a <a href="mailto:info@radrecon.hu">info@radrecon.hu</a> címre.</p>
+
+<h2 id="m15">15. Fontos tudnivaló</h2>
+<p>A RadRecon dokumentációs és számítási segédeszköz, nem mérőműszer. A számított értékek és a forráskereső iránya csak tájékoztató jellegűek. Hivatalos dokumentumokhoz ellenőrizd őket hiteles forrásból, és kövesd a sugárvédelmi megbízottad utasításait. Lásd a <a href="../../terms/hu/terms.html">Felhasználási feltételeket</a>.</p>
+
+      </div>
+    </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2026 RadRecon. A forráskód a <a href="https://github.com/rundhall/RadRecon/blob/main/LICENSE" target="_blank" rel="noopener">Apache 2.0 licenc</a> alatt érhető el.</p>
+      <div class="footer-links">
+        <a href="../../privacy/hu/privacy.html">Adatvédelmi tájékoztató</a>
+        <a href="../../delete-account/hu/delete-account.html">Adatok törlése</a>
+        <a href="../../terms/hu/terms.html">Felhasználási feltételek</a>
+        <a href="../../user_manual/hu/manual.html">Felhasználói kézikönyv</a>
+        <a href="../../contact/hu/contact.html">Kapcsolat</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../script.js"></script>
+  <script>
+    const select = document.getElementById('language-select');
+    if (select) {
+      const m = window.location.pathname.match(/\/(en|hu|de|fr|it|es)(?:\/|$)/);
+      const currentLang = m ? m[1] : (document.documentElement.lang || 'en').split('-')[0].toLowerCase();
+      document.documentElement.lang = currentLang;
+      select.value = currentLang;
+      select.addEventListener('change', (e) => {
+        const next = e.target.value;
+        if (!next || next === currentLang) return;
+        window.location.href = '../' + next + '/manual.html';
+      });
+    }
+  </script>
+</body>
+</html>

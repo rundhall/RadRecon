@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RadRecon User Manual</title>
+  <meta name="description" content="User manual for the RadRecon field radiation survey app.">
+  <link rel="alternate" hreflang="en" href="../../user_manual/en/manual.html">
+  <link rel="alternate" hreflang="hu" href="../../user_manual/hu/manual.html">
+  <link rel="alternate" hreflang="de" href="../../user_manual/de/manual.html">
+  <link rel="alternate" hreflang="fr" href="../../user_manual/fr/manual.html">
+  <link rel="alternate" hreflang="it" href="../../user_manual/it/manual.html">
+  <link rel="alternate" hreflang="es" href="../../user_manual/es/manual.html">
+  <link rel="icon" type="image/png" href="../../pics/logo.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="../../en/index.html" class="logo" aria-label="RadRecon"><img src="../../pics/logo.png" alt="RadRecon" style="height: 36px; vertical-align: middle;"><span class="logo-text">RadRecon</span></a>
+      <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav>
+        <a href="../../en/index.html#features">Features</a>
+        <a href="../../en/index.html#how-it-works">How It Works</a>
+        <a href="../../en/index.html#screenshots">Screenshots</a>
+        <a href="../../en/index.html#audience">Who It's For</a>
+        <a href="../../en/index.html#faq">FAQ</a>
+        <a href="../../en/index.html#cta" class="btn btn-primary">Get Started</a>
+        <div class="lang-switch"><select id="language-select" aria-label="Language"><option value="en" selected>EN</option><option value="hu">HU</option><option value="de">DE</option><option value="fr">FR</option><option value="it">IT</option><option value="es">ES</option></select></div>
+      </nav>
+    </div>
+  </header>
+
+    <main class="legal-page">
+      <div class="container">
+
+<h1>RadRecon User Manual</h1>
+<p>Last updated: 03.10.2026</p>
+
+<h2>Contents</h2>
+<ol>
+<li><a href="#m1">Introduction</a></li>
+<li><a href="#m2">Main screen and settings</a></li>
+<li><a href="#m3">Instruments</a></li>
+<li><a href="#m4">Radiation sources</a></li>
+<li><a href="#m5">Persons</a></li>
+<li><a href="#m6">Doses</a></li>
+<li><a href="#m7">Switching between companies</a></li>
+<li><a href="#m8">Starting a survey</a></li>
+<li><a href="#m9">Recording a measurement point</a></li>
+<li><a href="#m10">Sources at a point</a></li>
+<li><a href="#m11">Map</a></li>
+<li><a href="#m12">Tools</a></li>
+<li><a href="#m13">Closing, exporting and importing</a></li>
+<li><a href="#m14">Troubleshooting</a></li>
+<li><a href="#m15">Important notice</a></li>
+</ol>
+
+<h2 id="m1">1. Introduction</h2>
+<p>RadRecon records field radiation surveys. Each measurement point carries its GPS position, time, instrument, value and unit, and optionally a photo and a note. The points of a survey are shown on a map and can be exported as a Word protocol, as JSON or as CSV.</p>
+<p>The App runs on Android, iPhone, Windows, macOS and Linux, in English and Hungarian. All data is stored on the device. There is no account and no registration. An internet connection is needed only for the map background and, if you use them, for instruments on the network.</p>
+
+<h2 id="m2">2. Main screen and settings</h2>
+<p>The main screen lists your surveys, with the newest first. Use the <strong>New survey</strong> button to add one. The top bar gives access to the instruments, the radiation sources, the persons and the settings. The lists of instruments, sources and persons have a search field.</p>
+<h3>Settings</h3>
+<ul>
+<li><strong>Language:</strong> English, Hungarian, or the phone language.</li>
+<li><strong>Appearance:</strong> light, dark or system theme.</li>
+<li><strong>Alert thresholds:</strong> a limit for each measurement type. When a recorded value reaches or exceeds it, the App warns you with a sound and a pop-up. Leave a field empty for no alert on that type.</li>
+<li><strong>Expiry notifications:</strong> off by default. When switched on, the App reminds you at 8:00 about upcoming expiry dates of sources (service life, inspection) and persons (medical exam, training). Choose how far ahead: on the day, 1 day, 2 days or 1 week before. Notifications must be allowed in the phone settings.</li>
+<li><strong>Switch company:</strong> opens the company switcher, see section 7.</li>
+<li><strong>Save database to file / Load database from file:</strong> saves all data to one backup file or loads such a file, for example on a new phone. Loading overwrites all data currently on the device.</li>
+<li><strong>Clear database:</strong> permanently deletes all surveys, points, instruments, sources, persons and photos from the device. Make a backup first.</li>
+<li><strong>Contributors:</strong> thanks to the volunteers and organizations that help build RadRecon, and how to join them.</li>
+</ul>
+
+<h2 id="m3">3. Instruments</h2>
+<p>Add your instruments once and select them when you record points. Open the instruments list and press <strong>New instrument</strong>.</p>
+<ul>
+<li><strong>Instrument name / type</strong> (required), <strong>serial number</strong>, <strong>last calibration date</strong> and <strong>calibration factor</strong>.</li>
+<li><strong>Reachable over WiFi Modbus/TCP:</strong> switch on and enter the IP address or host, port (for example 502), Modbus unit ID (slave address) and register address (the starting holding register of the measured value, float32).</li>
+</ul>
+<p>Deleting an instrument keeps past measurements; only the instrument reference is removed from them. The list menu can import and export the instruments as CSV.</p>
+
+<h2 id="m4">4. Radiation sources</h2>
+<p>The sources are kept in a registry, opened from the main screen, entered once and attached to measurement points when needed. A source has:</p>
+<ul>
+<li>a unique identifier and the nuclide (from the list or entered manually);</li>
+<li>activity at manufacture (MBq) and the activity error (±%);</li>
+<li>manufacture date, service life expiry and next inspection date.</li>
+</ul>
+<p>For known nuclides the App stores the half-life and gamma constant and calculates the current activity. For an unknown nuclide the data can be saved, but the comparison is skipped. The list menu can import and export the sources as CSV.</p>
+
+<h2 id="m5">5. Persons</h2>
+<p>The persons registry holds the staff taking part in surveys: name, medical exam expiry and training expiry. Inside a survey, open the persons icon and use <strong>Assign person</strong> to add them to that survey. Removing a person from a survey keeps the person in the registry. Deleting a person from the registry also removes them from every survey. The list menu can import and export the persons as CSV.</p>
+
+<h2 id="m6">6. Doses</h2>
+<p>RadRecon can keep the dose of each person. Doses are stored in µSv. The persons list shows the annual dose of each person, split by source, and has a <strong>Year</strong> selector.</p>
+<ul>
+<li><strong>Online (from detector):</strong> during automatic logging from a Modbus-connected instrument the App integrates the measured dose rate over time. When logging stops, the dose is saved for the persons assigned to the survey. This works only with dose rate measurements, and the App tells you if there were longer data gaps. If no person is assigned to the survey, the dose is not saved.</li>
+<li><strong>Manual:</strong> inside a survey open the persons icon and tap a person to enter or correct the online and manual dose for that survey.</li>
+<li><strong>Passive dosimetry:</strong> results of a monthly or bimonthly evaluation, not tied to any survey. In the persons list press <strong>Manage doses</strong> at the person, then <strong>Add passive dosimetry</strong>, and enter the dose with <strong>Evaluation period start</strong> and <strong>Evaluation period end</strong>. The dose counts for the year in which the period ends.</li>
+</ul>
+<p>When you close a survey, <strong>Review doses</strong> lets you correct the dose of every participant before closing. The dose screen of a person lists all entries of the year with their total, and each entry can be edited or deleted. Use <strong>Import doses (CSV)</strong> and <strong>Export doses (CSV)</strong> in the persons list menu to move doses in and out.</p>
+<p>The dose figures help your record keeping and do not replace official personal dosimetry. Check them against the results of your approved dosimetry service.</p>
+
+<h2 id="m7">7. Switching between companies</h2>
+<p>If you work for more than one company, you can keep the data of each company apart. Open the settings and press <strong>Switch company</strong>. The screen shows the <strong>Active company</strong> and the list of saved companies.</p>
+<ul>
+<li><strong>Switch:</strong> select a company from the list and confirm. The current data is saved automatically under the active company before the other one is loaded, so nothing is lost.</li>
+<li><strong>New company:</strong> creates an empty company with the name you enter.</li>
+<li><strong>Add company from backup file:</strong> adds a company from a backup file, for example when you move to a new phone.</li>
+<li>Deleting the backup of a company removes it from the folder. The data currently loaded is not affected.</li>
+<li><strong>Choose folder:</strong> by default the companies are kept in a private folder of the App that other apps cannot reach. Choose a folder such as Downloads or a cloud drive to reach the backups from your file manager, and undo it with <strong>Back to default folder</strong>.</li>
+</ul>
+<p>Each company is stored as one backup file with its database and photos.</p>
+
+<h2 id="m8">8. Starting a survey</h2>
+<ol>
+<li>On the main screen press <strong>New survey</strong>.</li>
+<li>Enter the name and, optionally, the location. If you leave the name empty, the App proposes “Survey – date”.</li>
+<li>Press <strong>Start</strong>. The survey opens with an empty point list.</li>
+</ol>
+<p>Use the edit icon to change the name and location later, and assign the personnel who take part.</p>
+
+<h2 id="m9">9. Recording a measurement point</h2>
+<p>Press <strong>New point</strong> in the survey.</p>
+<ul>
+<li><strong>Measurement type:</strong> dose rate, surface contamination, count rate (cps), neutron count rate (cps) or sampling.</li>
+<li><strong>Location name, measured value and unit.</strong> Each type has a default unit.</li>
+<li><strong>Distance from source</strong> and <strong>nuclide</strong>, which give a quick estimate of the activity from the measured value.</li>
+<li><strong>Instrument:</strong> select one from your list, or add a new one with the plus button. For a Modbus instrument use the <strong>Modbus query</strong> button to read the value directly.</li>
+<li><strong>Position:</strong> latitude and longitude, with <strong>Live GPS</strong> to take the current position or <strong>On the map</strong> to pick it on the map.</li>
+<li><strong>This is the source position (max value):</strong> marks the point of the highest reading.</li>
+<li><strong>A physical sample was taken here:</strong> enter container ID, amount and sampling method.</li>
+<li><strong>Notes</strong> and a <strong>photo</strong> taken with the camera or chosen from the gallery.</li>
+</ul>
+<p>If the value reaches or exceeds the threshold for its type, the App shows the alert. Every later change to a point is written to its change history, so the original value remains traceable.</p>
+
+<h2 id="m10">10. Sources at a point</h2>
+<p>In the point screen choose <strong>Manage radioactive source(s)</strong> and attach sources from the registry. For each one enter its distance from the measurement point. The App then shows:</p>
+<ul>
+<li>the current activity, corrected for decay up to the measurement date;</li>
+<li>the calculated dose rate of each source and the total of all sources;</li>
+<li>the measured dose rate at the point and the difference (measured minus calculated).</li>
+</ul>
+<p>Sources with an unknown nuclide are left out of the total, and an expired service life is flagged with a warning. If the measurement unit cannot be converted automatically, no comparison is made. Detaching a source removes only the link, not the source from the registry.</p>
+
+<h2 id="m11">11. Map</h2>
+<p>The map shows all points of the survey. Use the camera icon to save a screenshot of the map; it is attached when you export the protocol. From the point list, <strong>Save list screenshot</strong> does the same for the list. The map background needs an internet connection.</p>
+
+<h2 id="m12">12. Tools</h2>
+<p>The tools are in the survey menu (three dots).</p>
+<ul>
+<li><strong>Automatic logging:</strong> records points from a Modbus/TCP instrument by time interval (at least 1 second) or distance interval (at least 1 metre). It shows the points recorded, the last value and failed readings. Logging works only while this screen is open; if the phone locks or you switch apps, it pauses and you have to restart it.</li>
+<li><strong>Distance measurement:</strong> distance and bearing from your current position or a chosen starting point to a target point. With <strong>Live tracking</strong> the values update as you walk, in the direction of the arrow.</li>
+<li><strong>Isotope calculator:</strong> converts activity (MBq) to dose rate (µSv/h) at a distance, or a measured dose rate back to activity. Built-in nuclides: Co-60, Cs-137, Ir-192, Ra-226, I-131, Na-22 and Am-241.</li>
+<li><strong>Source search:</strong> estimates the direction in which the selected measurement type increases, from the points already recorded in the survey. With fewer than 4 points the estimate is flagged as unreliable. Take more points at different spots in the search area.</li>
+</ul>
+
+<h2 id="m13">13. Closing, exporting and importing</h2>
+<ul>
+<li><strong>Close survey:</strong> the protocol then shows the date as the end time. Points are not locked, so you can still edit them.</li>
+<li><strong>Export protocol:</strong> creates a Word protocol with the point list and attached images. It is delivered as a ZIP file that contains the document and a folder with the photos.</li>
+<li><strong>Export points (data, JSON):</strong> a data file that another RadRecon installation can import.</li>
+<li><strong>Export points (table, CSV):</strong> a table for Excel with position, accuracy, instrument, timestamp, sampling, notes, estimated activity, attached sources and calculated dose rate.</li>
+<li><strong>Import points (JSON):</strong> loads points from a JSON file. Missing instruments and sources are created, and points without a valid GPS position or with an unknown measurement type are skipped with a warning.</li>
+</ul>
+<p>When you import a CSV into the instruments, sources or persons list, choose what happens to a matching record: replace it, skip it, or import it as a duplicate.</p>
+
+<h2 id="m14">14. Troubleshooting</h2>
+<ul>
+<li><strong>No GPS position:</strong> check that location services are on and that RadRecon may use the location, then press <strong>Refresh GPS</strong>. Indoors the accuracy can be poor; the accuracy radius is stored with the point.</li>
+<li><strong>Modbus query fails:</strong> check that the phone and the instrument are on the same WiFi network and that the IP address, port, unit ID and register address are correct.</li>
+<li><strong>No map background:</strong> the map tiles need an internet connection.</li>
+<li><strong>No expiry notifications:</strong> switch them on in the settings and allow notifications for RadRecon in the phone settings.</li>
+</ul>
+<p>If a problem remains, write to <a href="mailto:info@radrecon.hu">info@radrecon.hu</a>.</p>
+
+<h2 id="m15">15. Important notice</h2>
+<p>RadRecon is a documentation and calculation aid, not a measuring instrument. Calculated values and the source search direction are for reference only. Verify them against an authoritative source for official records, and follow the instructions of your radiation protection officer. See the <a href="../../terms/en/terms.html">Terms and Conditions</a>.</p>
+
+      </div>
+    </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2026 RadRecon. Source code under the <a href="https://github.com/rundhall/RadRecon/blob/main/LICENSE" target="_blank" rel="noopener">Apache License 2.0</a>.</p>
+      <div class="footer-links">
+        <a href="../../privacy/en/privacy.html">Privacy Policy</a>
+        <a href="../../delete-account/en/delete-account.html">Delete your data</a>
+        <a href="../../terms/en/terms.html">Terms and Conditions</a>
+        <a href="../../user_manual/en/manual.html">User Manual</a>
+        <a href="../../contact/en/contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../script.js"></script>
+  <script>
+    const select = document.getElementById('language-select');
+    if (select) {
+      const m = window.location.pathname.match(/\/(en|hu|de|fr|it|es)(?:\/|$)/);
+      const currentLang = m ? m[1] : (document.documentElement.lang || 'en').split('-')[0].toLowerCase();
+      document.documentElement.lang = currentLang;
+      select.value = currentLang;
+      select.addEventListener('change', (e) => {
+        const next = e.target.value;
+        if (!next || next === currentLang) return;
+        window.location.href = '../' + next + '/manual.html';
+      });
+    }
+  </script>
+</body>
+</html>

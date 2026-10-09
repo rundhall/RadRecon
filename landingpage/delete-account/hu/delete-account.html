@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RadRecon adatok törlése</title>
+  <meta name="description" content="Hogyan törölheted a RadRecon app által tárolt adatokat. A RadRecon-nak nincsenek felhasználói fiókjai.">
+  <link rel="alternate" hreflang="en" href="../../delete-account/en/delete-account.html">
+  <link rel="alternate" hreflang="hu" href="../../delete-account/hu/delete-account.html">
+  <link rel="alternate" hreflang="de" href="../../delete-account/de/delete-account.html">
+  <link rel="alternate" hreflang="fr" href="../../delete-account/fr/delete-account.html">
+  <link rel="alternate" hreflang="it" href="../../delete-account/it/delete-account.html">
+  <link rel="alternate" hreflang="es" href="../../delete-account/es/delete-account.html">
+  <link rel="icon" type="image/png" href="../../pics/logo.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="../../hu/index.html" class="logo" aria-label="RadRecon"><img src="../../pics/logo.png" alt="RadRecon" style="height: 36px; vertical-align: middle;"><span class="logo-text">RadRecon</span></a>
+      <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav>
+        <a href="../../hu/index.html#features">Funkciók</a>
+        <a href="../../hu/index.html#how-it-works">Hogyan működik</a>
+        <a href="../../hu/index.html#screenshots">Képernyőképek</a>
+        <a href="../../hu/index.html#audience">Kinek készült</a>
+        <a href="../../hu/index.html#faq">GYIK</a>
+        <a href="../../hu/index.html#cta" class="btn btn-primary">Kezdés</a>
+        <div class="lang-switch"><select id="language-select" aria-label="Language"><option value="en">EN</option><option value="hu" selected>HU</option><option value="de">DE</option><option value="fr">FR</option><option value="it">IT</option><option value="es">ES</option></select></div>
+      </nav>
+    </div>
+  </header>
+
+    <main class="legal-page">
+      <div class="container">
+
+<h1>RadRecon adatok törlése</h1>
+<p>A RadRecon fejlesztője Dr. Petrányi János Tamás. Az appnak nincsenek felhasználói fiókjai, nincs regisztráció és nincs felhőszolgáltatás. Minden általad megadott adat helyben, a saját eszközödön tárolódik, ezért nincs olyan fiók, amelyet egy szerveren törölni lehetne. Ez az oldal azt írja le, hogyan távolíthatod el az adataidat.</p>
+
+<h2>Törlés az appon belül</h2>
+<ul>
+<li>Felmérések, mérési pontok: nyisd meg a felmérések vagy a pontok listáját, és töröld a már nem szükséges tételeket.</li>
+<li>Műszerek, források és személyek: a főképernyőről nyisd meg a megfelelő listát, és töröld a tételeket.</li>
+</ul>
+
+<h2>Minden törlése az app eltávolításával</h2>
+<p>Androidon és iPhone-on a RadRecon eltávolítása törli az adatbázist és az app által az eszközön tárolt fájlokat. Windowson, macOS-en és Linuxon az app adatmappája az eltávolítás után is megmaradhat, ezért előbb töröld a tételeket az appban, vagy kérj tőlünk segítséget. A törlés nem vonható vissza, ezért előtte exportáld, amit meg szeretnél tartani (Word jegyzőkönyv, JSON vagy CSV).</p>
+
+<h2>Az appon kívüli fájlok</h2>
+<ul>
+<li>Az exportált vagy más appokkal megosztott jegyzőkönyvek, JSON- és CSV-fájlok a RadRecon-on kívüli másolatok. Töröld őket abban az appban vagy ott, ahová mentetted vagy küldted őket.</li>
+<li>Ha a telefonod vagy a számítógéped beállításaiban az eszközmentés be van kapcsolva, az app adatai a mentésekben is szerepelhetnek. A mentést a mentési szolgáltatás beállításaiban törölheted.</li>
+</ul>
+
+<h2>A velünk folytatott levelezés</h2>
+<p>Ha e-mailben írtál nekünk, kérheted a levelezés törlését. Küldj kérelmet a <a href="mailto:info@radrecon.hu">info@radrecon.hu</a> címre „Adattörlési kérelem” tárggyal. A kérelem beérkezését 5 munkanapon belül visszaigazoljuk, a törlést 30 napon belül elvégezzük.</p>
+
+<p><a href="../../privacy/hu/privacy.html">Az Adatvédelmi tájékoztató elolvasása</a></p>
+<p>Utolsó frissítés: 2026. 10. 02.</p>
+
+      </div>
+    </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2026 RadRecon. A forráskód a <a href="https://github.com/rundhall/RadRecon/blob/main/LICENSE" target="_blank" rel="noopener">Apache 2.0 licenc</a> alatt érhető el.</p>
+      <div class="footer-links">
+        <a href="../../privacy/hu/privacy.html">Adatvédelmi tájékoztató</a>
+        <a href="../../delete-account/hu/delete-account.html">Adatok törlése</a>
+        <a href="../../terms/hu/terms.html">Felhasználási feltételek</a>
+        <a href="../../user_manual/hu/manual.html">Felhasználói kézikönyv</a>
+        <a href="../../contact/hu/contact.html">Kapcsolat</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../../script.js"></script>
+  <script>
+    const select = document.getElementById('language-select');
+    if (select) {
+      const m = window.location.pathname.match(/\/(en|hu|de|fr|it|es)(?:\/|$)/);
+      const currentLang = m ? m[1] : (document.documentElement.lang || 'en').split('-')[0].toLowerCase();
+      document.documentElement.lang = currentLang;
+      select.value = currentLang;
+      select.addEventListener('change', (e) => {
+        const next = e.target.value;
+        if (!next || next === currentLang) return;
+        window.location.href = '../' + next + '/delete-account.html';
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datenschutzerklärung von RadRecon</title>
+  <meta name="description" content="RadRecon speichert Messdaten lokal auf dem Gerät, auf dem sie erfasst wurden. Die App benötigt kein Konto und lädt die lokale Datenbank nicht in eine RadRecon-Cloud oder ein Backend hoch.">
+  <link rel="icon" type="image/png" href="../../pics/logo.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="../../de/index.html" class="logo" aria-label="RadRecon"><img src="../../pics/logo.png" alt="RadRecon" style="height: 36px; vertical-align: middle;"><span class="logo-text">RadRecon</span></a>
+      <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav>
+        <a href="../../de/index.html#features">Funktionen</a>
+        <a href="../../de/index.html#how-it-works">So funktioniert's</a>
+        <a href="../../de/index.html#screenshots">Screenshots</a>
+        <a href="../../de/index.html#audience">Für wen</a>
+        <a href="../../de/index.html#faq">FAQ</a>
+        <a href="../../de/index.html#cta" class="btn btn-primary">Loslegen</a>
+        <div class="lang-switch"><select id="language-select" aria-label="Language"><option value="en">EN</option><option value="hu">HU</option><option value="de" selected>DE</option><option value="fr">FR</option><option value="it">IT</option><option value="es">ES</option></select></div>
+      </nav>
+    </div>
+  </header>
+  <main class="legal-page">
+    <div class="container">
+      <h1>Datenschutzerklärung von RadRecon</h1>
+      <p>RadRecon speichert Messdaten lokal auf dem Gerät, auf dem sie erfasst wurden. Die App benötigt kein Konto und lädt die lokale Datenbank nicht in eine RadRecon-Cloud oder ein Backend hoch.</p>
+      <h2>Auf dem Gerät gespeicherte Daten</h2>
+      <p>Datensätze können Sitzungen, Messwerte und Einheiten, Zeitstempel, Notizen, GPS-Koordinaten und Genauigkeit, Geräte- und Quellenangaben sowie Einstellungen enthalten. Der Standort wird nur mit Berechtigung und bei Verwendung einer entsprechenden Funktion abgerufen.</p>
+      <h2>Speicherung und Aufbewahrung</h2>
+      <p>Die App verwendet eine lokale SQLite-Datenbank. Daten bleiben auf dem Gerät, bis Sie sie löschen oder die App-Daten entfernen. Betriebssystem-Backups können App-Daten gemäß Ihren Geräteeinstellungen kopieren. Exporte und Backups können separat bestehen bleiben.</p>
+      <h2>Netzwerkverbindungen</h2>
+      <p>Beim Anzeigen einer Karte kann OpenStreetMap Ihre IP-Adresse, angeforderte Kachelkoordinaten und übliche Anfrageinformationen erhalten; Kacheln können das betrachtete Gebiet erkennen lassen. Ein konfiguriertes Modbus/TCP-Gerät kommuniziert mit der von Ihnen angegebenen Adresse. Standort, Benachrichtigungen, Dateiauswahl und Teilen nutzen Betriebssystemdienste.</p>
+      <h2>Exporte und Wahlmöglichkeiten</h2>
+      <p>Die App enthält keine Analyse- oder Werbe-SDKs und sendet keine Messdaten an den Entwickler. Sie bestimmen, wo exportierte Dateien gespeichert oder geteilt werden. Für andere Apps, Empfänger, Kartenanbieter, Geräte und Plattformen gelten deren eigene Regeln.</p>
+      <h2>Rechte und Kontakt</h2>
+      <p>Sie können Datensätze mit verfügbaren App-Funktionen und Geräteeinstellungen anzeigen, bearbeiten, exportieren oder löschen und den Standortzugriff in den Systemeinstellungen widerrufen. Fragen: info@radrecon.hu.</p>
+      <p><a href="https://operations.osmfoundation.org/policies/tiles/">OpenStreetMap tile usage policy</a></p>
+    </div>
+  </main>
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2026 RadRecon.</p>
+      <div class="footer-links"><a href="../../privacy/de/privacy.html">Datenschutz</a><a href="../../terms/de/terms.html">Nutzung</a><a href="../../user_manual/de/manual.html">Handbuch</a><a href="../../delete-account/de/delete-account.html">Daten entfernen</a><a href="../../contact/de/contact.html">Kontakt</a></div>
+    </div>
+  </footer>
+  <script src="../../script.js"></script>
+  <script>
+    const select = document.getElementById('language-select');
+    if (select) {
+      select.addEventListener('change', (e) => {
+        const next = e.target.value;
+        if (!next || next === 'de') return;
+        window.location.href = '../' + next + '/privacy.html';
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Politique de confidentialité RadRecon</title>
+  <meta name="description" content="RadRecon conserve les relevés localement sur l’appareil où ils sont saisis. Aucun compte n’est nécessaire et la base locale n’est pas téléversée vers un service cloud ou serveur RadRecon.">
+  <link rel="icon" type="image/png" href="../../pics/logo.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="../../fr/index.html" class="logo" aria-label="RadRecon"><img src="../../pics/logo.png" alt="RadRecon" style="height: 36px; vertical-align: middle;"><span class="logo-text">RadRecon</span></a>
+      <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav>
+        <a href="../../fr/index.html#features">Fonctionnalités</a>
+        <a href="../../fr/index.html#how-it-works">Comment ça marche</a>
+        <a href="../../fr/index.html#screenshots">Captures d’écran</a>
+        <a href="../../fr/index.html#audience">Pour qui</a>
+        <a href="../../fr/index.html#faq">FAQ</a>
+        <a href="../../fr/index.html#cta" class="btn btn-primary">Commencer</a>
+        <div class="lang-switch"><select id="language-select" aria-label="Language"><option value="en">EN</option><option value="hu">HU</option><option value="de">DE</option><option value="fr" selected>FR</option><option value="it">IT</option><option value="es">ES</option></select></div>
+      </nav>
+    </div>
+  </header>
+  <main class="legal-page">
+    <div class="container">
+      <h1>Politique de confidentialité RadRecon</h1>
+      <p>RadRecon conserve les relevés localement sur l’appareil où ils sont saisis. Aucun compte n’est nécessaire et la base locale n’est pas téléversée vers un service cloud ou serveur RadRecon.</p>
+      <h2>Informations stockées sur l’appareil</h2>
+      <p>Les données peuvent inclure sessions, valeurs et unités, dates, notes, coordonnées et précision GPS, détails des instruments et sources radioactives, ainsi que les réglages. La position est utilisée uniquement avec autorisation et lorsqu’une fonction la requiert.</p>
+      <h2>Stockage et conservation</h2>
+      <p>L’application utilise une base SQLite locale. Les données restent sur l’appareil jusqu’à leur suppression ou l’effacement des données de l’application. Les sauvegardes du système peuvent copier ces données selon vos réglages. Les exports et sauvegardes peuvent subsister séparément.</p>
+      <h2>Connexions réseau</h2>
+      <p>Lors de l’affichage d’une carte, OpenStreetMap peut recevoir votre adresse IP, les coordonnées des tuiles demandées et des informations standard de requête. Ces coordonnées peuvent révéler la zone consultée. Un instrument Modbus/TCP configuré communique à l’adresse fournie. Position, notifications, sélection et partage de fichiers utilisent les services du système.</p>
+      <h2>Exports et choix</h2>
+      <p>L’application ne contient aucun SDK d’analyse ou de publicité et n’envoie pas les relevés à son développeur. Vous choisissez où enregistrer ou partager les fichiers exportés. Les applications tierces, destinataires, fournisseurs de cartes, instruments et plateformes ont leurs propres règles.</p>
+      <h2>Droits et contact</h2>
+      <p>Les fonctions de l’application et les réglages de l’appareil permettent de consulter, modifier, exporter ou supprimer les données et de révoquer l’accès à la position. Questions : info@radrecon.hu.</p>
+      <p><a href="https://operations.osmfoundation.org/policies/tiles/">OpenStreetMap tile usage policy</a></p>
+    </div>
+  </main>
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2026 RadRecon.</p>
+      <div class="footer-links"><a href="../../privacy/fr/privacy.html">Confidentialité</a><a href="../../terms/fr/terms.html">Conditions</a><a href="../../user_manual/fr/manual.html">Guide</a><a href="../../delete-account/fr/delete-account.html">Supprimer les données</a><a href="../../contact/fr/contact.html">Contact</a></div>
+    </div>
+  </footer>
+  <script src="../../script.js"></script>
+  <script>
+    const select = document.getElementById('language-select');
+    if (select) {
+      select.addEventListener('change', (e) => {
+        const next = e.target.value;
+        if (!next || next === 'fr') return;
+        window.location.href = '../' + next + '/privacy.html';
+      });
+    }
+  </script>
+</body>
+</html>

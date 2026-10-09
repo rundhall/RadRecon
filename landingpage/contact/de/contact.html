@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kontakt und Support</title>
+  <meta name="description" content="Bei Fragen zu RadRecon oder dieser Website kontaktieren Sie den Anbieter per E-Mail.">
+  <link rel="icon" type="image/png" href="../../pics/logo.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="../../de/index.html" class="logo" aria-label="RadRecon"><img src="../../pics/logo.png" alt="RadRecon" style="height: 36px; vertical-align: middle;"><span class="logo-text">RadRecon</span></a>
+      <button class="mobile-menu-toggle" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav>
+        <a href="../../de/index.html#features">Funktionen</a>
+        <a href="../../de/index.html#how-it-works">So funktioniert's</a>
+        <a href="../../de/index.html#screenshots">Screenshots</a>
+        <a href="../../de/index.html#audience">Für wen</a>
+        <a href="../../de/index.html#faq">FAQ</a>
+        <a href="../../de/index.html#cta" class="btn btn-primary">Loslegen</a>
+        <div class="lang-switch"><select id="language-select" aria-label="Language"><option value="en">EN</option><option value="hu">HU</option><option value="de" selected>DE</option><option value="fr">FR</option><option value="it">IT</option><option value="es">ES</option></select></div>
+      </nav>
+    </div>
+  </header>
+  <main class="legal-page">
+    <div class="container">
+      <h1>Kontakt und Support</h1>
+      <p>Bei Fragen zu RadRecon oder dieser Website kontaktieren Sie den Anbieter per E-Mail.</p>
+      <p><a href="mailto:info@radrecon.hu">info@radrecon.hu</a></p>
+      <h2>Handbuch</h2>
+      <p>Bei technischen Problemen nennen Sie bitte Gerät und Betriebssystem, RadRecon-Version, Schritte zur Reproduktion und angezeigte Fehlermeldungen. Senden Sie sensible Messdaten nur, wenn es erforderlich ist.</p>
+      <h2>Datenschutzkontakt</h2>
+      <p>RadRecon speichert Messdaten lokal auf dem Gerät, auf dem sie erfasst wurden. Die App benötigt kein Konto und lädt die lokale Datenbank nicht in eine RadRecon-Cloud oder ein Backend hoch.</p>
+    </div>
+  </main>
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2026 RadRecon.</p>
+      <div class="footer-links"><a href="../../privacy/de/privacy.html">Datenschutz</a><a href="../../terms/de/terms.html">Nutzung</a><a href="../../user_manual/de/manual.html">Handbuch</a><a href="../../delete-account/de/delete-account.html">Daten entfernen</a><a href="../../contact/de/contact.html">Kontakt</a></div>
+    </div>
+  </footer>
+  <script src="../../script.js"></script>
+  <script>
+    const select = document.getElementById('language-select');
+    if (select) {
+      select.addEventListener('change', (e) => {
+        const next = e.target.value;
+        if (!next || next === 'de') return;
+        window.location.href = '../' + next + '/contact.html';
+      });
+    }
+  </script>
+</body>
+</html>

@@ -13,7 +13,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Rad Recon</string>
+	<string>RadRecon</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -37,7 +37,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>RadRecon uses the camera to photograph measurement sites.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>RadRecon uses the photo library to save and access measurement site photos.</string>
+	<string>RadRecon lets you attach photos from your library to measurement points.</string>
 
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>RadRecon connects to the local Wi-Fi network to read data from on-site Modbus/TCP radiation meters.</string>

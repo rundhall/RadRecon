@@ -44,6 +44,19 @@ class _MapPointPickerScreenState extends State<MapPointPickerScreen> {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.rundhall.rad_recon',
               ),
+              Align(
+                alignment: Alignment.topRight,
+                child: IgnorePointer(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    color: Colors.white.withValues(alpha: 0.75),
+                    child: const Text(
+                      '© OpenStreetMap contributors',
+                      style: TextStyle(fontSize: 11, color: Colors.black87),
+                    ),
+                  ),
+                ),
+              ),
               MarkerLayer(
                 markers: [
                   Marker(

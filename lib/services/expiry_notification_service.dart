@@ -147,6 +147,7 @@ class ExpiryNotificationService {
     final persons = await db.getPersons();
     final sources = await db.getRadiationSources();
     final instruments = await db.getInstruments();
+    final companyDocs = await db.getCompanyDocuments();
 
     final candidates = <_Candidate>[];
 
@@ -178,9 +179,15 @@ class ExpiryNotificationService {
     for (final p in persons) {
       add(p.name, loc.medicalExamExpiryDateLabel, p.medicalExamExpiryDate);
       add(p.name, loc.trainingExpiryDateLabel, p.trainingExpiryDate);
+      for (final c in p.certificates) {
+        add(p.name, c.name, c.validUntil);
+      }
     }
     for (final i in instruments) {
       add(i.name, loc.nextCalibrationLabel, i.nextCalibrationDate);
+    }
+    for (final d in companyDocs) {
+      add(d.title, loc.companyDocumentValidUntilLabel, d.validUntil);
     }
 
     candidates.sort((a, b) => a.fireAt.compareTo(b.fireAt));

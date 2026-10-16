@@ -8,13 +8,20 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../database/database_helper.dart';
+import '../models/calibration_labels.dart';
 import '../models/instrument.dart';
+import '../models/instrument_calibration.dart';
 import '../models/person_dose.dart';
-import '../models/isotope.dart';
 import '../models/measurement_point.dart';
+import '../models/nuclide_id.dart';
 import '../models/point_source_link.dart';
+import '../models/shielding.dart';
+import 'value_averager.dart';
 import '../models/survey_session.dart';
+import 'activity_estimate.dart';
+import 'dose_unit_controller.dart';
 import 'dose_unit_converter.dart';
+import 'unit_format.dart';
 import 'screenshot_service.dart';
 
 /// A felmérés lezárásakor generálja a Word jegyzőkönyvet a
@@ -47,9 +54,18 @@ class ProtocolExportService {
     if (session == null) {
       throw StateError('Nem található felmérés: $surveySessionId');
     }
-    final points = await db.getMeasurementPoints(surveySessionId);
+    // A dózisteljesítmény-pontok az aktuális alapegységben kerülnek a jegyzőkönyvbe.
+    final points = (await db.getMeasurementPoints(surveySessionId))
+        .map(withCurrentDoseUnit)
+        .toList();
     final instruments = await db.getInstruments();
     final instrumentById = {for (final i in instruments) i.id: i};
+    final calibrationsByInstrument = <int, List<InstrumentCalibration>>{};
+    for (final i in instruments) {
+      if (i.id != null) {
+        calibrationsByInstrument[i.id!] = await db.getCalibrations(i.id!);
+      }
+    }
 
     final attachedByPointId = <int, List<AttachedSource>>{};
     for (final point in points) {
@@ -76,6 +92,7 @@ class ProtocolExportService {
       session,
       points,
       instrumentById,
+      calibrationsByInstrument,
       attachedByPointId,
       personsText,
     );
@@ -131,6 +148,29 @@ class ProtocolExportService {
     return '${point.id}_$label$ext';
   }
 
+  static const _nuclideStatusHu = {
+    NuclideIdStatus.notSpecified: '',
+    NuclideIdStatus.identified: 'Azonosított nuklid(ok)',
+    NuclideIdStatus.unknown: 'Ismeretlen nuklid',
+    NuclideIdStatus.other: 'Egyéb nuklid (nincs a listában)',
+    NuclideIdStatus.mixture: 'Feltételezhetően több forrás (keverék)',
+  };
+
+  /// A jegyzőkönyv sablonja fix oszlopokat tartalmaz, ezért a nuklid-azonosítás
+  /// a Megjegyzés oszlop elejére kerül ("Nuklid-azonosítás: ...").
+  String _notesWithNuclides(MeasurementPoint point) {
+    final nuclideText = nuclideSummaryText(
+      status: point.nuclideStatus,
+      nuclides: point.nuclides,
+      statusLabel: (s) => _nuclideStatusHu[s] ?? '',
+    );
+    final notes = point.notes;
+    if (nuclideText.isEmpty) return notes ?? '—';
+    return notes == null
+        ? 'Nuklid-azonosítás: $nuclideText'
+        : 'Nuklid-azonosítás: $nuclideText. $notes';
+  }
+
   String _safeFileName(String input) =>
       input.replaceAll(RegExp(r'[^\w\-]'), '_');
 
@@ -139,34 +179,97 @@ class ProtocolExportService {
       .replaceAll('<', '&lt;')
       .replaceAll('>', '&gt;');
 
-  String _formatValue(double v) {
-    if (v.abs() >= 1000 || (v != 0 && v.abs() < 0.01)) {
-      return v.toStringAsExponential(3);
-    }
-    return v.toStringAsFixed(3);
-  }
-
   /// A "forrás távolság" mező melletti nuklidválasztóból és a mért
   /// értékből visszaszámolt aktivitás-becslés szöveges alakja — ugyanaz a
   /// számítás, mint az Edit point képernyő gyors kalkulátora. Null, ha
   /// nincs elég adat hozzá.
   String? _estimatedActivityText(MeasurementPoint point) {
-    final nuclideName = point.activityCalcNuclide;
+    final nuclideName = point.estimationNuclide;
     final distance = point.distanceFromSourceMeters;
     final measuredValue = point.value;
     if (nuclideName == null || distance == null || distance <= 0 ||
         measuredValue == null) {
       return null;
     }
-    final isotope = Isotope.findByName(nuclideName);
-    if (isotope == null) return null;
     final measuredUSvH = toMicroSievertPerHour(measuredValue, point.unit);
     if (measuredUSvH == null) return null;
-    final activityMBq = isotope.activityFrom(
+    final estimate = estimateActivity(
+      nuclide: nuclideName,
       doseRateUSvH: measuredUSvH,
       distanceM: distance,
+      layers: point.shieldingLayers,
     );
-    return '$nuclideName: ${_formatValue(activityMBq)} MBq';
+    if (estimate == null) return null;
+    final text = '$nuclideName: ${formatActivityMBq(estimate.unshieldedMBq)} '
+        '(árnyékolás nélkül)';
+    if (estimate.shieldedMBq == null) return text;
+    final layers = point.shieldingLayers
+        .map((l) => '${_shieldingMaterialHu(l.material)} '
+            '${formatDistanceMeters(l.thicknessCm / 100)}')
+        .join(' + ');
+    return '$text; árnyékolt forrás ($layers): '
+        '${formatActivityMBq(estimate.shieldedMBq!)}';
+  }
+
+  /// A műszer neve + a hitelesítés/kalibrálás adatai a mérés időpontjában
+  /// érvényes bejegyzések alapján (lejárt esetén jelölve).
+  String _instrumentText(
+    Instrument? instrument,
+    List<InstrumentCalibration> records,
+    DateTime at,
+  ) {
+    if (instrument == null) return '—';
+    final parts = <String>[
+      instrument.serialNumber == null
+          ? instrument.name
+          : '${instrument.name} (s/n: ${instrument.serialNumber})',
+    ];
+    bool expiredAt(DateTime? until) =>
+        until != null &&
+        at.isAfter(DateTime(until.year, until.month, until.day, 23, 59, 59));
+
+    var anyRecord = false;
+    for (final kind in CalibrationKind.values) {
+      final r = latestOfKind(records, kind, at: at);
+      if (r == null) continue;
+      anyRecord = true;
+      final label =
+          kind == CalibrationKind.verification ? 'Hitelesítés' : 'Kalibrálás';
+      final b = StringBuffer(
+          '$label: ${calibrationDateText(r.performedOn)}');
+      if (r.validUntil != null) {
+        b.write(', érvényes: ${calibrationDateText(r.validUntil!)}-ig');
+      }
+      if (r.certificateNumber != null) {
+        b.write(', bizonylat: ${r.certificateNumber}');
+      }
+      if (r.performedBy != null) b.write(' (${r.performedBy})');
+      if (expiredAt(r.validUntil)) b.write(' – LEJÁRT a mérés időpontjában');
+      parts.add(b.toString());
+    }
+    if (!anyRecord && instrument.nextCalibrationDate != null) {
+      final d = instrument.nextCalibrationDate!;
+      parts.add('Kalibráció érvényes: ${calibrationDateText(d)}-ig'
+          '${expiredAt(d) ? ' – LEJÁRT a mérés időpontjában' : ''}');
+    }
+    return parts.join('; ');
+  }
+
+  String _shieldingMaterialHu(ShieldingMaterial m) {
+    switch (m) {
+      case ShieldingMaterial.lead:
+        return 'ólom';
+      case ShieldingMaterial.steel:
+        return 'acél';
+      case ShieldingMaterial.concrete:
+        return 'beton';
+      case ShieldingMaterial.tungsten:
+        return 'wolfram';
+      case ShieldingMaterial.aluminium:
+        return 'alumínium';
+      case ShieldingMaterial.water:
+        return 'víz';
+    }
   }
 
   /// A ponthoz rendelt források összesített, számított dózisteljesítménye
@@ -196,6 +299,7 @@ class ProtocolExportService {
     SurveySession session,
     List<MeasurementPoint> points,
     Map<int?, Instrument> instrumentById,
+    Map<int, List<InstrumentCalibration>> calibrationsByInstrument,
     Map<int, List<AttachedSource>> attachedByPointId,
     String personsText,
   ) async {
@@ -233,20 +337,37 @@ class ProtocolExportService {
         'idx': '${i + 1}',
         'location': point.locationLabel ?? '—',
         'type': point.type.name,
-        'value': point.value == null ? '—' : point.value!.toStringAsFixed(2),
+        'value': point.value == null
+            ? '—'
+            : formatValueWithError(point.value!, point.valueError) +
+                (point.averagingSamples == null
+                    ? ''
+                    : ' (n=${point.averagingSamples}'
+                        '${point.averagingSeconds == null ? '' : ', ${point.averagingSeconds} s'})'),
         'unit': point.unit,
         'distance': point.distanceFromSourceMeters == null
             ? '—'
-            : point.distanceFromSourceMeters!.toStringAsFixed(1),
-        'instrument': instrument?.name ?? '—',
+            : double.parse(DistanceUnitController.current
+                    .fromMeters(point.distanceFromSourceMeters!)
+                    .toStringAsFixed(2))
+                .toString(),
+        'instrument': _instrumentText(
+          instrument,
+          instrument?.id == null
+              ? const []
+              : (calibrationsByInstrument[instrument!.id!] ?? const []),
+          point.timestamp,
+        ),
         'gps':
             '${point.latitude.toStringAsFixed(6)}, ${point.longitude.toStringAsFixed(6)}',
         'accuracy': point.gpsAccuracyMeters == null
             ? '—'
-            : point.gpsAccuracyMeters!.toStringAsFixed(1),
+            : DistanceUnitController.current
+                .fromMeters(point.gpsAccuracyMeters!)
+                .toStringAsFixed(1),
         'timestamp': _dateFormat.format(point.timestamp),
         'photo': point.photoPath == null ? '—' : _photoFileName(point),
-        'notes': point.notes ?? '—',
+        'notes': _notesWithNuclides(point),
       };
 
       var row = rowTemplate;
@@ -260,6 +381,16 @@ class ProtocolExportService {
     }
 
     xml = xml.replaceRange(rowStart, rowEnd, generatedRows.toString());
+
+    // A sablon fejléce fix "(m)"-et ír; a kiválasztott távolság-egységre cseréljük.
+    xml = xml.replaceAll(
+      'Táv. forrástól (m)',
+      'Táv. forrástól (${DistanceUnitController.current.symbol})',
+    );
+    xml = xml.replaceAll(
+      'GPS pontosság (m)',
+      'GPS pontosság (${DistanceUnitController.current.symbol})',
+    );
 
     // A ${sources.*} placeholdereket tartalmazó <w:tr> a "Sugárforrás-elemzés"
     // táblázat repeatelendő sablonsora — csak azok a pontok kerülnek bele,
@@ -304,18 +435,18 @@ class ProtocolExportService {
             : attached
                 .map((a) =>
                     '${a.source.identifier} (${a.source.nuclideName}, '
-                    '${double.parse(a.link.distanceMeters.toStringAsFixed(2))} m)')
+                    '${formatDistanceMeters(a.link.distanceMeters)})')
                 .join('; '),
         'calculated_total': hasCalculatedTotal
-            ? '${_formatValue(calculatedTotalUSvH)} µSv/h'
+            ? formatDoseRateUSvH(calculatedTotalUSvH)
             : '—',
         'measured': measuredUSvH != null
-            ? '${_formatValue(measuredUSvH)} µSv/h'
+            ? formatDoseRateUSvH(measuredUSvH)
             : (point.value == null
                 ? '—'
                 : '${point.value!.toStringAsFixed(2)} ${point.unit}'),
         'diff': (measuredUSvH != null && hasCalculatedTotal)
-            ? '${_formatValue(measuredUSvH - calculatedTotalUSvH)} µSv/h'
+            ? formatDoseRateUSvH(measuredUSvH - calculatedTotalUSvH)
             : '—',
       };
 

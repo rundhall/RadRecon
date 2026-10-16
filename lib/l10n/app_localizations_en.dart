@@ -60,6 +60,375 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noLocationPlaceholder => '—';
 
   @override
+  String get doseUnitSectionTitle => 'Dose rate default unit';
+
+  @override
+  String get doseUnitSectionHint =>
+      'These units are preselected for new measurements. When recording, another one can be picked from a list, no typing needed, and the entered number is converted automatically when the unit changes. The dose rate alert threshold is converted too.';
+
+  @override
+  String get unitsSectionTitle => 'Units';
+
+  @override
+  String get activityUnitLabel => 'Activity default unit';
+
+  @override
+  String get distanceUnitLabel => 'Distance default unit';
+
+  @override
+  String get activityPlainLabel => 'Activity';
+
+  @override
+  String get measuredDoseRatePlainLabel => 'Measured dose rate';
+
+  @override
+  String get distanceFromSourcePlainLabel => 'Distance from source';
+
+  @override
+  String get sourceDistancePlainLabel => 'Distance from measurement point';
+
+  @override
+  String get activityAtManufacturePlainLabel => 'Activity at manufacture';
+
+  @override
+  String get invalidDistancePlainError => 'Enter a valid, positive distance.';
+
+  @override
+  String get invalidActivityPlainError => 'Enter a valid activity.';
+
+  @override
+  String get invalidDoseRatePlainError => 'Enter a valid dose rate.';
+
+  @override
+  String get distanceFromSourceShortLabel => 'Distance from source';
+
+  @override
+  String get calculatedActivityResultLabel => 'Calculated activity';
+
+  @override
+  String get distanceIntervalPlainLabel => 'Distance interval';
+
+  @override
+  String get modbusQuantityLabel => 'What the register returns';
+
+  @override
+  String get modbusRegisterUnitLabel => 'Register unit';
+
+  @override
+  String get modbusQuantityHelper =>
+      'When recording, the app converts the value to the default unit chosen in Settings.';
+
+  @override
+  String get autoLogTypeFromInstrument =>
+      'Auto-logging records the quantity configured for the instrument.';
+
+  @override
+  String get nuclideIdSectionTitle => 'Nuclide identification';
+
+  @override
+  String get nuclideStatusNone => 'Not specified';
+
+  @override
+  String get nuclideStatusIdentified => 'Identified nuclide(s)';
+
+  @override
+  String get nuclideStatusUnknown => 'Unknown';
+
+  @override
+  String get nuclideStatusOther => 'Other (not in the list)';
+
+  @override
+  String get nuclideStatusMixture => 'Presumably multiple sources (mixture)';
+
+  @override
+  String get nuclideKnownListLabel => 'Nuclides from the list';
+
+  @override
+  String get nuclideCustomLabel => 'Other nuclide name';
+
+  @override
+  String get nuclideAddButton => 'Add';
+
+  @override
+  String get nuclideRequiredError =>
+      'Enter at least one nuclide, or choose Unknown.';
+
+  @override
+  String get csvHeaderNuclides => 'Nuclide identification';
+
+  @override
+  String get nuclideDoneButton => 'Done';
+
+  @override
+  String get unshieldedActivityLabel => 'Activity (unshielded)';
+
+  @override
+  String get shieldingSectionTitle => 'Shielding (optional)';
+
+  @override
+  String get shieldingHint =>
+      'If the source is behind shielding, enter its material and thickness - the app will also estimate the actual activity of the shielded source.';
+
+  @override
+  String get shieldingMaterialLabel => 'Shielding material';
+
+  @override
+  String get shieldingNoneOption => 'No shielding';
+
+  @override
+  String get shieldingThicknessLabel => 'Shielding thickness';
+
+  @override
+  String get shieldingThicknessError => 'Enter a positive thickness';
+
+  @override
+  String get shieldedActivityLabel =>
+      'Estimated activity of the shielded source';
+
+  @override
+  String get shieldingDisclaimer =>
+      'Approximate estimate: attenuation is modelled with half-value layers (each HVL of thickness halves the dose rate) using indicative HVL values. Scattered radiation (buildup), source geometry and the spectrum are simplified, so the result tends to overestimate the activity. Verify against an authoritative source for official protocols.';
+
+  @override
+  String get shieldingMaterialLead => 'Lead';
+
+  @override
+  String get shieldingMaterialSteel => 'Steel (iron)';
+
+  @override
+  String get shieldingMaterialConcrete => 'Concrete';
+
+  @override
+  String get shieldingMaterialTungsten => 'Tungsten';
+
+  @override
+  String get shieldingMaterialAluminium => 'Aluminium';
+
+  @override
+  String get shieldingMaterialWater => 'Water';
+
+  @override
+  String get csvUnshieldedNote => 'unshielded';
+
+  @override
+  String get csvShieldedSourceNote => 'shielded source';
+
+  @override
+  String get shieldingAddLayer => 'Add layer';
+
+  @override
+  String get shieldingLayerLabel => 'Layer';
+
+  @override
+  String get shieldingRemoveLayer => 'Remove layer';
+
+  @override
+  String get doseRateUnshieldedLabel => 'Dose rate (unshielded)';
+
+  @override
+  String get doseRateShieldedLabel => 'Dose rate behind the shielding';
+
+  @override
+  String get calibrationSectionTitle => 'Verification and calibration';
+
+  @override
+  String get calibrationKindVerification => 'Verification';
+
+  @override
+  String get calibrationKindCalibration => 'Calibration';
+
+  @override
+  String get calibrationAddButton => 'Add record';
+
+  @override
+  String get calibrationDialogTitle => 'Verification / calibration record';
+
+  @override
+  String get calibrationKindLabel => 'Type';
+
+  @override
+  String get calibrationPerformedOnLabel => 'Date performed';
+
+  @override
+  String get calibrationValidUntilLabel => 'Valid until';
+
+  @override
+  String get calibrationCertificateLabel => 'Certificate number';
+
+  @override
+  String get calibrationPerformedByLabel => 'Performed by (lab / authority)';
+
+  @override
+  String get calibrationAttachFile => 'Attach certificate';
+
+  @override
+  String get calibrationRemoveFile => 'Remove attachment';
+
+  @override
+  String get calibrationOpenFile => 'Open / share certificate';
+
+  @override
+  String get calibrationEmptyList => 'No records yet.';
+
+  @override
+  String get calibrationStatusValid => 'Valid';
+
+  @override
+  String get calibrationStatusSoon => 'Expires soon';
+
+  @override
+  String get calibrationStatusExpired => 'EXPIRED';
+
+  @override
+  String get calibrationStatusUnknown => 'No data';
+
+  @override
+  String get calibrationExpiredWarning =>
+      'Warning: the selected instrument\'s verification/calibration has expired. Valid until:';
+
+  @override
+  String get calibrationSoonWarning =>
+      'Warning: the selected instrument\'s verification/calibration expires soon. Valid until:';
+
+  @override
+  String get calibrationUnknownWarning =>
+      'The selected instrument has no verification/calibration data.';
+
+  @override
+  String get calibrationSaveAnywayTitle => 'Expired verification/calibration';
+
+  @override
+  String get calibrationSaveAnywayBody =>
+      'The measurement was taken with an instrument whose verification/calibration has expired; the protocol will flag this. Save anyway?';
+
+  @override
+  String get calibrationSaveAnywayConfirm => 'Save anyway';
+
+  @override
+  String get calibrationValidUntilBeforeError =>
+      'Validity cannot be before the date performed';
+
+  @override
+  String get csvHeaderInstrumentCalibration =>
+      'Instrument verification/calibration';
+
+  @override
+  String get personPhoneLabel => 'Phone number';
+
+  @override
+  String get personEmailLabel => 'Email address';
+
+  @override
+  String get personAddEmail => 'Add email address';
+
+  @override
+  String get personRemoveEmail => 'Remove email';
+
+  @override
+  String get personEmailInvalidError => 'Invalid email address';
+
+  @override
+  String get personCertificatesTitle => 'Certificates';
+
+  @override
+  String get personCertificateAdd => 'Add certificate';
+
+  @override
+  String get personCertificateDialogTitle => 'Certificate';
+
+  @override
+  String get personCertificateNameLabel =>
+      'Name (e.g. radiation protection exam)';
+
+  @override
+  String get personCertificateNumberLabel => 'Certificate number';
+
+  @override
+  String get personCertificateIssuerLabel => 'Issuer';
+
+  @override
+  String get personCertificateIssuedLabel => 'Issue date';
+
+  @override
+  String get personCertificateNameRequired => 'Enter the certificate name';
+
+  @override
+  String get personCertificateValidBeforeError =>
+      'Validity cannot be before the issue date';
+
+  @override
+  String get personCertificatesEmpty => 'No certificates yet.';
+
+  @override
+  String get sourceCertificateTitle => 'Source certificate';
+
+  @override
+  String get sourceCertificateAttach => 'Attach certificate';
+
+  @override
+  String get sourceCertificateEmpty => 'No certificate attached.';
+
+  @override
+  String get companyDocumentsTooltip => 'Company documents and permits';
+
+  @override
+  String get companyDocumentNew => 'New document';
+
+  @override
+  String get companyDocumentEdit => 'Edit document';
+
+  @override
+  String get companyDocumentTitleLabel => 'Document name';
+
+  @override
+  String get companyDocumentIdentifierLabel =>
+      'Identifier (file / permit number)';
+
+  @override
+  String get companyDocumentIssuerLabel => 'Issuer / authority';
+
+  @override
+  String get companyDocumentIssuedLabel => 'Issue / effective date';
+
+  @override
+  String get companyDocumentValidUntilLabel => 'Valid / review due until';
+
+  @override
+  String get companyDocumentFilesTitle => 'Attached files';
+
+  @override
+  String get companyDocumentAttach => 'Attach file';
+
+  @override
+  String get companyDocumentsEmpty => 'No documents yet.';
+
+  @override
+  String get companyDocumentDeleteTitle => 'Delete document';
+
+  @override
+  String get companyDocumentDeleteConfirm => 'Delete this document?';
+
+  @override
+  String get companyDocSuggestionsLabel => 'Common documents';
+
+  @override
+  String get companyDocSuggestRadiationPolicy =>
+      'Workplace radiation protection policy';
+
+  @override
+  String get companyDocSuggestRadiationDescription =>
+      'Radiation protection description';
+
+  @override
+  String get companyDocSuggestPhysicalProtection => 'Physical protection plan';
+
+  @override
+  String get companyDocSuggestEmergencyPlan => 'Emergency response plan';
+
+  @override
+  String get nuclideEditButton => 'Edit nuclides';
+
+  @override
   String get languageSectionTitle => 'Language';
 
   @override
@@ -637,7 +1006,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get csvHeaderUnit => 'Unit';
 
   @override
-  String get csvHeaderDistanceFromSource => 'Distance from source (m)';
+  String get csvHeaderDistanceFromSource => 'Distance from source';
 
   @override
   String get csvHeaderInstrument => 'Instrument';
@@ -649,7 +1018,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get csvHeaderGpsLongitude => 'GPS longitude';
 
   @override
-  String get csvHeaderGpsAccuracy => 'GPS accuracy (m)';
+  String get csvHeaderGpsAccuracy => 'GPS accuracy';
 
   @override
   String get csvHeaderTimestamp => 'Timestamp';
@@ -668,10 +1037,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get csvHeaderAttachedSources => 'Attached source(s)';
 
   @override
-  String get csvHeaderCalculatedDoseRate => 'Calculated dose rate (µSv/h)';
+  String get csvHeaderCalculatedDoseRate => 'Calculated dose rate';
 
   @override
-  String get csvHeaderDoseRateDifference => 'Difference (µSv/h)';
+  String get csvHeaderDoseRateDifference => 'Difference';
 
   @override
   String get csvYes => 'yes';
@@ -1314,4 +1683,160 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contributorRoleOther => 'Other';
+
+  @override
+  String get regulatoryProfileLabel => 'Regulatory profile';
+
+  @override
+  String get regulatoryProfileInternational => 'International (IAEA)';
+
+  @override
+  String get regulatoryProfileHungary => 'Hungary (OAH)';
+
+  @override
+  String get classificationTitle => 'Classification (D, R, exemption)';
+
+  @override
+  String get classificationDisclaimer =>
+      'Indicative calculation from nuclide tables and the current (decay-corrected) activity. The official classification is determined by the applicable law and the regulator. Laboratory levels (MSZ 62-7) are not included.';
+
+  @override
+  String get classificationUnsealedWork => 'Regular work with unsealed sources';
+
+  @override
+  String get classificationOutsideWorkplace =>
+      'Use outside the radiation workplace';
+
+  @override
+  String get classificationTotal => 'Total (selected sources)';
+
+  @override
+  String get classificationPhysCat => 'Physical protection category';
+
+  @override
+  String get classificationProtCat => 'Radiation protection category';
+
+  @override
+  String get classificationUnknownCount =>
+      'Sources without R (unknown nuclide)';
+
+  @override
+  String get classificationActivity => 'Activity';
+
+  @override
+  String get classificationNotDecayCorrected => 'not decay-corrected';
+
+  @override
+  String get classificationDInfinite => 'D = ∞ (does not contribute to R)';
+
+  @override
+  String get classificationDUnknown =>
+      'No D value for this nuclide, R cannot be calculated';
+
+  @override
+  String get classificationExemptUnknown =>
+      'No exemption values for this nuclide';
+
+  @override
+  String get classificationExemptActivity => 'Exempt activity';
+
+  @override
+  String get classificationSpecificConc => 'Specific exemption concentration';
+
+  @override
+  String get classificationGeneralConc => 'general';
+
+  @override
+  String get classificationBelowExempt =>
+      'Activity is at or below the exempt activity';
+
+  @override
+  String get classificationAboveExempt =>
+      'Activity is above the exempt activity';
+
+  @override
+  String get classificationProtLevel => 'Physical protection level';
+
+  @override
+  String get classificationAdrConsignmentLimit => 'exempt consignment limit';
+
+  @override
+  String get classificationAdrBelow => 'activity is below it (not Class 7)';
+
+  @override
+  String get classificationAdrAbove =>
+      'activity is above it (concentration also matters)';
+
+  @override
+  String get classificationLabIndustrial => 'Industrial lab';
+
+  @override
+  String get classificationLabMedical => 'Medical lab';
+
+  @override
+  String get classificationLabAboveIII => '> III';
+
+  @override
+  String get classificationLabOps => 'Permitted operation types';
+
+  @override
+  String get classificationLabUnknown =>
+      'MSZ 62-7: no AM value for this nuclide';
+
+  @override
+  String get autoLogChartTitle => 'Measured value over time';
+
+  @override
+  String get gpsAverageButton => 'Averaged GPS';
+
+  @override
+  String get gpsAverageTitle => 'Position averaging';
+
+  @override
+  String get gpsAverageHint =>
+      'Stand still in one spot during the measurement. A longer averaging time gives a more reliable result; open sky works best. Samples are weighted by their accuracy and outlier positions are dropped.';
+
+  @override
+  String get gpsAverageStart => 'Start';
+
+  @override
+  String get gpsAverageUse => 'Use';
+
+  @override
+  String get gpsAverageSamples => 'Samples';
+
+  @override
+  String get gpsAverageCurrent => 'Current accuracy';
+
+  @override
+  String get gpsAverageResult => 'Estimated accuracy of the average';
+
+  @override
+  String get modbusAverageButton => 'Averaging measurement';
+
+  @override
+  String get modbusAverageRunning => 'Averaging';
+
+  @override
+  String get modbusAverageDone => 'Done';
+
+  @override
+  String get modbusAverageTooFew =>
+      'At least 2 valid samples are needed to calculate the error; only the value was entered.';
+
+  @override
+  String get measurementErrorLabel => 'Error (±)';
+
+  @override
+  String get measurementErrorHelper =>
+      'For an averaged measurement this is the standard error of the mean (1σ); it can also be entered by hand for manually entered values. It is included in the protocol.';
+
+  @override
+  String get measurementAveragedLabel => 'Averaged measurement';
+
+  @override
+  String get csvHeaderValueError => 'Error (±)';
+
+  @override
+  String get csvHeaderAveraging => 'Averaging (samples; s)';
 }

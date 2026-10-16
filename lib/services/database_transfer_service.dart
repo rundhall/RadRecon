@@ -128,7 +128,7 @@ class _SafStore implements _CompanyStore {
 /// a "cégek" (több különálló adatbázis) közötti váltás.
 ///
 /// Egy mentésfájl egy zip: `manifest.json` + `rad_recon.db` + `photos/` +
-/// `screenshots/`. A fotók és a képernyőképek azért kerülnek bele, mert az
+/// `screenshots/` + `attachments/`. A fotók és a képernyőképek azért kerülnek bele, mert az
 /// adatbázis csak a fájl útvonalát tárolja — a puszta .db fájl új telefonra
 /// átmásolva a képek nélkül maradna.
 class DatabaseTransferService {
@@ -142,6 +142,9 @@ class DatabaseTransferService {
   static const _screenshotsDirName = 'rad_recon_screenshots';
   static const _restoredPhotosDirName = 'rad_recon_photos';
   static const _photoPathMarker = 'photos/';
+  static const _attachmentsPrefix = 'attachments/';
+  static const _attachmentMarker = 'attachments/';
+  static const _restoredAttachmentsDirName = 'rad_recon_attachments';
 
   static const _activeCompanyKey = 'active_company_name';
   static const _folderPathKey = 'companies_folder_path';
@@ -323,6 +326,7 @@ class DatabaseTransferService {
 
     // A munkapéldányban a fotó-útvonalakat zip-relatív jelölőre cseréljük.
     final photoEntries = <String, File>{};
+    final attachmentEntries = <String, File>{};
     final copyDb = await openDatabase(workCopy.path);
     try {
       final rows = await copyDb.query(
@@ -344,6 +348,7 @@ class DatabaseTransferService {
           whereArgs: [row['id']],
         );
       }
+      await _collectAttachments(copyDb, attachmentEntries);
     } finally {
       await copyDb.close();
     }
@@ -355,6 +360,13 @@ class DatabaseTransferService {
       final bytes = await e.value.readAsBytes();
       archive.addFile(
         ArchiveFile('$_photosPrefix${e.key}', bytes.length, bytes),
+      );
+    }
+
+    for (final e in attachmentEntries.entries) {
+      final bytes = await e.value.readAsBytes();
+      archive.addFile(
+        ArchiveFile('$_attachmentsPrefix${e.key}', bytes.length, bytes),
       );
     }
 
@@ -379,6 +391,7 @@ class DatabaseTransferService {
       'createdAt': DateTime.now().toIso8601String(),
       'schemaVersion': await _readUserVersion(workCopy.path),
       'photoCount': photoEntries.length,
+      'attachmentCount': attachmentEntries.length,
     }));
     archive.addFile(ArchiveFile(_manifestName, manifest.length, manifest));
 
@@ -394,6 +407,179 @@ class DatabaseTransferService {
     ));
     await out.writeAsBytes(encoded);
     return out;
+  }
+
+  Future<bool> _hasTable(Database db, String table) async =>
+      (await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+        [table],
+      ))
+          .isNotEmpty;
+
+  /// A csatolmányok útvonalát zip-relatív jelölőre cseréli a munkapéldányban,
+  /// és összegyűjti a becsomagolandó fájlokat.
+  Future<void> _collectAttachments(
+    Database db,
+    Map<String, File> out,
+  ) async {
+    Future<String?> collect(String entryName, String? path) async {
+      if (path == null || path.isEmpty) return null;
+      final f = File(path);
+      if (!await f.exists()) return path;
+      out[entryName] = f;
+      return '$_attachmentMarker$entryName';
+    }
+
+    for (final t in const [
+      ('instrument_calibrations', 'cal'),
+      ('person_certificates', 'person'),
+    ]) {
+      if (!await _hasTable(db, t.$1)) continue;
+      final rows = await db.query(
+        t.$1,
+        columns: ['id', 'file_path'],
+        where: 'file_path IS NOT NULL',
+      );
+      for (final r in rows) {
+        final path = r['file_path'] as String?;
+        final marked = await collect(
+            '${t.$2}_${r['id']}_${p.basename(path ?? '')}', path);
+        await db.update(t.$1, {'file_path': marked},
+            where: 'id = ?', whereArgs: [r['id']]);
+      }
+    }
+
+    if (await _hasTable(db, 'company_documents')) {
+      final rows = await db.query(
+        'company_documents',
+        columns: ['id', 'files'],
+        where: 'files IS NOT NULL',
+      );
+      for (final r in rows) {
+        final list = _decodeList(r['files']);
+        final marked = <String>[];
+        for (var i = 0; i < list.length; i++) {
+          final m = await collect(
+              'doc_${r['id']}_${i}_${p.basename(list[i])}', list[i]);
+          if (m != null) marked.add(m);
+        }
+        await db.update(
+          'company_documents',
+          {'files': marked.isEmpty ? null : jsonEncode(marked)},
+          where: 'id = ?',
+          whereArgs: [r['id']],
+        );
+      }
+    }
+
+    if (await _hasTable(db, 'radiation_sources')) {
+      final cols = await db.rawQuery('PRAGMA table_info(radiation_sources)');
+      if (cols.any((c) => c['name'] == 'certificate_files')) {
+        final rows = await db.query(
+          'radiation_sources',
+          columns: ['id', 'certificate_files'],
+          where: 'certificate_files IS NOT NULL',
+        );
+        for (final r in rows) {
+          final list = _decodeList(r['certificate_files']);
+          final marked = <String>[];
+          for (var i = 0; i < list.length; i++) {
+            final m = await collect(
+                'src_${r['id']}_${i}_${p.basename(list[i])}', list[i]);
+            if (m != null) marked.add(m);
+          }
+          await db.update(
+            'radiation_sources',
+            {'certificate_files': marked.isEmpty ? null : jsonEncode(marked)},
+            where: 'id = ?',
+            whereArgs: [r['id']],
+          );
+        }
+      }
+    }
+  }
+
+  List<String> _decodeList(Object? raw) {
+    if (raw is! String || raw.isEmpty) return const [];
+    try {
+      final d = jsonDecode(raw);
+      if (d is List) return d.whereType<String>().toList();
+    } catch (_) {}
+    return const [];
+  }
+
+  /// Visszatöltéskor a jelölőket a helyreállított fájlok útvonalára cseréli.
+  Future<void> _restoreAttachments(Database db, String dirPath) async {
+    Future<String?> restore(String? path) async {
+      if (path == null || !path.startsWith(_attachmentMarker)) return path;
+      final restored = p.join(dirPath, p.basename(path));
+      return await File(restored).exists() ? restored : null;
+    }
+
+    for (final table in const ['instrument_calibrations', 'person_certificates']) {
+      if (!await _hasTable(db, table)) continue;
+      final rows = await db.query(
+        table,
+        columns: ['id', 'file_path'],
+        where: 'file_path IS NOT NULL',
+      );
+      for (final r in rows) {
+        await db.update(
+          table,
+          {'file_path': await restore(r['file_path'] as String?)},
+          where: 'id = ?',
+          whereArgs: [r['id']],
+        );
+      }
+    }
+
+    if (await _hasTable(db, 'company_documents')) {
+      final rows = await db.query(
+        'company_documents',
+        columns: ['id', 'files'],
+        where: 'files IS NOT NULL',
+      );
+      for (final r in rows) {
+        final restored = <String>[];
+        for (final path in _decodeList(r['files'])) {
+          final x = await restore(path);
+          if (x != null) restored.add(x);
+        }
+        await db.update(
+          'company_documents',
+          {'files': restored.isEmpty ? null : jsonEncode(restored)},
+          where: 'id = ?',
+          whereArgs: [r['id']],
+        );
+      }
+    }
+
+    if (await _hasTable(db, 'radiation_sources')) {
+      final cols = await db.rawQuery('PRAGMA table_info(radiation_sources)');
+      if (cols.any((c) => c['name'] == 'certificate_files')) {
+        final rows = await db.query(
+          'radiation_sources',
+          columns: ['id', 'certificate_files'],
+          where: 'certificate_files IS NOT NULL',
+        );
+        for (final r in rows) {
+          final restored = <String>[];
+          for (final path in _decodeList(r['certificate_files'])) {
+            final x = await restore(path);
+            if (x != null) restored.add(x);
+          }
+          await db.update(
+            'radiation_sources',
+            {
+              'certificate_files':
+                  restored.isEmpty ? null : jsonEncode(restored)
+            },
+            where: 'id = ?',
+            whereArgs: [r['id']],
+          );
+        }
+      }
+    }
   }
 
   // --------------------------------------------------------------- import
@@ -456,8 +642,21 @@ class DatabaseTransferService {
       await File(p.join(photosDir.path, name))
           .writeAsBytes(entry.content as List<int>);
     }
+    // Csatolmányok (műbizonylatok, hitelesítési bizonylatok, bizonyítványok).
+    final attachmentsDir =
+        Directory(p.join(docs.path, _restoredAttachmentsDirName));
+    if (await attachmentsDir.exists()) {
+      await attachmentsDir.delete(recursive: true);
+    }
+    await attachmentsDir.create(recursive: true);
+    for (final entry in archive.files) {
+      if (!entry.isFile || !entry.name.startsWith(_attachmentsPrefix)) continue;
+      await File(p.join(attachmentsDir.path, p.basename(entry.name)))
+          .writeAsBytes(entry.content as List<int>);
+    }
     final db = await openDatabase(dbPath);
     try {
+      await _restoreAttachments(db, attachmentsDir.path);
       final rows = await db.query(
         'measurement_points',
         columns: ['id', 'photo_path'],

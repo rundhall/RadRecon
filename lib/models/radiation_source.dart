@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'isotope.dart';
 
 /// Egy sugárforrás a globális forrás-nyilvántartásban (a műszerekhez
@@ -21,6 +23,9 @@ class RadiationSource {
 
   final String? notes;
 
+  /// Csatolt műbizonylat(ok) — az app könyvtárába másolt fájlok útvonala.
+  final List<String> certificateFiles;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -34,6 +39,7 @@ class RadiationSource {
     this.serviceLifeExpiryDate,
     this.nextInspectionDate,
     this.notes,
+    this.certificateFiles = const [],
     required this.createdAt,
     required this.updatedAt,
   });
@@ -67,6 +73,7 @@ class RadiationSource {
     DateTime? serviceLifeExpiryDate,
     DateTime? nextInspectionDate,
     String? notes,
+    List<String>? certificateFiles,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -82,6 +89,7 @@ class RadiationSource {
           serviceLifeExpiryDate ?? this.serviceLifeExpiryDate,
         nextInspectionDate: nextInspectionDate ?? this.nextInspectionDate,
       notes: notes ?? this.notes,
+      certificateFiles: certificateFiles ?? this.certificateFiles,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -98,6 +106,8 @@ class RadiationSource {
       'service_life_expiry_date': serviceLifeExpiryDate?.toIso8601String(),
       'next_inspection_date': nextInspectionDate?.toIso8601String(),
       'notes': notes,
+      'certificate_files':
+          certificateFiles.isEmpty ? null : jsonEncode(certificateFiles),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -120,8 +130,18 @@ class RadiationSource {
           ? null
           : DateTime.parse(map['next_inspection_date'] as String),
       notes: map['notes'] as String?,
+      certificateFiles: _decodeFiles(map['certificate_files']),
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
+  }
+
+  static List<String> _decodeFiles(Object? raw) {
+    if (raw is! String || raw.isEmpty) return const [];
+    try {
+      final d = jsonDecode(raw);
+      if (d is List) return d.whereType<String>().toList();
+    } catch (_) {}
+    return const [];
   }
 }

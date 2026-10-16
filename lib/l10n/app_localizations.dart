@@ -194,6 +194,708 @@ abstract class AppLocalizations {
   /// **'—'**
   String get noLocationPlaceholder;
 
+  /// No description provided for @doseUnitSectionTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dózisteljesítmény alapegysége'**
+  String get doseUnitSectionTitle;
+
+  /// No description provided for @doseUnitSectionHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Új mérésnél ezek az egységek vannak előre kiválasztva. Rögzítéskor legördülő listából lehet másikat választani, beírni nem kell, és egységváltáskor a beírt szám automatikusan átváltódik. A dózisteljesítmény riasztási küszöbe is átváltódik.'**
+  String get doseUnitSectionHint;
+
+  /// No description provided for @unitsSectionTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mértékegységek'**
+  String get unitsSectionTitle;
+
+  /// No description provided for @activityUnitLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktivitás alapegysége'**
+  String get activityUnitLabel;
+
+  /// No description provided for @distanceUnitLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Távolság alapegysége'**
+  String get distanceUnitLabel;
+
+  /// No description provided for @activityPlainLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktivitás'**
+  String get activityPlainLabel;
+
+  /// No description provided for @measuredDoseRatePlainLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mért dózisteljesítmény'**
+  String get measuredDoseRatePlainLabel;
+
+  /// No description provided for @distanceFromSourcePlainLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Távolság a forrástól'**
+  String get distanceFromSourcePlainLabel;
+
+  /// No description provided for @sourceDistancePlainLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Távolság a mérési ponttól'**
+  String get sourceDistancePlainLabel;
+
+  /// No description provided for @activityAtManufacturePlainLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktivitás gyártáskor'**
+  String get activityAtManufacturePlainLabel;
+
+  /// No description provided for @invalidDistancePlainError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Adj meg egy érvényes, pozitív távolságot.'**
+  String get invalidDistancePlainError;
+
+  /// No description provided for @invalidActivityPlainError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Adj meg egy érvényes aktivitást.'**
+  String get invalidActivityPlainError;
+
+  /// No description provided for @invalidDoseRatePlainError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Adj meg egy érvényes dózisteljesítményt.'**
+  String get invalidDoseRatePlainError;
+
+  /// No description provided for @distanceFromSourceShortLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Táv. forrástól'**
+  String get distanceFromSourceShortLabel;
+
+  /// No description provided for @calculatedActivityResultLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Számított aktivitás'**
+  String get calculatedActivityResultLabel;
+
+  /// No description provided for @distanceIntervalPlainLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Távolságköz'**
+  String get distanceIntervalPlainLabel;
+
+  /// No description provided for @modbusQuantityLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mit ad vissza a regiszter'**
+  String get modbusQuantityLabel;
+
+  /// No description provided for @modbusRegisterUnitLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'A regiszter mértékegysége'**
+  String get modbusRegisterUnitLabel;
+
+  /// No description provided for @modbusQuantityHelper.
+  ///
+  /// In hu, this message translates to:
+  /// **'Rögzítéskor az app a kiolvasott értéket a Beállításokban választott alapegységre váltja.'**
+  String get modbusQuantityHelper;
+
+  /// No description provided for @autoLogTypeFromInstrument.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az automata naplózás a műszerhez beállított mennyiséget rögzíti.'**
+  String get autoLogTypeFromInstrument;
+
+  /// No description provided for @nuclideIdSectionTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nuklid-azonosítás'**
+  String get nuclideIdSectionTitle;
+
+  /// No description provided for @nuclideStatusNone.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs megadva'**
+  String get nuclideStatusNone;
+
+  /// No description provided for @nuclideStatusIdentified.
+  ///
+  /// In hu, this message translates to:
+  /// **'Azonosított nuklid(ok)'**
+  String get nuclideStatusIdentified;
+
+  /// No description provided for @nuclideStatusUnknown.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ismeretlen'**
+  String get nuclideStatusUnknown;
+
+  /// No description provided for @nuclideStatusOther.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egyéb (nem szerepel a listában)'**
+  String get nuclideStatusOther;
+
+  /// No description provided for @nuclideStatusMixture.
+  ///
+  /// In hu, this message translates to:
+  /// **'Feltételezhetően több forrás (keverék)'**
+  String get nuclideStatusMixture;
+
+  /// No description provided for @nuclideKnownListLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nuklidok a listából'**
+  String get nuclideKnownListLabel;
+
+  /// No description provided for @nuclideCustomLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egyéb nuklid neve'**
+  String get nuclideCustomLabel;
+
+  /// No description provided for @nuclideAddButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hozzáadás'**
+  String get nuclideAddButton;
+
+  /// No description provided for @nuclideRequiredError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Adj meg legalább egy nuklidot, vagy válaszd az Ismeretlen lehetőséget.'**
+  String get nuclideRequiredError;
+
+  /// No description provided for @csvHeaderNuclides.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nuklid-azonosítás'**
+  String get csvHeaderNuclides;
+
+  /// No description provided for @nuclideDoneButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kész'**
+  String get nuclideDoneButton;
+
+  /// No description provided for @unshieldedActivityLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktivitás (árnyékolás nélkül)'**
+  String get unshieldedActivityLabel;
+
+  /// No description provided for @shieldingSectionTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Árnyékolás (opcionális)'**
+  String get shieldingSectionTitle;
+
+  /// No description provided for @shieldingHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ha a forrás árnyékolás mögött van, add meg az anyagát és a vastagságát — a program az árnyékolt forrás tényleges aktivitását is megbecsüli.'**
+  String get shieldingHint;
+
+  /// No description provided for @shieldingMaterialLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Árnyékoló anyag'**
+  String get shieldingMaterialLabel;
+
+  /// No description provided for @shieldingNoneOption.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs árnyékolás'**
+  String get shieldingNoneOption;
+
+  /// No description provided for @shieldingThicknessLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Árnyékolás vastagsága'**
+  String get shieldingThicknessLabel;
+
+  /// No description provided for @shieldingThicknessError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Adj meg pozitív vastagságot'**
+  String get shieldingThicknessError;
+
+  /// No description provided for @shieldedActivityLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Árnyékolt forrás becsült aktivitása'**
+  String get shieldedActivityLabel;
+
+  /// No description provided for @shieldingDisclaimer.
+  ///
+  /// In hu, this message translates to:
+  /// **'Közelítő becslés: a gyengítést félértékréteg-modell írja le (a vastagság minden HVL-nyi egységén felezi a dózisteljesítményt), tájékoztató HVL-értékekkel. A szórt sugárzás (buildup), a forrás geometriája és a sugárzási spektrum egyszerűsítve szerepel, ezért az eredmény inkább felülbecsli az aktivitást. Hatósági jegyzőkönyvhöz ellenőrizd hiteles forrásból.'**
+  String get shieldingDisclaimer;
+
+  /// No description provided for @shieldingMaterialLead.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ólom'**
+  String get shieldingMaterialLead;
+
+  /// No description provided for @shieldingMaterialSteel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Acél (vas)'**
+  String get shieldingMaterialSteel;
+
+  /// No description provided for @shieldingMaterialConcrete.
+  ///
+  /// In hu, this message translates to:
+  /// **'Beton'**
+  String get shieldingMaterialConcrete;
+
+  /// No description provided for @shieldingMaterialTungsten.
+  ///
+  /// In hu, this message translates to:
+  /// **'Wolfram'**
+  String get shieldingMaterialTungsten;
+
+  /// No description provided for @shieldingMaterialAluminium.
+  ///
+  /// In hu, this message translates to:
+  /// **'Alumínium'**
+  String get shieldingMaterialAluminium;
+
+  /// No description provided for @shieldingMaterialWater.
+  ///
+  /// In hu, this message translates to:
+  /// **'Víz'**
+  String get shieldingMaterialWater;
+
+  /// No description provided for @csvUnshieldedNote.
+  ///
+  /// In hu, this message translates to:
+  /// **'árnyékolás nélkül'**
+  String get csvUnshieldedNote;
+
+  /// No description provided for @csvShieldedSourceNote.
+  ///
+  /// In hu, this message translates to:
+  /// **'árnyékolt forrás'**
+  String get csvShieldedSourceNote;
+
+  /// No description provided for @shieldingAddLayer.
+  ///
+  /// In hu, this message translates to:
+  /// **'Réteg hozzáadása'**
+  String get shieldingAddLayer;
+
+  /// No description provided for @shieldingLayerLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Réteg'**
+  String get shieldingLayerLabel;
+
+  /// No description provided for @shieldingRemoveLayer.
+  ///
+  /// In hu, this message translates to:
+  /// **'Réteg törlése'**
+  String get shieldingRemoveLayer;
+
+  /// No description provided for @doseRateUnshieldedLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dózisteljesítmény (árnyékolás nélkül)'**
+  String get doseRateUnshieldedLabel;
+
+  /// No description provided for @doseRateShieldedLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dózisteljesítmény az árnyékolás mögött'**
+  String get doseRateShieldedLabel;
+
+  /// No description provided for @calibrationSectionTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hitelesítés és kalibrálás'**
+  String get calibrationSectionTitle;
+
+  /// No description provided for @calibrationKindVerification.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hitelesítés'**
+  String get calibrationKindVerification;
+
+  /// No description provided for @calibrationKindCalibration.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kalibrálás'**
+  String get calibrationKindCalibration;
+
+  /// No description provided for @calibrationAddButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bejegyzés hozzáadása'**
+  String get calibrationAddButton;
+
+  /// No description provided for @calibrationDialogTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hitelesítés / kalibrálás bejegyzés'**
+  String get calibrationDialogTitle;
+
+  /// No description provided for @calibrationKindLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Típus'**
+  String get calibrationKindLabel;
+
+  /// No description provided for @calibrationPerformedOnLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Elvégzés dátuma'**
+  String get calibrationPerformedOnLabel;
+
+  /// No description provided for @calibrationValidUntilLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érvényes eddig'**
+  String get calibrationValidUntilLabel;
+
+  /// No description provided for @calibrationCertificateLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bizonylat száma'**
+  String get calibrationCertificateLabel;
+
+  /// No description provided for @calibrationPerformedByLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Végezte (labor / hatóság)'**
+  String get calibrationPerformedByLabel;
+
+  /// No description provided for @calibrationAttachFile.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bizonylat csatolása'**
+  String get calibrationAttachFile;
+
+  /// No description provided for @calibrationRemoveFile.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csatolmány törlése'**
+  String get calibrationRemoveFile;
+
+  /// No description provided for @calibrationOpenFile.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bizonylat megnyitása / megosztása'**
+  String get calibrationOpenFile;
+
+  /// No description provided for @calibrationEmptyList.
+  ///
+  /// In hu, this message translates to:
+  /// **'Még nincs bejegyzés.'**
+  String get calibrationEmptyList;
+
+  /// No description provided for @calibrationStatusValid.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érvényes'**
+  String get calibrationStatusValid;
+
+  /// No description provided for @calibrationStatusSoon.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hamarosan lejár'**
+  String get calibrationStatusSoon;
+
+  /// No description provided for @calibrationStatusExpired.
+  ///
+  /// In hu, this message translates to:
+  /// **'LEJÁRT'**
+  String get calibrationStatusExpired;
+
+  /// No description provided for @calibrationStatusUnknown.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs adat'**
+  String get calibrationStatusUnknown;
+
+  /// No description provided for @calibrationExpiredWarning.
+  ///
+  /// In hu, this message translates to:
+  /// **'Figyelem: a kiválasztott műszer hitelesítése/kalibrálása lejárt. Érvényes eddig:'**
+  String get calibrationExpiredWarning;
+
+  /// No description provided for @calibrationSoonWarning.
+  ///
+  /// In hu, this message translates to:
+  /// **'Figyelem: a kiválasztott műszer hitelesítése/kalibrálása hamarosan lejár. Érvényes eddig:'**
+  String get calibrationSoonWarning;
+
+  /// No description provided for @calibrationUnknownWarning.
+  ///
+  /// In hu, this message translates to:
+  /// **'A kiválasztott műszernél nincs hitelesítési/kalibrálási adat.'**
+  String get calibrationUnknownWarning;
+
+  /// No description provided for @calibrationSaveAnywayTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Lejárt hitelesítés/kalibrálás'**
+  String get calibrationSaveAnywayTitle;
+
+  /// No description provided for @calibrationSaveAnywayBody.
+  ///
+  /// In hu, this message translates to:
+  /// **'A mérés lejárt hitelesítésű/kalibrálású műszerrel készült, a jegyzőkönyvben ez jelölve lesz. Mented?'**
+  String get calibrationSaveAnywayBody;
+
+  /// No description provided for @calibrationSaveAnywayConfirm.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mentés mégis'**
+  String get calibrationSaveAnywayConfirm;
+
+  /// No description provided for @calibrationValidUntilBeforeError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az érvényesség nem lehet az elvégzés előtt'**
+  String get calibrationValidUntilBeforeError;
+
+  /// No description provided for @csvHeaderInstrumentCalibration.
+  ///
+  /// In hu, this message translates to:
+  /// **'Műszer hitelesítése/kalibrálása'**
+  String get csvHeaderInstrumentCalibration;
+
+  /// No description provided for @personPhoneLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Telefonszám'**
+  String get personPhoneLabel;
+
+  /// No description provided for @personEmailLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'E-mail cím'**
+  String get personEmailLabel;
+
+  /// No description provided for @personAddEmail.
+  ///
+  /// In hu, this message translates to:
+  /// **'E-mail cím hozzáadása'**
+  String get personAddEmail;
+
+  /// No description provided for @personRemoveEmail.
+  ///
+  /// In hu, this message translates to:
+  /// **'E-mail törlése'**
+  String get personRemoveEmail;
+
+  /// No description provided for @personEmailInvalidError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érvénytelen e-mail cím'**
+  String get personEmailInvalidError;
+
+  /// No description provided for @personCertificatesTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bizonyítványok'**
+  String get personCertificatesTitle;
+
+  /// No description provided for @personCertificateAdd.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bizonyítvány hozzáadása'**
+  String get personCertificateAdd;
+
+  /// No description provided for @personCertificateDialogTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bizonyítvány'**
+  String get personCertificateDialogTitle;
+
+  /// No description provided for @personCertificateNameLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Megnevezés (pl. sugárvédelmi vizsga)'**
+  String get personCertificateNameLabel;
+
+  /// No description provided for @personCertificateNumberLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bizonyítvány száma'**
+  String get personCertificateNumberLabel;
+
+  /// No description provided for @personCertificateIssuerLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kiállító'**
+  String get personCertificateIssuerLabel;
+
+  /// No description provided for @personCertificateIssuedLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kiállítás dátuma'**
+  String get personCertificateIssuedLabel;
+
+  /// No description provided for @personCertificateNameRequired.
+  ///
+  /// In hu, this message translates to:
+  /// **'Add meg a bizonyítvány megnevezését'**
+  String get personCertificateNameRequired;
+
+  /// No description provided for @personCertificateValidBeforeError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az érvényesség nem lehet a kiállítás előtt'**
+  String get personCertificateValidBeforeError;
+
+  /// No description provided for @personCertificatesEmpty.
+  ///
+  /// In hu, this message translates to:
+  /// **'Még nincs bizonyítvány.'**
+  String get personCertificatesEmpty;
+
+  /// No description provided for @sourceCertificateTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Műbizonylat'**
+  String get sourceCertificateTitle;
+
+  /// No description provided for @sourceCertificateAttach.
+  ///
+  /// In hu, this message translates to:
+  /// **'Műbizonylat csatolása'**
+  String get sourceCertificateAttach;
+
+  /// No description provided for @sourceCertificateEmpty.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs csatolt műbizonylat.'**
+  String get sourceCertificateEmpty;
+
+  /// No description provided for @companyDocumentsTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Cég dokumentumai és engedélyei'**
+  String get companyDocumentsTooltip;
+
+  /// No description provided for @companyDocumentNew.
+  ///
+  /// In hu, this message translates to:
+  /// **'Új dokumentum'**
+  String get companyDocumentNew;
+
+  /// No description provided for @companyDocumentEdit.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dokumentum szerkesztése'**
+  String get companyDocumentEdit;
+
+  /// No description provided for @companyDocumentTitleLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dokumentum megnevezése'**
+  String get companyDocumentTitleLabel;
+
+  /// No description provided for @companyDocumentIdentifierLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Azonosító (iktatószám, engedélyszám)'**
+  String get companyDocumentIdentifierLabel;
+
+  /// No description provided for @companyDocumentIssuerLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kiadó / hatóság'**
+  String get companyDocumentIssuerLabel;
+
+  /// No description provided for @companyDocumentIssuedLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kiadás vagy hatályba lépés dátuma'**
+  String get companyDocumentIssuedLabel;
+
+  /// No description provided for @companyDocumentValidUntilLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érvényes / felülvizsgálandó eddig'**
+  String get companyDocumentValidUntilLabel;
+
+  /// No description provided for @companyDocumentFilesTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csatolt fájlok'**
+  String get companyDocumentFilesTitle;
+
+  /// No description provided for @companyDocumentAttach.
+  ///
+  /// In hu, this message translates to:
+  /// **'Fájl csatolása'**
+  String get companyDocumentAttach;
+
+  /// No description provided for @companyDocumentsEmpty.
+  ///
+  /// In hu, this message translates to:
+  /// **'Még nincs dokumentum.'**
+  String get companyDocumentsEmpty;
+
+  /// No description provided for @companyDocumentDeleteTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dokumentum törlése'**
+  String get companyDocumentDeleteTitle;
+
+  /// No description provided for @companyDocumentDeleteConfirm.
+  ///
+  /// In hu, this message translates to:
+  /// **'Biztosan törlöd ezt a dokumentumot?'**
+  String get companyDocumentDeleteConfirm;
+
+  /// No description provided for @companyDocSuggestionsLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Gyakori dokumentumok'**
+  String get companyDocSuggestionsLabel;
+
+  /// No description provided for @companyDocSuggestRadiationPolicy.
+  ///
+  /// In hu, this message translates to:
+  /// **'Munkahelyi Sugárvédelmi Szabályzat'**
+  String get companyDocSuggestRadiationPolicy;
+
+  /// No description provided for @companyDocSuggestRadiationDescription.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sugárvédelmi Leírás'**
+  String get companyDocSuggestRadiationDescription;
+
+  /// No description provided for @companyDocSuggestPhysicalProtection.
+  ///
+  /// In hu, this message translates to:
+  /// **'Fizikai Védelmi Terv'**
+  String get companyDocSuggestPhysicalProtection;
+
+  /// No description provided for @companyDocSuggestEmergencyPlan.
+  ///
+  /// In hu, this message translates to:
+  /// **'Balesetelhárítási Intézkedési Terv'**
+  String get companyDocSuggestEmergencyPlan;
+
+  /// No description provided for @nuclideEditButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nuklidok módosítása'**
+  String get nuclideEditButton;
+
   /// No description provided for @languageSectionTitle.
   ///
   /// In hu, this message translates to:
@@ -1192,7 +1894,7 @@ abstract class AppLocalizations {
   /// No description provided for @csvHeaderDistanceFromSource.
   ///
   /// In hu, this message translates to:
-  /// **'Táv. forrástól (m)'**
+  /// **'Táv. forrástól'**
   String get csvHeaderDistanceFromSource;
 
   /// No description provided for @csvHeaderInstrument.
@@ -1216,7 +1918,7 @@ abstract class AppLocalizations {
   /// No description provided for @csvHeaderGpsAccuracy.
   ///
   /// In hu, this message translates to:
-  /// **'GPS pontosság (m)'**
+  /// **'GPS pontosság'**
   String get csvHeaderGpsAccuracy;
 
   /// No description provided for @csvHeaderTimestamp.
@@ -1252,13 +1954,13 @@ abstract class AppLocalizations {
   /// No description provided for @csvHeaderCalculatedDoseRate.
   ///
   /// In hu, this message translates to:
-  /// **'Számított dózisteljesítmény (µSv/h)'**
+  /// **'Számított dózisteljesítmény'**
   String get csvHeaderCalculatedDoseRate;
 
   /// No description provided for @csvHeaderDoseRateDifference.
   ///
   /// In hu, this message translates to:
-  /// **'Eltérés (µSv/h)'**
+  /// **'Eltérés'**
   String get csvHeaderDoseRateDifference;
 
   /// No description provided for @csvYes.
@@ -2376,6 +3078,294 @@ abstract class AppLocalizations {
   /// In hu, this message translates to:
   /// **'Egyéb'**
   String get contributorRoleOther;
+
+  /// No description provided for @regulatoryProfileLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szabályozási profil'**
+  String get regulatoryProfileLabel;
+
+  /// No description provided for @regulatoryProfileInternational.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nemzetközi (IAEA)'**
+  String get regulatoryProfileInternational;
+
+  /// No description provided for @regulatoryProfileHungary.
+  ///
+  /// In hu, this message translates to:
+  /// **'Magyarország (OAH)'**
+  String get regulatoryProfileHungary;
+
+  /// No description provided for @classificationTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Besorolás (D, R, mentesség)'**
+  String get classificationTitle;
+
+  /// No description provided for @classificationDisclaimer.
+  ///
+  /// In hu, this message translates to:
+  /// **'Tájékoztató számítás a nuklidtáblák és az aktuális (bomlással korrigált) aktivitás alapján. A hatósági besorolás a hatályos jogszabály és a hatóság döntése szerint érvényes. Az MSZ 62-7 szerinti laborszintek nincsenek benne.'**
+  String get classificationDisclaimer;
+
+  /// No description provided for @classificationUnsealedWork.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nyitott sugárforrással végzett rendszeres munka'**
+  String get classificationUnsealedWork;
+
+  /// No description provided for @classificationOutsideWorkplace.
+  ///
+  /// In hu, this message translates to:
+  /// **'Alkalmazás sugárveszélyes munkahelyen kívül'**
+  String get classificationOutsideWorkplace;
+
+  /// No description provided for @classificationTotal.
+  ///
+  /// In hu, this message translates to:
+  /// **'Összesített (kijelölt források)'**
+  String get classificationTotal;
+
+  /// No description provided for @classificationPhysCat.
+  ///
+  /// In hu, this message translates to:
+  /// **'Fizikai védelmi kategória'**
+  String get classificationPhysCat;
+
+  /// No description provided for @classificationProtCat.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sugárvédelmi kategória'**
+  String get classificationProtCat;
+
+  /// No description provided for @classificationUnknownCount.
+  ///
+  /// In hu, this message translates to:
+  /// **'R nélküli források (ismeretlen nuklid)'**
+  String get classificationUnknownCount;
+
+  /// No description provided for @classificationActivity.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktivitás'**
+  String get classificationActivity;
+
+  /// No description provided for @classificationNotDecayCorrected.
+  ///
+  /// In hu, this message translates to:
+  /// **'bomlás nélkül'**
+  String get classificationNotDecayCorrected;
+
+  /// No description provided for @classificationDInfinite.
+  ///
+  /// In hu, this message translates to:
+  /// **'D = ∞ (nem járul hozzá az R-hez)'**
+  String get classificationDInfinite;
+
+  /// No description provided for @classificationDUnknown.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ehhez a nuklidhoz nincs D érték, R nem számolható'**
+  String get classificationDUnknown;
+
+  /// No description provided for @classificationExemptUnknown.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs mentességi érték ehhez a nuklidhoz'**
+  String get classificationExemptUnknown;
+
+  /// No description provided for @classificationExemptActivity.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mentességi aktivitás'**
+  String get classificationExemptActivity;
+
+  /// No description provided for @classificationSpecificConc.
+  ///
+  /// In hu, this message translates to:
+  /// **'Specifikus mentességi koncentráció'**
+  String get classificationSpecificConc;
+
+  /// No description provided for @classificationGeneralConc.
+  ///
+  /// In hu, this message translates to:
+  /// **'általános'**
+  String get classificationGeneralConc;
+
+  /// No description provided for @classificationBelowExempt.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az aktivitás a mentességi aktivitás alatt van'**
+  String get classificationBelowExempt;
+
+  /// No description provided for @classificationAboveExempt.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az aktivitás a mentességi aktivitás felett van'**
+  String get classificationAboveExempt;
+
+  /// No description provided for @classificationProtLevel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Fizikai védelmi szint'**
+  String get classificationProtLevel;
+
+  /// No description provided for @classificationAdrConsignmentLimit.
+  ///
+  /// In hu, this message translates to:
+  /// **'mentes küldemény határa'**
+  String get classificationAdrConsignmentLimit;
+
+  /// No description provided for @classificationAdrBelow.
+  ///
+  /// In hu, this message translates to:
+  /// **'az aktivitás alatta van (nem 7. osztály)'**
+  String get classificationAdrBelow;
+
+  /// No description provided for @classificationAdrAbove.
+  ///
+  /// In hu, this message translates to:
+  /// **'az aktivitás felette van (a koncentráció is számít)'**
+  String get classificationAdrAbove;
+
+  /// No description provided for @classificationLabIndustrial.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ipari labor'**
+  String get classificationLabIndustrial;
+
+  /// No description provided for @classificationLabMedical.
+  ///
+  /// In hu, this message translates to:
+  /// **'Orvosi labor'**
+  String get classificationLabMedical;
+
+  /// No description provided for @classificationLabAboveIII.
+  ///
+  /// In hu, this message translates to:
+  /// **'> III.'**
+  String get classificationLabAboveIII;
+
+  /// No description provided for @classificationLabOps.
+  ///
+  /// In hu, this message translates to:
+  /// **'Végezhető művelettípusok'**
+  String get classificationLabOps;
+
+  /// No description provided for @classificationLabUnknown.
+  ///
+  /// In hu, this message translates to:
+  /// **'MSZ 62-7: nincs AM érték ehhez a nuklidhoz'**
+  String get classificationLabUnknown;
+
+  /// No description provided for @autoLogChartTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mért érték az idő függvényében'**
+  String get autoLogChartTitle;
+
+  /// No description provided for @gpsAverageButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Átlagolt GPS'**
+  String get gpsAverageButton;
+
+  /// No description provided for @gpsAverageTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Pozíció átlagolása'**
+  String get gpsAverageTitle;
+
+  /// No description provided for @gpsAverageHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Állj meg egy helyen, és ne mozdulj a mérés alatt. Minél hosszabb az átlagolás, annál megbízhatóbb az eredmény; nyílt ég alatt a legjobb. A telefon a pontosság szerint súlyozza a mintákat, és elhagyja a kiugró pozíciókat.'**
+  String get gpsAverageHint;
+
+  /// No description provided for @gpsAverageStart.
+  ///
+  /// In hu, this message translates to:
+  /// **'Indítás'**
+  String get gpsAverageStart;
+
+  /// No description provided for @gpsAverageUse.
+  ///
+  /// In hu, this message translates to:
+  /// **'Használ'**
+  String get gpsAverageUse;
+
+  /// No description provided for @gpsAverageSamples.
+  ///
+  /// In hu, this message translates to:
+  /// **'Minták'**
+  String get gpsAverageSamples;
+
+  /// No description provided for @gpsAverageCurrent.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktuális pontosság'**
+  String get gpsAverageCurrent;
+
+  /// No description provided for @gpsAverageResult.
+  ///
+  /// In hu, this message translates to:
+  /// **'Becsült pontosság az átlagból'**
+  String get gpsAverageResult;
+
+  /// No description provided for @modbusAverageButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Átlagoló mérés'**
+  String get modbusAverageButton;
+
+  /// No description provided for @modbusAverageRunning.
+  ///
+  /// In hu, this message translates to:
+  /// **'Átlagolás'**
+  String get modbusAverageRunning;
+
+  /// No description provided for @modbusAverageDone.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kész'**
+  String get modbusAverageDone;
+
+  /// No description provided for @modbusAverageTooFew.
+  ///
+  /// In hu, this message translates to:
+  /// **'A hiba számításához legalább 2 érvényes minta kell, csak az érték került be.'**
+  String get modbusAverageTooFew;
+
+  /// No description provided for @measurementErrorLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hiba (±)'**
+  String get measurementErrorLabel;
+
+  /// No description provided for @measurementErrorHelper.
+  ///
+  /// In hu, this message translates to:
+  /// **'Átlagolt mérésnél az átlag standard hibája (1σ), kézzel feltöltött értéknél kézzel is megadható. A jegyzőkönyvre kerül.'**
+  String get measurementErrorHelper;
+
+  /// No description provided for @measurementAveragedLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Átlagolt mérés'**
+  String get measurementAveragedLabel;
+
+  /// No description provided for @csvHeaderValueError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hiba (±)'**
+  String get csvHeaderValueError;
+
+  /// No description provided for @csvHeaderAveraging.
+  ///
+  /// In hu, this message translates to:
+  /// **'Átlagolás (minta; mp)'**
+  String get csvHeaderAveraging;
 }
 
 class _AppLocalizationsDelegate

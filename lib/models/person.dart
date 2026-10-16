@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'person_certificate.dart';
+
 /// Egy felmérésben résztvevő személy a globális nyilvántartásban (a
 /// műszerekhez/forrásokhoz hasonlóan egyszer felvéve, utána bármelyik
 /// felméréshez hozzárendelhető — lásd [SessionPersonLink]).
@@ -11,6 +15,14 @@ class Person {
 
   final String? notes;
 
+  final String? phone;
+
+  /// Fontos e-mail címek (tetszőleges számú).
+  final List<String> emails;
+
+  /// Tetszőleges bizonyítványok lejárattal (nem az `persons` táblában tárolt).
+  final List<PersonCertificate> certificates;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -20,6 +32,9 @@ class Person {
     this.medicalExamExpiryDate,
     this.trainingExpiryDate,
     this.notes,
+    this.phone,
+    this.emails = const [],
+    this.certificates = const [],
     required this.createdAt,
     required this.updatedAt,
   });
@@ -31,7 +46,9 @@ class Person {
       trainingExpiryDate != null && trainingExpiryDate!.isBefore(asOf);
 
   bool isExpiredAt(DateTime asOf) =>
-      isMedicalExamExpiredAt(asOf) || isTrainingExpiredAt(asOf);
+      isMedicalExamExpiredAt(asOf) ||
+      isTrainingExpiredAt(asOf) ||
+      certificates.any((c) => c.isExpiredAt(asOf));
 
   Person copyWith({
     int? id,
@@ -39,6 +56,9 @@ class Person {
     DateTime? medicalExamExpiryDate,
     DateTime? trainingExpiryDate,
     String? notes,
+    String? phone,
+    List<String>? emails,
+    List<PersonCertificate>? certificates,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -49,6 +69,9 @@ class Person {
           medicalExamExpiryDate ?? this.medicalExamExpiryDate,
       trainingExpiryDate: trainingExpiryDate ?? this.trainingExpiryDate,
       notes: notes ?? this.notes,
+      phone: phone ?? this.phone,
+      emails: emails ?? this.emails,
+      certificates: certificates ?? this.certificates,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -61,6 +84,8 @@ class Person {
       'medical_exam_expiry_date': medicalExamExpiryDate?.toIso8601String(),
       'training_expiry_date': trainingExpiryDate?.toIso8601String(),
       'notes': notes,
+      'phone': phone,
+      'emails': emails.isEmpty ? null : jsonEncode(emails),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -77,8 +102,19 @@ class Person {
           ? null
           : DateTime.parse(map['training_expiry_date'] as String),
       notes: map['notes'] as String?,
+      phone: map['phone'] as String?,
+      emails: _decodeEmails(map['emails']),
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
+  }
+
+  static List<String> _decodeEmails(Object? raw) {
+    if (raw is! String || raw.isEmpty) return const [];
+    try {
+      final d = jsonDecode(raw);
+      if (d is List) return d.whereType<String>().toList();
+    } catch (_) {}
+    return const [];
   }
 }

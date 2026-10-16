@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/activity_unit.dart';
+import '../models/distance_unit.dart';
+import '../models/dose_rate_unit.dart';
 import '../models/measurement_type.dart';
 
 /// Mennyivel a lejárat előtt jöjjön az értesítés.
@@ -25,6 +28,9 @@ class SettingsService {
   static const _prefix = 'alert_threshold_';
   static const _themeModeKey = 'theme_mode';
   static const _localeKey = 'app_locale';
+  static const _doseUnitKey = 'dose_rate_unit';
+  static const _activityUnitKey = 'activity_unit';
+  static const _distanceUnitKey = 'distance_unit';
   static const _expiryNotifEnabledKey = 'expiry_notifications_enabled';
   static const _expiryNotifLeadKey = 'expiry_notifications_lead';
 
@@ -50,6 +56,43 @@ class SettingsService {
       await prefs.setDouble(key, value);
     }
   }
+
+  /// Dózisteljesítmény alapegysége. Alapértelmezett: µSv/h.
+  Future<DoseRateUnit> getDoseRateUnit() async {
+    final prefs = await SharedPreferences.getInstance();
+    return DoseRateUnit.fromStorage(prefs.getString(_doseUnitKey));
+  }
+
+  Future<void> setDoseRateUnit(DoseRateUnit value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_doseUnitKey, value.storageValue);
+  }
+
+  Future<ActivityUnit> getActivityUnit() async {
+    final prefs = await SharedPreferences.getInstance();
+    return ActivityUnit.fromStorage(prefs.getString(_activityUnitKey));
+  }
+
+  Future<void> setActivityUnit(ActivityUnit value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_activityUnitKey, value.storageValue);
+  }
+
+  Future<DistanceUnit> getDistanceUnit() async {
+    final prefs = await SharedPreferences.getInstance();
+    return DistanceUnit.fromStorage(prefs.getString(_distanceUnitKey));
+  }
+
+  Future<void> setDistanceUnit(DistanceUnit value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_distanceUnitKey, value.storageValue);
+  }
+
+  Future<double?> getDoseRateThreshold() =>
+      getThreshold(MeasurementType.doseRate);
+
+  Future<void> setDoseRateThreshold(double? value) =>
+      setThreshold(MeasurementType.doseRate, value);
 
   /// Elmentett téma-mód beolvasása. Alapértelmezett: a telefon rendszer-
   /// beállítása (`ThemeMode.system`), ha még nincs mentett érték, vagy a

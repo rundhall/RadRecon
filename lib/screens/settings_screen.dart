@@ -4,11 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../l10n/app_localizations.dart';
+import '../models/activity_unit.dart';
+import '../models/distance_unit.dart';
+import '../models/dose_rate_unit.dart';
 import '../models/measurement_type.dart';
 import '../services/app_reset.dart';
 import '../services/database_transfer_service.dart';
+import '../services/dose_unit_controller.dart';
 import '../services/expiry_notification_service.dart';
 import '../services/locale_controller.dart';
+import '../services/regulatory_profile.dart';
 import '../services/settings_service.dart';
 import '../services/theme_controller.dart';
 import 'company_switch_screen.dart';
@@ -80,6 +85,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ExpiryLeadTime.twoDays => loc.expiryLeadTwoDays,
         ExpiryLeadTime.oneWeek => loc.expiryLeadOneWeek,
       };
+
+  /// Átváltás után ne maradjanak lebegőpontos farkak (pl. 0.30000000000000004).
+  String _trimNumber(double v) => double.parse(v.toStringAsPrecision(12)).toString();
 
   void _snack(String text) {
     if (!mounted) return;
@@ -290,6 +298,112 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       selected: {currentMode},
                       onSelectionChanged: (selection) {
                         ThemeController.setThemeMode(selection.first);
+                      },
+                    );
+                  },
+                ),
+                const Divider(height: 32),
+                Text(
+                  loc.unitsSectionTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 4),
+                Text(loc.doseUnitSectionHint,
+                    style: const TextStyle(fontSize: 13)),
+                const SizedBox(height: 8),
+                // Azonnal érvénybe lép, mint a téma és a nyelv. Zárt listák:
+                // nincs beírás, így az egység nem rontható el.
+                ValueListenableBuilder<DoseRateUnit>(
+                  valueListenable: DoseUnitController.unit,
+                  builder: (context, current, _) {
+                    return DropdownButtonFormField<DoseRateUnit>(
+                      key: ValueKey('dose-${current.name}'),
+                      initialValue: current,
+                      isExpanded: true,
+                      decoration:
+                          InputDecoration(labelText: loc.doseUnitSectionTitle),
+                      items: [
+                        for (final u in DoseRateUnit.values)
+                          DropdownMenuItem(value: u, child: Text(u.symbol)),
+                      ],
+                      onChanged: (u) async {
+                        if (u == null) return;
+                        await DoseUnitController.setUnit(u);
+                        // A mentett dózisteljesítmény-küszöb átváltódott.
+                        final t = await _service.getDoseRateThreshold();
+                        if (!mounted) return;
+                        setState(() {
+                          _controllers[MeasurementType.doseRate]!.text =
+                              t == null ? '' : _trimNumber(t);
+                        });
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                ValueListenableBuilder<ActivityUnit>(
+                  valueListenable: ActivityUnitController.unit,
+                  builder: (context, current, _) {
+                    return DropdownButtonFormField<ActivityUnit>(
+                      key: ValueKey('activity-${current.name}'),
+                      initialValue: current,
+                      isExpanded: true,
+                      decoration:
+                          InputDecoration(labelText: loc.activityUnitLabel),
+                      items: [
+                        for (final u in ActivityUnit.values)
+                          DropdownMenuItem(value: u, child: Text(u.symbol)),
+                      ],
+                      onChanged: (u) {
+                        if (u != null) ActivityUnitController.setUnit(u);
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                ValueListenableBuilder<DistanceUnit>(
+                  valueListenable: DistanceUnitController.unit,
+                  builder: (context, current, _) {
+                    return DropdownButtonFormField<DistanceUnit>(
+                      key: ValueKey('distance-${current.name}'),
+                      initialValue: current,
+                      isExpanded: true,
+                      decoration:
+                          InputDecoration(labelText: loc.distanceUnitLabel),
+                      items: [
+                        for (final u in DistanceUnit.values)
+                          DropdownMenuItem(value: u, child: Text(u.symbol)),
+                      ],
+                      onChanged: (u) {
+                        if (u != null) DistanceUnitController.setUnit(u);
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                ValueListenableBuilder<RegulatoryProfile>(
+                  valueListenable: RegulatoryProfileController.profile,
+                  builder: (context, current, _) {
+                    return DropdownButtonFormField<RegulatoryProfile>(
+                      key: ValueKey('regprofile-${current.name}'),
+                      initialValue: current,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                          labelText: loc.regulatoryProfileLabel),
+                      items: [
+                        DropdownMenuItem(
+                          value: RegulatoryProfile.international,
+                          child: Text(loc.regulatoryProfileInternational),
+                        ),
+                        DropdownMenuItem(
+                          value: RegulatoryProfile.hungary,
+                          child: Text(loc.regulatoryProfileHungary),
+                        ),
+                      ],
+                      onChanged: (p) {
+                        if (p != null) {
+                          RegulatoryProfileController.setProfile(p);
+                        }
                       },
                     );
                   },

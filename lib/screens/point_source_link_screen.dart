@@ -3,9 +3,13 @@ import 'package:intl/intl.dart';
 
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
+import '../models/distance_unit.dart';
 import '../models/measurement_point.dart';
 import '../models/point_source_link.dart';
 import '../models/radiation_source.dart';
+import '../services/dose_unit_controller.dart';
+import '../services/unit_format.dart';
+import '../widgets/quantity_field.dart';
 import 'point_source_detail_screen.dart';
 import 'radiation_source_entry_screen.dart';
 
@@ -148,8 +152,11 @@ class _PointSourceLinkScreenState extends State<PointSourceLinkScreen> {
     AppLocalizations loc, {
     double? initialValue,
   }) async {
+    var unit = DistanceUnitController.current;
     final ctrl = TextEditingController(
-      text: initialValue == null ? '' : initialValue.toString(),
+      text: initialValue == null
+          ? ''
+          : QuantityField.formatNumber(unit.fromMeters(initialValue)),
     );
     String? errorText;
     return showDialog<double>(
@@ -157,13 +164,16 @@ class _PointSourceLinkScreenState extends State<PointSourceLinkScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           title: Text(loc.enterDistanceDialogTitle),
-          content: TextField(
-            controller: ctrl,
-            autofocus: true,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              labelText: loc.sourceDistanceLabel,
+          content: SizedBox(
+            width: 320,
+            child: QuantityField<DistanceUnit>(
+              controller: ctrl,
+              autofocus: true,
+              label: loc.sourceDistancePlainLabel,
+              units: DistanceUnit.values,
+              unit: unit,
               errorText: errorText,
+              onUnitChanged: (u) => setState(() => unit = u),
             ),
           ),
           actions: [
@@ -178,7 +188,7 @@ class _PointSourceLinkScreenState extends State<PointSourceLinkScreen> {
                   setState(() => errorText = loc.numberRequiredError);
                   return;
                 }
-                Navigator.of(context).pop(parsed);
+                Navigator.of(context).pop(unit.toMeters(parsed));
               },
               child: Text(loc.saveButton),
             ),
@@ -256,7 +266,7 @@ class _PointSourceLinkScreenState extends State<PointSourceLinkScreen> {
                 ),
                 title: Text('${a.source.identifier} · ${a.source.nuclideName}'),
                 subtitle: Text(
-                  '${double.parse(a.link.distanceMeters.toStringAsFixed(2))} m · '
+                  '${formatDistanceMeters(a.link.distanceMeters)} · '
                   '${loc.manufactureDateLabel}: '
                   '${_dateFormat.format(a.source.manufactureDate)}',
                 ),

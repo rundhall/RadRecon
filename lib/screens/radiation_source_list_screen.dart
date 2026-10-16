@@ -10,6 +10,7 @@ import '../l10n/app_localizations.dart';
 import '../models/radiation_source.dart';
 import '../services/registry_csv_service.dart';
 import 'radiation_source_entry_screen.dart';
+import 'source_classification_screen.dart';
 
 /// A sugárforrások globális nyilvántartása — a műszerekhez hasonlóan
 /// egyszer felveszed, utána bármelyik mérési ponthoz hozzárendelheted, nem
@@ -164,6 +165,13 @@ class _RadiationSourceListScreenState
       appBar: AppBar(
         title: Text(loc.radiationSourcesTitle),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.rule),
+            tooltip: loc.classificationTitle,
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => const SourceClassificationScreen(),
+            )),
+          ),
           PopupMenuButton<String>(
             enabled: !_isTransferring,
             onSelected: (action) => action == 'import' ? _importCsv() : _exportCsv(),

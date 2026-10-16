@@ -6,6 +6,8 @@ import 'package:share_plus/share_plus.dart';
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/measurement_point.dart';
+import '../models/calibration_labels.dart';
+import '../models/shielding_labels.dart';
 import '../widgets/dose_widgets.dart';
 import '../models/survey_session.dart';
 import '../services/point_exchange_service.dart';
@@ -13,6 +15,7 @@ import '../services/protocol_export_service.dart';
 import '../services/screenshot_service.dart';
 import 'auto_log_screen.dart';
 import 'distance_tool_screen.dart';
+import '../services/unit_format.dart';
 import 'gradient_search_screen.dart';
 import 'isotope_calculator_screen.dart';
 import 'measurement_entry_screen.dart';
@@ -392,6 +395,18 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
           attachedSources: loc.csvHeaderAttachedSources,
           calculatedDoseRate: loc.csvHeaderCalculatedDoseRate,
           doseRateDifference: loc.csvHeaderDoseRateDifference,
+          nuclides: loc.csvHeaderNuclides,
+          instrumentCalibration: loc.csvHeaderInstrumentCalibration,
+          valueError: loc.csvHeaderValueError,
+          averaging: loc.csvHeaderAveraging,
+          calibrationKindLabel: (k) => calibrationKindLabel(loc, k),
+          validUntilLabel: loc.calibrationValidUntilLabel,
+          certificateLabel: loc.calibrationCertificateLabel,
+          expiredNote: loc.calibrationStatusExpired,
+          nuclideStatusLabel: (s) => s.label(loc),
+          shieldingMaterialLabel: (m) => shieldingMaterialLabel(loc, m),
+          unshieldedNote: loc.csvUnshieldedNote,
+          shieldedSourceNote: loc.csvShieldedSourceNote,
           yes: loc.csvYes,
           no: loc.csvNo,
         ),
@@ -422,7 +437,7 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
     );
     if (picked.isEmpty) return;
     final path = picked.first.path;
-    if (path == null) return;
+    if (path == null || !mounted) return;
 
     final loc = AppLocalizations.of(context)!;
     setState(() => _isExchanging = true);
@@ -639,7 +654,7 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
                           : '${p.value == null ? '—' : double.parse(p.value!.toStringAsFixed(4))} ${p.unit} · ${_dateFormat.format(p.timestamp)}',
                     ),
                     trailing: p.gpsAccuracyMeters != null
-                        ? Text('±${p.gpsAccuracyMeters!.toStringAsFixed(1)} m')
+                        ? Text('±${formatDistanceMeters(p.gpsAccuracyMeters!)}')
                         : null,
                     onTap: () => _openEntryScreen(existing: p),
                   );

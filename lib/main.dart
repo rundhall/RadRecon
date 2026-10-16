@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'l10n/app_localizations.dart';
 import 'screens/survey_session_screen.dart';
 import 'services/app_reset.dart';
+import 'services/dose_unit_controller.dart';
 import 'services/expiry_notification_service.dart';
 import 'services/locale_controller.dart';
+import 'services/regulatory_profile.dart';
 import 'services/theme_controller.dart';
 
 import 'dart:io';
@@ -56,6 +58,14 @@ void main() async {
     debugPrint('[startup] locale load: done');
   } catch (e, st) {
     debugPrint('[startup] locale load: ERROR $e\n$st');
+  }
+
+  try {
+    await DoseUnitController.load().timeout(const Duration(seconds: 5));
+    await RegulatoryProfileController.load()
+        .timeout(const Duration(seconds: 5));
+  } catch (e, st) {
+    debugPrint('[startup] dose unit load: ERROR $e\n$st');
   }
 
   // Lejárati értesítések: init + az ütemezés felépítése az aktuális

@@ -3,10 +3,14 @@ import 'package:intl/intl.dart';
 
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
+import '../models/distance_unit.dart';
 import '../models/measurement_point.dart';
 import '../models/point_source_link.dart';
 import '../services/dose_unit_converter.dart';
+import '../services/dose_unit_controller.dart';
+import '../services/unit_format.dart';
 import '../widgets/disclaimer_info_icon.dart';
+import '../widgets/quantity_field.dart';
 import 'radiation_source_entry_screen.dart';
 
 /// Egy ponthoz rendelt forrás részletei: szerkeszthető távolság, és a
@@ -31,13 +35,22 @@ class _PointSourceDetailScreenState extends State<PointSourceDetailScreen> {
   final _dateFormat = DateFormat('yyyy.MM.dd');
   late final TextEditingController _distanceCtrl;
   DateTime _asOfDate = DateTime.now();
+  DistanceUnit _distanceUnit = DistanceUnitController.current;
 
   @override
   void initState() {
     super.initState();
     _distanceCtrl = TextEditingController(
-      text: widget.attached.link.distanceMeters.toString(),
+      text: QuantityField.formatNumber(
+        _distanceUnit.fromMeters(widget.attached.link.distanceMeters),
+      ),
     );
+  }
+
+  /// A távolság mező értéke méterben (a választott egységből).
+  double? _distanceMeters() {
+    final v = double.tryParse(_distanceCtrl.text.trim());
+    return v == null ? null : _distanceUnit.toMeters(v);
   }
 
   @override
@@ -54,7 +67,7 @@ class _PointSourceDetailScreenState extends State<PointSourceDetailScreen> {
 
   Future<void> _saveDistance() async {
     final loc = AppLocalizations.of(context)!;
-    final parsed = double.tryParse(_distanceCtrl.text.trim());
+    final parsed = _distanceMeters();
     if (parsed == null || parsed <= 0) {
       _showError(loc.numberRequiredError);
       return;
@@ -144,11 +157,13 @@ class _PointSourceDetailScreenState extends State<PointSourceDetailScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          TextFormField(
+          QuantityField<DistanceUnit>(
             controller: _distanceCtrl,
-            decoration: InputDecoration(labelText: loc.sourceDistanceLabel),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            onChanged: (_) => setState(() {}),
+            label: loc.sourceDistancePlainLabel,
+            units: DistanceUnit.values,
+            unit: _distanceUnit,
+            onUnitChanged: (u) => setState(() => _distanceUnit = u),
+            onChanged: () => setState(() {}),
           ),
           const SizedBox(height: 12),
           Text(
@@ -171,7 +186,7 @@ class _PointSourceDetailScreenState extends State<PointSourceDetailScreen> {
   }
 
   Widget _buildCalculationPanel(AppLocalizations loc) {
-    final distance = double.tryParse(_distanceCtrl.text.trim());
+    final distance = _distanceMeters();
     return Card(
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Padding(
@@ -231,14 +246,14 @@ class _PointSourceDetailScreenState extends State<PointSourceDetailScreen> {
 
     final errorPercent = source.activityErrorPercent;
     final activityLine = errorPercent == null
-        ? '${_formatValue(decayedActivity)} MBq'
-        : '${_formatValue(decayedActivity)} MBq (±${_formatValue(decayedActivity * errorPercent / 100)} MBq)';
+        ? formatActivityMBq(decayedActivity)
+        : '${formatActivityMBq(decayedActivity)} (±${formatActivityNumberMBq(decayedActivity * errorPercent / 100)} ${ActivityUnitController.current.symbol})';
 
     final widgets = <Widget>[
       _resultRow(loc.currentActivityResultLabel, activityLine),
       _resultRow(
         loc.calculatedDoseRateResultLabel,
-        '${_formatValue(calculatedDoseUSvH)} µSv/h',
+        formatDoseRateUSvH(calculatedDoseUSvH),
       ),
     ];
 
@@ -273,7 +288,7 @@ class _PointSourceDetailScreenState extends State<PointSourceDetailScreen> {
     widgets.add(
       _resultRow(
         loc.measuredDoseRateResultLabel,
-        '${_formatValue(measuredUSvH)} µSv/h',
+        formatDoseRateUSvH(measuredUSvH),
       ),
     );
     final diff = measuredUSvH - calculatedDoseUSvH;
@@ -281,8 +296,8 @@ class _PointSourceDetailScreenState extends State<PointSourceDetailScreen> {
         ? null
         : diff / calculatedDoseUSvH * 100;
     final diffText = diffPercent == null
-        ? '${_formatValue(diff)} µSv/h'
-        : '${_formatValue(diff)} µSv/h (${diffPercent >= 0 ? '+' : ''}${_formatValue(diffPercent)}%)';
+        ? formatDoseRateUSvH(diff)
+        : '${formatDoseRateUSvH(diff)} (${diffPercent >= 0 ? '+' : ''}${_formatValue(diffPercent)}%)';
     widgets.add(_resultRow(loc.doseRateDifferenceResultLabel, diffText));
 
     return widgets;

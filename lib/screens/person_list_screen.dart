@@ -321,6 +321,17 @@ class _PersonListScreenState extends State<PersonListScreen> {
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    if (p.certificates.isNotEmpty)
+                                      Text(p.certificates
+                                          .map((c) => c.validUntil == null
+                                              ? c.name
+                                              : '${c.name} (${_dateFormat.format(c.validUntil!)})')
+                                          .join(' · ')),
+                                    if (p.phone != null || p.emails.isNotEmpty)
+                                      Text([
+                                        if (p.phone != null) p.phone!,
+                                        ...p.emails,
+                                      ].join(' · ')),
                                     Text(
                                       '${loc.medicalExamExpiryDateLabel}: '
                                       '${p.medicalExamExpiryDate == null ? loc.notSetLabel : _dateFormat.format(p.medicalExamExpiryDate!)}'

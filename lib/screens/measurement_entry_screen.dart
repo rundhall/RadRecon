@@ -9,15 +9,29 @@ import 'package:file_selector/file_selector.dart' as fs;
 
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
+import '../models/calibration_labels.dart';
 import '../models/instrument.dart';
+import '../models/instrument_calibration.dart';
 import '../models/isotope.dart';
 import '../models/measurement_point.dart';
 import '../models/measurement_type.dart';
+import '../models/nuclide_id.dart';
 import '../models/point_source_link.dart';
+import '../models/shielding.dart';
+import '../models/shielding_labels.dart';
+import '../models/distance_unit.dart';
+import '../models/dose_rate_unit.dart';
+import '../services/activity_estimate.dart';
+import '../services/dose_unit_controller.dart';
 import '../services/dose_unit_converter.dart';
 import '../services/modbus_reader_service.dart';
+import '../services/unit_format.dart';
 import '../services/settings_service.dart';
+import '../services/value_averager.dart';
+import '../widgets/position_averaging_dialog.dart';
 import '../widgets/disclaimer_info_icon.dart';
+import '../widgets/nuclide_id_section.dart';
+import '../widgets/quantity_field.dart';
 import 'instrument_entry_screen.dart';
 import 'map_point_picker_screen.dart';
 import 'point_source_link_screen.dart';
@@ -54,6 +68,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   final _valueCtrl = TextEditingController();
   final _unitCtrl = TextEditingController();
   final _distanceCtrl = TextEditingController();
+  DistanceUnit _distanceUnit = DistanceUnitController.current;
   final _notesCtrl = TextEditingController();
 
   final _sampleContainerCtrl = TextEditingController();
@@ -73,6 +88,17 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   List<Instrument> _instruments = [];
   bool _isQueryingModbus = false;
 
+  // Mérési hiba (±) és átlagolt Modbus-mérés.
+  final _errorCtrl = TextEditingController();
+  int? _avgSamples;
+  int? _avgSeconds;
+  int _avgDuration = 60;
+  bool _isAveraging = false;
+  bool _avgStop = false; // "Kész": az eddigi mintákat elfogadjuk
+  bool _avgAbort = false; // "Mégse": eldobjuk
+  int _avgElapsed = 0;
+  final List<double> _avgValues = [];
+
   String? _photoPath;
 
   List<AttachedSource> _attachedSources = [];
@@ -88,7 +114,13 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   /// A "forrás távolság" mező melletti nuklidválasztó — a mért értékből
   /// visszafelé számolt aktivitáshoz (nem mentett forrás, csak gyors
   /// becslés). Alapértelmezés: Cs-137.
-  String _activityCalcNuclide = 'Cs-137';
+
+  // Nuklid-azonosítás
+  NuclideIdStatus _nuclideStatus = NuclideIdStatus.notSpecified;
+  List<String> _nuclides = [];
+
+  // Opcionális árnyékolás (anyag + vastagság) az árnyékolt forrás aktivitásához.
+  final List<_LayerEdit> _layers = [];
 
   @override
   void initState() {
@@ -110,11 +142,22 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     _type = p.type;
     _locationLabelCtrl.text = p.locationLabel ?? '';
     _valueCtrl.text = p.value == null ? '' : _fmt(p.value!, 4);
+    _errorCtrl.text =
+        p.valueError == null ? '' : QuantityField.formatNumber(p.valueError!);
+    _avgSamples = p.averagingSamples;
+    _avgSeconds = p.averagingSeconds;
     _unitCtrl.text = p.unit;
     _distanceCtrl.text = p.distanceFromSourceMeters == null
         ? ''
-        : _fmt(p.distanceFromSourceMeters!, 2);
-    _activityCalcNuclide = p.activityCalcNuclide ?? 'Cs-137';
+        : QuantityField.formatNumber(
+            _distanceUnit.fromMeters(p.distanceFromSourceMeters!));
+    _nuclideStatus = p.nuclideStatus;
+    _nuclides = [...p.nuclides];
+    for (final l in p.shieldingLayers) {
+      final e = _LayerEdit(l.material);
+      e.ctrl.text = QuantityField.formatNumber(e.unit.fromMeters(l.thicknessCm / 100));
+      _layers.add(e);
+    }
     _notesCtrl.text = p.notes ?? '';
     _sampleContainerCtrl.text = p.sampleContainerId ?? '';
     _sampleAmountCtrl.text = p.sampleAmount?.toString() ?? '';
@@ -142,17 +185,41 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     setState(() => _attachedSources = attached);
   }
 
+  /// Az aktivitás-becsléshez használt nuklid: csak akkor van, ha az azonosítás
+  /// "Azonosított" és pontosan egy nuklid van kiválasztva.
+  String? get _estimationNuclide =>
+      _nuclideStatus == NuclideIdStatus.identified && _nuclides.length == 1
+          ? _nuclides.first
+          : null;
+
+  /// Az érvényes (pozitív vastagságú) árnyékoló rétegek.
+  List<ShieldingLayer> _validLayers() {
+    final out = <ShieldingLayer>[];
+    for (final e in _layers) {
+      final v = double.tryParse(e.ctrl.text.trim());
+      if (v != null && v > 0) {
+        out.add(ShieldingLayer(e.material, e.unit.toMeters(v) * 100));
+      }
+    }
+    return out;
+  }
+
+  /// A "forrás távolság" mező értéke méterben (a választott egységből).
+  double? _distanceMeters() {
+    final v = double.tryParse(_distanceCtrl.text.trim());
+    return v == null ? null : _distanceUnit.toMeters(v);
+  }
+
   Future<void> _openSources() async {
     final point = await _ensureSavedForSourceLink();
-    if (point == null) return;
+    if (point == null || !mounted) return;
 
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) =>
             PointSourceLinkScreen(
               measurementPoint: point,
-              initialDistanceMeters:
-                  double.tryParse(_distanceCtrl.text.trim()),
+              initialDistanceMeters: _distanceMeters(),
             ),
       ),
     );
@@ -195,13 +262,15 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   /// elégségesek, vagy a mértékegység nem alakítható µSv/h-ra.
   Widget? _buildActivityFromMeasurementPanel(AppLocalizations loc) {
     final measuredValue = double.tryParse(_valueCtrl.text.trim());
-    final distance = double.tryParse(_distanceCtrl.text.trim());
+    final distance = _distanceMeters();
     if (measuredValue == null || distance == null || distance <= 0) {
       return null;
     }
 
-    final isotope = Isotope.findByName(_activityCalcNuclide);
-    if (isotope == null) return null;
+    // Csak akkor számolunk, ha pontosan egy (ismert) nuklid van azonosítva.
+    final nuclideName = _estimationNuclide;
+    if (nuclideName == null) return null;
+    if (Isotope.findByName(nuclideName) == null) return null;
 
     final measuredUSvH =
         toMicroSievertPerHour(measuredValue, _unitCtrl.text.trim());
@@ -215,14 +284,17 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       );
     }
 
-    final activityMBq = isotope.activityFrom(
+    final estimate = estimateActivity(
+      nuclide: nuclideName,
       doseRateUSvH: measuredUSvH,
       distanceM: distance,
+      layers: _validLayers(),
     );
-    final activityGBq = activityMBq / 1000;
+    if (estimate == null) return null;
+    final theme = Theme.of(context);
 
     return Card(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      color: theme.colorScheme.surfaceContainerHighest,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -230,18 +302,95 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
           children: [
             Text(
               loc.estimatedActivityFromMeasurementLabel,
-              style: Theme.of(context).textTheme.titleSmall,
+              style: theme.textTheme.titleSmall,
             ),
             const SizedBox(height: 4),
             Text(
-              loc.calculatedActivityResult(
-                _formatValue(activityMBq),
-                _formatValue(activityGBq),
+              '${loc.unshieldedActivityLabel}: '
+              '${formatActivityMBq(estimate.unshieldedMBq)}',
+            ),
+            const Divider(height: 24),
+            Text(loc.shieldingSectionTitle, style: theme.textTheme.titleSmall),
+            const SizedBox(height: 4),
+            Text(loc.shieldingHint, style: theme.textTheme.bodySmall),
+            const SizedBox(height: 8),
+            for (var i = 0; i < _layers.length; i++) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<ShieldingMaterial>(
+                      key: ValueKey('layer-$i-${_layers[i].material.name}'),
+                      initialValue: _layers[i].material,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: '${loc.shieldingLayerLabel} ${i + 1}: '
+                            '${loc.shieldingMaterialLabel}',
+                      ),
+                      items: [
+                        for (final m in ShieldingMaterial.values)
+                          DropdownMenuItem(
+                            value: m,
+                            child: Text(shieldingMaterialLabel(loc, m)),
+                          ),
+                      ],
+                      onChanged: (m) {
+                        if (m != null) setState(() => _layers[i].material = m);
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: loc.shieldingRemoveLayer,
+                    icon: const Icon(Icons.delete_outline),
+                    onPressed: () => setState(() {
+                      _layers.removeAt(i).ctrl.dispose();
+                    }),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              QuantityField<DistanceUnit>(
+                key: ValueKey('layer-th-${_layers[i].hashCode}'),
+                controller: _layers[i].ctrl,
+                label: loc.shieldingThicknessLabel,
+                units: DistanceUnit.values,
+                unit: _layers[i].unit,
+                onUnitChanged: (u) => setState(() => _layers[i].unit = u),
+                onChanged: () => setState(() {}),
+                validator: (v) {
+                  final t = double.tryParse((v ?? '').trim());
+                  return (t == null || t <= 0)
+                      ? loc.shieldingThicknessError
+                      : null;
+                },
+              ),
+            ],
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                icon: const Icon(Icons.add),
+                label: Text(loc.shieldingAddLayer),
+                onPressed: () => setState(
+                    () => _layers.add(_LayerEdit(ShieldingMaterial.lead))),
               ),
             ),
+            if (estimate.shieldedMBq != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                '${loc.shieldedActivityLabel}: '
+                '${formatActivityMBq(estimate.shieldedMBq!)}',
+                style: theme.textTheme.bodyLarge
+                    ?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
             Align(
               alignment: Alignment.centerRight,
-              child: DisclaimerInfoIcon(text: loc.sourceCalculationDisclaimer),
+              child: DisclaimerInfoIcon(
+                text: estimate.shieldedMBq != null
+                    ? '${loc.sourceCalculationDisclaimer}\n\n'
+                        '${loc.shieldingDisclaimer}'
+                    : loc.sourceCalculationDisclaimer,
+              ),
             ),
           ],
         ),
@@ -254,6 +403,44 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       MaterialPageRoute(builder: (_) => const InstrumentEntryScreen()),
     );
     if (saved == true) await _loadInstruments();
+  }
+
+  /// Figyelmeztető sáv, ha a kiválasztott műszer hitelesítése/kalibrálása
+  /// lejárt, hamarosan lejár, vagy nincs róla adat.
+  Widget _buildCalibrationBanner(AppLocalizations loc, Instrument i) {
+    final st = instrumentCalibrationStatus(i);
+    if (st == CalibrationStatus.valid) return const SizedBox.shrink();
+    final date = i.nextCalibrationDate == null
+        ? ''
+        : ' ${calibrationDateText(i.nextCalibrationDate!)}';
+    final String text;
+    final Color color;
+    switch (st) {
+      case CalibrationStatus.expired:
+        text = '${loc.calibrationExpiredWarning}$date';
+        color = Theme.of(context).colorScheme.error;
+        break;
+      case CalibrationStatus.expiringSoon:
+        text = '${loc.calibrationSoonWarning}$date';
+        color = Colors.orange.shade800;
+        break;
+      default:
+        text = loc.calibrationUnknownWarning;
+        color = Theme.of(context).colorScheme.outline;
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.warning_amber_rounded, color: color, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(text, style: TextStyle(color: color, fontSize: 13)),
+          ),
+        ],
+      ),
+    );
   }
 
   Instrument? get _selectedInstrument {
@@ -277,7 +464,17 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       if (!mounted) return;
       if (result.success) {
         setState(() {
-          _valueCtrl.text = _fmt(result.value!, 4);
+          // A műszer határozza meg, mit mér és milyen egységben adja vissza:
+          // a mérés típusát átállítjuk, az értéket pedig az alapegységre váltjuk.
+          _type = instrument.modbusMeasurementType;
+          _isSample = false;
+          _unitCtrl.text = _type.defaultUnit;
+          _valueCtrl.text = QuantityField.formatNumber(
+            instrumentReadingInAppUnit(instrument, result.value!),
+          );
+          _errorCtrl.clear();
+          _avgSamples = null;
+          _avgSeconds = null;
           if (result.hasGps) {
             _latCtrl.text = _fmt(result.latitude!, 6);
             _lonCtrl.text = _fmt(result.longitude!, 6);
@@ -292,6 +489,75 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       }
     } finally {
       if (mounted) setState(() => _isQueryingModbus = false);
+    }
+  }
+
+  /// Átlagoló mérés: a kiválasztott időtartamig másodpercenként olvassa a
+  /// műszert, az értékbe az átlag, a hibába az átlag standard hibája (1σ)
+  /// kerül.
+  Future<void> _startModbusAveraging() async {
+    final instrument = _selectedInstrument;
+    if (instrument == null || _isAveraging) return;
+    final loc = AppLocalizations.of(context)!;
+    setState(() {
+      _isAveraging = true;
+      _avgStop = false;
+      _avgAbort = false;
+      _avgElapsed = 0;
+      _avgValues.clear();
+    });
+    ModbusLiveSession? session;
+    ModbusReadResult? lastGps;
+    var failed = 0;
+    try {
+      session = await ModbusLiveSession.connect(instrument, loc);
+      final start = DateTime.now();
+      while (mounted && !_avgStop && !_avgAbort) {
+        final elapsed = DateTime.now().difference(start).inSeconds;
+        if (elapsed >= _avgDuration) break;
+        final r = await session.read();
+        if (r.success) {
+          _avgValues.add(instrumentReadingInAppUnit(instrument, r.value!));
+          if (r.hasGps) lastGps = r;
+        } else {
+          failed++;
+        }
+        if (mounted) {
+          setState(() => _avgElapsed = DateTime.now().difference(start).inSeconds);
+        }
+        await Future.delayed(const Duration(seconds: 1));
+      }
+    } catch (e) {
+      _showError(loc.modbusConnectErrorMessage('$e'));
+      _avgAbort = true;
+    } finally {
+      await session?.close();
+    }
+    if (!mounted) return;
+    final stats = _avgAbort ? null : valueStats(_avgValues);
+    final seconds = _avgElapsed;
+    setState(() {
+      _isAveraging = false;
+      if (stats == null) return;
+      _type = instrument.modbusMeasurementType;
+      _isSample = false;
+      _unitCtrl.text = _type.defaultUnit;
+      _valueCtrl.text = QuantityField.formatNumber(stats.mean);
+      final se = stats.standardError;
+      _errorCtrl.text = se == null ? '' : QuantityField.formatNumber(se);
+      _avgSamples = stats.n;
+      _avgSeconds = seconds;
+      final g = lastGps;
+      if (g != null) {
+        _latCtrl.text = _fmt(g.latitude!, 6);
+        _lonCtrl.text = _fmt(g.longitude!, 6);
+        _gpsAccuracy = null;
+        _positionManuallySet = true;
+      }
+    });
+    if (stats != null && stats.n < 2) _showError(loc.modbusAverageTooFew);
+    if (stats == null && !_avgAbort && failed > 0) {
+      _showError(loc.unknownModbusError);
     }
   }
 
@@ -328,6 +594,32 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     } finally {
       if (mounted) setState(() => _isFetchingGps = false);
     }
+  }
+
+  Future<void> _averageGpsPosition() async {
+    final loc = AppLocalizations.of(context)!;
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      _showError(loc.locationServiceDisabledError);
+      return;
+    }
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      _showError(loc.locationPermissionDeniedError);
+      return;
+    }
+    if (!mounted) return;
+    final result = await showPositionAveragingDialog(context);
+    if (result == null || !mounted) return;
+    setState(() {
+      _latCtrl.text = _fmt(result.latitude, 6);
+      _lonCtrl.text = _fmt(result.longitude, 6);
+      _gpsAccuracy = result.accuracyMeters;
+      _positionManuallySet = false;
+    });
   }
 
   Future<void> _openMapPicker() async {
@@ -432,12 +724,27 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       value: _valueCtrl.text.trim().isEmpty
           ? null
           : double.tryParse(_valueCtrl.text.trim()),
-      unit: _unitCtrl.text.trim(),
-      distanceFromSourceMeters: _distanceCtrl.text.trim().isEmpty
+      valueError: _isSample || _errorCtrl.text.trim().isEmpty
           ? null
-          : double.tryParse(_distanceCtrl.text.trim()),
-      activityCalcNuclide: _activityCalcNuclide,
+          : double.tryParse(_errorCtrl.text.trim().replaceAll(',', '.'))?.abs(),
+      averagingSamples:
+          _isSample || _errorCtrl.text.trim().isEmpty && _avgSamples == null
+              ? null
+              : _avgSamples,
+      averagingSeconds:
+          _isSample || _errorCtrl.text.trim().isEmpty && _avgSamples == null
+              ? null
+              : _avgSeconds,
+      unit: _unitCtrl.text.trim(),
+      distanceFromSourceMeters:
+          _distanceCtrl.text.trim().isEmpty ? null : _distanceMeters(),
+      activityCalcNuclide: _isSample ? null : _estimationNuclide,
       instrumentId: _instrumentId,
+      nuclideStatus: _isSample ? NuclideIdStatus.notSpecified : _nuclideStatus,
+      nuclides: !_isSample && _nuclideStatus.hasNuclideList ? _nuclides : const [],
+      shieldingLayers: _isSample || _estimationNuclide == null
+          ? const []
+          : _validLayers(),
       isSourcePosition: _isSourcePosition,
       isSample: _isSample,
       sampleContainerId:
@@ -492,6 +799,40 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       return;
     }
 
+    // Azonosított / egyéb nuklidnál legalább egy nuklid nevét meg kell adni.
+    if (!_isSample &&
+        (_nuclideStatus == NuclideIdStatus.identified ||
+            _nuclideStatus == NuclideIdStatus.other) &&
+        _nuclides.isEmpty) {
+      _showError(AppLocalizations.of(context)!.nuclideRequiredError);
+      return;
+    }
+
+    // Lejárt hitelesítésű/kalibrálású műszerrel csak megerősítéssel mentünk.
+    final instr = _selectedInstrument;
+    if (instr != null &&
+        instrumentCalibrationStatus(instr) == CalibrationStatus.expired) {
+      final loc = AppLocalizations.of(context)!;
+      final proceed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(loc.calibrationSaveAnywayTitle),
+          content: Text(loc.calibrationSaveAnywayBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(loc.cancelButton),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(loc.calibrationSaveAnywayConfirm),
+            ),
+          ],
+        ),
+      );
+      if (proceed != true || !mounted) return;
+    }
+
     final point = _buildPointFromForm(
       id: _editingPoint?.id,
       latitude: latitude,
@@ -520,7 +861,20 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   Future<void> _checkThresholdAndWarn(MeasurementPoint point) async {
     if (point.value == null) return;
     final threshold = await SettingsService().getThreshold(point.type);
-    if (threshold == null || point.value! < threshold) return;
+    if (threshold == null) return;
+    var comparable = point.value!;
+    var shownUnit = point.unit;
+    if (point.type == MeasurementType.doseRate) {
+      // A küszöb az aktuális alapegységben van; a pont más egységben is
+      // rögzülhetett, ezért átváltva hasonlítunk.
+      final pointUnit = DoseRateUnit.fromSymbol(point.unit);
+      if (pointUnit != null) {
+        comparable =
+            pointUnit.convertTo(DoseUnitController.current, point.value!);
+        shownUnit = DoseUnitController.current.symbol;
+      }
+    }
+    if (comparable < threshold) return;
     if (!mounted) return;
 
     final loc = AppLocalizations.of(context)!;
@@ -536,8 +890,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
         title: Text(loc.thresholdExceededTitle),
         content: Text(
           loc.thresholdExceededMessage(
-            '${double.parse(point.value!.toStringAsFixed(4))}',
-            point.unit,
+            '${double.parse(comparable.toStringAsFixed(4))}',
+            shownUnit,
             point.type.label(context),
             '$threshold',
           ),
@@ -557,9 +911,14 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     _latCtrl.dispose();
     _lonCtrl.dispose();
     _locationLabelCtrl.dispose();
+    _avgAbort = true;
+    _errorCtrl.dispose();
     _valueCtrl.dispose();
     _unitCtrl.dispose();
     _distanceCtrl.dispose();
+    for (final e in _layers) {
+      e.ctrl.dispose();
+    }
     _notesCtrl.dispose();
     _sampleContainerCtrl.dispose();
     _sampleAmountCtrl.dispose();
@@ -619,6 +978,37 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
             ),
             const SizedBox(height: 12),
             if (_type != MeasurementType.sample) ...[
+              if (_type == MeasurementType.doseRate &&
+                  DoseRateUnit.fromSymbol(_unitCtrl.text) != null)
+                // Zárt listából választható egység (nem lehet elgépelni);
+                // váltáskor a beírt szám automatikusan átváltódik.
+                QuantityField<DoseRateUnit>(
+                  controller: _valueCtrl,
+                  label: loc.measuredValueLabel,
+                  units: DoseRateUnit.values,
+                  unit: DoseRateUnit.fromSymbol(_unitCtrl.text)!,
+                  onUnitChanged: (u) => setState(() {
+                    final old = DoseRateUnit.fromSymbol(_unitCtrl.text);
+                    final err = double.tryParse(
+                        _errorCtrl.text.trim().replaceAll(',', '.'));
+                    if (old != null && err != null) {
+                      _errorCtrl.text = QuantityField.formatNumber(
+                          old.convertTo(u, err));
+                    }
+                    _unitCtrl.text = u.symbol;
+                  }),
+                  onChanged: () => setState(() {}),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) {
+                      return loc.requiredFieldError;
+                    }
+                    if (double.tryParse(v.trim()) == null) {
+                      return loc.numberRequiredError;
+                    }
+                    return null;
+                  },
+                )
+              else
               Row(
                 children: [
                   Expanded(
@@ -653,43 +1043,22 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _distanceCtrl,
-                      decoration: InputDecoration(
-                        labelText: loc.distanceFromSourceLabel,
-                      ),
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      onChanged: (_) => setState(() {}),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      initialValue: _activityCalcNuclide,
-                      decoration: InputDecoration(
-                        labelText: loc.nuclideLabel,
-                      ),
-                      items: kKnownIsotopes
-                          .map(
-                            (i) => DropdownMenuItem(
-                              value: i.name,
-                              child: Text(i.name),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (name) {
-                        if (name == null) return;
-                        setState(() => _activityCalcNuclide = name);
-                      },
-                    ),
-                  ),
-                ],
+              _buildErrorField(loc),
+              const SizedBox(height: 12),
+              QuantityField<DistanceUnit>(
+                controller: _distanceCtrl,
+                label: loc.distanceFromSourcePlainLabel,
+                units: DistanceUnit.values,
+                unit: _distanceUnit,
+                onUnitChanged: (u) => setState(() => _distanceUnit = u),
+                onChanged: () => setState(() {}),
+              ),
+              const SizedBox(height: 12),
+              NuclideIdSection(
+                status: _nuclideStatus,
+                nuclides: _nuclides,
+                onStatusChanged: (s) => setState(() => _nuclideStatus = s),
+                onNuclidesChanged: (list) => setState(() => _nuclides = list),
               ),
               if (_buildActivityFromMeasurementPanel(loc) != null) ...[
                 const SizedBox(height: 8),
@@ -735,6 +1104,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                   ),
                 ],
               ),
+              if (_selectedInstrument != null)
+                _buildCalibrationBanner(loc, _selectedInstrument!),
               if (_selectedInstrument?.isModbusConnected == true) ...[
                 const SizedBox(height: 8),
                 OutlinedButton.icon(
@@ -752,6 +1123,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                         : loc.modbusQueryButton(_selectedInstrument!.name),
                   ),
                 ),
+                const SizedBox(height: 8),
+                _buildAveragingControls(loc),
               ],
               const SizedBox(height: 12),
               SwitchListTile(
@@ -817,6 +1190,105 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     );
   }
 
+  /// Mérési hiba (±) mező — átlagolt mérésnél automatikusan kitöltődik,
+  /// kézzel feltöltött értéknél kézzel adható meg.
+  Widget _buildErrorField(AppLocalizations loc) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFormField(
+          controller: _errorCtrl,
+          decoration: InputDecoration(
+            labelText: '${loc.measurementErrorLabel} (${_unitCtrl.text})',
+            helperText: loc.measurementErrorHelper,
+            helperMaxLines: 3,
+          ),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          validator: (v) {
+            final t = (v ?? '').trim();
+            if (t.isEmpty) return null;
+            final n = double.tryParse(t.replaceAll(',', '.'));
+            if (n == null) return loc.numberRequiredError;
+            return null;
+          },
+          onChanged: (_) => setState(() {
+            _avgSamples = null; // kézzel módosított hiba: nem átlagolt adat
+            _avgSeconds = null;
+          }),
+        ),
+        if (_avgSamples != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              '${loc.measurementAveragedLabel}: n=$_avgSamples'
+              '${_avgSeconds == null ? '' : ', $_avgSeconds s'}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildAveragingControls(AppLocalizations loc) {
+    if (_isAveraging) {
+      final stats = valueStats(_avgValues);
+      final se = stats?.standardError;
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LinearProgressIndicator(value: (_avgElapsed / _avgDuration).clamp(0.0, 1.0).toDouble()),
+              const SizedBox(height: 8),
+              Text('${loc.modbusAverageRunning}: n=${_avgValues.length} '
+                  '($_avgElapsed / $_avgDuration s)'),
+              if (stats != null)
+                Text(se == null
+                    ? QuantityField.formatNumber(stats.mean)
+                    : formatValueWithError(stats.mean, se)),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  TextButton(
+                    onPressed: () => setState(() => _avgAbort = true),
+                    child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+                  ),
+                  const Spacer(),
+                  FilledButton(
+                    onPressed: _avgValues.isEmpty
+                        ? null
+                        : () => setState(() => _avgStop = true),
+                    child: Text(loc.modbusAverageDone),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return Row(
+      children: [
+        DropdownButton<int>(
+          value: _avgDuration,
+          items: const [10, 30, 60, 120, 300]
+              .map((s) => DropdownMenuItem(value: s, child: Text('$s s')))
+              .toList(),
+          onChanged: (v) => setState(() => _avgDuration = v ?? 60),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: _isQueryingModbus ? null : _startModbusAveraging,
+            icon: const Icon(Icons.timeline),
+            label: Text(loc.modbusAverageButton),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildGpsRow(AppLocalizations loc) {
     return Card(
       child: Padding(
@@ -845,7 +1317,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                 const Spacer(),
                 if (_gpsAccuracy != null)
                   Text(
-                    '±${_gpsAccuracy!.toStringAsFixed(1)} m',
+                    '±${formatDistanceMeters(_gpsAccuracy!)}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
               ],
@@ -910,6 +1382,15 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _isFetchingGps ? null : _averageGpsPosition,
+                icon: const Icon(Icons.filter_tilt_shift),
+                label: Text(loc.gpsAverageButton),
+              ),
+            ),
           ],
         ),
       ),
@@ -924,7 +1405,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     final rows = <Widget>[
       _summaryRow(
         loc.totalCalculatedDoseRateLabel,
-        '${_formatValue(totalCalculatedUSvH)} µSv/h',
+        formatDoseRateUSvH(totalCalculatedUSvH),
       ),
     ];
 
@@ -962,15 +1443,15 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       } else {
         rows.add(_summaryRow(
           loc.measuredDoseRateResultLabel,
-          '${_formatValue(measuredUSvH)} µSv/h',
+          formatDoseRateUSvH(measuredUSvH),
         ));
         final diff = measuredUSvH - totalCalculatedUSvH;
         final diffPercent = totalCalculatedUSvH == 0
             ? null
             : diff / totalCalculatedUSvH * 100;
         final diffText = diffPercent == null
-            ? '${_formatValue(diff)} µSv/h'
-            : '${_formatValue(diff)} µSv/h (${diffPercent >= 0 ? '+' : ''}${_formatValue(diffPercent)}%)';
+            ? formatDoseRateUSvH(diff)
+            : '${formatDoseRateUSvH(diff)} (${diffPercent >= 0 ? '+' : ''}${_formatValue(diffPercent)}%)';
         rows.add(_summaryRow(loc.doseRateDifferenceResultLabel, diffText));
       }
     }
@@ -1030,4 +1511,12 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       ],
     );
   }
+}
+
+/// Egy szerkesztés alatt álló árnyékoló réteg űrlap-állapota.
+class _LayerEdit {
+  _LayerEdit(this.material);
+  ShieldingMaterial material;
+  final TextEditingController ctrl = TextEditingController();
+  DistanceUnit unit = DistanceUnit.cm;
 }

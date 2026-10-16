@@ -29,7 +29,7 @@ class RegistryCsvService {
   Future<File> exportPersons() async {
     final persons = await DatabaseHelper.instance.getPersons();
     return _writeCsv('persons.csv', [
-      ['name', 'medical_exam_expiry_date', 'training_expiry_date', 'notes', 'created_at', 'updated_at'],
+      ['name', 'medical_exam_expiry_date', 'training_expiry_date', 'notes', 'created_at', 'updated_at', 'phone', 'emails'],
       ...persons.map((person) => [
             person.name,
             person.medicalExamExpiryDate?.toIso8601String(),
@@ -37,6 +37,8 @@ class RegistryCsvService {
             person.notes,
             person.createdAt.toIso8601String(),
             person.updatedAt.toIso8601String(),
+            person.phone,
+            person.emails.join('|'),
           ]),
     ]);
   }
@@ -205,6 +207,12 @@ class RegistryCsvService {
         medicalExamExpiryDate: _date(row, 'medical_exam_expiry_date'),
         trainingExpiryDate: _date(row, 'training_expiry_date'),
         notes: _optional(row, 'notes'),
+        phone: _optional(row, 'phone'),
+        emails: (_optional(row, 'emails') ?? '')
+            .split('|')
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList(),
         createdAt: _date(row, 'created_at') ?? now,
         updatedAt: _date(row, 'updated_at') ?? now,
       );
@@ -224,6 +232,8 @@ class RegistryCsvService {
           medicalExamExpiryDate: person.medicalExamExpiryDate,
           trainingExpiryDate: person.trainingExpiryDate,
           notes: person.notes,
+          phone: person.phone,
+          emails: person.emails,
           createdAt: match.createdAt,
           updatedAt: DateTime.now(),
         ));
@@ -281,6 +291,7 @@ class RegistryCsvService {
           serviceLifeExpiryDate: source.serviceLifeExpiryDate,
           nextInspectionDate: source.nextInspectionDate,
           notes: source.notes,
+          certificateFiles: match.certificateFiles,
           createdAt: match.createdAt,
           updatedAt: DateTime.now(),
         ));

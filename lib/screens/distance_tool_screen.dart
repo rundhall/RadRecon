@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
+import '../models/distance_unit.dart';
 import '../models/measurement_point.dart';
+import '../services/dose_unit_controller.dart';
 
 const _cardinalLabelsHu = [
   'É', 'ÉÉK', 'ÉK', 'KÉK', 'K', 'KDK', 'DK', 'DDK',
@@ -196,6 +198,19 @@ class _DistanceToolScreenState extends State<DistanceToolScreen> {
     });
   }
 
+  /// A távolság a Beállításokban választott egységben. Méternél marad a
+  /// régi kiírás (1 km felett km is látszik).
+  String _formatDistance(double meters) {
+    final unit = DistanceUnitController.current;
+    if (unit == DistanceUnit.m) {
+      return meters >= 1000
+          ? '${(meters / 1000).toStringAsFixed(3)} km  '
+              '(${meters.toStringAsFixed(1)} m)'
+          : '${meters.toStringAsFixed(1)} m';
+    }
+    return '${unit.fromMeters(meters).toStringAsFixed(1)} ${unit.symbol}';
+  }
+
   String _cardinal(BuildContext context, double bearing) {
     final index = ((bearing / 22.5) + 0.5).floor() % 16;
     return _cardinalLabelsFor(context)[index];
@@ -309,10 +324,7 @@ class _DistanceToolScreenState extends State<DistanceToolScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Center(
                   child: Text(
-                    _distanceMeters! >= 1000
-                        ? '${(_distanceMeters! / 1000).toStringAsFixed(3)} km  '
-                            '(${_distanceMeters!.toStringAsFixed(1)} m)'
-                        : '${_distanceMeters!.toStringAsFixed(1)} m',
+                    _formatDistance(_distanceMeters!),
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                 ),

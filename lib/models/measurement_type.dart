@@ -1,13 +1,14 @@
 import 'package:flutter/widgets.dart';
 
 import '../l10n/app_localizations.dart';
+import '../services/dose_unit_controller.dart';
 
 /// A rögzíthető mérési bejegyzések típusai.
 ///
 /// Ez dönti el, mely mezők jelennek meg a rögzítő képernyőn, és hogyan kerül
 /// fel a pont a térképre / a jegyzőkönyvbe.
 enum MeasurementType {
-  doseRate, // gamma dózisteljesítmény, pl. nSv/h
+  doseRate, // gamma dózisteljesítmény, egysége a Beállításokban választható
   surfaceContamination, // felületi szennyezettség, Bq/cm²
   cps, // nyers beütésszám, cps
   neutronCps, // neutron beütésszám, cps
@@ -37,7 +38,7 @@ extension MeasurementTypeX on MeasurementType {
   String get defaultUnit {
     switch (this) {
       case MeasurementType.doseRate:
-        return 'nSv/h';
+        return DoseUnitController.current.symbol;
       case MeasurementType.surfaceContamination:
         return 'Bq/cm²';
       case MeasurementType.cps:

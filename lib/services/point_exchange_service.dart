@@ -6,12 +6,18 @@ import 'package:path_provider/path_provider.dart';
 
 import '../database/database_helper.dart';
 import '../models/instrument.dart';
-import '../models/isotope.dart';
+import '../models/calibration_labels.dart';
+import '../models/instrument_calibration.dart';
 import '../models/measurement_point.dart';
 import '../models/measurement_type.dart';
+import '../models/nuclide_id.dart';
 import '../models/point_source_link.dart';
+import '../models/shielding.dart';
 import '../models/radiation_source.dart';
+import 'activity_estimate.dart';
+import 'dose_unit_controller.dart';
 import 'dose_unit_converter.dart';
+import 'unit_format.dart';
 
 /// A CSV export nyelvfüggő fejlécei és a igen/nem szövegek — a szolgáltatás
 /// rétegnek nincs `BuildContext`-je, ezért ezt a hívó (egy widget) állítja
@@ -34,6 +40,18 @@ class CsvHeaders {
   final String attachedSources;
   final String calculatedDoseRate;
   final String doseRateDifference;
+  final String nuclides;
+  final String instrumentCalibration;
+  final String valueError;
+  final String averaging;
+  final String Function(CalibrationKind) calibrationKindLabel;
+  final String validUntilLabel;
+  final String certificateLabel;
+  final String expiredNote;
+  final String Function(NuclideIdStatus) nuclideStatusLabel;
+  final String Function(ShieldingMaterial) shieldingMaterialLabel;
+  final String unshieldedNote;
+  final String shieldedSourceNote;
   final String yes;
   final String no;
 
@@ -55,6 +73,18 @@ class CsvHeaders {
     required this.attachedSources,
     required this.calculatedDoseRate,
     required this.doseRateDifference,
+    required this.nuclides,
+    required this.instrumentCalibration,
+    required this.valueError,
+    required this.averaging,
+    required this.calibrationKindLabel,
+    required this.validUntilLabel,
+    required this.certificateLabel,
+    required this.expiredNote,
+    required this.nuclideStatusLabel,
+    required this.shieldingMaterialLabel,
+    required this.unshieldedNote,
+    required this.shieldedSourceNote,
     required this.yes,
     required this.no,
   });
@@ -117,6 +147,13 @@ class PointExchangeService {
       }
     }
 
+    final calibrationsByInstrumentId = <int, List<InstrumentCalibration>>{};
+    for (final i in usedInstruments) {
+      if (i.id != null) {
+        calibrationsByInstrumentId[i.id!] = await db.getCalibrations(i.id!);
+      }
+    }
+
     final data = {
       'format': _formatId,
       'version': _formatVersion,
@@ -142,6 +179,12 @@ class PointExchangeService {
                 'is_modbus_gps_enabled': i.isModbusGpsEnabled,
                 'modbus_gps_lat_address': i.modbusGpsLatAddress,
                 'modbus_gps_lon_address': i.modbusGpsLonAddress,
+                'modbus_measurement_type': i.modbusMeasurementType.dbValue,
+                'modbus_unit': i.modbusUnit,
+                'calibrations': [
+                  for (final c in calibrationsByInstrumentId[i.id] ?? const [])
+                    c.toJson()
+                ],
               })
           .toList(),
       'sources': usedSourcesById.values
@@ -164,10 +207,18 @@ class PointExchangeService {
                 'gps_accuracy_meters': pt.gpsAccuracyMeters,
                 'measurement_type': pt.type.dbValue,
                 'value': pt.value,
+                'value_error': pt.valueError,
+                'averaging_samples': pt.averagingSamples,
+                'averaging_seconds': pt.averagingSeconds,
                 'unit': pt.unit,
                 'distance_from_source_meters': pt.distanceFromSourceMeters,
                 'activity_calc_nuclide': pt.activityCalcNuclide,
                 'instrument_name': instrumentById[pt.instrumentId]?.name,
+                'nuclide_status': pt.nuclideStatus.dbValue,
+                'nuclides': pt.nuclides,
+                'shielding_layers': [
+                  for (final l in pt.shieldingLayers) l.toJson()
+                ],
                 'attached_sources': (attachedByPointId[pt.id] ?? const [])
                     .map((a) => {
                           'source_identifier': a.source.identifier,
@@ -206,28 +257,46 @@ class PointExchangeService {
     if (session == null) {
       throw StateError('Nem található felmérés: $surveySessionId');
     }
-    final points = await db.getMeasurementPoints(surveySessionId);
+    // A dózisteljesítmény-pontok az aktuális alapegységben kerülnek a CSV-be.
+    final points = (await db.getMeasurementPoints(surveySessionId))
+        .map(withCurrentDoseUnit)
+        .toList();
     final instruments = await db.getInstruments();
     final instrumentById = {for (final i in instruments) i.id: i};
+    final doseUnit = DoseUnitController.current;
+    final distanceUnit = DistanceUnitController.current;
 
     const sep = ';'; // magyar Excel alapértelmezett listaelválasztója
     final buffer = StringBuffer();
     buffer.writeln([
       csvHeaders.serialNumber, csvHeaders.location, csvHeaders.type,
-      csvHeaders.value, csvHeaders.unit, csvHeaders.distanceFromSource,
+      csvHeaders.value, csvHeaders.unit,
+      '${csvHeaders.distanceFromSource} (${distanceUnit.symbol})',
       csvHeaders.instrument, csvHeaders.gpsLatitude, csvHeaders.gpsLongitude,
-      csvHeaders.gpsAccuracy, csvHeaders.timestamp, csvHeaders.sample,
+      '${csvHeaders.gpsAccuracy} (${distanceUnit.symbol})', csvHeaders.timestamp, csvHeaders.sample,
       csvHeaders.notes, csvHeaders.estimatedActivity,
-      csvHeaders.attachedSources, csvHeaders.calculatedDoseRate,
-      csvHeaders.doseRateDifference,
+      csvHeaders.attachedSources,
+      '${csvHeaders.calculatedDoseRate} (${doseUnit.symbol})',
+      '${csvHeaders.doseRateDifference} (${doseUnit.symbol})',
+      csvHeaders.nuclides,
+      csvHeaders.instrumentCalibration,
+      '${csvHeaders.valueError} (${csvHeaders.unit})',
+      csvHeaders.averaging,
     ].join(sep));
+
+    final calibrationsByInstrument = <int, List<InstrumentCalibration>>{};
+    for (final i in instruments) {
+      if (i.id != null) {
+        calibrationsByInstrument[i.id!] = await db.getCalibrations(i.id!);
+      }
+    }
 
     for (var i = 0; i < points.length; i++) {
       final pt = points[i];
       final instrument = instrumentById[pt.instrumentId];
       final List<AttachedSource> attached =
           pt.id == null ? const [] : await db.getAttachedSources(pt.id!);
-      final estimatedActivity = _estimatedActivityText(pt);
+      final estimatedActivity = _estimatedActivityText(pt, csvHeaders);
       final measuredUSvH =
           pt.value == null ? null : toMicroSievertPerHour(pt.value!, pt.unit);
       final (calculatedTotalUSvH, _) =
@@ -239,13 +308,21 @@ class PointExchangeService {
         typeLabel(pt.type),
         pt.value == null
             ? ''
-            : double.parse(pt.value!.toStringAsFixed(4)).toString(),
+            : double.parse(pt.value!.toStringAsPrecision(6)).toString(),
         pt.unit,
-        pt.distanceFromSourceMeters?.toString() ?? '',
+        pt.distanceFromSourceMeters == null
+            ? ''
+            : double.parse(
+                distanceUnit
+                    .fromMeters(pt.distanceFromSourceMeters!)
+                    .toStringAsFixed(3),
+              ).toString(),
         _csvField(instrument?.name ?? ''),
         pt.latitude.toStringAsFixed(6),
         pt.longitude.toStringAsFixed(6),
-        pt.gpsAccuracyMeters?.toStringAsFixed(1) ?? '',
+        pt.gpsAccuracyMeters == null
+            ? ''
+            : distanceUnit.fromMeters(pt.gpsAccuracyMeters!).toStringAsFixed(1),
         pt.timestamp.toIso8601String(),
         pt.isSample ? csvHeaders.yes : csvHeaders.no,
         _csvField(pt.notes ?? ''),
@@ -255,12 +332,34 @@ class PointExchangeService {
             : attached
                 .map((a) =>
                     '${a.source.identifier} (${a.source.nuclideName}, '
-                    '${double.parse(a.link.distanceMeters.toStringAsFixed(2))} m)')
+                    '${formatDistanceMeters(a.link.distanceMeters)})')
                 .join('; ')),
-        hasCalculatedTotal ? _formatValue(calculatedTotalUSvH) : '',
-        (measuredUSvH != null && hasCalculatedTotal)
-            ? _formatValue(measuredUSvH - calculatedTotalUSvH)
+        hasCalculatedTotal
+            ? _formatValue(doseUnit.fromMicroSvPerHour(calculatedTotalUSvH))
             : '',
+        (measuredUSvH != null && hasCalculatedTotal)
+            ? _formatValue(
+                doseUnit.fromMicroSvPerHour(measuredUSvH - calculatedTotalUSvH))
+            : '',
+        _csvField(nuclideSummaryText(
+          status: pt.nuclideStatus,
+          nuclides: pt.nuclides,
+          statusLabel: csvHeaders.nuclideStatusLabel,
+        )),
+        _csvField(_calibrationText(
+          instrument,
+          instrument?.id == null
+              ? const []
+              : (calibrationsByInstrument[instrument!.id!] ?? const []),
+          pt.timestamp,
+          csvHeaders,
+        )),
+        pt.valueError == null
+            ? ''
+            : double.parse(pt.valueError!.toStringAsPrecision(3)).toString(),
+        pt.averagingSamples == null
+            ? ''
+            : '${pt.averagingSamples}; ${pt.averagingSeconds ?? ''}',
       ].join(sep));
     }
 
@@ -270,6 +369,43 @@ class PointExchangeService {
     );
     await file.writeAsString(buffer.toString());
     return file;
+  }
+
+  /// A műszer hitelesítése/kalibrálása a mérés időpontjában érvényes
+  /// bejegyzések alapján; lejárt esetén jelölve.
+  String _calibrationText(
+    Instrument? instrument,
+    List<InstrumentCalibration> records,
+    DateTime at,
+    CsvHeaders h,
+  ) {
+    if (instrument == null) return '';
+    bool expiredAt(DateTime? until) =>
+        until != null &&
+        at.isAfter(DateTime(until.year, until.month, until.day, 23, 59, 59));
+
+    final parts = <String>[];
+    for (final kind in CalibrationKind.values) {
+      final r = latestOfKind(records, kind, at: at);
+      if (r == null) continue;
+      final b = StringBuffer(
+          '${h.calibrationKindLabel(kind)} ${calibrationDateText(r.performedOn)}');
+      if (r.validUntil != null) {
+        b.write(', ${h.validUntilLabel}: ${calibrationDateText(r.validUntil!)}');
+      }
+      if (r.certificateNumber != null) {
+        b.write(', ${h.certificateLabel}: ${r.certificateNumber}');
+      }
+      if (r.performedBy != null) b.write(' (${r.performedBy})');
+      if (expiredAt(r.validUntil)) b.write(' - ${h.expiredNote}');
+      parts.add(b.toString());
+    }
+    if (parts.isEmpty && instrument.nextCalibrationDate != null) {
+      final d = instrument.nextCalibrationDate!;
+      parts.add('${h.validUntilLabel}: ${calibrationDateText(d)}'
+          '${expiredAt(d) ? ' - ${h.expiredNote}' : ''}');
+    }
+    return parts.join('; ');
   }
 
   String _csvField(String value) {
@@ -288,23 +424,33 @@ class PointExchangeService {
 
   /// A "forrás távolság" mező melletti nuklidválasztóból és a mért
   /// értékből visszaszámolt aktivitás-becslés szöveges alakja.
-  String? _estimatedActivityText(MeasurementPoint point) {
-    final nuclideName = point.activityCalcNuclide;
+  String? _estimatedActivityText(
+    MeasurementPoint point, CsvHeaders headers) {
+    final nuclideName = point.estimationNuclide;
     final distance = point.distanceFromSourceMeters;
     final measuredValue = point.value;
     if (nuclideName == null || distance == null || distance <= 0 ||
         measuredValue == null) {
       return null;
     }
-    final isotope = Isotope.findByName(nuclideName);
-    if (isotope == null) return null;
     final measuredUSvH = toMicroSievertPerHour(measuredValue, point.unit);
     if (measuredUSvH == null) return null;
-    final activityMBq = isotope.activityFrom(
+    final estimate = estimateActivity(
+      nuclide: nuclideName,
       doseRateUSvH: measuredUSvH,
       distanceM: distance,
+      layers: point.shieldingLayers,
     );
-    return '$nuclideName: ${_formatValue(activityMBq)} MBq';
+    if (estimate == null) return null;
+    final text = '$nuclideName: ${formatActivityMBq(estimate.unshieldedMBq)} '
+        '(${headers.unshieldedNote})';
+    if (estimate.shieldedMBq == null) return text;
+    final layers = point.shieldingLayers
+        .map((l) => '${headers.shieldingMaterialLabel(l.material)} '
+            '${formatDistanceMeters(l.thicknessCm / 100)}')
+        .join(' + ');
+    return '$text; ${headers.shieldedSourceNote} ($layers): '
+        '${formatActivityMBq(estimate.shieldedMBq!)}';
   }
 
   /// A ponthoz rendelt források összesített, számított dózisteljesítménye
@@ -368,12 +514,19 @@ class PointExchangeService {
     for (final entry in incomingInstruments) {
       final name = entry['name'] as String?;
       if (name == null || instrumentIdByName.containsKey(name)) continue;
+      final incomingCalibrations = (entry['calibrations'] as List? ?? const [])
+          .map(InstrumentCalibration.fromJson)
+          .whereType<InstrumentCalibration>()
+          .toList();
       final instrument = Instrument(
         name: name,
         serialNumber: entry['serial_number'] as String?,
-        calibrationDate: entry['calibration_date'] == null
-            ? null
-            : DateTime.parse(entry['calibration_date'] as String),
+        calibrationDate: incomingCalibrations.isNotEmpty
+            ? latestPerformedOn(incomingCalibrations)
+            : (entry['calibration_date'] == null
+                ? null
+                : DateTime.parse(entry['calibration_date'] as String)),
+        nextCalibrationDate: effectiveValidUntil(incomingCalibrations),
         calibrationFactor: (entry['calibration_factor'] as num?)?.toDouble(),
         isModbusConnected: entry['is_modbus_connected'] as bool? ?? false,
         modbusHost: entry['modbus_host'] as String?,
@@ -383,8 +536,16 @@ class PointExchangeService {
         isModbusGpsEnabled: entry['is_modbus_gps_enabled'] as bool? ?? false,
         modbusGpsLatAddress: entry['modbus_gps_lat_address'] as int? ?? 426,
         modbusGpsLonAddress: entry['modbus_gps_lon_address'] as int? ?? 428,
+        modbusMeasurementType: Instrument.fromMap({
+          'name': name,
+          'modbus_measurement_type': entry['modbus_measurement_type'],
+        }).modbusMeasurementType,
+        modbusUnit: entry['modbus_unit'] as String? ?? 'nSv/h',
       );
       final newId = await db.insertInstrument(instrument);
+      if (incomingCalibrations.isNotEmpty) {
+        await db.replaceCalibrations(newId, incomingCalibrations);
+      }
       instrumentIdByName[name] = newId;
       instrumentsCreated++;
     }
@@ -461,11 +622,18 @@ class PointExchangeService {
         gpsAccuracyMeters: (entry['gps_accuracy_meters'] as num?)?.toDouble(),
         type: type,
         value: (entry['value'] as num?)?.toDouble(),
+        valueError: (entry['value_error'] as num?)?.toDouble(),
+        averagingSamples: (entry['averaging_samples'] as num?)?.toInt(),
+        averagingSeconds: (entry['averaging_seconds'] as num?)?.toInt(),
         unit: entry['unit'] as String? ?? type.defaultUnit,
         distanceFromSourceMeters:
             (entry['distance_from_source_meters'] as num?)?.toDouble(),
         activityCalcNuclide: entry['activity_calc_nuclide'] as String?,
         instrumentId: instrumentId,
+        nuclideStatus: NuclideIdStatus.fromDb(entry['nuclide_status']),
+        nuclides: (entry['nuclides'] as List?)?.whereType<String>().toList() ??
+            const [],
+        shieldingLayers: ShieldingLayer.listFromJson(entry['shielding_layers']),
         isSourcePosition: entry['is_source_position'] as bool? ?? false,
         isSample: entry['is_sample'] as bool? ?? false,
         sampleContainerId: entry['sample_container_id'] as String?,

@@ -7,14 +7,20 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
+import '../models/distance_unit.dart';
+import '../models/dose_rate_unit.dart';
 import '../models/instrument.dart';
 import '../models/measurement_point.dart';
 import '../models/measurement_type.dart';
 import '../models/person_dose.dart';
 import '../services/dose_integrator.dart';
+import '../services/dose_unit_controller.dart';
+import '../services/dose_unit_converter.dart';
 import '../services/modbus_reader_service.dart';
 import '../services/settings_service.dart';
 import '../widgets/dose_widgets.dart';
+import '../widgets/quantity_field.dart';
+import '../widgets/time_series_chart.dart';
 
 enum _TriggerMode { time, distance }
 
@@ -43,7 +49,10 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
   _TriggerMode _mode = _TriggerMode.time;
 
   final _intervalCtrl = TextEditingController(text: '1');
-  final _distanceCtrl = TextEditingController(text: '5');
+  DistanceUnit _distanceUnit = DistanceUnitController.current;
+  late final _distanceCtrl = TextEditingController(
+    text: QuantityField.formatNumber(_distanceUnit.fromMeters(5)),
+  );
 
   bool _isRunning = false;
   bool _starting = false;
@@ -61,6 +70,18 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
   (double, double)? _lastModbusGpsPosition;
 
   bool get _useModbusGps => _instrument?.isModbusGpsEnabled ?? false;
+  /// A futás alatt olvasott értékek az idődiagramhoz (alapegységben).
+  final List<TimeSample> _samples = [];
+  static const _maxSamples = 7200;
+  double? _threshold;
+
+  void _addSample(double raw) {
+    _samples.add(TimeSample(DateTime.now(), _toDefaultUnit(raw)));
+    if (_samples.length > _maxSamples) {
+      _samples.removeRange(0, _samples.length - _maxSamples);
+    }
+  }
+
   int _capturedCount = 0;
   int _errorCount = 0;
   double? _lastValue;
@@ -79,6 +100,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       _modbusInstruments = all.where((i) => i.isModbusConnected).toList();
       if (_modbusInstruments.isNotEmpty) {
         _instrument = _modbusInstruments.first;
+        _type = _instrument!.modbusMeasurementType;
       }
     });
   }
@@ -108,7 +130,9 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     if (instrument == null) return;
 
     final interval = int.tryParse(_intervalCtrl.text.trim()) ?? 1;
-    final distance = int.tryParse(_distanceCtrl.text.trim()) ?? 5;
+    // A távolságköz méterben (a választott egységből átszámolva).
+    final distance = _distanceUnit
+        .toMeters(double.tryParse(_distanceCtrl.text.trim()) ?? 5);
     if (_mode == _TriggerMode.time && interval < 1) {
       _showError(loc.intervalMinError);
       return;
@@ -130,7 +154,9 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     }
 
     unawaited(WakelockPlus.enable());
+    _threshold = await SettingsService().getThreshold(_type);
     setState(() {
+      _samples.clear();
       _isRunning = true;
       _starting = false;
       _capturedCount = 0;
@@ -169,18 +195,29 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       _positionSub = Geolocator.getPositionStream(
         locationSettings: LocationSettings(
           accuracy: LocationAccuracy.best,
-          distanceFilter: distance,
+          distanceFilter: distance.round(),
         ),
       ).listen(_captureTick);
       _doseTimer = Timer.periodic(const Duration(seconds: 1), (_) => _doseTick());
     }
   }
 
+  /// A műszer nyers értékét (a műszernél beállított regiszter-egységből) az
+  /// aktuálisan választott alapegységre váltja.
+  double _toDefaultUnit(double raw) {
+    final instrument = _instrument;
+    return instrument == null ? raw : instrumentReadingInAppUnit(instrument, raw);
+  }
+
   /// Dózisteljesítmény-minta hozzáadása az integrálóhoz (csak dózisteljesítmény
   /// típusú mérésnél).
   void _accumulateDose(double value) {
     if (_type != MeasurementType.doseRate) return;
-    _dose.addSample(value, _type.defaultUnit, DateTime.now());
+    _dose.addSample(
+      value,
+      _instrument?.modbusUnit ?? DoseRateUnit.instrumentNative.symbol,
+      DateTime.now(),
+    );
   }
 
   /// Csak dózis-integráláshoz szükséges olvasás (nem rögzít mérési pontot).
@@ -191,6 +228,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       final result = await _session?.read();
       if (result != null && result.success) {
         _accumulateDose(result.value!);
+        _addSample(result.value!);
         if (mounted) setState(() {});
       }
     } finally {
@@ -224,7 +262,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     return (persons.length, dose);
   }
 
-  Future<void> _captureTick(Position? position, {int? minDistance}) async {
+  Future<void> _captureTick(Position? position, {double? minDistance}) async {
     if ((position == null && !_useModbusGps) || _busy || !_isRunning) return;
     _busy = true;
     try {
@@ -236,6 +274,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
         return;
       }
       _accumulateDose(result.value!);
+      _addSample(result.value!);
 
       final double latitude;
       final double longitude;
@@ -271,7 +310,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
         longitude: longitude,
         gpsAccuracyMeters: accuracy,
         type: _type,
-        value: result.value,
+        value: _toDefaultUnit(result.value!),
         unit: _type.defaultUnit,
         instrumentId: _instrument!.id,
         timestamp: now,
@@ -281,12 +320,12 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       await DatabaseHelper.instance.insertMeasurementPoint(point);
 
       final threshold = await SettingsService().getThreshold(_type);
-      if (threshold != null && result.value! >= threshold) {
+      if (threshold != null && _toDefaultUnit(result.value!) >= threshold) {
         HapticFeedback.heavyImpact();
       }
 
       _capturedCount++;
-      _lastValue = result.value;
+      _lastValue = _toDefaultUnit(result.value!);
       if (mounted) setState(() {});
     } finally {
       _busy = false;
@@ -369,23 +408,26 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
                   .toList(),
               onChanged: _isRunning
                   ? null
-                  : (i) => setState(() => _instrument = i),
+                  : (i) => setState(() {
+                      _instrument = i;
+                      if (i != null) _type = i.modbusMeasurementType;
+                    }),
             ),
             const SizedBox(height: 12),
-            DropdownButtonFormField<MeasurementType>(
-              initialValue: _type,
-              decoration: InputDecoration(labelText: loc.measurementTypeLabel),
-              items: MeasurementType.values
-                  .where((t) => t != MeasurementType.sample)
-                  .map((t) =>
-                      DropdownMenuItem(value: t, child: Text(t.label(context))))
-                  .toList(),
-              onChanged: _isRunning
-                  ? null
-                  : (t) {
-                      if (t == null) return;
-                      setState(() => _type = t);
-                    },
+            // A mért mennyiséget a műszer beállítása adja (Modbus regiszter),
+            // itt csak megjelenítjük.
+            InputDecorator(
+              decoration: InputDecoration(
+                labelText: loc.measurementTypeLabel,
+                helperText: loc.autoLogTypeFromInstrument,
+                helperMaxLines: 2,
+              ),
+              child: Text(
+                _instrument == null || _instrument!.modbusUnit == _type.defaultUnit
+                    ? '${_type.label(context)} (${_type.defaultUnit})'
+                    : '${_type.label(context)} '
+                        '(${_instrument!.modbusUnit} → ${_type.defaultUnit})',
+              ),
             ),
             if (_type != MeasurementType.doseRate)
               Padding(
@@ -425,13 +467,18 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
                 keyboardType: TextInputType.number,
               )
             else
-              TextField(
-                controller: _distanceCtrl,
-                enabled: !_isRunning,
-                decoration: InputDecoration(
-                  labelText: loc.distanceIntervalLabel,
+              IgnorePointer(
+                ignoring: _isRunning,
+                child: Opacity(
+                  opacity: _isRunning ? 0.5 : 1,
+                  child: QuantityField<DistanceUnit>(
+                    controller: _distanceCtrl,
+                    label: loc.distanceIntervalPlainLabel,
+                    units: DistanceUnit.values,
+                    unit: _distanceUnit,
+                    onUnitChanged: (u) => setState(() => _distanceUnit = u),
+                  ),
                 ),
-                keyboardType: TextInputType.number,
               ),
             const SizedBox(height: 24),
             if (!_isRunning)
@@ -453,6 +500,26 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
                 label: Text(loc.stopButton),
               ),
             const SizedBox(height: 24),
+            if (_samples.isNotEmpty)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(loc.autoLogChartTitle,
+                          style: Theme.of(context).textTheme.titleSmall),
+                      const SizedBox(height: 8),
+                      TimeSeriesChart(
+                        samples: _samples,
+                        unit: _type.defaultUnit,
+                        threshold: _threshold,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            if (_samples.isNotEmpty) const SizedBox(height: 16),
             if (_isRunning || _capturedCount > 0 || _errorCount > 0)
               Card(
                 child: Padding(

@@ -1,3 +1,6 @@
+import 'measurement_type.dart';
+import 'modbus_reading.dart';
+
 /// Egy terepre vitt sugárzásmérő műszer.
 ///
 /// A kalibrációs adatok (sorozatszám, dátum, tényező) minden hozzá rendelt
@@ -18,6 +21,14 @@ class Instrument {
   final int modbusGpsLatAddress; // float32, fok (É+, D-)
   final int modbusGpsLonAddress; // float32, fok (K+, Ny-)
 
+  /// Mit ad vissza a műszer a Modbus regiszterben (dózisteljesítmény,
+  /// felületi szennyezettség, beütésszám, neutron beütésszám)...
+  final MeasurementType modbusMeasurementType;
+
+  /// ...és milyen mértékegységben (pl. "nSv/h", "µR/h", "cps"). A régebben
+  /// felvett műszerek alapértelmezése: dózisteljesítmény, nSv/h.
+  final String modbusUnit;
+
   const Instrument({
     this.id,
     required this.name,
@@ -33,6 +44,8 @@ class Instrument {
     this.isModbusGpsEnabled = false,
     this.modbusGpsLatAddress = 426,
     this.modbusGpsLonAddress = 428,
+    this.modbusMeasurementType = MeasurementType.doseRate,
+    this.modbusUnit = 'nSv/h',
   });
 
   Instrument copyWith({
@@ -50,6 +63,8 @@ class Instrument {
     bool? isModbusGpsEnabled,
     int? modbusGpsLatAddress,
     int? modbusGpsLonAddress,
+    MeasurementType? modbusMeasurementType,
+    String? modbusUnit,
   }) {
     return Instrument(
       id: id ?? this.id,
@@ -66,6 +81,9 @@ class Instrument {
       isModbusGpsEnabled: isModbusGpsEnabled ?? this.isModbusGpsEnabled,
       modbusGpsLatAddress: modbusGpsLatAddress ?? this.modbusGpsLatAddress,
       modbusGpsLonAddress: modbusGpsLonAddress ?? this.modbusGpsLonAddress,
+      modbusMeasurementType:
+          modbusMeasurementType ?? this.modbusMeasurementType,
+      modbusUnit: modbusUnit ?? this.modbusUnit,
     );
   }
 
@@ -85,6 +103,8 @@ class Instrument {
       'is_modbus_gps_enabled': isModbusGpsEnabled ? 1 : 0,
       'modbus_gps_lat_address': modbusGpsLatAddress,
       'modbus_gps_lon_address': modbusGpsLonAddress,
+      'modbus_measurement_type': modbusMeasurementType.dbValue,
+      'modbus_unit': modbusUnit,
     };
   }
 
@@ -108,6 +128,16 @@ class Instrument {
       isModbusGpsEnabled: (map['is_modbus_gps_enabled'] as int? ?? 0) == 1,
       modbusGpsLatAddress: map['modbus_gps_lat_address'] as int? ?? 426,
       modbusGpsLonAddress: map['modbus_gps_lon_address'] as int? ?? 428,
+      modbusMeasurementType: _typeFromDb(map['modbus_measurement_type']),
+      modbusUnit: map['modbus_unit'] as String? ?? 'nSv/h',
     );
+  }
+
+  /// Ismeretlen/hiányzó értéknél a régi viselkedés: dózisteljesítmény.
+  static MeasurementType _typeFromDb(Object? value) {
+    for (final t in kModbusMeasurableTypes) {
+      if (t.dbValue == value) return t;
+    }
+    return MeasurementType.doseRate;
   }
 }

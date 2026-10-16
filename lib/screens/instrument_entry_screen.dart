@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
+import '../models/calibration_labels.dart';
 import '../models/instrument.dart';
+import '../models/instrument_calibration.dart';
+import '../models/measurement_type.dart';
+import '../models/modbus_reading.dart';
 import '../services/modbus_reader_service.dart';
+import '../widgets/calibration_record_dialog.dart';
 
 /// Egy műszer felvétele/szerkesztése: alapadatok, kalibráció, opcionális
 /// Modbus/TCP elérhetőség.
@@ -32,9 +38,12 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
   final _modbusGpsLonCtrl = TextEditingController(text: '428');
 
   DateTime? _nextCalibrationDate;
+  List<InstrumentCalibration> _records = [];
   bool _isModbusConnected = false;
   bool _isModbusGpsEnabled = false;
   bool _isTestingModbus = false;
+  MeasurementType _modbusType = MeasurementType.doseRate;
+  String _modbusUnit = defaultModbusUnitFor(MeasurementType.doseRate);
 
   @override
   void initState() {
@@ -54,7 +63,54 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
       _isModbusGpsEnabled = e.isModbusGpsEnabled;
       _modbusGpsLatCtrl.text = e.modbusGpsLatAddress.toString();
       _modbusGpsLonCtrl.text = e.modbusGpsLonAddress.toString();
+      _modbusType = e.modbusMeasurementType;
+      _modbusUnit = modbusUnitsFor(_modbusType).contains(e.modbusUnit)
+          ? e.modbusUnit
+          : defaultModbusUnitFor(_modbusType);
+      _loadRecords(e.id);
     }
+  }
+
+  Future<void> _loadRecords(int? id) async {
+    if (id == null) return;
+    final list = await DatabaseHelper.instance.getCalibrations(id);
+    if (!mounted) return;
+    setState(() {
+      _records = list;
+      _syncNextDate();
+    });
+  }
+
+  /// A következő határidő a bejegyzésekből származik (ha van lejáratuk).
+  void _syncNextDate() {
+    final v = effectiveValidUntil(_records);
+    if (v != null) _nextCalibrationDate = v;
+  }
+
+  Future<void> _addRecord({int? editIndex}) async {
+    final result = await showCalibrationRecordDialog(
+      context,
+      existing: editIndex == null ? null : _records[editIndex],
+    );
+    if (result == null || !mounted) return;
+    setState(() {
+      final list = [..._records];
+      if (editIndex == null) {
+        list.add(result);
+      } else {
+        list[editIndex] = result;
+      }
+      list.sort((a, b) => b.performedOn.compareTo(a.performedOn));
+      _records = list;
+      _syncNextDate();
+    });
+  }
+
+  void _removeRecord(int index) {
+    setState(() {
+      _records = [..._records]..removeAt(index);
+      _syncNextDate();
+    });
   }
 
   @override
@@ -116,6 +172,8 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
         isModbusGpsEnabled: _isModbusGpsEnabled,
         modbusGpsLatAddress: int.tryParse(_modbusGpsLatCtrl.text.trim()) ?? 426,
         modbusGpsLonAddress: int.tryParse(_modbusGpsLonCtrl.text.trim()) ?? 428,
+        modbusMeasurementType: _modbusType,
+        modbusUnit: _modbusUnit,
       );
 
       final result = await ModbusReaderService.readFloatRegister(testInstrument, loc);
@@ -123,7 +181,9 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
 
       if (result.success) {
         String content = loc.modbusTestValue(
-          result.value?.toStringAsFixed(4) ?? 'N/A',
+          result.value == null
+              ? 'N/A'
+              : '${result.value!.toStringAsFixed(4)} $_modbusUnit',
         );
         if (result.hasGps) {
           final gpsInfo = loc.modbusTestPosition(
@@ -213,7 +273,7 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
       name: _nameCtrl.text.trim(),
       serialNumber:
           _serialCtrl.text.trim().isEmpty ? null : _serialCtrl.text.trim(),
-      calibrationDate: null,
+      calibrationDate: latestPerformedOn(_records),
       nextCalibrationDate: _nextCalibrationDate,
       calibrationFactor: _calibrationFactorCtrl.text.trim().isEmpty
           ? null
@@ -238,13 +298,18 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
           int.tryParse(_modbusGpsLatCtrl.text.trim()) ?? 426,
       modbusGpsLonAddress:
           int.tryParse(_modbusGpsLonCtrl.text.trim()) ?? 428,
+      modbusMeasurementType: _modbusType,
+      modbusUnit: _modbusUnit,
     );
 
+    final int instrumentId;
     if (widget.existing == null) {
-      await DatabaseHelper.instance.insertInstrument(instrument);
+      instrumentId = await DatabaseHelper.instance.insertInstrument(instrument);
     } else {
       await DatabaseHelper.instance.updateInstrument(instrument);
+      instrumentId = widget.existing!.id!;
     }
+    await DatabaseHelper.instance.replaceCalibrations(instrumentId, _records);
 
     if (mounted) Navigator.of(context).pop(true);
   }
@@ -303,6 +368,59 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
                   const TextInputType.numberWithOptions(decimal: true),
             ),
             const Divider(height: 32),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(loc.calibrationSectionTitle,
+                      style: Theme.of(context).textTheme.titleMedium),
+                ),
+                TextButton.icon(
+                  icon: const Icon(Icons.add),
+                  label: Text(loc.calibrationAddButton),
+                  onPressed: () => _addRecord(),
+                ),
+              ],
+            ),
+            if (_records.isEmpty)
+              Text(loc.calibrationEmptyList,
+                  style: Theme.of(context).textTheme.bodySmall),
+            for (var i = 0; i < _records.length; i++)
+              Card(
+                child: ListTile(
+                  title: Text(
+                    '${calibrationKindLabel(loc, _records[i].kind)} · '
+                    '${_dateFormat.format(_records[i].performedOn)}',
+                  ),
+                  subtitle: Text([
+                    if (_records[i].validUntil != null)
+                      '${loc.calibrationValidUntilLabel}: '
+                          '${_dateFormat.format(_records[i].validUntil!)}',
+                    if (_records[i].certificateNumber != null)
+                      _records[i].certificateNumber!,
+                    if (_records[i].performedBy != null)
+                      _records[i].performedBy!,
+                  ].join('\n')),
+                  onTap: () => _addRecord(editIndex: i),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_records[i].filePath != null)
+                        IconButton(
+                          tooltip: loc.calibrationOpenFile,
+                          icon: const Icon(Icons.attach_file),
+                          onPressed: () => SharePlus.instance.share(
+                            ShareParams(files: [XFile(_records[i].filePath!)]),
+                          ),
+                        ),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        onPressed: () => _removeRecord(i),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            const Divider(height: 32),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(loc.modbusConnectedLabel),
@@ -337,6 +455,45 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
                   helperText: loc.modbusRegisterAddressHelper,
                 ),
                 keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 12),
+              // Mit mér a műszer, és milyen egységben adja a regiszterben.
+              // Zárt listák, így nem lehet elgépelni.
+              DropdownButtonFormField<MeasurementType>(
+                key: ValueKey('modbus-type-${_modbusType.name}'),
+                initialValue: _modbusType,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: loc.modbusQuantityLabel,
+                  helperText: loc.modbusQuantityHelper,
+                  helperMaxLines: 3,
+                ),
+                items: [
+                  for (final t in kModbusMeasurableTypes)
+                    DropdownMenuItem(value: t, child: Text(t.label(context))),
+                ],
+                onChanged: (t) {
+                  if (t == null) return;
+                  setState(() {
+                    _modbusType = t;
+                    _modbusUnit = defaultModbusUnitFor(t);
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                key: ValueKey('modbus-unit-${_modbusType.name}-$_modbusUnit'),
+                initialValue: _modbusUnit,
+                isExpanded: true,
+                decoration:
+                    InputDecoration(labelText: loc.modbusRegisterUnitLabel),
+                items: [
+                  for (final u in modbusUnitsFor(_modbusType))
+                    DropdownMenuItem(value: u, child: Text(u)),
+                ],
+                onChanged: (u) {
+                  if (u != null) setState(() => _modbusUnit = u);
+                },
               ),
               const SizedBox(height: 12),
               SizedBox(

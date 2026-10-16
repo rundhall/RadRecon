@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'measurement_type.dart';
+import 'nuclide_id.dart';
+import 'shielding.dart';
 
 /// Egy terepen felvett mérési pont — az app alapegysége.
 ///
@@ -17,6 +21,12 @@ class MeasurementPoint {
   // Mérés
   final MeasurementType type;
   final double? value; // null lehet, ha type == sample
+
+  /// A mért érték hibája (±, ugyanabban az egységben, mint az érték). Átlagolt
+  /// mérésnél az átlag standard hibája (1σ), egyébként kézzel megadott.
+  final double? valueError;
+  final int? averagingSamples; // átlagolt mérés mintáinak száma
+  final int? averagingSeconds; // az átlagolás időtartama
   final String unit;
   final double? distanceFromSourceMeters;
 
@@ -27,6 +37,12 @@ class MeasurementPoint {
   final String? activityCalcNuclide;
 
   final int? instrumentId; // FK -> instruments.id, manuális bevitelnél is kötelező
+
+  // Nuklid-azonosítás: azonosított nuklid(ok) / ismeretlen / egyéb / keverék.
+  final NuclideIdStatus nuclideStatus;
+  final List<String> nuclides; // nuklid nevek (listából vagy szabadon megadva)
+  // Opcionális árnyékolás a forrás és a mérőpont között (aktivitás-becsléshez).
+  final List<ShieldingLayer> shieldingLayers;
   final bool isSourcePosition; // "itt a forrás pozíció" jelölés
 
   // Mintavétel (csak type == sample esetén releváns, de bármely ponthoz köthető)
@@ -52,10 +68,16 @@ class MeasurementPoint {
     this.gpsAccuracyMeters,
     required this.type,
     this.value,
+    this.valueError,
+    this.averagingSamples,
+    this.averagingSeconds,
     required this.unit,
     this.distanceFromSourceMeters,
     this.activityCalcNuclide,
     this.instrumentId,
+    this.nuclideStatus = NuclideIdStatus.notSpecified,
+    this.nuclides = const [],
+    this.shieldingLayers = const [],
     this.isSourcePosition = false,
     this.isSample = false,
     this.sampleContainerId,
@@ -77,10 +99,17 @@ class MeasurementPoint {
     double? gpsAccuracyMeters,
     MeasurementType? type,
     double? value,
+    double? valueError,
+    int? averagingSamples,
+    int? averagingSeconds,
     String? unit,
     double? distanceFromSourceMeters,
     String? activityCalcNuclide,
     int? instrumentId,
+    NuclideIdStatus? nuclideStatus,
+    List<String>? nuclides,
+    List<ShieldingLayer>? shieldingLayers,
+    bool clearShielding = false,
     bool? isSourcePosition,
     bool? isSample,
     String? sampleContainerId,
@@ -101,11 +130,19 @@ class MeasurementPoint {
       gpsAccuracyMeters: gpsAccuracyMeters ?? this.gpsAccuracyMeters,
       type: type ?? this.type,
       value: value ?? this.value,
+      valueError: valueError ?? this.valueError,
+      averagingSamples: averagingSamples ?? this.averagingSamples,
+      averagingSeconds: averagingSeconds ?? this.averagingSeconds,
       unit: unit ?? this.unit,
       distanceFromSourceMeters:
           distanceFromSourceMeters ?? this.distanceFromSourceMeters,
       activityCalcNuclide: activityCalcNuclide ?? this.activityCalcNuclide,
       instrumentId: instrumentId ?? this.instrumentId,
+      nuclideStatus: nuclideStatus ?? this.nuclideStatus,
+      nuclides: nuclides ?? this.nuclides,
+      shieldingLayers: clearShielding
+          ? const []
+          : (shieldingLayers ?? this.shieldingLayers),
       isSourcePosition: isSourcePosition ?? this.isSourcePosition,
       isSample: isSample ?? this.isSample,
       sampleContainerId: sampleContainerId ?? this.sampleContainerId,
@@ -129,10 +166,18 @@ class MeasurementPoint {
       'gps_accuracy_meters': gpsAccuracyMeters,
       'measurement_type': type.dbValue,
       'value': value,
+      'value_error': valueError,
+      'averaging_samples': averagingSamples,
+      'averaging_seconds': averagingSeconds,
       'unit': unit,
       'distance_from_source_meters': distanceFromSourceMeters,
       'activity_calc_nuclide': activityCalcNuclide,
       'instrument_id': instrumentId,
+      'nuclide_status': nuclideStatus.dbValue,
+      'nuclides': nuclides.isEmpty ? null : jsonEncode(nuclides),
+      'shielding_layers': shieldingLayers.isEmpty
+          ? null
+          : jsonEncode([for (final l in shieldingLayers) l.toJson()]),
       'is_source_position': isSourcePosition ? 1 : 0,
       'is_sample': isSample ? 1 : 0,
       'sample_container_id': sampleContainerId,
@@ -156,11 +201,17 @@ class MeasurementPoint {
       gpsAccuracyMeters: (map['gps_accuracy_meters'] as num?)?.toDouble(),
       type: MeasurementTypeX.fromDbValue(map['measurement_type'] as String),
       value: (map['value'] as num?)?.toDouble(),
+      valueError: (map['value_error'] as num?)?.toDouble(),
+      averagingSamples: (map['averaging_samples'] as num?)?.toInt(),
+      averagingSeconds: (map['averaging_seconds'] as num?)?.toInt(),
       unit: map['unit'] as String,
       distanceFromSourceMeters:
           (map['distance_from_source_meters'] as num?)?.toDouble(),
       activityCalcNuclide: map['activity_calc_nuclide'] as String?,
       instrumentId: map['instrument_id'] as int?,
+      nuclideStatus: NuclideIdStatus.fromDb(map['nuclide_status']),
+      nuclides: _decodeNuclides(map['nuclides']),
+      shieldingLayers: _decodeLayers(map['shielding_layers']),
       isSourcePosition: (map['is_source_position'] as int? ?? 0) == 1,
       isSample: (map['is_sample'] as int? ?? 0) == 1,
       sampleContainerId: map['sample_container_id'] as String?,
@@ -172,5 +223,29 @@ class MeasurementPoint {
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
+  }
+
+  /// Az aktivitás-becsléshez használható nuklid: csak akkor van, ha az
+  /// azonosítás "Azonosított" és pontosan egy nuklid szerepel.
+  String? get estimationNuclide =>
+      nuclideStatus == NuclideIdStatus.identified && nuclides.length == 1
+          ? nuclides.first
+          : null;
+
+  static List<ShieldingLayer> _decodeLayers(Object? raw) {
+    if (raw is! String || raw.isEmpty) return const [];
+    try {
+      return ShieldingLayer.listFromJson(jsonDecode(raw));
+    } catch (_) {}
+    return const [];
+  }
+
+  static List<String> _decodeNuclides(Object? raw) {
+    if (raw is! String || raw.isEmpty) return const [];
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is List) return decoded.whereType<String>().toList();
+    } catch (_) {}
+    return const [];
   }
 }

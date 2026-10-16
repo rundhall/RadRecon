@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
+import '../models/activity_unit.dart';
+import '../models/distance_unit.dart';
+import '../models/dose_rate_unit.dart';
 import '../models/isotope.dart';
+import '../models/shielding.dart';
+import '../services/dose_unit_controller.dart';
+import '../services/unit_format.dart';
+import '../widgets/quantity_field.dart';
+import '../widgets/shielding_layers_editor.dart';
 
 enum _CalcMode { doseRateFromActivity, activityFromDoseRate }
 
@@ -22,6 +30,12 @@ class _IsotopeCalculatorScreenState extends State<IsotopeCalculatorScreen> {
   final _activityCtrl = TextEditingController();
   final _doseRateCtrl = TextEditingController();
 
+  DistanceUnit _distanceUnit = DistanceUnitController.current;
+  ActivityUnit _activityUnit = ActivityUnitController.current;
+  DoseRateUnit _doseUnit = DoseUnitController.current;
+
+  final List<ShieldingLayerEdit> _layers = [];
+
   String? _resultText;
   String? _errorText;
 
@@ -30,6 +44,9 @@ class _IsotopeCalculatorScreenState extends State<IsotopeCalculatorScreen> {
     _distanceCtrl.dispose();
     _activityCtrl.dispose();
     _doseRateCtrl.dispose();
+    for (final e in _layers) {
+      e.ctrl.dispose();
+    }
     super.dispose();
   }
 
@@ -40,48 +57,61 @@ class _IsotopeCalculatorScreenState extends State<IsotopeCalculatorScreen> {
       _errorText = null;
     });
 
-    final distance = double.tryParse(_distanceCtrl.text.trim());
-    if (distance == null || distance <= 0) {
-      setState(() => _errorText = loc.invalidDistanceError);
+    final enteredDistance = double.tryParse(_distanceCtrl.text.trim());
+    if (enteredDistance == null || enteredDistance <= 0) {
+      setState(() => _errorText = loc.invalidDistancePlainError);
       return;
     }
+    final distance = _distanceUnit.toMeters(enteredDistance);
+
+    final layers = validShieldingLayers(_layers);
+    final transmission = layers.isEmpty
+        ? null
+        : layersTransmission(_isotope.name, layers);
 
     try {
       if (_mode == _CalcMode.doseRateFromActivity) {
-        final activity = double.tryParse(_activityCtrl.text.trim());
-        if (activity == null || activity <= 0) {
-          setState(() => _errorText = loc.invalidActivityError);
+        final entered = double.tryParse(_activityCtrl.text.trim());
+        if (entered == null || entered <= 0) {
+          setState(() => _errorText = loc.invalidActivityPlainError);
           return;
         }
-        final dose = _isotope.doseRateAt(activityMBq: activity, distanceM: distance);
+        final dose = _isotope.doseRateAt(
+          activityMBq: _activityUnit.toMBq(entered),
+          distanceM: distance,
+        );
         setState(() {
-          _resultText = loc.calculatedDoseRateResult(
-            _formatValue(dose),
-            _formatValue(dose * 1000),
-          );
+          _resultText = transmission == null
+              ? '${loc.calculatedDoseRateResultLabel}: '
+                  '${formatDoseRateUSvH(dose)}'
+              : '${loc.doseRateUnshieldedLabel}: '
+                  '${formatDoseRateUSvH(dose)}\n'
+                  '${loc.doseRateShieldedLabel}: '
+                  '${formatDoseRateUSvH(dose * transmission)}';
         });
       } else {
-        final dose = double.tryParse(_doseRateCtrl.text.trim());
-        if (dose == null || dose <= 0) {
-          setState(() => _errorText = loc.invalidDoseRateError);
+        final entered = double.tryParse(_doseRateCtrl.text.trim());
+        if (entered == null || entered <= 0) {
+          setState(() => _errorText = loc.invalidDoseRatePlainError);
           return;
         }
-        final activity = _isotope.activityFrom(doseRateUSvH: dose, distanceM: distance);
+        final activity = _isotope.activityFrom(
+          doseRateUSvH: _doseUnit.toMicroSvPerHour(entered),
+          distanceM: distance,
+        );
         setState(() {
-          _resultText = loc.calculatedActivityResult(
-            _formatValue(activity),
-            _formatValue(activity / 1000),
-          );
+          _resultText = transmission == null || transmission <= 0
+              ? '${loc.calculatedActivityResultLabel}: '
+                  '${formatActivityMBq(activity)}'
+              : '${loc.unshieldedActivityLabel}: '
+                  '${formatActivityMBq(activity)}\n'
+                  '${loc.shieldedActivityLabel}: '
+                  '${formatActivityMBq(activity / transmission)}';
         });
       }
     } catch (e) {
       setState(() => _errorText = loc.calculationErrorMessage('$e'));
     }
-  }
-
-  String _formatValue(double v) {
-    if (v >= 1000 || v < 0.01) return v.toStringAsExponential(3);
-    return v.toStringAsFixed(3);
   }
 
   @override
@@ -130,24 +160,43 @@ class _IsotopeCalculatorScreenState extends State<IsotopeCalculatorScreen> {
             onSelectionChanged: (s) => setState(() => _mode = s.first),
           ),
           const SizedBox(height: 16),
-          TextField(
+          QuantityField<DistanceUnit>(
             controller: _distanceCtrl,
-            decoration: InputDecoration(labelText: loc.distanceFromSourceLabel),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            label: loc.distanceFromSourcePlainLabel,
+            units: DistanceUnit.values,
+            unit: _distanceUnit,
+            onUnitChanged: (u) => setState(() => _distanceUnit = u),
           ),
           const SizedBox(height: 12),
           if (_mode == _CalcMode.doseRateFromActivity)
-            TextField(
+            QuantityField<ActivityUnit>(
               controller: _activityCtrl,
-              decoration: InputDecoration(labelText: loc.activityLabel),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              label: loc.activityPlainLabel,
+              units: ActivityUnit.values,
+              unit: _activityUnit,
+              onUnitChanged: (u) => setState(() => _activityUnit = u),
             )
           else
-            TextField(
+            QuantityField<DoseRateUnit>(
               controller: _doseRateCtrl,
-              decoration: InputDecoration(labelText: loc.measuredDoseRateLabel),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              label: loc.measuredDoseRatePlainLabel,
+              units: DoseRateUnit.values,
+              unit: _doseUnit,
+              onUnitChanged: (u) => setState(() => _doseUnit = u),
             ),
+          const SizedBox(height: 16),
+          Text(loc.shieldingSectionTitle,
+              style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 4),
+          Text(loc.shieldingHint,
+              style: Theme.of(context).textTheme.bodySmall),
+          ShieldingLayersEditor(
+            layers: _layers,
+            onChanged: () => setState(() {}),
+          ),
+          if (_layers.isNotEmpty)
+            Text(loc.shieldingDisclaimer,
+                style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 20),
           FilledButton(onPressed: _calculate, child: Text(loc.calculateButton)),
           const SizedBox(height: 20),

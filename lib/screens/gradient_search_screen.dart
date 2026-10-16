@@ -8,6 +8,7 @@ import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/measurement_point.dart';
 import '../models/measurement_type.dart';
+import '../services/dose_unit_converter.dart';
 import '../services/gradient_search_service.dart';
 import 'measurement_entry_screen.dart';
 
@@ -100,7 +101,7 @@ class _GradientSearchScreenState extends State<GradientSearchScreen> {
     final all = await DatabaseHelper.instance.getMeasurementPoints(
       widget.surveySessionId,
     );
-    final filtered = all.where((p) => p.type == _type).toList();
+    final filtered = all.where((p) => p.type == _type).map(withCurrentDoseUnit).toList();
     if (!mounted) return;
     setState(() {
       _points = filtered;

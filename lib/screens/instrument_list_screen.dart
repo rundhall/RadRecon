@@ -6,7 +6,9 @@ import 'package:share_plus/share_plus.dart';
 
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
+import '../models/calibration_labels.dart';
 import '../models/instrument.dart';
+import '../models/instrument_calibration.dart';
 import '../services/registry_csv_service.dart';
 import 'instrument_entry_screen.dart';
 
@@ -246,8 +248,29 @@ class _InstrumentListScreenState extends State<InstrumentListScreen> {
                                       : Colors.grey,
                                 ),
                                 title: Text(i.name),
-                                subtitle: Text(
-                                  '${i.serialNumber ?? loc.noSerialNumber} · $calibrationText',
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${i.serialNumber ?? loc.noSerialNumber} · $calibrationText',
+                                    ),
+                                    Builder(builder: (_) {
+                                      final st = instrumentCalibrationStatus(i);
+                                      if (st != CalibrationStatus.expired &&
+                                          st != CalibrationStatus.expiringSoon) {
+                                        return const SizedBox.shrink();
+                                      }
+                                      return Text(
+                                        calibrationStatusLabel(loc, st),
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: st == CalibrationStatus.expired
+                                              ? Colors.red
+                                              : Colors.orange,
+                                        ),
+                                      );
+                                    }),
+                                  ],
                                 ),
                                 trailing: IconButton(
                                   icon: const Icon(Icons.delete_outline),

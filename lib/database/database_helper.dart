@@ -6,6 +6,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../models/instrument.dart';
+import '../models/company_document.dart';
+import '../models/instrument_calibration.dart';
+import '../models/person_certificate.dart';
 import '../models/measurement_audit_entry.dart';
 import '../models/measurement_point.dart';
 import '../models/person.dart';
@@ -35,7 +38,21 @@ class DatabaseHelper {
   // v9: Modbus GPS oszlopok az `instruments` táblában.
   // v10: `next_calibration_date` oszlop az `instruments` táblához.
   // v11: `person_doses` tábla (személyek dózisai: online/manuális/passzív).
-  static const _dbVersion = 11;
+  // v12: `modbus_measurement_type` és `modbus_unit` az `instruments` táblában
+  // (mit mér és milyen egységben ad vissza a műszer a Modbus regiszterben).
+  // v13: nuklid-azonosítás oszlopok a `measurement_points` táblában
+  // (`nuclide_status`, `nuclides`).
+  // v20: `value_error`, `averaging_samples`, `averaging_seconds` a
+  // `measurement_points` táblában (mérési hiba, átlagolt mérés).
+  // v14: árnyékolási rétegek (`shielding_layers`, JSON) a
+  // `measurement_points` táblában.
+  // v15: `instrument_calibrations` tábla (hitelesítési / kalibrálási előzmény).
+  // v16: `phone` és `emails` a `persons` táblában.
+  // v17: `person_certificates` tábla (személyek tetszőleges bizonyítványai).
+  // v18: `certificate_files` (műbizonylat-csatolmányok) a `radiation_sources`
+  // táblában.
+  // v19: `company_documents` tábla (cég dokumentumai és engedélyei).
+  static const _dbVersion = 20;
 
   /// A jelenlegi séma-verzió (a mentésfájlok kompatibilitás-ellenőrzéséhez).
   static const schemaVersion = _dbVersion;
@@ -147,6 +164,16 @@ class DatabaseHelper {
         'ALTER TABLE instruments ADD COLUMN modbus_gps_lon_address INTEGER NOT NULL DEFAULT 428',
       );
     }
+    if (!existingNames.contains('modbus_measurement_type')) {
+      await db.execute(
+        "ALTER TABLE instruments ADD COLUMN modbus_measurement_type TEXT NOT NULL DEFAULT 'dose_rate'",
+      );
+    }
+    if (!existingNames.contains('modbus_unit')) {
+      await db.execute(
+        "ALTER TABLE instruments ADD COLUMN modbus_unit TEXT NOT NULL DEFAULT 'nSv/h'",
+      );
+    }
     if (!existingNames.contains('next_calibration_date')) {
       await db.execute(
         'ALTER TABLE instruments ADD COLUMN next_calibration_date TEXT',
@@ -164,6 +191,37 @@ class DatabaseHelper {
         'ALTER TABLE measurement_points ADD COLUMN activity_calc_nuclide TEXT',
       );
     }
+
+    if (!pointColumnNames.contains('nuclide_status')) {
+      await db.execute(
+        "ALTER TABLE measurement_points ADD COLUMN nuclide_status TEXT NOT NULL DEFAULT 'none'",
+      );
+    }
+    if (!pointColumnNames.contains('nuclides')) {
+      await db.execute('ALTER TABLE measurement_points ADD COLUMN nuclides TEXT');
+    }
+    if (!pointColumnNames.contains('value_error')) {
+      await db.execute(
+        'ALTER TABLE measurement_points ADD COLUMN value_error REAL',
+      );
+    }
+    if (!pointColumnNames.contains('averaging_samples')) {
+      await db.execute(
+        'ALTER TABLE measurement_points ADD COLUMN averaging_samples INTEGER',
+      );
+    }
+    if (!pointColumnNames.contains('averaging_seconds')) {
+      await db.execute(
+        'ALTER TABLE measurement_points ADD COLUMN averaging_seconds INTEGER',
+      );
+    }
+    if (!pointColumnNames.contains('shielding_layers')) {
+      await db.execute(
+        'ALTER TABLE measurement_points ADD COLUMN shielding_layers TEXT',
+      );
+    }
+
+    await _createCalibrationTable(db);
 
     final sourceTables = await db.rawQuery(
       "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'radiation_sources'",
@@ -209,6 +267,11 @@ class DatabaseHelper {
         ''');
         await db.execute('DROP TABLE radiation_sources_v4');
       } else {
+        if (!sourceColumnNames.contains('certificate_files')) {
+          await db.execute(
+            'ALTER TABLE radiation_sources ADD COLUMN certificate_files TEXT',
+          );
+        }
         if (!sourceColumnNames.contains('next_inspection_date')) {
           await db.execute(
             'ALTER TABLE radiation_sources ADD COLUMN next_inspection_date TEXT',
@@ -228,7 +291,20 @@ class DatabaseHelper {
     );
     if (personTables.isEmpty) {
       await _createPersonTables(db);
+    } else {
+      final personColumns = await db.rawQuery('PRAGMA table_info(persons)');
+      final personColumnNames =
+          personColumns.map((c) => c['name'] as String).toSet();
+      if (!personColumnNames.contains('phone')) {
+        await db.execute('ALTER TABLE persons ADD COLUMN phone TEXT');
+      }
+      if (!personColumnNames.contains('emails')) {
+        await db.execute('ALTER TABLE persons ADD COLUMN emails TEXT');
+      }
     }
+
+    await _createPersonCertificatesTable(db);
+    await _createCompanyDocumentsTable(db);
 
     final doseTables = await db.rawQuery(
       "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'person_doses'",
@@ -270,6 +346,37 @@ class DatabaseHelper {
     ''');
   }
 
+  Future<void> _createCompanyDocumentsTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS company_documents (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        identifier TEXT,
+        issuer TEXT,
+        issued_on TEXT,
+        valid_until TEXT,
+        notes TEXT,
+        files TEXT
+      )
+    ''');
+  }
+
+  Future<void> _createPersonCertificatesTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS person_certificates (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        person_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        number TEXT,
+        issuer TEXT,
+        issued_on TEXT,
+        valid_until TEXT,
+        file_path TEXT,
+        FOREIGN KEY (person_id) REFERENCES persons (id) ON DELETE CASCADE
+      )
+    ''');
+  }
+
   Future<void> _createPersonTables(Database db) async {
     await db.execute('''
       CREATE TABLE persons (
@@ -278,6 +385,8 @@ class DatabaseHelper {
         medical_exam_expiry_date TEXT,
         training_expiry_date TEXT,
         notes TEXT,
+        phone TEXT,
+        emails TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
@@ -318,6 +427,7 @@ class DatabaseHelper {
         service_life_expiry_date TEXT,
         next_inspection_date TEXT,
         notes TEXT,
+        certificate_files TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
@@ -347,6 +457,23 @@ class DatabaseHelper {
     );
   }
 
+  Future<void> _createCalibrationTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS instrument_calibrations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        instrument_id INTEGER NOT NULL,
+        kind TEXT NOT NULL,
+        performed_on TEXT NOT NULL,
+        valid_until TEXT,
+        certificate_number TEXT,
+        performed_by TEXT,
+        file_path TEXT,
+        FOREIGN KEY (instrument_id) REFERENCES instruments (id)
+          ON DELETE CASCADE
+      )
+    ''');
+  }
+
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE survey_sessions (
@@ -358,6 +485,8 @@ class DatabaseHelper {
         closed_at TEXT
       )
     ''');
+
+    await _createCalibrationTable(db);
 
     await db.execute('''
       CREATE TABLE instruments (
@@ -374,7 +503,9 @@ class DatabaseHelper {
         modbus_register_address INTEGER,
         is_modbus_gps_enabled INTEGER NOT NULL DEFAULT 0,
         modbus_gps_lat_address INTEGER NOT NULL DEFAULT 426,
-        modbus_gps_lon_address INTEGER NOT NULL DEFAULT 428
+        modbus_gps_lon_address INTEGER NOT NULL DEFAULT 428,
+        modbus_measurement_type TEXT NOT NULL DEFAULT 'dose_rate',
+        modbus_unit TEXT NOT NULL DEFAULT 'nSv/h'
       )
     ''');
 
@@ -388,10 +519,16 @@ class DatabaseHelper {
         gps_accuracy_meters REAL,
         measurement_type TEXT NOT NULL,
         value REAL,
+        value_error REAL,
+        averaging_samples INTEGER,
+        averaging_seconds INTEGER,
         unit TEXT NOT NULL,
         distance_from_source_meters REAL,
         activity_calc_nuclide TEXT,
         instrument_id INTEGER,
+        nuclide_status TEXT NOT NULL DEFAULT 'none',
+        nuclides TEXT,
+        shielding_layers TEXT,
         is_source_position INTEGER NOT NULL DEFAULT 0,
         is_sample INTEGER NOT NULL DEFAULT 0,
         sample_container_id TEXT,
@@ -431,6 +568,8 @@ class DatabaseHelper {
 
     await _createGlobalSourceTables(db);
     await _createPersonTables(db);
+    await _createPersonCertificatesTable(db);
+    await _createCompanyDocumentsTable(db);
     await _createPersonDosesTable(db);
   }
 
@@ -501,7 +640,40 @@ class DatabaseHelper {
   Future<List<Person>> getPersons() async {
     final db = await database;
     final rows = await db.query('persons', orderBy: 'name ASC');
-    return rows.map(Person.fromMap).toList();
+    final certs = await _certificatesByPerson(db);
+    return rows
+        .map((r) => Person.fromMap(r)
+            .copyWith(certificates: certs[r['id'] as int] ?? const []))
+        .toList();
+  }
+
+  Future<Map<int, List<PersonCertificate>>> _certificatesByPerson(
+      Database db) async {
+    final rows = await db.query('person_certificates',
+        orderBy: 'valid_until IS NULL, valid_until ASC');
+    final map = <int, List<PersonCertificate>>{};
+    for (final r in rows) {
+      final c = PersonCertificate.fromMap(r);
+      if (c.personId != null) (map[c.personId!] ??= []).add(c);
+    }
+    return map;
+  }
+
+  /// Egy személy összes bizonyítványának cseréje.
+  Future<void> replacePersonCertificates(
+    int personId,
+    List<PersonCertificate> certificates,
+  ) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete('person_certificates',
+          where: 'person_id = ?', whereArgs: [personId]);
+      for (final c in certificates) {
+        await txn.insert('person_certificates',
+            c.withPersonId(personId).toMap()..remove('id'));
+      }
+    });
+    onExpiryDataChanged?.call();
   }
 
   Future<void> updatePerson(Person person) async {
@@ -521,6 +693,39 @@ class DatabaseHelper {
   Future<void> deletePerson(int id) async {
     final db = await database;
     await db.delete('persons', where: 'id = ?', whereArgs: [id]);
+    onExpiryDataChanged?.call();
+  }
+
+  // ---------------------------------------------------------------------
+  // Cég dokumentumai és engedélyei
+  // ---------------------------------------------------------------------
+
+  Future<List<CompanyDocument>> getCompanyDocuments() async {
+    final db = await database;
+    final rows = await db.query(
+      'company_documents',
+      orderBy: 'valid_until IS NULL, valid_until ASC, title ASC',
+    );
+    return rows.map(CompanyDocument.fromMap).toList();
+  }
+
+  Future<int> insertCompanyDocument(CompanyDocument d) async {
+    final db = await database;
+    final id = await db.insert('company_documents', d.toMap()..remove('id'));
+    onExpiryDataChanged?.call();
+    return id;
+  }
+
+  Future<void> updateCompanyDocument(CompanyDocument d) async {
+    final db = await database;
+    await db.update('company_documents', d.toMap(),
+        where: 'id = ?', whereArgs: [d.id]);
+    onExpiryDataChanged?.call();
+  }
+
+  Future<void> deleteCompanyDocument(int id) async {
+    final db = await database;
+    await db.delete('company_documents', where: 'id = ?', whereArgs: [id]);
     onExpiryDataChanged?.call();
   }
 
@@ -723,6 +928,8 @@ class DatabaseHelper {
         p.medical_exam_expiry_date AS medical_exam_expiry_date,
         p.training_expiry_date AS training_expiry_date,
         p.notes AS notes,
+        p.phone AS phone,
+        p.emails AS emails,
         p.created_at AS created_at,
         p.updated_at AS updated_at
       FROM survey_session_persons sp
@@ -733,6 +940,7 @@ class DatabaseHelper {
       [surveySessionId],
     );
 
+    final certs = await _certificatesByPerson(db);
     return rows.map((row) {
       final link = SessionPersonLink(
         id: row['link_id'] as int,
@@ -740,7 +948,11 @@ class DatabaseHelper {
         personId: row['link_person_id'] as int,
         createdAt: DateTime.parse(row['link_created_at'] as String),
       );
-      return AttachedPerson(link: link, person: Person.fromMap(row));
+      return AttachedPerson(
+        link: link,
+        person: Person.fromMap(row)
+            .copyWith(certificates: certs[row['id'] as int] ?? const []),
+      );
     }).toList();
   }
 
@@ -778,6 +990,39 @@ class DatabaseHelper {
       where: 'id = ?',
       whereArgs: [instrument.id],
     );
+    onExpiryDataChanged?.call();
+  }
+
+  Future<List<InstrumentCalibration>> getCalibrations(int instrumentId) async {
+    final db = await database;
+    final rows = await db.query(
+      'instrument_calibrations',
+      where: 'instrument_id = ?',
+      whereArgs: [instrumentId],
+      orderBy: 'performed_on DESC',
+    );
+    return rows.map(InstrumentCalibration.fromMap).toList();
+  }
+
+  /// Egy műszer összes hitelesítési/kalibrálási bejegyzésének cseréje.
+  Future<void> replaceCalibrations(
+    int instrumentId,
+    List<InstrumentCalibration> records,
+  ) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete(
+        'instrument_calibrations',
+        where: 'instrument_id = ?',
+        whereArgs: [instrumentId],
+      );
+      for (final r in records) {
+        await txn.insert(
+          'instrument_calibrations',
+          r.copyWith(instrumentId: instrumentId).toMap()..remove('id'),
+        );
+      }
+    });
     onExpiryDataChanged?.call();
   }
 

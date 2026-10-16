@@ -1,10 +1,27 @@
 {
   "_comment": "Single source for the website and the app. Add entries only with the person's or organization's consent. roles: testing, development, review, translation, other.",
   "updated": "2026-10-03",
-  "organizations": [],
+  "organizations": [
+    {
+      "name": "Gamma Zrt."
+    },
+    {
+      "name": "HUN-REN Energiatudományi Kutatóközpont Sugárbiztonsági Laboratórium"
+    }
+
+  ],
   "people": [
     {
-      "name": "János Petrányi"
+      "name": "Petrányi János"
+    },
+    {
+      "name": "Kristóf Krisztina"
+    },
+    {
+      "name": "Rátkai Ákos Tamás"
+    },
+    {
+      "name": "Dr. Bodor Károly"
     }
   ]
 }

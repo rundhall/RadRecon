@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/survey_session.dart';
+import 'company_document_list_screen.dart';
 import 'instrument_list_screen.dart';
 import 'measurement_list_screen.dart';
 import 'person_list_screen.dart';
@@ -127,6 +128,15 @@ class _SurveySessionScreenState extends State<SurveySessionScreen> {
             tooltip: loc.personsTooltip,
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const PersonListScreen()),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.description_outlined),
+            tooltip: loc.companyDocumentsTooltip,
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const CompanyDocumentListScreen(),
+              ),
             ),
           ),
           IconButton(

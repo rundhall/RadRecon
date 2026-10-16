@@ -1,11 +1,21 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
+import '../models/activity_unit.dart';
 import '../models/isotope.dart';
 import '../models/radiation_source.dart';
+import '../services/dose_unit_controller.dart';
+import '../services/unit_format.dart';
 import '../widgets/disclaimer_info_icon.dart';
+import '../widgets/quantity_field.dart';
 
 const String _customNuclideSentinel = '__custom__';
 
@@ -34,7 +44,9 @@ class _RadiationSourceEntryScreenState
   final _activityCtrl = TextEditingController();
   final _errorPercentCtrl = TextEditingController();
   final _notesCtrl = TextEditingController();
+  List<String> _certificateFiles = [];
 
+  ActivityUnit _activityUnit = ActivityUnitController.current;
   String _nuclideName = kKnownIsotopes.first.name;
   bool _isCustomNuclide = false;
 
@@ -59,13 +71,32 @@ class _RadiationSourceEntryScreenState
         _isCustomNuclide = true;
         _customNuclideCtrl.text = e.nuclideName;
       }
-      _activityCtrl.text = e.activityAtManufactureMBq.toString();
+      _activityCtrl.text = QuantityField.formatNumber(
+          _activityUnit.fromMBq(e.activityAtManufactureMBq));
       _errorPercentCtrl.text = e.activityErrorPercent?.toString() ?? '';
       _notesCtrl.text = e.notes ?? '';
+      _certificateFiles = [...e.certificateFiles];
       _manufactureDate = e.manufactureDate;
       _expiryDate = e.serviceLifeExpiryDate;
       _nextInspectionDate = e.nextInspectionDate;
     }
+  }
+
+  Future<void> _attachCertificate() async {
+    final selection = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png'],
+    );
+    if (selection.isEmpty) return;
+    final file = selection.single;
+    final bytes = await file.readAsBytes();
+    final dir = await getApplicationDocumentsDirectory();
+    final target = Directory(p.join(dir.path, 'source_certificates'));
+    await target.create(recursive: true);
+    final name = '${DateTime.now().millisecondsSinceEpoch}_${file.name}';
+    final saved = File(p.join(target.path, name));
+    await saved.writeAsBytes(bytes);
+    if (mounted) setState(() => _certificateFiles = [..._certificateFiles, saved.path]);
   }
 
   @override
@@ -152,7 +183,8 @@ class _RadiationSourceEntryScreenState
       id: widget.existing?.id,
       identifier: _identifierCtrl.text.trim(),
       nuclideName: nuclideName,
-      activityAtManufactureMBq: double.parse(_activityCtrl.text.trim()),
+      activityAtManufactureMBq:
+          _activityUnit.toMBq(double.parse(_activityCtrl.text.trim())),
       activityErrorPercent: _errorPercentCtrl.text.trim().isEmpty
           ? null
           : double.tryParse(_errorPercentCtrl.text.trim()),
@@ -160,6 +192,7 @@ class _RadiationSourceEntryScreenState
       serviceLifeExpiryDate: _expiryDate,
       nextInspectionDate: _nextInspectionDate,
       notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
+      certificateFiles: _certificateFiles,
       createdAt: widget.existing?.createdAt ?? now,
       updatedAt: now,
     );
@@ -171,13 +204,6 @@ class _RadiationSourceEntryScreenState
     }
 
     if (mounted) Navigator.of(context).pop(true);
-  }
-
-  String _formatValue(double v) {
-    if (v.abs() >= 1000 || (v != 0 && v.abs() < 0.01)) {
-      return v.toStringAsExponential(3);
-    }
-    return v.toStringAsFixed(3);
   }
 
   @override
@@ -247,42 +273,33 @@ class _RadiationSourceEntryScreenState
               ),
             ],
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _activityCtrl,
-                    decoration: InputDecoration(
-                      labelText: loc.activityAtManufactureLabel,
-                    ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) {
-                        return loc.requiredFieldError;
-                      }
-                      final parsed = double.tryParse(v.trim());
-                      if (parsed == null || parsed <= 0) {
-                        return loc.numberRequiredError;
-                      }
-                      return null;
-                    },
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: _errorPercentCtrl,
-                    decoration: InputDecoration(
-                      labelText: loc.activityErrorPercentLabel,
-                    ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ),
-              ],
+            QuantityField<ActivityUnit>(
+              controller: _activityCtrl,
+              label: loc.activityAtManufacturePlainLabel,
+              units: ActivityUnit.values,
+              unit: _activityUnit,
+              onUnitChanged: (u) => setState(() => _activityUnit = u),
+              onChanged: () => setState(() {}),
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) {
+                  return loc.requiredFieldError;
+                }
+                final parsed = double.tryParse(v.trim());
+                if (parsed == null || parsed <= 0) {
+                  return loc.numberRequiredError;
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _errorPercentCtrl,
+              decoration: InputDecoration(
+                labelText: loc.activityErrorPercentLabel,
+              ),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
             ListTile(
@@ -324,6 +341,39 @@ class _RadiationSourceEntryScreenState
               onTap: _pickNextInspectionDate,
             ),
             const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(loc.sourceCertificateTitle,
+                      style: Theme.of(context).textTheme.titleMedium),
+                ),
+                TextButton.icon(
+                  icon: const Icon(Icons.attach_file),
+                  label: Text(loc.sourceCertificateAttach),
+                  onPressed: _attachCertificate,
+                ),
+              ],
+            ),
+            if (_certificateFiles.isEmpty)
+              Text(loc.sourceCertificateEmpty,
+                  style: Theme.of(context).textTheme.bodySmall),
+            for (var i = 0; i < _certificateFiles.length; i++)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.description_outlined),
+                title: Text(p.basename(_certificateFiles[i]),
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
+                onTap: () => SharePlus.instance.share(
+                  ShareParams(files: [XFile(_certificateFiles[i])]),
+                ),
+                trailing: IconButton(
+                  tooltip: loc.calibrationRemoveFile,
+                  icon: const Icon(Icons.close),
+                  onPressed: () => setState(
+                      () => _certificateFiles = [..._certificateFiles]..removeAt(i)),
+                ),
+              ),
+            const SizedBox(height: 12),
             TextFormField(
               controller: _notesCtrl,
               decoration: InputDecoration(labelText: loc.notesLabel),
@@ -340,7 +390,9 @@ class _RadiationSourceEntryScreenState
   }
 
   Widget _buildCalculationPanel(AppLocalizations loc) {
-    final activity = double.tryParse(_activityCtrl.text.trim());
+    final enteredActivity = double.tryParse(_activityCtrl.text.trim());
+    final activity =
+        enteredActivity == null ? null : _activityUnit.toMBq(enteredActivity);
     final nuclideName = _effectiveNuclideName;
 
     return Card(
@@ -406,8 +458,8 @@ class _RadiationSourceEntryScreenState
 
     final errorPercent = double.tryParse(_errorPercentCtrl.text.trim());
     final activityLine = errorPercent == null
-        ? '${_formatValue(decayedActivity)} MBq'
-        : '${_formatValue(decayedActivity)} MBq (±${_formatValue(decayedActivity * errorPercent / 100)} MBq)';
+        ? formatActivityMBq(decayedActivity)
+        : '${formatActivityMBq(decayedActivity)} (±${formatActivityNumberMBq(decayedActivity * errorPercent / 100)} ${ActivityUnitController.current.symbol})';
 
     final widgets = <Widget>[
       _resultRow(loc.currentActivityResultLabel, activityLine),

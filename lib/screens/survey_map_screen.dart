@@ -7,6 +7,9 @@ import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/measurement_point.dart';
 import '../models/measurement_type.dart';
+import '../models/nuclide_id.dart';
+import '../services/dose_unit_converter.dart';
+import '../services/unit_format.dart';
 import '../services/screenshot_service.dart';
 import 'measurement_entry_screen.dart';
 
@@ -42,7 +45,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
         await DatabaseHelper.instance.getMeasurementPoints(widget.surveySessionId);
     if (!mounted) return;
     setState(() {
-      _points = points;
+      _points = points.map(withCurrentDoseUnit).toList();
       _loading = false;
     });
   }
@@ -159,8 +162,14 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
                 Text(loc.valueLabel(
                     '${double.parse(p.value!.toStringAsFixed(4))}', p.unit)),
               if (p.distanceFromSourceMeters != null)
-                Text(loc.distanceFromSourceValue(
-                    '${double.parse(p.distanceFromSourceMeters!.toStringAsFixed(2))}')),
+                Text('${loc.distanceFromSourceShortLabel}: '
+                    '${formatDistanceMeters(p.distanceFromSourceMeters!)}'),
+              if (p.nuclideStatus != NuclideIdStatus.notSpecified)
+                Text('${loc.nuclideIdSectionTitle}: ${nuclideSummaryText(
+                  status: p.nuclideStatus,
+                  nuclides: p.nuclides,
+                  statusLabel: (s) => s.label(loc),
+                )}'),
               Text(loc.timestampLabel(_dateFormat.format(p.timestamp))),
               if (p.isSourcePosition)
                 Text(loc.sourcePositionLabel, style: const TextStyle(fontWeight: FontWeight.bold)),

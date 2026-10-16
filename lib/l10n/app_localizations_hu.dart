@@ -60,6 +60,379 @@ class AppLocalizationsHu extends AppLocalizations {
   String get noLocationPlaceholder => '—';
 
   @override
+  String get doseUnitSectionTitle => 'Dózisteljesítmény alapegysége';
+
+  @override
+  String get doseUnitSectionHint =>
+      'Új mérésnél ezek az egységek vannak előre kiválasztva. Rögzítéskor legördülő listából lehet másikat választani, beírni nem kell, és egységváltáskor a beírt szám automatikusan átváltódik. A dózisteljesítmény riasztási küszöbe is átváltódik.';
+
+  @override
+  String get unitsSectionTitle => 'Mértékegységek';
+
+  @override
+  String get activityUnitLabel => 'Aktivitás alapegysége';
+
+  @override
+  String get distanceUnitLabel => 'Távolság alapegysége';
+
+  @override
+  String get activityPlainLabel => 'Aktivitás';
+
+  @override
+  String get measuredDoseRatePlainLabel => 'Mért dózisteljesítmény';
+
+  @override
+  String get distanceFromSourcePlainLabel => 'Távolság a forrástól';
+
+  @override
+  String get sourceDistancePlainLabel => 'Távolság a mérési ponttól';
+
+  @override
+  String get activityAtManufacturePlainLabel => 'Aktivitás gyártáskor';
+
+  @override
+  String get invalidDistancePlainError =>
+      'Adj meg egy érvényes, pozitív távolságot.';
+
+  @override
+  String get invalidActivityPlainError => 'Adj meg egy érvényes aktivitást.';
+
+  @override
+  String get invalidDoseRatePlainError =>
+      'Adj meg egy érvényes dózisteljesítményt.';
+
+  @override
+  String get distanceFromSourceShortLabel => 'Táv. forrástól';
+
+  @override
+  String get calculatedActivityResultLabel => 'Számított aktivitás';
+
+  @override
+  String get distanceIntervalPlainLabel => 'Távolságköz';
+
+  @override
+  String get modbusQuantityLabel => 'Mit ad vissza a regiszter';
+
+  @override
+  String get modbusRegisterUnitLabel => 'A regiszter mértékegysége';
+
+  @override
+  String get modbusQuantityHelper =>
+      'Rögzítéskor az app a kiolvasott értéket a Beállításokban választott alapegységre váltja.';
+
+  @override
+  String get autoLogTypeFromInstrument =>
+      'Az automata naplózás a műszerhez beállított mennyiséget rögzíti.';
+
+  @override
+  String get nuclideIdSectionTitle => 'Nuklid-azonosítás';
+
+  @override
+  String get nuclideStatusNone => 'Nincs megadva';
+
+  @override
+  String get nuclideStatusIdentified => 'Azonosított nuklid(ok)';
+
+  @override
+  String get nuclideStatusUnknown => 'Ismeretlen';
+
+  @override
+  String get nuclideStatusOther => 'Egyéb (nem szerepel a listában)';
+
+  @override
+  String get nuclideStatusMixture => 'Feltételezhetően több forrás (keverék)';
+
+  @override
+  String get nuclideKnownListLabel => 'Nuklidok a listából';
+
+  @override
+  String get nuclideCustomLabel => 'Egyéb nuklid neve';
+
+  @override
+  String get nuclideAddButton => 'Hozzáadás';
+
+  @override
+  String get nuclideRequiredError =>
+      'Adj meg legalább egy nuklidot, vagy válaszd az Ismeretlen lehetőséget.';
+
+  @override
+  String get csvHeaderNuclides => 'Nuklid-azonosítás';
+
+  @override
+  String get nuclideDoneButton => 'Kész';
+
+  @override
+  String get unshieldedActivityLabel => 'Aktivitás (árnyékolás nélkül)';
+
+  @override
+  String get shieldingSectionTitle => 'Árnyékolás (opcionális)';
+
+  @override
+  String get shieldingHint =>
+      'Ha a forrás árnyékolás mögött van, add meg az anyagát és a vastagságát — a program az árnyékolt forrás tényleges aktivitását is megbecsüli.';
+
+  @override
+  String get shieldingMaterialLabel => 'Árnyékoló anyag';
+
+  @override
+  String get shieldingNoneOption => 'Nincs árnyékolás';
+
+  @override
+  String get shieldingThicknessLabel => 'Árnyékolás vastagsága';
+
+  @override
+  String get shieldingThicknessError => 'Adj meg pozitív vastagságot';
+
+  @override
+  String get shieldedActivityLabel => 'Árnyékolt forrás becsült aktivitása';
+
+  @override
+  String get shieldingDisclaimer =>
+      'Közelítő becslés: a gyengítést félértékréteg-modell írja le (a vastagság minden HVL-nyi egységén felezi a dózisteljesítményt), tájékoztató HVL-értékekkel. A szórt sugárzás (buildup), a forrás geometriája és a sugárzási spektrum egyszerűsítve szerepel, ezért az eredmény inkább felülbecsli az aktivitást. Hatósági jegyzőkönyvhöz ellenőrizd hiteles forrásból.';
+
+  @override
+  String get shieldingMaterialLead => 'Ólom';
+
+  @override
+  String get shieldingMaterialSteel => 'Acél (vas)';
+
+  @override
+  String get shieldingMaterialConcrete => 'Beton';
+
+  @override
+  String get shieldingMaterialTungsten => 'Wolfram';
+
+  @override
+  String get shieldingMaterialAluminium => 'Alumínium';
+
+  @override
+  String get shieldingMaterialWater => 'Víz';
+
+  @override
+  String get csvUnshieldedNote => 'árnyékolás nélkül';
+
+  @override
+  String get csvShieldedSourceNote => 'árnyékolt forrás';
+
+  @override
+  String get shieldingAddLayer => 'Réteg hozzáadása';
+
+  @override
+  String get shieldingLayerLabel => 'Réteg';
+
+  @override
+  String get shieldingRemoveLayer => 'Réteg törlése';
+
+  @override
+  String get doseRateUnshieldedLabel => 'Dózisteljesítmény (árnyékolás nélkül)';
+
+  @override
+  String get doseRateShieldedLabel => 'Dózisteljesítmény az árnyékolás mögött';
+
+  @override
+  String get calibrationSectionTitle => 'Hitelesítés és kalibrálás';
+
+  @override
+  String get calibrationKindVerification => 'Hitelesítés';
+
+  @override
+  String get calibrationKindCalibration => 'Kalibrálás';
+
+  @override
+  String get calibrationAddButton => 'Bejegyzés hozzáadása';
+
+  @override
+  String get calibrationDialogTitle => 'Hitelesítés / kalibrálás bejegyzés';
+
+  @override
+  String get calibrationKindLabel => 'Típus';
+
+  @override
+  String get calibrationPerformedOnLabel => 'Elvégzés dátuma';
+
+  @override
+  String get calibrationValidUntilLabel => 'Érvényes eddig';
+
+  @override
+  String get calibrationCertificateLabel => 'Bizonylat száma';
+
+  @override
+  String get calibrationPerformedByLabel => 'Végezte (labor / hatóság)';
+
+  @override
+  String get calibrationAttachFile => 'Bizonylat csatolása';
+
+  @override
+  String get calibrationRemoveFile => 'Csatolmány törlése';
+
+  @override
+  String get calibrationOpenFile => 'Bizonylat megnyitása / megosztása';
+
+  @override
+  String get calibrationEmptyList => 'Még nincs bejegyzés.';
+
+  @override
+  String get calibrationStatusValid => 'Érvényes';
+
+  @override
+  String get calibrationStatusSoon => 'Hamarosan lejár';
+
+  @override
+  String get calibrationStatusExpired => 'LEJÁRT';
+
+  @override
+  String get calibrationStatusUnknown => 'Nincs adat';
+
+  @override
+  String get calibrationExpiredWarning =>
+      'Figyelem: a kiválasztott műszer hitelesítése/kalibrálása lejárt. Érvényes eddig:';
+
+  @override
+  String get calibrationSoonWarning =>
+      'Figyelem: a kiválasztott műszer hitelesítése/kalibrálása hamarosan lejár. Érvényes eddig:';
+
+  @override
+  String get calibrationUnknownWarning =>
+      'A kiválasztott műszernél nincs hitelesítési/kalibrálási adat.';
+
+  @override
+  String get calibrationSaveAnywayTitle => 'Lejárt hitelesítés/kalibrálás';
+
+  @override
+  String get calibrationSaveAnywayBody =>
+      'A mérés lejárt hitelesítésű/kalibrálású műszerrel készült, a jegyzőkönyvben ez jelölve lesz. Mented?';
+
+  @override
+  String get calibrationSaveAnywayConfirm => 'Mentés mégis';
+
+  @override
+  String get calibrationValidUntilBeforeError =>
+      'Az érvényesség nem lehet az elvégzés előtt';
+
+  @override
+  String get csvHeaderInstrumentCalibration =>
+      'Műszer hitelesítése/kalibrálása';
+
+  @override
+  String get personPhoneLabel => 'Telefonszám';
+
+  @override
+  String get personEmailLabel => 'E-mail cím';
+
+  @override
+  String get personAddEmail => 'E-mail cím hozzáadása';
+
+  @override
+  String get personRemoveEmail => 'E-mail törlése';
+
+  @override
+  String get personEmailInvalidError => 'Érvénytelen e-mail cím';
+
+  @override
+  String get personCertificatesTitle => 'Bizonyítványok';
+
+  @override
+  String get personCertificateAdd => 'Bizonyítvány hozzáadása';
+
+  @override
+  String get personCertificateDialogTitle => 'Bizonyítvány';
+
+  @override
+  String get personCertificateNameLabel =>
+      'Megnevezés (pl. sugárvédelmi vizsga)';
+
+  @override
+  String get personCertificateNumberLabel => 'Bizonyítvány száma';
+
+  @override
+  String get personCertificateIssuerLabel => 'Kiállító';
+
+  @override
+  String get personCertificateIssuedLabel => 'Kiállítás dátuma';
+
+  @override
+  String get personCertificateNameRequired =>
+      'Add meg a bizonyítvány megnevezését';
+
+  @override
+  String get personCertificateValidBeforeError =>
+      'Az érvényesség nem lehet a kiállítás előtt';
+
+  @override
+  String get personCertificatesEmpty => 'Még nincs bizonyítvány.';
+
+  @override
+  String get sourceCertificateTitle => 'Műbizonylat';
+
+  @override
+  String get sourceCertificateAttach => 'Műbizonylat csatolása';
+
+  @override
+  String get sourceCertificateEmpty => 'Nincs csatolt műbizonylat.';
+
+  @override
+  String get companyDocumentsTooltip => 'Cég dokumentumai és engedélyei';
+
+  @override
+  String get companyDocumentNew => 'Új dokumentum';
+
+  @override
+  String get companyDocumentEdit => 'Dokumentum szerkesztése';
+
+  @override
+  String get companyDocumentTitleLabel => 'Dokumentum megnevezése';
+
+  @override
+  String get companyDocumentIdentifierLabel =>
+      'Azonosító (iktatószám, engedélyszám)';
+
+  @override
+  String get companyDocumentIssuerLabel => 'Kiadó / hatóság';
+
+  @override
+  String get companyDocumentIssuedLabel => 'Kiadás vagy hatályba lépés dátuma';
+
+  @override
+  String get companyDocumentValidUntilLabel =>
+      'Érvényes / felülvizsgálandó eddig';
+
+  @override
+  String get companyDocumentFilesTitle => 'Csatolt fájlok';
+
+  @override
+  String get companyDocumentAttach => 'Fájl csatolása';
+
+  @override
+  String get companyDocumentsEmpty => 'Még nincs dokumentum.';
+
+  @override
+  String get companyDocumentDeleteTitle => 'Dokumentum törlése';
+
+  @override
+  String get companyDocumentDeleteConfirm =>
+      'Biztosan törlöd ezt a dokumentumot?';
+
+  @override
+  String get companyDocSuggestionsLabel => 'Gyakori dokumentumok';
+
+  @override
+  String get companyDocSuggestRadiationPolicy =>
+      'Munkahelyi Sugárvédelmi Szabályzat';
+
+  @override
+  String get companyDocSuggestRadiationDescription => 'Sugárvédelmi Leírás';
+
+  @override
+  String get companyDocSuggestPhysicalProtection => 'Fizikai Védelmi Terv';
+
+  @override
+  String get companyDocSuggestEmergencyPlan =>
+      'Balesetelhárítási Intézkedési Terv';
+
+  @override
+  String get nuclideEditButton => 'Nuklidok módosítása';
+
+  @override
   String get languageSectionTitle => 'Nyelv';
 
   @override
@@ -635,7 +1008,7 @@ class AppLocalizationsHu extends AppLocalizations {
   String get csvHeaderUnit => 'Egység';
 
   @override
-  String get csvHeaderDistanceFromSource => 'Táv. forrástól (m)';
+  String get csvHeaderDistanceFromSource => 'Táv. forrástól';
 
   @override
   String get csvHeaderInstrument => 'Műszer';
@@ -647,7 +1020,7 @@ class AppLocalizationsHu extends AppLocalizations {
   String get csvHeaderGpsLongitude => 'GPS hosszúság';
 
   @override
-  String get csvHeaderGpsAccuracy => 'GPS pontosság (m)';
+  String get csvHeaderGpsAccuracy => 'GPS pontosság';
 
   @override
   String get csvHeaderTimestamp => 'Időpont';
@@ -665,11 +1038,10 @@ class AppLocalizationsHu extends AppLocalizations {
   String get csvHeaderAttachedSources => 'Hozzárendelt forrás(ok)';
 
   @override
-  String get csvHeaderCalculatedDoseRate =>
-      'Számított dózisteljesítmény (µSv/h)';
+  String get csvHeaderCalculatedDoseRate => 'Számított dózisteljesítmény';
 
   @override
-  String get csvHeaderDoseRateDifference => 'Eltérés (µSv/h)';
+  String get csvHeaderDoseRateDifference => 'Eltérés';
 
   @override
   String get csvYes => 'igen';
@@ -1314,4 +1686,162 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get contributorRoleOther => 'Egyéb';
+
+  @override
+  String get regulatoryProfileLabel => 'Szabályozási profil';
+
+  @override
+  String get regulatoryProfileInternational => 'Nemzetközi (IAEA)';
+
+  @override
+  String get regulatoryProfileHungary => 'Magyarország (OAH)';
+
+  @override
+  String get classificationTitle => 'Besorolás (D, R, mentesség)';
+
+  @override
+  String get classificationDisclaimer =>
+      'Tájékoztató számítás a nuklidtáblák és az aktuális (bomlással korrigált) aktivitás alapján. A hatósági besorolás a hatályos jogszabály és a hatóság döntése szerint érvényes. Az MSZ 62-7 szerinti laborszintek nincsenek benne.';
+
+  @override
+  String get classificationUnsealedWork =>
+      'Nyitott sugárforrással végzett rendszeres munka';
+
+  @override
+  String get classificationOutsideWorkplace =>
+      'Alkalmazás sugárveszélyes munkahelyen kívül';
+
+  @override
+  String get classificationTotal => 'Összesített (kijelölt források)';
+
+  @override
+  String get classificationPhysCat => 'Fizikai védelmi kategória';
+
+  @override
+  String get classificationProtCat => 'Sugárvédelmi kategória';
+
+  @override
+  String get classificationUnknownCount =>
+      'R nélküli források (ismeretlen nuklid)';
+
+  @override
+  String get classificationActivity => 'Aktivitás';
+
+  @override
+  String get classificationNotDecayCorrected => 'bomlás nélkül';
+
+  @override
+  String get classificationDInfinite => 'D = ∞ (nem járul hozzá az R-hez)';
+
+  @override
+  String get classificationDUnknown =>
+      'Ehhez a nuklidhoz nincs D érték, R nem számolható';
+
+  @override
+  String get classificationExemptUnknown =>
+      'Nincs mentességi érték ehhez a nuklidhoz';
+
+  @override
+  String get classificationExemptActivity => 'Mentességi aktivitás';
+
+  @override
+  String get classificationSpecificConc => 'Specifikus mentességi koncentráció';
+
+  @override
+  String get classificationGeneralConc => 'általános';
+
+  @override
+  String get classificationBelowExempt =>
+      'Az aktivitás a mentességi aktivitás alatt van';
+
+  @override
+  String get classificationAboveExempt =>
+      'Az aktivitás a mentességi aktivitás felett van';
+
+  @override
+  String get classificationProtLevel => 'Fizikai védelmi szint';
+
+  @override
+  String get classificationAdrConsignmentLimit => 'mentes küldemény határa';
+
+  @override
+  String get classificationAdrBelow =>
+      'az aktivitás alatta van (nem 7. osztály)';
+
+  @override
+  String get classificationAdrAbove =>
+      'az aktivitás felette van (a koncentráció is számít)';
+
+  @override
+  String get classificationLabIndustrial => 'Ipari labor';
+
+  @override
+  String get classificationLabMedical => 'Orvosi labor';
+
+  @override
+  String get classificationLabAboveIII => '> III.';
+
+  @override
+  String get classificationLabOps => 'Végezhető művelettípusok';
+
+  @override
+  String get classificationLabUnknown =>
+      'MSZ 62-7: nincs AM érték ehhez a nuklidhoz';
+
+  @override
+  String get autoLogChartTitle => 'Mért érték az idő függvényében';
+
+  @override
+  String get gpsAverageButton => 'Átlagolt GPS';
+
+  @override
+  String get gpsAverageTitle => 'Pozíció átlagolása';
+
+  @override
+  String get gpsAverageHint =>
+      'Állj meg egy helyen, és ne mozdulj a mérés alatt. Minél hosszabb az átlagolás, annál megbízhatóbb az eredmény; nyílt ég alatt a legjobb. A telefon a pontosság szerint súlyozza a mintákat, és elhagyja a kiugró pozíciókat.';
+
+  @override
+  String get gpsAverageStart => 'Indítás';
+
+  @override
+  String get gpsAverageUse => 'Használ';
+
+  @override
+  String get gpsAverageSamples => 'Minták';
+
+  @override
+  String get gpsAverageCurrent => 'Aktuális pontosság';
+
+  @override
+  String get gpsAverageResult => 'Becsült pontosság az átlagból';
+
+  @override
+  String get modbusAverageButton => 'Átlagoló mérés';
+
+  @override
+  String get modbusAverageRunning => 'Átlagolás';
+
+  @override
+  String get modbusAverageDone => 'Kész';
+
+  @override
+  String get modbusAverageTooFew =>
+      'A hiba számításához legalább 2 érvényes minta kell, csak az érték került be.';
+
+  @override
+  String get measurementErrorLabel => 'Hiba (±)';
+
+  @override
+  String get measurementErrorHelper =>
+      'Átlagolt mérésnél az átlag standard hibája (1σ), kézzel feltöltött értéknél kézzel is megadható. A jegyzőkönyvre kerül.';
+
+  @override
+  String get measurementAveragedLabel => 'Átlagolt mérés';
+
+  @override
+  String get csvHeaderValueError => 'Hiba (±)';
+
+  @override
+  String get csvHeaderAveraging => 'Átlagolás (minta; mp)';
 }

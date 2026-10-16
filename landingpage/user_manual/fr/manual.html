@@ -35,7 +35,7 @@
       <div class="container">
 
 <h1>Manuel d’utilisation de RadRecon</h1>
-<p>Dernière mise à jour : 03/10/2026</p>
+<p>Dernière mise à jour : 17/10/2026</p>
 <p>L’application est disponible en anglais et en hongrois. Dans ce manuel, les noms des boutons et des éléments de menu sont en gras et correspondent à la version anglaise de l’application.</p>
 
 <h2>Sommaire</h2>
@@ -73,7 +73,14 @@
 <li><strong>Save database to file / Load database from file :</strong> enregistre toutes les données dans un fichier de sauvegarde ou charge un tel fichier, par exemple sur un nouveau téléphone. Le chargement écrase toutes les données de l’appareil.</li>
 <li><strong>Clear database :</strong> supprime définitivement de l’appareil tous les relevés, points, instruments, sources, personnes et photos. Faites d’abord une sauvegarde.</li>
 <li><strong>Contributors :</strong> remerciements aux bénévoles et aux organisations qui aident à construire RadRecon, et comment les rejoindre.</li>
+<li><strong>Units:</strong> unité par défaut du débit de dose (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), de l'activité (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) et de la distance (m, cm, inch, feet). Les nouvelles mesures commencent avec ces unités. Lors de l'enregistrement, une autre unité peut être choisie dans une liste et le nombre saisi est converti automatiquement. Le seuil d'alerte du débit de dose est converti lui aussi ; le protocole et les exports utilisent les unités choisies.</li>
+<li><strong>Regulatory profile:</strong> International (AIEA) ou Hongrie (OAH). Le profil hongrois ajoute les catégories hongroises au classement des sources, voir la section 4.</li>
+<li><strong>Backup contents:</strong> en plus des données et des photos, le fichier de sauvegarde contient toutes les pièces jointes : certificats de vérification et d'étalonnage des instruments, certificats des personnes, certificats des sources et documents de l'entreprise.</li>
 </ul>
+<h3>Documents et autorisations de l'entreprise</h3>
+<p>Chaque entreprise possède des documents et des autorisations avec un identifiant et une date d'expiration, par exemple le règlement de radioprotection du lieu de travail, la description de la radioprotection, le plan de protection physique ou le plan d'intervention en cas d'accident. Ouvre-les avec l'icône de document de la barre supérieure de l'écran principal et appuie sur <strong>New document</strong>. Saisis le nom du document, l'identifiant (numéro de dossier / d'autorisation), l'émetteur / l'autorité, la date d'émission et la date « valable / à réviser jusqu'au », ajoute une note et joins autant de fichiers que nécessaire avec <strong>Attach file</strong>. Tu peux ajouter autant de documents que tu veux.</p>
+<p>Les dates d'expiration des documents de l'entreprise et des certificats des personnes font partie des notifications d'expiration. Les documents et leurs fichiers sont inclus dans la sauvegarde et dans le sélecteur d'entreprise.</p>
+
 
 <h2 id="m3">3. Instruments</h2>
 <p>Ajoutez vos instruments une seule fois et sélectionnez-les lors de l’enregistrement des points. Ouvrez la liste des instruments et appuyez sur <strong>New instrument</strong>.</p>
@@ -82,6 +89,12 @@
 <li><strong>Reachable over WiFi Modbus/TCP :</strong> activez l’option et saisissez l’adresse IP ou l’hôte, le port (par exemple 502), l’identifiant d’unité Modbus (adresse esclave) et l’adresse du registre (registre de maintien de départ de la valeur mesurée, float32).</li>
 </ul>
 <p>La suppression d’un instrument conserve les mesures passées ; seule la référence à l’instrument en est retirée. Le menu de la liste permet d’importer et d’exporter les instruments en CSV.</p>
+<h3>Enregistrements de vérification et d'étalonnage</h3>
+<p>Chaque instrument a un historique de vérifications et d'étalonnages. Dans l'écran de l'instrument, section <strong>Verification and calibration</strong>, appuie sur <strong>Add record</strong> et saisis le type (<strong>Verification</strong> ou <strong>Calibration</strong>), <strong>Date performed</strong>, <strong>Valid until</strong>, <strong>Certificate number</strong> et <strong>Performed by (lab / authority)</strong>, puis joins le certificat avec <strong>Attach certificate</strong>. L'état de l'instrument est <strong>Valid</strong>, <strong>Expires soon</strong>, <strong>EXPIRED</strong> ou <strong>No data</strong>.</p>
+<p>Lors de l'enregistrement d'un point, un avertissement s'affiche si l'instrument choisi a une vérification/un étalonnage expiré, bientôt expiré ou inexistant, et l'enregistrement d'un point réalisé avec un instrument expiré demande une confirmation. Le protocole et le CSV indiquent l'enregistrement valable au moment de la mesure et signalent un enregistrement expiré.</p>
+<h3>Grandeur et unité d'un instrument Modbus</h3>
+<p>Pour un instrument Modbus, indique aussi ce que contient le registre (par exemple débit de dose, contamination de surface ou taux de comptage) et dans quelle unité l'instrument le renvoie (par exemple nSv/h). L'App convertit la valeur dans l'unité par défaut à la lecture, et l'enregistrement automatique enregistre la grandeur configurée pour l'instrument.</p>
+
 
 <h2 id="m4">4. Sources radioactives</h2>
 <p>Les sources sont conservées dans un registre accessible depuis l’écran principal, saisies une seule fois et rattachées aux points de mesure au besoin. Une source comporte :</p>
@@ -91,9 +104,24 @@
 <li>la date de fabrication, l’échéance de la durée de vie et la date du prochain contrôle.</li>
 </ul>
 <p>Pour les nucléides connus, l’application mémorise la période radioactive et la constante gamma et calcule l’activité actuelle. Pour un nucléide inconnu, les données peuvent être enregistrées, mais la comparaison est ignorée. Le menu de la liste permet d’importer et d’exporter les sources en CSV.</p>
+<h3>Certificat de la source</h3>
+<p>Dans l'écran de la source, utilise <strong>Attach certificate</strong> pour joindre le certificat de la source (autant de fichiers que nécessaire). Il est inclus dans la sauvegarde.</p>
+<h3>Classement (D, R, exemption)</h3>
+<p>Appuie sur l'icône de classement dans la barre supérieure de la liste des sources. Pour chaque source, l'App calcule à partir de l'activité actuelle corrigée de la décroissance (à partir de l'activité à la fabrication si la période est inconnue, signalé à l'écran) :</p>
+<ul>
+<li>la <strong>valeur D</strong> (AIEA) et <strong>R = A/D</strong>, et à partir de R la <strong>catégorie de protection physique</strong> de 1 à 5 (R ≥ 1000 : 1 ; 1000 &gt; R ≥ 10 : 2 ; 10 &gt; R ≥ 1 : 3 ; 1 &gt; R ≥ 0,01 : 4 ; R &lt; 0,01 : 5) ;</li>
+<li>les valeurs d'exemption (activité exemptée, concentration d'exemption spécifique et générale) et si l'activité est inférieure ou égale à l'activité exemptée ;</li>
+<li>les valeurs de transport ADR <strong>A1</strong>, <strong>A2</strong>, les rapports A/A1 et A/A2 et la limite d'activité du colis exempté.</li>
+</ul>
+<p>La case à cocher de chaque source la sélectionne pour le total : la somme des R des sources sélectionnées donne la catégorie des sources conservées dans la même zone de protection physique.</p>
+<p>Avec le profil <strong>Hungary (OAH)</strong>, l'écran montre aussi la catégorie de radioprotection I, II ou III (décret OAH 2/2022, § 25), le niveau de protection physique B, C ou D (décret gouvernemental 190/2011) et la classe de laboratoire selon MSZ 62-7 à partir de la valeur AM (industriel A, B, C ; médical I à III) avec les types d'opérations autorisés. Deux interrupteurs, <strong>Regular work with unsealed sources</strong> et <strong>Use outside the radiation workplace</strong>, modifient la catégorie.</p>
+<p>Le classement est indicatif. Les exceptions (par exemple les appareils portables) ne sont pas traitées, la condition de concentration d'une exemption nécessiterait la masse de la matière, et le classement officiel est déterminé par la loi applicable et l'autorité.</p>
+
 
 <h2 id="m5">5. Personnes</h2>
 <p>Le registre des personnes contient le personnel qui participe aux relevés : nom, échéance de visite médicale et échéance de formation. Dans un relevé, ouvrez l’icône des personnes et utilisez <strong>Assign person</strong> pour les ajouter à ce relevé. Retirer une personne d’un relevé la conserve dans le registre. La supprimer du registre la retire aussi de tous les relevés. Le menu de la liste permet d’importer et d’exporter les personnes en CSV.</p>
+<p>En plus du nom, de l'expiration de la visite médicale et de la formation, une personne a un <strong>Phone number</strong>, plusieurs <strong>Email address</strong>es et un nombre quelconque de <strong>Certificates</strong>. Appuie sur <strong>Add certificate</strong> et saisis l'intitulé (par exemple examen de radioprotection), le numéro du certificat, l'émetteur, la date d'émission et la validité, puis joins le fichier. L'expiration d'un certificat peut être rappelée comme les autres dates d'expiration. Le téléphone et les adresses e-mail figurent dans le CSV des personnes, pas les certificats.</p>
+
 
 <h2 id="m6">6. Doses</h2>
 <p>RadRecon peut tenir la dose de chaque personne. Les doses sont enregistrées en µSv. La liste des personnes affiche la dose annuelle de chacune, ventilée par source, et comporte un sélecteur <strong>Year</strong>.</p>
@@ -137,6 +165,15 @@
 <li><strong>Notes</strong> et une <strong>photo</strong> prise avec l’appareil photo ou choisie dans la galerie.</li>
 </ul>
 <p>Si la valeur atteint ou dépasse le seuil de son type, l’application affiche l’alerte. Toute modification ultérieure d’un point est inscrite dans son historique, de sorte que la valeur d’origine reste traçable.</p>
+<h3>Unités, erreur et moyennage</h3>
+<p>À côté de la valeur mesurée, une liste permet de choisir une autre unité ; le nombre est converti automatiquement. Sous la valeur, le champ <strong>Error (±)</strong> contient l'incertitude de la mesure dans la même unité. Saisis-la à la main quand tu entres la valeur manuellement. Le protocole affiche la valeur sous la forme « valeur ± erreur », et le CSV a des colonnes distinctes.</p>
+<p>Avec un instrument Modbus, appuie sur <strong>Averaging measurement</strong> au lieu d'une interrogation unique. Choisis la durée (10 s à 5 min) ; l'App lit l'instrument chaque seconde et affiche la moyenne courante avec son erreur. <strong>Done</strong> accepte les échantillons déjà collectés, Cancel les écarte. La valeur est la moyenne, l'erreur est l'erreur standard de la moyenne (1σ, écart-type divisé par √n) ; le nombre d'échantillons et la durée sont enregistrés avec le point et imprimés dans le protocole. Il faut au moins 2 échantillons valides pour l'erreur. L'erreur est statistique : elle ne contient pas l'incertitude d'étalonnage de l'instrument et elle est trop petite si l'instrument lisse lui-même son affichage.</p>
+<h3>Identification du nucléide et blindage</h3>
+<p>La section <strong>Nuclide identification</strong> indique si le nucléide est identifié (dans la liste ou autre), inconnu, ou un mélange de sources. L'estimation de l'activité à partir de la valeur mesurée n'apparaît que si exactement un nucléide est identifié et que la distance à la source est saisie. Elle affiche l'activité (sans blindage).</p>
+<p>Si la source est derrière un blindage, appuie sur <strong>Add layer</strong> et choisis le matériau (plomb, acier, béton, tungstène, aluminium ou eau) et l'épaisseur. Plusieurs couches sont possibles. L'App estime alors aussi l'activité de la source blindée. L'estimation utilise des épaisseurs moitié indicatives et ignore le rayonnement diffusé ; elle tend donc à surestimer l'activité.</p>
+<h3>Position GPS moyennée</h3>
+<p>Si la précision GPS est mauvaise (par exemple ±10 m), reste immobile sur le point et appuie sur <strong>Averaged GPS</strong> sous la position. Choisis 30, 60 ou 120 secondes. L'App collecte les positions, les pondère selon leur précision, écarte les valeurs aberrantes et saisit la position moyenne avec une précision estimée. Le ciel dégagé donne le meilleur résultat. Une durée plus longue aide, mais l'erreur GPS est corrélée dans le temps ; ne t'attends pas à ce que la précision s'améliore avec la racine du nombre d'échantillons.</p>
+
 
 <h2 id="m10">10. Sources sur un point</h2>
 <p>Dans l’écran du point, choisissez <strong>Manage radioactive source(s)</strong> et rattachez des sources du registre. Pour chacune, saisissez sa distance au point de mesure. L’application affiche alors :</p>
@@ -158,6 +195,8 @@
 <li><strong>Isotope calculator :</strong> convertit l’activité (MBq) en débit de dose (µSv/h) à une distance donnée, ou un débit de dose mesuré en activité. Nucléides intégrés : Co-60, Cs-137, Ir-192, Ra-226, I-131, Na-22 et Am-241.</li>
 <li><strong>Source search :</strong> estime la direction dans laquelle le type de mesure choisi augmente, à partir des points déjà enregistrés dans le relevé. Avec moins de 4 points, l’estimation est signalée comme peu fiable. Enregistrez davantage de points à différents endroits de la zone de recherche.</li>
 </ul>
+<p>L'écran d'enregistrement automatique trace pendant son fonctionnement un graphique temporel des valeurs lues, avec le seuil d'alerte en pointillés rouges, ce qui permet de voir l'évolution de la valeur mesurée. Le graphique conserve les 2 dernières heures à raison d'un échantillon par seconde et n'est pas enregistré. Le calculateur d'isotopes peut utiliser les mêmes couches de blindage et affiche alors le résultat sans et avec blindage.</p>
+
 
 <h2 id="m13">13. Clôture, export et import</h2>
 <ul>
@@ -168,6 +207,8 @@
 <li><strong>Import points (JSON) :</strong> charge des points depuis un fichier JSON. Les instruments et sources manquants sont créés ; les points sans position GPS valide ou de type de mesure inconnu sont ignorés avec un avertissement.</li>
 </ul>
 <p>Lorsque vous importez un CSV dans la liste des instruments, des sources ou des personnes, choisissez ce qu’il advient d’un enregistrement correspondant : <strong>Replace existing record</strong>, <strong>Skip matching record</strong> ou <strong>Import as a duplicate</strong>.</p>
+<p>Le protocole et les exports utilisent les unités choisies dans les réglages. Le protocole affiche la valeur avec son erreur et le nombre d'échantillons d'une mesure moyennée, ainsi que l'instrument avec ses enregistrements de vérification/étalonnage. Le CSV a les colonnes supplémentaires <strong>Error (±)</strong>, <strong>Averaging (samples; s)</strong> et <strong>Instrument verification/calibration</strong> ; le fichier JSON contient les mêmes données.</p>
+
 
 <h2 id="m14">14. Dépannage</h2>
 <ul>
@@ -175,6 +216,7 @@
 <li><strong>La requête Modbus échoue :</strong> vérifiez que le téléphone et l’instrument sont sur le même réseau WiFi et que l’adresse IP, le port, l’identifiant d’unité et l’adresse du registre sont corrects.</li>
 <li><strong>Pas de fond de carte :</strong> les tuiles de la carte nécessitent une connexion internet.</li>
 <li><strong>Pas de notifications d’échéance :</strong> activez-les dans les réglages et autorisez les notifications de RadRecon dans les réglages du téléphone.</li>
+<li><strong>Mauvaise précision GPS :</strong> utilise <strong>Averaged GPS</strong> dans l'écran du point en restant immobile, voir la section 9.</li>
 </ul>
 <p>Si le problème persiste, écrivez à <a href="mailto:info@radrecon.hu">info@radrecon.hu</a>.</p>
 

@@ -35,7 +35,7 @@
       <div class="container">
 
 <h1>RadRecon Benutzerhandbuch</h1>
-<p>Zuletzt aktualisiert: 03.10.2026</p>
+<p>Zuletzt aktualisiert: 17.10.2026</p>
 <p>Die App ist auf Englisch und Ungarisch verfügbar. In diesem Handbuch stehen die Bezeichnungen von Schaltflächen und Menüpunkten in fett und in der englischen Fassung der App.</p>
 
 <h2>Inhalt</h2>
@@ -73,7 +73,14 @@
 <li><strong>Save database to file / Load database from file:</strong> speichert alle Daten in einer Sicherungsdatei oder lädt eine solche Datei, zum Beispiel auf einem neuen Handy. Das Laden überschreibt alle Daten auf dem Gerät.</li>
 <li><strong>Clear database:</strong> löscht alle Messkampagnen, Punkte, Messgeräte, Quellen, Personen und Fotos dauerhaft vom Gerät. Erstellen Sie vorher eine Sicherung.</li>
 <li><strong>Contributors:</strong> Dank an die Freiwilligen und Organisationen, die RadRecon mit aufbauen, und wie Sie sich anschließen können.</li>
+<li><strong>Units:</strong> Standardeinheit für Dosisleistung (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), Aktivität (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) und Entfernung (m, cm, inch, feet). Neue Messungen beginnen mit diesen Einheiten. Bei der Erfassung kann aus einer Liste eine andere Einheit gewählt werden, die eingegebene Zahl wird automatisch umgerechnet. Auch die Alarmschwelle für die Dosisleistung wird umgerechnet; Protokoll und Exporte verwenden die gewählten Einheiten.</li>
+<li><strong>Regulatory profile:</strong> International (IAEA) oder Ungarn (OAH). Das ungarische Profil ergänzt die Einstufung der Quellen um die ungarischen Kategorien, siehe Abschnitt 4.</li>
+<li><strong>Backup contents:</strong> Neben den Daten und Fotos enthält die Sicherungsdatei alle Anhänge: Prüf- und Kalibrierzertifikate der Messgeräte, Zertifikate von Personen, Quellenzertifikate und Firmendokumente.</li>
 </ul>
+<h3>Firmendokumente und Genehmigungen</h3>
+<p>Jede Firma hat Dokumente und Genehmigungen mit Kennzeichen und Ablaufdatum, zum Beispiel die Strahlenschutzordnung des Arbeitsplatzes, die Strahlenschutzbeschreibung, den Plan für den physischen Schutz oder den Notfallplan. Öffne sie über das Dokument-Symbol in der oberen Leiste des Hauptbildschirms und drücke <strong>New document</strong>. Gib den Namen des Dokuments, die Kennung (Aktenzeichen / Genehmigungsnummer), die ausstellende Stelle, das Ausstellungsdatum und das Datum „gültig / Überprüfung fällig bis“ ein, schreibe eine Notiz und hänge mit <strong>Attach file</strong> beliebig viele Dateien an. Du kannst beliebig viele Dokumente anlegen.</p>
+<p>Die Ablaufdaten der Firmendokumente und der Personenzertifikate gehören zu den Ablaufbenachrichtigungen. Die Dokumente und ihre Dateien sind in der Sicherungsdatei und im Firmenwechsel enthalten.</p>
+
 
 <h2 id="m3">3. Messgeräte</h2>
 <p>Legen Sie Ihre Messgeräte einmal an und wählen Sie sie beim Erfassen von Punkten aus. Öffnen Sie die Messgeräteliste und drücken Sie <strong>New instrument</strong>.</p>
@@ -82,6 +89,12 @@
 <li><strong>Reachable over WiFi Modbus/TCP:</strong> einschalten und IP-Adresse oder Host, Port (zum Beispiel 502), Modbus Unit ID (Slave-Adresse) und Registeradresse (Start-Holding-Register des Messwerts, float32) eingeben.</li>
 </ul>
 <p>Beim Löschen eines Messgeräts bleiben frühere Messungen erhalten, nur der Verweis auf das Gerät wird entfernt. Über das Listenmenü lassen sich die Messgeräte als CSV importieren und exportieren.</p>
+<h3>Prüf- und Kalibrierdatensätze</h3>
+<p>Zu jedem Messgerät gehört eine Historie von Prüfungen und Kalibrierungen. Drücke im Messgerätebildschirm im Bereich <strong>Verification and calibration</strong> auf <strong>Add record</strong> und gib den Typ (<strong>Verification</strong> oder <strong>Calibration</strong>), <strong>Date performed</strong>, <strong>Valid until</strong>, <strong>Certificate number</strong> und <strong>Performed by (lab / authority)</strong> ein; mit <strong>Attach certificate</strong> hängst du das Zertifikat an. Der Status des Geräts ist <strong>Valid</strong>, <strong>Expires soon</strong>, <strong>EXPIRED</strong> oder <strong>No data</strong>.</p>
+<p>Beim Erfassen eines Punkts erscheint eine Warnung, wenn das gewählte Messgerät eine abgelaufene oder bald ablaufende Prüfung/Kalibrierung hat oder keine, und das Speichern eines Punkts mit abgelaufenem Gerät verlangt eine Bestätigung. Protokoll und CSV zeigen den zum Messzeitpunkt gültigen Datensatz und kennzeichnen einen abgelaufenen.</p>
+<h3>Größe und Einheit eines Modbus-Messgeräts</h3>
+<p>Stelle bei einem Modbus-Messgerät außerdem ein, was das Register enthält (zum Beispiel Dosisleistung, Oberflächenkontamination oder Zählrate) und in welcher Einheit das Gerät den Wert liefert (zum Beispiel nSv/h). Die App rechnet den Wert beim Lesen in die Standardeinheit um, und die automatische Aufzeichnung erfasst die für das Gerät eingestellte Größe.</p>
+
 
 <h2 id="m4">4. Strahlenquellen</h2>
 <p>Quellen werden in einem Register geführt, das Sie vom Hauptbildschirm öffnen. Sie werden einmal angelegt und bei Bedarf Messpunkten zugeordnet. Eine Quelle hat:</p>
@@ -91,9 +104,24 @@
 <li>Herstellungsdatum, Ablauf der Nutzungsdauer und Datum der nächsten Prüfung.</li>
 </ul>
 <p>Für bekannte Nuklide speichert die App Halbwertszeit und Gammakonstante und berechnet die aktuelle Aktivität. Bei einem unbekannten Nuklid lassen sich die Daten speichern, der Vergleich entfällt. Über das Listenmenü lassen sich die Quellen als CSV importieren und exportieren.</p>
+<h3>Quellenzertifikat</h3>
+<p>Hänge im Quellenbildschirm mit <strong>Attach certificate</strong> das Zertifikat der Quelle an (beliebig viele Dateien). Es ist in der Sicherungsdatei enthalten.</p>
+<h3>Einstufung (D, R, Freigrenze)</h3>
+<p>Drücke das Einstufungssymbol in der oberen Leiste der Quellenliste. Für jede Quelle berechnet die App aus der aktuellen, zerfallskorrigierten Aktivität (bei unbekannter Halbwertszeit aus der Herstellungsaktivität, auf dem Bildschirm gekennzeichnet):</p>
+<ul>
+<li>den <strong>D-Wert</strong> (IAEA) und <strong>R = A/D</strong>, daraus die <strong>Kategorie des physischen Schutzes</strong> 1 bis 5 (R ≥ 1000: 1; 1000 &gt; R ≥ 10: 2; 10 &gt; R ≥ 1: 3; 1 &gt; R ≥ 0,01: 4; R &lt; 0,01: 5);</li>
+<li>die Freigrenzen (freigestellte Aktivität, spezifische und allgemeine Freigrenzenkonzentration) und ob die Aktivität bei oder unter der freigestellten Aktivität liegt;</li>
+<li>die ADR-Transportwerte <strong>A1</strong>, <strong>A2</strong>, die Verhältnisse A/A1 und A/A2 sowie die Aktivitätsgrenze für freigestellte Versandstücke.</li>
+</ul>
+<p>Mit dem Kontrollkästchen jeder Quelle wird sie in die Summe aufgenommen: Die Summe der R-Werte der gewählten Quellen ergibt die Kategorie der Quellen, die in derselben Zone des physischen Schutzes aufbewahrt werden.</p>
+<p>Mit dem Profil <strong>Hungary (OAH)</strong> zeigt der Bildschirm zusätzlich die Strahlenschutzkategorie I, II oder III (OAH-Verordnung 2/2022, § 25), die Stufe des physischen Schutzes B, C oder D (Regierungsverordnung 190/2011) und die Laborklasse nach MSZ 62-7 aus dem AM-Wert (industriell A, B, C; medizinisch I bis III) mit den zulässigen Arbeitsarten. Zwei Schalter, <strong>Regular work with unsealed sources</strong> und <strong>Use outside the radiation workplace</strong>, ändern die Kategorie.</p>
+<p>Die Einstufung ist nur ein Richtwert. Ausnahmen (zum Beispiel tragbare Geräte) werden nicht berücksichtigt, für die Konzentrationsbedingung einer Freigrenze wäre die Masse des Materials nötig, und die amtliche Einstufung bestimmen das geltende Recht und die Behörde.</p>
+
 
 <h2 id="m5">5. Personen</h2>
 <p>Das Personenregister enthält die an Messkampagnen beteiligten Mitarbeitenden: Name, Ablauf der ärztlichen Untersuchung und Ablauf der Unterweisung. Innerhalb einer Messkampagne öffnen Sie das Personensymbol und fügen mit <strong>Assign person</strong> Personen zu dieser Messkampagne hinzu. Entfernen Sie eine Person aus der Messkampagne, bleibt sie im Register. Löschen Sie sie aus dem Register, verschwindet sie auch aus jeder Messkampagne. Über das Listenmenü lassen sich die Personen als CSV importieren und exportieren.</p>
+<p>Neben Name, Ablauf der ärztlichen Untersuchung und der Unterweisung hat eine Person eine <strong>Phone number</strong>, mehrere <strong>Email address</strong>en und beliebig viele <strong>Certificates</strong>. Drücke <strong>Add certificate</strong> und gib die Bezeichnung (zum Beispiel Strahlenschutzprüfung), die Zertifikatsnummer, die ausstellende Stelle, das Ausstellungsdatum und die Gültigkeit ein und hänge die Datei an. An den Ablauf eines Zertifikats kann wie bei den anderen Ablaufdaten erinnert werden. Telefonnummer und E-Mail-Adressen sind in der CSV der Personen enthalten, die Zertifikate nicht.</p>
+
 
 <h2 id="m6">6. Dosen</h2>
 <p>RadRecon kann die Dosis jeder Person führen. Dosen werden in µSv gespeichert. Die Personenliste zeigt die Jahresdosis jeder Person nach Quelle aufgeteilt und hat eine Auswahl <strong>Year</strong>.</p>
@@ -137,6 +165,15 @@
 <li><strong>Notes</strong> und ein <strong>Foto</strong>, aufgenommen mit der Kamera oder aus der Galerie gewählt.</li>
 </ul>
 <p>Erreicht oder überschreitet der Wert die Schwelle seiner Art, zeigt die App den Alarm. Jede spätere Änderung an einem Punkt wird im Änderungsverlauf festgehalten, sodass der ursprüngliche Wert nachvollziehbar bleibt.</p>
+<h3>Einheiten, Fehler und Mittelung</h3>
+<p>Neben dem Messwert kann aus einer Liste eine andere Einheit gewählt werden, die Zahl wird automatisch umgerechnet. Unter dem Wert enthält das Feld <strong>Error (±)</strong> die Unsicherheit der Messung in derselben Einheit. Gib sie von Hand ein, wenn du den Wert manuell einträgst. Das Protokoll zeigt den Wert als „Wert ± Fehler“, die CSV hat dafür eigene Spalten.</p>
+<p>Drücke bei einem Modbus-Messgerät statt einer Einzelabfrage <strong>Averaging measurement</strong>. Wähle die Dauer (10 s bis 5 min); die App liest das Gerät jede Sekunde und zeigt den laufenden Mittelwert mit seinem Fehler. <strong>Done</strong> übernimmt die bisher gesammelten Messwerte, Cancel verwirft sie. Der Wert ist der Mittelwert, der Fehler der Standardfehler des Mittelwerts (1σ, Standardabweichung geteilt durch √n); Anzahl der Messwerte und Dauer werden mit dem Punkt gespeichert und im Protokoll ausgegeben. Für den Fehler sind mindestens 2 gültige Messwerte nötig. Der Fehler ist statistisch: Er enthält nicht die Kalibrierunsicherheit des Geräts und ist zu klein, wenn das Gerät seine Anzeige selbst glättet.</p>
+<h3>Nuklididentifikation und Abschirmung</h3>
+<p>Im Bereich <strong>Nuclide identification</strong> wird festgehalten, ob das Nuklid identifiziert ist (aus der Liste oder anderes), unbekannt oder vermutlich ein Gemisch mehrerer Quellen. Die Aktivitätsschätzung aus dem Messwert erscheint nur, wenn genau ein Nuklid identifiziert und die Entfernung zur Quelle eingegeben ist. Sie zeigt die Aktivität (ohne Abschirmung).</p>
+<p>Liegt die Quelle hinter einer Abschirmung, drücke <strong>Add layer</strong> und wähle Material (Blei, Stahl, Beton, Wolfram, Aluminium oder Wasser) und Dicke. Mehrere Schichten sind möglich. Die App schätzt dann auch die Aktivität der abgeschirmten Quelle. Die Schätzung verwendet Richtwerte für Halbwertsschichten und ignoriert Streustrahlung, daher überschätzt sie die Aktivität eher.</p>
+<h3>Gemittelte GPS-Position</h3>
+<p>Ist die GPS-Genauigkeit schlecht (zum Beispiel ±10 m), bleib am Punkt stehen und drücke unter der Position <strong>Averaged GPS</strong>. Wähle 30, 60 oder 120 Sekunden. Die App sammelt die Positionen, gewichtet sie nach Genauigkeit, verwirft Ausreißer und trägt die mittlere Position mit geschätzter Genauigkeit ein. Unter freiem Himmel ist das Ergebnis am besten. Eine längere Zeit hilft, aber der GPS-Fehler ist zeitlich korreliert, die Genauigkeit verbessert sich daher nicht mit der Wurzel der Messwertanzahl.</p>
+
 
 <h2 id="m10">10. Quellen an einem Punkt</h2>
 <p>Wählen Sie im Punktbildschirm <strong>Manage radioactive source(s)</strong> und ordnen Sie Quellen aus dem Register zu. Geben Sie für jede den Abstand zum Messpunkt ein. Die App zeigt dann:</p>
@@ -158,6 +195,8 @@
 <li><strong>Isotope calculator:</strong> rechnet Aktivität (MBq) in Dosisleistung (µSv/h) in einer Entfernung um oder eine gemessene Dosisleistung zurück in Aktivität. Eingebaute Nuklide: Co-60, Cs-137, Ir-192, Ra-226, I-131, Na-22 und Am-241.</li>
 <li><strong>Source search:</strong> schätzt aus den bereits erfassten Punkten der Messkampagne die Richtung, in der die gewählte Messart ansteigt. Bei weniger als 4 Punkten wird die Schätzung als unzuverlässig gekennzeichnet. Erfassen Sie weitere Punkte an verschiedenen Stellen des Suchgebiets.</li>
 </ul>
+<p>Der Bildschirm der automatischen Aufzeichnung zeichnet während des Laufs ein Zeitdiagramm der Messwerte, mit der Alarmschwelle als rot gestrichelter Linie, sodass die Änderung des Messwerts sichtbar ist. Das Diagramm behält die letzten 2 Stunden bei einer Abtastung pro Sekunde und wird nicht gespeichert. Der Isotopenrechner kann dieselben Abschirmschichten verwenden und zeigt dann das Ergebnis ohne und mit Abschirmung.</p>
+
 
 <h2 id="m13">13. Abschließen, Export und Import</h2>
 <ul>
@@ -168,6 +207,8 @@
 <li><strong>Import points (JSON):</strong> lädt Punkte aus einer JSON-Datei. Fehlende Messgeräte und Quellen werden angelegt, Punkte ohne gültige GPS-Position oder mit unbekannter Messart werden mit einer Warnung übersprungen.</li>
 </ul>
 <p>Beim Import einer CSV-Datei in die Liste der Messgeräte, Quellen oder Personen wählen Sie, was mit einem übereinstimmenden Datensatz geschieht: <strong>Replace existing record</strong>, <strong>Skip matching record</strong> oder <strong>Import as a duplicate</strong>.</p>
+<p>Protokoll und Exporte verwenden die in den Einstellungen gewählten Einheiten. Das Protokoll zeigt den Wert mit Fehler und der Messwertanzahl einer gemittelten Messung sowie das Messgerät mit seinen Prüf-/Kalibrierdatensätzen. Die CSV hat die zusätzlichen Spalten <strong>Error (±)</strong>, <strong>Averaging (samples; s)</strong> und <strong>Instrument verification/calibration</strong>; die JSON-Datei enthält dieselben Daten.</p>
+
 
 <h2 id="m14">14. Fehlerbehebung</h2>
 <ul>
@@ -175,6 +216,7 @@
 <li><strong>Modbus-Abfrage schlägt fehl:</strong> prüfen Sie, ob Telefon und Messgerät im selben WLAN sind und ob IP-Adresse, Port, Unit ID und Registeradresse stimmen.</li>
 <li><strong>Kein Kartenhintergrund:</strong> die Kartenkacheln benötigen eine Internetverbindung.</li>
 <li><strong>Keine Ablaufbenachrichtigungen:</strong> schalten Sie sie in den Einstellungen ein und erlauben Sie Benachrichtigungen für RadRecon in den Telefoneinstellungen.</li>
+<li><strong>Schlechte GPS-Genauigkeit:</strong> verwende im Punktbildschirm im Stehen <strong>Averaged GPS</strong>, siehe Abschnitt 9.</li>
 </ul>
 <p>Bleibt ein Problem bestehen, schreiben Sie an <a href="mailto:info@radrecon.hu">info@radrecon.hu</a>.</p>
 

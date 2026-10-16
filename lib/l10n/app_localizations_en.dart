@@ -1698,7 +1698,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get classificationDisclaimer =>
-      'Indicative calculation from nuclide tables and the current (decay-corrected) activity. The official classification is determined by the applicable law and the regulator. Laboratory levels (MSZ 62-7) are not included.';
+      'Indicative calculation from nuclide tables and the current (decay-corrected) activity. The official classification is determined by the applicable law and the regulator. The MSZ 62-7 laboratory class is an indicative value derived from the activity.';
 
   @override
   String get classificationUnsealedWork => 'Regular work with unsealed sources';

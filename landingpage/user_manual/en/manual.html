@@ -35,7 +35,7 @@
       <div class="container">
 
 <h1>RadRecon User Manual</h1>
-<p>Last updated: 03.10.2026</p>
+<p>Last updated: 17.10.2026</p>
 
 <h2>Contents</h2>
 <ol>
@@ -72,7 +72,13 @@
 <li><strong>Save database to file / Load database from file:</strong> saves all data to one backup file or loads such a file, for example on a new phone. Loading overwrites all data currently on the device.</li>
 <li><strong>Clear database:</strong> permanently deletes all surveys, points, instruments, sources, persons and photos from the device. Make a backup first.</li>
 <li><strong>Contributors:</strong> thanks to the volunteers and organizations that help build RadRecon, and how to join them.</li>
+<li><strong>Units:</strong> the default unit of dose rate (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), activity (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) and distance (m, cm, inch, feet). New measurements start with these units. While recording, another unit can be chosen from a list and the typed number is converted automatically. The dose rate alert threshold is converted too, and the protocol and the exports use the selected units.</li>
+<li><strong>Regulatory profile:</strong> International (IAEA) or Hungary (OAH). The Hungarian profile adds the Hungarian categories to the classification of sources, see section 4.</li>
 </ul>
+<h3>Company documents and permits</h3>
+<p>Every company has documents and permits that carry an identifier and an expiry date, for example the workplace radiation protection rules, the radiation protection description, the physical protection plan or the accident response plan. Open them with the document icon in the top bar of the main survey screen and press <strong>New document</strong>. Enter the <strong>Document name</strong>, the <strong>Identifier (file / permit number)</strong>, the <strong>Issuer / authority</strong>, the issue date, <strong>Valid / review due until</strong> and a note, and attach any number of files with <strong>Attach file</strong>. You can add as many documents as you need.</p>
+<p>The expiry dates of the company documents and of the certificates of persons are part of the expiry notifications. The documents and their files are included in the backup file and in the company switcher.</p>
+
 
 <h2 id="m3">3. Instruments</h2>
 <p>Add your instruments once and select them when you record points. Open the instruments list and press <strong>New instrument</strong>.</p>
@@ -81,6 +87,12 @@
 <li><strong>Reachable over WiFi Modbus/TCP:</strong> switch on and enter the IP address or host, port (for example 502), Modbus unit ID (slave address) and register address (the starting holding register of the measured value, float32).</li>
 </ul>
 <p>Deleting an instrument keeps past measurements; only the instrument reference is removed from them. The list menu can import and export the instruments as CSV.</p>
+<h3>Verification and calibration records</h3>
+<p>Every instrument has a history of verification and calibration records. In the instrument screen, in the <strong>Verification and calibration</strong> section, press <strong>Add record</strong> and enter the type (<strong>Verification</strong> or <strong>Calibration</strong>), the <strong>Date performed</strong>, <strong>Valid until</strong>, the <strong>Certificate number</strong>, <strong>Performed by (lab / authority)</strong>, and attach the certificate with <strong>Attach certificate</strong>. The status of the instrument is <strong>Valid</strong>, <strong>Expires soon</strong>, <strong>EXPIRED</strong> or <strong>No data</strong>.</p>
+<p>When you record a point, a warning appears if the selected instrument has an expired or soon expiring verification/calibration, or none at all, and saving a point made with an expired instrument asks for confirmation. The protocol and the CSV show the record that was valid at the time of the measurement and flag an expired one.</p>
+<h3>Quantity and unit of a Modbus instrument</h3>
+<p>For a Modbus instrument also set what the register contains (for example dose rate, surface contamination or count rate) and in which unit the instrument returns it (for example nSv/h). The App converts the value into the default unit when it reads it, and automatic logging records the quantity configured for the instrument.</p>
+
 
 <h2 id="m4">4. Radiation sources</h2>
 <p>The sources are kept in a registry, opened from the main screen, entered once and attached to measurement points when needed. A source has:</p>
@@ -90,9 +102,24 @@
 <li>manufacture date, service life expiry and next inspection date.</li>
 </ul>
 <p>For known nuclides the App stores the half-life and gamma constant and calculates the current activity. For an unknown nuclide the data can be saved, but the comparison is skipped. The list menu can import and export the sources as CSV.</p>
+<h3>Source certificate</h3>
+<p>In the source screen, use <strong>Attach certificate</strong> to attach the certificate of the source (any number of files). It is included in the backup file.</p>
+<h3>Classification (D, R, exemption)</h3>
+<p>Press the classification icon in the top bar of the sources list. For every source the App calculates, from the current activity corrected for decay (from the manufacture activity if the half-life is unknown, flagged on the screen):</p>
+<ul>
+<li>the <strong>D value</strong> (IAEA) and <strong>R = A/D</strong>, and from R the <strong>physical protection category</strong> 1 to 5 (R ≥ 1000: 1; 1000 &gt; R ≥ 10: 2; 10 &gt; R ≥ 1: 3; 1 &gt; R ≥ 0.01: 4; R &lt; 0.01: 5);</li>
+<li>the exemption values (exempt activity, specific and general exemption concentration) and whether the activity is at or below the exempt activity;</li>
+<li>the ADR transport values <strong>A1</strong>, <strong>A2</strong>, the ratios A/A1 and A/A2, and the exempt consignment limit.</li>
+</ul>
+<p>The checkbox of each source selects it for the total: the sum of R of the selected sources gives the category of sources kept in the same physical protection zone.</p>
+<p>With the <strong>Hungary (OAH)</strong> regulatory profile the screen also shows the radiation protection category I, II or III (decree 2/2022 OAH, section 25), the physical protection level B, C or D (Government decree 190/2011), and the MSZ 62-7 laboratory class from the AM value (industrial A, B, C; medical I to III) with the permitted operation types. Two switches, <strong>Regular work with unsealed sources</strong> and <strong>Use outside the radiation workplace</strong>, change the category.</p>
+<p>The classification is indicative. Exceptions (for example portable devices) are not handled, the concentration condition of an exemption needs the mass of the material, and the official classification is decided by the applicable law and the regulator.</p>
+
 
 <h2 id="m5">5. Persons</h2>
 <p>The persons registry holds the staff taking part in surveys: name, medical exam expiry and training expiry. Inside a survey, open the persons icon and use <strong>Assign person</strong> to add them to that survey. Removing a person from a survey keeps the person in the registry. Deleting a person from the registry also removes them from every survey. The list menu can import and export the persons as CSV.</p>
+<p>Besides the name, the medical exam and the training expiry, a person has a <strong>Phone number</strong>, several <strong>Email address</strong>es and any number of <strong>Certificates</strong>. Press <strong>Add certificate</strong> and enter the name (for example radiation protection exam), the certificate number, the issuer, the issue date, the validity and attach the file. The expiry of a certificate can be reminded like the other expiry dates. The phone number and the email addresses are part of the persons CSV, the certificates are not.</p>
+
 
 <h2 id="m6">6. Doses</h2>
 <p>RadRecon can keep the dose of each person. Doses are stored in µSv. The persons list shows the annual dose of each person, split by source, and has a <strong>Year</strong> selector.</p>
@@ -136,6 +163,15 @@
 <li><strong>Notes</strong> and a <strong>photo</strong> taken with the camera or chosen from the gallery.</li>
 </ul>
 <p>If the value reaches or exceeds the threshold for its type, the App shows the alert. Every later change to a point is written to its change history, so the original value remains traceable.</p>
+<h3>Units, error and averaging</h3>
+<p>Next to the measured value a list lets you choose another unit; the number is converted automatically. Under the value, the <strong>Error (±)</strong> field holds the uncertainty of the reading in the same unit. Type it by hand when you enter the value manually. The protocol shows the value as “value ± error”, and the CSV has separate columns for it.</p>
+<p>With a Modbus instrument, press <strong>Averaging measurement</strong> instead of a single query. Choose the duration (10 s to 5 min); the App reads the instrument every second and shows the running mean with its error. <strong>Done</strong> accepts the samples collected so far, Cancel discards them. The value is the mean, the error is the standard error of the mean (1σ, the standard deviation divided by √n), and the number of samples and the duration are saved with the point and printed in the protocol. At least 2 valid samples are needed for the error. The error is statistical: it does not contain the calibration uncertainty of the instrument, and it is too small if the instrument itself smooths its readings.</p>
+<h3>Nuclide identification and shielding</h3>
+<p>The <strong>Nuclide identification</strong> section records whether the nuclide is identified (from the list or other), unknown, or a mixture of sources. The activity estimate from the measured value appears only when exactly one nuclide is identified and the distance from the source is entered. It shows the activity (unshielded).</p>
+<p>If the source is behind shielding, press <strong>Add layer</strong> and choose the material (lead, steel, concrete, tungsten, aluminium or water) and the thickness. Several layers can be added. The App then also estimates the activity of the shielded source. The estimate uses indicative half-value layers and ignores scattered radiation, so it tends to overestimate the activity.</p>
+<h3>Averaged GPS position</h3>
+<p>If the GPS accuracy is poor (for example ±10 m), stand still at the point and press <strong>Averaged GPS</strong> under the position. Choose 30, 60 or 120 seconds. The App collects the positions, weights them by their accuracy, drops the outliers and enters the mean position with an estimated accuracy. An open sky gives the best result. A longer time helps, but the GPS error is correlated in time, so do not expect the accuracy to improve with the square root of the number of samples.</p>
+
 
 <h2 id="m10">10. Sources at a point</h2>
 <p>In the point screen choose <strong>Manage radioactive source(s)</strong> and attach sources from the registry. For each one enter its distance from the measurement point. The App then shows:</p>
@@ -157,6 +193,8 @@
 <li><strong>Isotope calculator:</strong> converts activity (MBq) to dose rate (µSv/h) at a distance, or a measured dose rate back to activity. Built-in nuclides: Co-60, Cs-137, Ir-192, Ra-226, I-131, Na-22 and Am-241.</li>
 <li><strong>Source search:</strong> estimates the direction in which the selected measurement type increases, from the points already recorded in the survey. With fewer than 4 points the estimate is flagged as unreliable. Take more points at different spots in the search area.</li>
 </ul>
+<p>The automatic logging screen draws a time chart of the readings while it runs, with the alert threshold as a red dashed line, so you can see the change of the measured value. The chart keeps the last 2 hours at one-second sampling and is not saved. The isotope calculator can use the same shielding layers and then shows the unshielded and the shielded result.</p>
+
 
 <h2 id="m13">13. Closing, exporting and importing</h2>
 <ul>
@@ -167,6 +205,8 @@
 <li><strong>Import points (JSON):</strong> loads points from a JSON file. Missing instruments and sources are created, and points without a valid GPS position or with an unknown measurement type are skipped with a warning.</li>
 </ul>
 <p>When you import a CSV into the instruments, sources or persons list, choose what happens to a matching record: replace it, skip it, or import it as a duplicate.</p>
+<p>The protocol and the exports use the units selected in the settings. The protocol shows the value with its error and the number of samples of an averaged measurement, and the instrument with its verification/calibration records. The CSV has the additional columns <strong>Error (±)</strong>, <strong>Averaging (samples; s)</strong> and <strong>Instrument verification/calibration</strong>; the JSON file carries the same data.</p>
+
 
 <h2 id="m14">14. Troubleshooting</h2>
 <ul>
@@ -174,6 +214,7 @@
 <li><strong>Modbus query fails:</strong> check that the phone and the instrument are on the same WiFi network and that the IP address, port, unit ID and register address are correct.</li>
 <li><strong>No map background:</strong> the map tiles need an internet connection.</li>
 <li><strong>No expiry notifications:</strong> switch them on in the settings and allow notifications for RadRecon in the phone settings.</li>
+<li><strong>Poor GPS accuracy:</strong> use <strong>Averaged GPS</strong> in the point screen while standing still, see section 9.</li>
 </ul>
 <p>If a problem remains, write to <a href="mailto:info@radrecon.hu">info@radrecon.hu</a>.</p>
 

@@ -1223,7 +1223,7 @@
     "@regulatoryProfileHungary": {},
     "classificationTitle": "Besorolás (D, R, mentesség)",
     "@classificationTitle": {},
-    "classificationDisclaimer": "Tájékoztató számítás a nuklidtáblák és az aktuális (bomlással korrigált) aktivitás alapján. A hatósági besorolás a hatályos jogszabály és a hatóság döntése szerint érvényes. Az MSZ 62-7 szerinti laborszintek nincsenek benne.",
+    "classificationDisclaimer": "Tájékoztató számítás a nuklidtáblák és az aktuális (bomlással korrigált) aktivitás alapján. A hatósági besorolás a hatályos jogszabály és a hatóság döntése szerint érvényes. Az MSZ 62-7 szerinti laborosztály az aktivitásból számolt tájékoztató érték.",
     "@classificationDisclaimer": {},
     "classificationUnsealedWork": "Nyitott sugárforrással végzett rendszeres munka",
     "@classificationUnsealedWork": {},

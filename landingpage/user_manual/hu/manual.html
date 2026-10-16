@@ -35,7 +35,7 @@
       <div class="container">
 
 <h1>RadRecon felhasználói kézikönyv</h1>
-<p>Utolsó frissítés: 2026. 10. 03.</p>
+<p>Utolsó frissítés: 2026. 10. 17.</p>
 
 <h2>Tartalom</h2>
 <ol>
@@ -72,7 +72,13 @@
 <li><strong>Adatbázis mentése fájlba / Adatbázis betöltése fájlból:</strong> az összes adatot egyetlen mentésfájlba menti, vagy betölt egy ilyen fájlt, például új telefonon. A betöltés felülírja az eszközön lévő összes adatot.</li>
 <li><strong>Adatbázis törlése:</strong> véglegesen töröl minden felmérést, pontot, műszert, forrást, személyt és fotót az eszközről. Előtte készíts mentést.</li>
 <li><strong>Közreműködők:</strong> köszönet az önkénteseknek és a szervezeteknek, akik segítenek a RadRecon építésében, és hogyan csatlakozhatsz hozzájuk.</li>
+<li><strong>Mértékegységek:</strong> a dózisteljesítmény (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), az aktivitás (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) és a távolság (m, cm, inch, feet) alapegysége. Új mérésnél ezek az egységek vannak előre kiválasztva. Rögzítéskor legördülő listából másik is választható, és a beírt szám automatikusan átváltódik. A dózisteljesítmény riasztási küszöbe is átváltódik, a jegyzőkönyv és az exportok pedig a választott egységeket használják.</li>
+<li><strong>Szabályozási profil:</strong> Nemzetközi (IAEA) vagy Magyarország (OAH). A magyar profil a források besorolásában a magyar kategóriákat is megmutatja, lásd a 4. fejezetet.</li>
 </ul>
+<h3>Cég dokumentumai és engedélyei</h3>
+<p>Minden cégnek vannak azonosítóval és lejárattal rendelkező dokumentumai és engedélyei, például a Munkahelyi Sugárvédelmi Szabályzat, a Sugárvédelmi Leírás, a Fizikai Védelmi Terv vagy a Balesetelhárítási Intézkedési Terv. A felmérés főképernyőjének felső sávjában lévő dokumentum ikonnal nyithatod meg őket, az <strong>Új dokumentum</strong> gombbal vehetsz fel újat. Add meg a <strong>Dokumentum megnevezése</strong>, az <strong>Azonosító (iktatószám, engedélyszám)</strong>, a <strong>Kiadó / hatóság</strong>, a <strong>Kiadás vagy hatályba lépés dátuma</strong> és az <strong>Érvényes / felülvizsgálandó eddig</strong> mezőt, írhatsz megjegyzést, és a <strong>Fájl csatolása</strong> gombbal tetszőleges számú fájlt csatolhatsz. Tetszőleges számú dokumentumot felvehetsz.</p>
+<p>A cégdokumentumok és a személyek bizonyítványainak lejárata is része a lejárati értesítéseknek. A dokumentumok és a fájljaik benne vannak a mentésfájlban és a cégváltóban is.</p>
+
 
 <h2 id="m3">3. Műszerek</h2>
 <p>A műszereidet egyszer vedd fel, és a pontok rögzítésekor csak kiválasztod őket. Nyisd meg a műszerek listáját, és nyomd meg az <strong>Új műszer</strong> gombot.</p>
@@ -81,6 +87,12 @@
 <li><strong>WiFi Modbus/TCP-n elérhető:</strong> kapcsold be, és add meg az IP-címet vagy hostot, a portot (például 502), a Modbus Unit ID-t (slave cím) és a regiszter címét (a mért érték kezdő holding regisztere, float32).</li>
 </ul>
 <p>A műszer törlésekor a korábbi mérések megmaradnak, csak a műszerre való hivatkozás törlődik belőlük. A lista menüjéből a műszerek CSV-ben importálhatók és exportálhatók.</p>
+<h3>Hitelesítési és kalibrálási bejegyzések</h3>
+<p>Minden műszerhez tartozik a hitelesítések és kalibrálások előzménye. A műszer képernyőjén a <strong>Hitelesítés és kalibrálás</strong> részben nyomd meg a <strong>Bejegyzés hozzáadása</strong> gombot, és add meg a típust (<strong>Hitelesítés</strong> vagy <strong>Kalibrálás</strong>), az <strong>Elvégzés dátuma</strong>, az <strong>Érvényes eddig</strong>, a <strong>Bizonylat száma</strong> és a <strong>Végezte (labor / hatóság)</strong> mezőt, a <strong>Bizonylat csatolása</strong> gombbal pedig csatold a bizonylatot. A műszer állapota <strong>Érvényes</strong>, <strong>Hamarosan lejár</strong>, <strong>LEJÁRT</strong> vagy <strong>Nincs adat</strong>.</p>
+<p>Pont rögzítésekor figyelmeztetés jelenik meg, ha a kiválasztott műszer hitelesítése/kalibrálása lejárt, hamarosan lejár, vagy nincs róla adat, a lejárt hitelesítésű műszerrel készült pont mentése pedig megerősítést kér. A jegyzőkönyv és a CSV a mérés időpontjában érvényes bejegyzést mutatja, a lejártat jelöli.</p>
+<h3>Modbus műszer mennyisége és egysége</h3>
+<p>Modbus műszernél azt is állítsd be, mit tartalmaz a regiszter (például dózisteljesítményt, felületi szennyezettséget vagy számlálási sebességet), és milyen egységben adja vissza a műszer (például nSv/h). Az app beolvasáskor átváltja az értéket az alapegységre, az automatikus mérés pedig a műszerhez beállított mennyiséget rögzíti.</p>
+
 
 <h2 id="m4">4. Sugárforrások</h2>
 <p>A források nyilvántartása a főképernyőről nyitható meg, a forrásokat egyszer kell felvenni, és szükség szerint a mérési pontokhoz rendelhetők. Egy forrás adatai:</p>
@@ -90,9 +102,24 @@
 <li>gyártás dátuma, szolgálati idő lejárata és következő felülvizsgálat dátuma.</li>
 </ul>
 <p>Ismert nuklidoknál az app tárolja a felezési időt és a gamma-állandót, és kiszámolja az aktuális aktivitást. Ismeretlen nuklidnál az adatok menthetők, de az összevetés kimarad. A lista menüjéből a források CSV-ben importálhatók és exportálhatók.</p>
+<h3>Műbizonylat</h3>
+<p>A forrás képernyőjén a <strong>Műbizonylat csatolása</strong> gombbal csatolhatod a forrás műbizonylatát (tetszőleges számú fájl). A mentésfájl is tartalmazza.</p>
+<h3>Besorolás (D, R, mentesség)</h3>
+<p>Nyomd meg a forráslista felső sávjában lévő besorolás ikont. Az app minden forrásra kiszámolja az aktuális, bomlással korrigált aktivitásból (ismeretlen felezési időnél a gyártáskori aktivitásból, ezt a képernyő jelzi):</p>
+<ul>
+<li>a <strong>D értéket</strong> (IAEA) és az <strong>R = A/D</strong> értéket, az R-ből pedig az 1–5. <strong>fizikai védelmi kategóriát</strong> (R ≥ 1000: 1; 1000 &gt; R ≥ 10: 2; 10 &gt; R ≥ 1: 3; 1 &gt; R ≥ 0,01: 4; R &lt; 0,01: 5);</li>
+<li>a mentességi értékeket (MEA, SMEAK és ÁMEAK), és hogy az aktivitás a mentességi aktivitás alatt van-e;</li>
+<li>az ADR szállítási értékeket: <strong>A1</strong>, <strong>A2</strong>, az A/A1 és A/A2 arányt és a mentes küldemény aktivitáshatárát.</li>
+</ul>
+<p>Az egyes források jelölőnégyzete az összesítésbe választja be a forrást: a kijelölt források R értékének összege adja az ugyanabban a fizikai védelmi zónában tartott források kategóriáját.</p>
+<p>A <strong>Magyarország (OAH)</strong> szabályozási profilnál a képernyő az I., II. vagy III. sugárvédelmi kategóriát (2/2022. (IV. 29.) OAH rendelet 25. §), a B, C vagy D fizikai védelmi szintet (190/2011. (IX. 19.) Korm. rendelet) és az MSZ 62-7 szerinti laborosztályt is mutatja az AM értékből (ipari A, B, C; orvosi I–III) a végezhető művelettípusokkal. A <strong>Nyitott sugárforrással végzett rendszeres munka</strong> és az <strong>Alkalmazás sugárveszélyes munkahelyen kívül</strong> kapcsoló módosítja a kategóriát.</p>
+<p>A besorolás tájékoztató jellegű. A kivételeket (például hordozható eszközök) nem kezeli, a mentesség koncentráció-feltételéhez az anyag tömege is kellene, a hatósági besorolást pedig a hatályos jogszabály és a hatóság határozza meg.</p>
+
 
 <h2 id="m5">5. Személyek</h2>
 <p>A személyek nyilvántartása a felmérésekben részt vevő munkatársakat tartalmazza: név, orvosi alkalmassági vizsga lejárata és oktatás lejárata. Egy felmérésen belül a személyek ikonjával nyisd meg a listát, és a <strong>Személy hozzárendelése</strong> gombbal add őket az adott felméréshez. Ha egy személyt eltávolítasz a felmérésből, a nyilvántartásban megmarad. Ha a nyilvántartásból törlöd, minden felmérésből is kikerül. A lista menüjéből a személyek CSV-ben importálhatók és exportálhatók.</p>
+<p>A névén, az orvosi alkalmassági vizsga és az oktatás lejáratán kívül a személyhez tartozik <strong>Telefonszám</strong>, több <strong>E-mail cím</strong> és tetszőleges számú <strong>Bizonyítvány</strong>. A <strong>Bizonyítvány hozzáadása</strong> gombbal add meg a megnevezést (például sugárvédelmi vizsga), a bizonyítvány számát, a kiállítót, a kiállítás dátumát, az érvényességet, és csatold a fájlt. A bizonyítvány lejárata a többi lejárathoz hasonlóan emlékeztethet. A telefonszám és az e-mail címek benne vannak a személyek CSV-jében, a bizonyítványok nem.</p>
+
 
 <h2 id="m6">6. Dózisok</h2>
 <p>A RadRecon személyenként nyilvántartja a dózisokat. A dózisok µSv-ben tárolódnak. A személyek listája mutatja mindenki éves dózisát forrás szerinti bontásban, és van <strong>Év</strong> választó.</p>
@@ -136,6 +163,15 @@
 <li><strong>Megjegyzés</strong> és <strong>fotó</strong>, amelyet a kamerával készítesz vagy a galériából választasz.</li>
 </ul>
 <p>Ha az érték eléri vagy meghaladja a típusához megadott küszöböt, az app megjeleníti a riasztást. A pontok minden későbbi módosítása bekerül a módosítási előzményekbe, így az eredeti érték visszakövethető marad.</p>
+<h3>Egységek, hiba és átlagolás</h3>
+<p>A mért érték mellett lista segítségével másik egység is választható, a szám automatikusan átváltódik. Az érték alatt a <strong>Hiba (±)</strong> mező a mérés bizonytalanságát tartalmazza ugyanabban az egységben. Kézzel megadott értéknél kézzel írd be. A jegyzőkönyv az értéket „érték ± hiba” alakban mutatja, a CSV külön oszlopot ad neki.</p>
+<p>Modbus műszernél egyszeri lekérdezés helyett nyomd meg az <strong>Átlagoló mérés</strong> gombot. Válaszd ki az időtartamot (10 mp – 5 perc), az app másodpercenként olvassa a műszert, és mutatja az eddigi átlagot a hibájával. A <strong>Kész</strong> gomb az eddig összegyűjtött mintákat fogadja el, a Mégse eldobja őket. Az érték az átlag, a hiba az átlag standard hibája (1σ, a szórás osztva √n-nel), a minták száma és az időtartam pedig a ponttal együtt mentődik, és a jegyzőkönyvben is szerepel. A hibához legalább 2 érvényes minta kell. A hiba statisztikai: nem tartalmazza a műszer kalibrációs bizonytalanságát, és túl kicsi, ha maga a műszer simítja a kijelzett értéket.</p>
+<h3>Nuklid-azonosítás és árnyékolás</h3>
+<p>A <strong>Nuklid-azonosítás</strong> rész rögzíti, hogy a nuklid azonosított (listából vagy egyéb), ismeretlen, vagy feltételezhetően több forrás keveréke. A mért értékből számolt aktivitásbecslés csak akkor jelenik meg, ha pontosan egy nuklid azonosított, és meg van adva a forrástól mért távolság. Az <strong>Aktivitás (árnyékolás nélkül)</strong> értéket mutatja.</p>
+<p>Ha a forrás árnyékolás mögött van, nyomd meg a <strong>Réteg hozzáadása</strong> gombot, és válaszd ki az anyagot (ólom, acél, beton, wolfram, alumínium vagy víz) és a vastagságot. Több réteg is felvehető. Az app ekkor az <strong>Árnyékolt forrás becsült aktivitását</strong> is megbecsüli. A becslés tájékoztató félértékréteg-értékekkel dolgozik, a szórt sugárzást nem veszi figyelembe, ezért inkább felülbecsli az aktivitást.</p>
+<h3>Átlagolt GPS-pozíció</h3>
+<p>Ha a GPS pontossága rossz (például ±10 m), állj meg a ponton, és nyomd meg a pozíció alatt az <strong>Átlagolt GPS</strong> gombot. Válassz 30, 60 vagy 120 másodpercet. Az app gyűjti a pozíciókat, pontosság szerint súlyozza őket, elhagyja a kiugróakat, és beírja az átlagpozíciót a becsült pontossággal. Nyílt ég alatt a legjobb az eredmény. A hosszabb idő segít, de a GPS-hiba időben összefügg, ezért ne várd, hogy a pontosság a minták számának négyzetgyökével javul.</p>
+
 
 <h2 id="m10">10. Források egy ponton</h2>
 <p>A pont képernyőjén válaszd a <strong>Radioaktív forrás(ok) kezelése</strong> lehetőséget, és rendelj hozzá forrásokat a nyilvántartásból. Mindegyikhez add meg a mérési ponttól mért távolságát. Az app ezután megjeleníti:</p>
@@ -157,6 +193,8 @@
 <li><strong>Izotóp kalkulátor:</strong> aktivitásból (MBq) dózisteljesítményt (µSv/h) számol adott távolságra, vagy a mért dózisteljesítményből aktivitást. Beépített nuklidok: Co-60, Cs-137, Ir-192, Ra-226, I-131, Na-22 és Am-241.</li>
 <li><strong>Forráskereső:</strong> a felmérésben már rögzített pontokból megbecsli, melyik irányban nő a kiválasztott mérési típus értéke. 4-nél kevesebb pontnál a becslés megbízhatatlanként van jelölve. Vegyél fel több pontot a keresési terület különböző helyein.</li>
 </ul>
+<p>Az automatikus mérés képernyő futás közben idődiagramot rajzol az olvasott értékekről, a riasztási küszöböt piros szaggatott vonallal, így látszik a mért érték változása. A diagram az utolsó 2 órát őrzi másodpercenkénti mintavételnél, és nem mentődik. Az izotóp-kalkulátor ugyanezeket az árnyékoló rétegeket tudja használni, és ilyenkor az árnyékolt és az árnyékolás nélküli eredményt is mutatja.</p>
+
 
 <h2 id="m13">13. Lezárás, export és import</h2>
 <ul>
@@ -167,6 +205,8 @@
 <li><strong>Pontok importálása (JSON):</strong> pontokat tölt be JSON fájlból. A hiányzó műszerek és források létrejönnek, az érvényes GPS-pozíció nélküli vagy ismeretlen mérési típusú pontok figyelmeztetéssel kimaradnak.</li>
 </ul>
 <p>Ha CSV-t importálsz a műszerek, források vagy személyek listájába, választhatod, mi történjen az egyező rekorddal: <strong>Meglévő rekord cseréje</strong>, <strong>Az egyező rekord kihagyása</strong> vagy <strong>Importálás duplikátumként</strong>.</p>
+<p>A jegyzőkönyv és az exportok a beállításokban választott egységeket használják. A jegyzőkönyv az értéket a hibájával és az átlagolt mérés mintaszámával mutatja, a műszert pedig a hitelesítési/kalibrálási bejegyzéseivel. A CSV új oszlopai: <strong>Hiba (±)</strong>, <strong>Átlagolás (minta; mp)</strong> és <strong>Műszer hitelesítése/kalibrálása</strong>; a JSON fájl ugyanezeket az adatokat hordozza.</p>
+
 
 <h2 id="m14">14. Hibaelhárítás</h2>
 <ul>
@@ -174,6 +214,7 @@
 <li><strong>A Modbus lekérdezés sikertelen:</strong> ellenőrizd, hogy a telefon és a műszer ugyanazon a WiFi hálózaton van-e, és hogy az IP-cím, a port, a Unit ID és a regiszter címe helyes-e.</li>
 <li><strong>Nincs térkép háttér:</strong> a térképcsempék letöltéséhez internetkapcsolat kell.</li>
 <li><strong>Nem jönnek lejárati értesítések:</strong> kapcsold be őket a beállításokban, és engedélyezd a RadRecon értesítéseit a telefon beállításaiban.</li>
+<li><strong>Rossz GPS-pontosság:</strong> használd állva a pont képernyő <strong>Átlagolt GPS</strong> gombját, lásd a 9. fejezetet.</li>
 </ul>
 <p>Ha a probléma megmarad, írj a <a href="mailto:info@radrecon.hu">info@radrecon.hu</a> címre.</p>
 

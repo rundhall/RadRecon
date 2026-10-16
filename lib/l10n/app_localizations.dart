@@ -3106,7 +3106,7 @@ abstract class AppLocalizations {
   /// No description provided for @classificationDisclaimer.
   ///
   /// In hu, this message translates to:
-  /// **'Tájékoztató számítás a nuklidtáblák és az aktuális (bomlással korrigált) aktivitás alapján. A hatósági besorolás a hatályos jogszabály és a hatóság döntése szerint érvényes. Az MSZ 62-7 szerinti laborszintek nincsenek benne.'**
+  /// **'Tájékoztató számítás a nuklidtáblák és az aktuális (bomlással korrigált) aktivitás alapján. A hatósági besorolás a hatályos jogszabály és a hatóság döntése szerint érvényes. Az MSZ 62-7 szerinti laborosztály az aktivitásból számolt tájékoztató érték.'**
   String get classificationDisclaimer;
 
   /// No description provided for @classificationUnsealedWork.

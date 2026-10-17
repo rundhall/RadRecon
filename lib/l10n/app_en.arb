@@ -294,7 +294,6 @@
     "@saveButton": {},
     "settingsSavedMessage": "Settings saved.",
     "@settingsSavedMessage": {},
-
     "@measurementTypeDoseRate": {},
     "measurementTypeDoseRate": "Dose rate",
     "@measurementTypeSurfaceContamination": {},
@@ -305,7 +304,6 @@
     "measurementTypeNeutronCps": "Neutron count rate (cps)",
     "@measurementTypeSample": {},
     "measurementTypeSample": "Sampling",
-
     "instrumentDeleteTitle": "Delete instrument",
     "@instrumentDeleteTitle": {},
     "instrumentDeleteConfirm": "Delete \"{name}\"? Past measurements linked to it are kept — only the instrument reference is removed from them.",
@@ -367,12 +365,10 @@
     "@modbusGpsEnabledLabel": {},
     "@modbusGpsLatAddressLabel": {},
     "@modbusGpsLonAddressLabel": {},
-
     "@pickPositionTitle": {},
     "pickPositionTitle": "Pick a position",
     "@confirmPositionButton": {},
     "confirmPositionButton": "Confirm position",
-
     "isotopeCalculatorTitle": "Isotope calculator",
     "@isotopeCalculatorTitle": {},
     "@gammaConstantsDisclaimer": {},
@@ -427,7 +423,6 @@
             }
         }
     },
-
     "distanceToolTitle": "Distance measurement",
     "@distanceToolTitle": {},
     "@locationServiceDisabledError": {},
@@ -442,7 +437,6 @@
             }
         }
     },
-
     "selectTargetFirstError": "Select the target point first.",
     "@selectTargetFirstError": {},
     "@selectStartPointError": {},
@@ -469,7 +463,6 @@
     "liveTrackingSubtitle": "Continuously updates distance and bearing as you walk.",
     "calculateDistanceButton": "Calculate",
     "liveTrackingRunningHint": "Live tracking is running — walk in the direction of the arrow.",
-
     "sourceSearchTitle": "Source search",
     "@sourceSearchTitle": {},
     "measurementTypeLabel": "Measurement type",
@@ -501,7 +494,6 @@
     "@sourceSearchDisclaimer": {},
     "newMeasurementButton": "New measurement",
     "@newMeasurementButton": {},
-
     "mapTitle": "Map",
     "@mapTitle": {},
     "noPointsRecordedYet": "No measurement points recorded yet.",
@@ -561,32 +553,58 @@
     "listScreenshotSavedMessage": "List screenshot saved — it will be attached when exporting the protocol.",
     "exportErrorMessage": "Export error: {error}",
     "@exportErrorMessage": {
-        "placeholders": { "error": { "type": "String" } }
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
     },
     "importErrorMessage": "Import error: {error}",
     "@importErrorMessage": {
-        "placeholders": { "error": { "type": "String" } }
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
     },
     "protocolShareSubject": "Protocol – {title}",
     "@protocolShareSubject": {
-        "placeholders": { "title": { "type": "String" } }
+        "placeholders": {
+            "title": {
+                "type": "String"
+            }
+        }
     },
     "dataExportSubject": "Measurement points (data) – {title}",
     "@dataExportSubject": {
-        "placeholders": { "title": { "type": "String" } }
+        "placeholders": {
+            "title": {
+                "type": "String"
+            }
+        }
     },
     "csvExportSubject": "Measurement points (CSV) – {title}",
     "@csvExportSubject": {
-        "placeholders": { "title": { "type": "String" } }
+        "placeholders": {
+            "title": {
+                "type": "String"
+            }
+        }
     },
     "importDoneTitle": "Import complete",
     "@importDoneTitle": {},
     "importedPointsMessage": "{points} points imported.\n{instruments} new instruments created.\n{sources} new radiation sources created.",
     "@importedPointsMessage": {
         "placeholders": {
-            "points": { "type": "int" },
-            "instruments": { "type": "int" },
-            "sources": { "type": "int" }
+            "points": {
+                "type": "int"
+            },
+            "instruments": {
+                "type": "int"
+            },
+            "sources": {
+                "type": "int"
+            }
         }
     },
     "@okButton": {},
@@ -609,9 +627,12 @@
     "@newPointButton": {},
     "sampleTakenListLabel": "Sampling · {date}",
     "@sampleTakenListLabel": {
-        "placeholders": { "date": { "type": "String" } }
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
     },
-
     "unknownModbusError": "Unknown Modbus error.",
     "@unknownModbusError": {},
     "noValidPositionError": "No valid position given.",
@@ -621,10 +642,18 @@
     "thresholdExceededMessage": "The measured value ({value} {unit}) reaches or exceeds the threshold set for {type} ({threshold} {unit}).",
     "@thresholdExceededMessage": {
         "placeholders": {
-            "value": { "type": "String" },
-            "unit": { "type": "String" },
-            "type": { "type": "String" },
-            "threshold": { "type": "String" }
+            "value": {
+                "type": "String"
+            },
+            "unit": {
+                "type": "String"
+            },
+            "type": {
+                "type": "String"
+            },
+            "threshold": {
+                "type": "String"
+            }
         }
     },
     "newPointTitle": "New measurement point",
@@ -647,7 +676,11 @@
     "@queryingLabel": {},
     "modbusQueryButton": "Modbus query ({name})",
     "@modbusQueryButton": {
-        "placeholders": { "name": { "type": "String" } }
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
     },
     "sourcePositionSwitchLabel": "This is the source position (max value)",
     "@sourcePositionSwitchLabel": {},
@@ -679,7 +712,6 @@
     "@liveGpsButton": {},
     "onMapButton": "On the map",
     "@onMapButton": {},
-
     "autoLogDisclaimer": "Logging only runs while this screen is open. If the phone locks or you switch apps, the measurement pauses — you'll need to restart it when you come back.",
     "@autoLogDisclaimer": {},
     "@noModbusInstrumentMessage": {},
@@ -702,22 +734,38 @@
     "@loggingStoppedLabel": {},
     "capturedPointsLabel": "Points recorded: {count}",
     "@capturedPointsLabel": {
-        "placeholders": { "count": { "type": "int" } }
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
     },
     "lastValueLabel": "Last value: {value} {unit}",
     "@lastValueLabel": {
         "placeholders": {
-            "value": { "type": "String" },
-            "unit": { "type": "String" }
+            "value": {
+                "type": "String"
+            },
+            "unit": {
+                "type": "String"
+            }
         }
     },
     "failedReadingsLabel": "Failed readings: {count}",
     "@failedReadingsLabel": {
-        "placeholders": { "count": { "type": "int" } }
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
     },
     "lastErrorSuffix": " (last error: {error})",
     "@lastErrorSuffix": {
-        "placeholders": { "error": { "type": "String" } }
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
     },
     "intervalMinError": "The interval must be at least 1 second.",
     "@intervalMinError": {},
@@ -725,7 +773,11 @@
     "@distanceMinError": {},
     "modbusConnectErrorMessage": "Modbus connection error: {error}",
     "@modbusConnectErrorMessage": {
-        "placeholders": { "error": { "type": "String" } }
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
     },
     "@csvHeaderSerialNumber": {},
     "@csvHeaderLocation": {},
@@ -748,7 +800,6 @@
     "@csvNo": {},
     "@importUnknownTypeWarning": {},
     "@importMissingGpsWarning": {},
-
     "csvHeaderSerialNumber": "No.",
     "csvHeaderLocation": "Location",
     "csvHeaderType": "Type",
@@ -770,12 +821,15 @@
     "csvNo": "no",
     "importUnknownTypeWarning": "Unknown measurement type skipped for one point.",
     "importMissingGpsWarning": "A point was skipped due to a missing GPS coordinate.",
-
     "manageSourcesLabel": "Manage radioactive source(s)",
     "@manageSourcesLabel": {},
     "sourcesCountLabel": "{count} source(s)",
     "@sourcesCountLabel": {
-        "placeholders": { "count": { "type": "int" } }
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
     },
     "radiationSourcesTitle": "Sources",
     "@radiationSourcesTitle": {},
@@ -805,7 +859,11 @@
     "@detachSourceConfirmTitle": {},
     "detachSourceConfirmMessage": "Detach source \"{identifier}\" from this point? The source stays in your registry — only this link is removed.",
     "@detachSourceConfirmMessage": {
-        "placeholders": { "identifier": { "type": "String" } }
+        "placeholders": {
+            "identifier": {
+                "type": "String"
+            }
+        }
     },
     "detachButton": "Detach",
     "@detachButton": {},
@@ -813,7 +871,11 @@
     "@totalCalculatedDoseRateLabel": {},
     "sourcesUnknownNuclideSkippedNote": "{count} source(s) have an unknown nuclide and are excluded from the total.",
     "@sourcesUnknownNuclideSkippedNote": {
-        "placeholders": { "count": { "type": "int" } }
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
     },
     "sourceIdentifierLabel": "Unique identifier",
     "@sourceIdentifierLabel": {},
@@ -851,7 +913,11 @@
     "@noMeasuredValueForComparisonNote": {},
     "unrecognizedUnitForComparisonNote": "The measurement unit ({unit}) can't be converted automatically — comparison isn't possible.",
     "@unrecognizedUnitForComparisonNote": {
-        "placeholders": { "unit": { "type": "String" } }
+        "placeholders": {
+            "unit": {
+                "type": "String"
+            }
+        }
     },
     "sourceExpiredWarning": "The source's service life has expired.",
     "@sourceExpiredWarning": {},
@@ -859,13 +925,16 @@
     "@deleteSourceConfirmTitle": {},
     "deleteSourceConfirmMessage": "Delete the source \"{identifier}\" from the registry? This also removes it from every point it's attached to. This can't be undone.",
     "@deleteSourceConfirmMessage": {
-        "placeholders": { "identifier": { "type": "String" } }
+        "placeholders": {
+            "identifier": {
+                "type": "String"
+            }
+        }
     },
     "sourceCalculationDisclaimer": "Calculated values are for reference only, based on standard gamma constants and half-lives. Verify against an authoritative source for official records.",
     "@sourceCalculationDisclaimer": {},
     "estimatedActivityFromMeasurementLabel": "Estimated activity (from measured value)",
     "@estimatedActivityFromMeasurementLabel": {},
-
     "personsTooltip": "Persons",
     "@personsTooltip": {},
     "personsTitle": "Persons",
@@ -888,7 +957,11 @@
     "@deletePersonConfirmTitle": {},
     "deletePersonConfirmMessage": "Delete \"{name}\" from the registry? This also removes them from every survey they're attached to. This can't be undone.",
     "@deletePersonConfirmMessage": {
-        "placeholders": { "name": { "type": "String" } }
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
     },
     "sessionPersonsTitle": "Personnel on this survey",
     "@sessionPersonsTitle": {},
@@ -904,7 +977,11 @@
     "@detachPersonConfirmTitle": {},
     "detachPersonConfirmMessage": "Remove \"{name}\" from this survey? The person stays in your registry — only this assignment is removed.",
     "@detachPersonConfirmMessage": {
-        "placeholders": { "name": { "type": "String" } }
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
     },
     "expiryNotificationsSectionTitle": "Expiry notifications",
     "@expiryNotificationsSectionTitle": {},
@@ -949,9 +1026,15 @@
     "registryImportSummary": "Imported: {imported}, replaced: {replaced}, skipped: {skipped}",
     "@registryImportSummary": {
         "placeholders": {
-            "imported": { "type": "int" },
-            "replaced": { "type": "int" },
-            "skipped": { "type": "int" }
+            "imported": {
+                "type": "int"
+            },
+            "replaced": {
+                "type": "int"
+            },
+            "skipped": {
+                "type": "int"
+            }
         }
     },
     "modbusTestConnectionButton": "Test connection",
@@ -965,25 +1048,32 @@
     "modbusTestValue": "Value: {value}",
     "@modbusTestValue": {
         "placeholders": {
-            "value": { "type": "String" }
+            "value": {
+                "type": "String"
+            }
         }
     },
     "modbusTestPosition": "Lat: {lat}, Lon: {lon}",
     "@modbusTestPosition": {
         "placeholders": {
-            "lat": { "type": "String" },
-            "lon": { "type": "String" }
+            "lat": {
+                "type": "String"
+            },
+            "lon": {
+                "type": "String"
+            }
         }
     },
     "missingFieldMessage": "Please fill in: {field}",
     "@missingFieldMessage": {
         "placeholders": {
-            "field": { "type": "String" }
+            "field": {
+                "type": "String"
+            }
         }
     },
     "errorTitle": "Error",
     "@errorTitle": {},
-
     "modbusReadErrorWithCode": "Modbus error during reading: {code}",
     "@modbusReadErrorWithCode": {
         "placeholders": {
@@ -1018,7 +1108,6 @@
     "@noDisplayableContentForScreenshot": {},
     "failedToConvertScreenshotToPng": "Failed to convert the screenshot to PNG.",
     "@failedToConvertScreenshotToPng": {},
-
     "doseSourceOnline": "Online (from detector)",
     "@doseSourceOnline": {},
     "doseSourceManual": "Manual",
@@ -1027,17 +1116,35 @@
     "@doseSourcePassive": {},
     "annualDoseLabel": "Dose in {year}",
     "@annualDoseLabel": {
-        "placeholders": { "year": { "type": "int" } }
+        "placeholders": {
+            "year": {
+                "type": "int"
+            }
+        }
     },
     "doseYearLabel": "Year",
     "@doseYearLabel": {},
     "doseBreakdownLabel": "online {online} · manual {manual} · passive {passive}",
     "@doseBreakdownLabel": {
-        "placeholders": { "online": { "type": "String" }, "manual": { "type": "String" }, "passive": { "type": "String" } }
+        "placeholders": {
+            "online": {
+                "type": "String"
+            },
+            "manual": {
+                "type": "String"
+            },
+            "passive": {
+                "type": "String"
+            }
+        }
     },
     "personDosesTitle": "Doses – {name}",
     "@personDosesTitle": {
-        "placeholders": { "name": { "type": "String" } }
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
     },
     "personDosesTooltip": "Manage doses",
     "@personDosesTooltip": {},
@@ -1065,7 +1172,11 @@
     "@doseDeleteConfirmMessage": {},
     "sessionDoseDialogTitle": "Dose of {name}",
     "@sessionDoseDialogTitle": {
-        "placeholders": { "name": { "type": "String" } }
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
     },
     "onlineDoseLabel": "Online dose",
     "@onlineDoseLabel": {},
@@ -1077,23 +1188,41 @@
     "@closeSurveyDosesHint": {},
     "autoLogDoseSaved": "Dose saved for {count} person(s): {dose}",
     "@autoLogDoseSaved": {
-        "placeholders": { "count": { "type": "int" }, "dose": { "type": "String" } }
+        "placeholders": {
+            "count": {
+                "type": "int"
+            },
+            "dose": {
+                "type": "String"
+            }
+        }
     },
     "autoLogDoseNoPersons": "Measured dose ({dose}) was not saved because no person is attached to this survey.",
     "@autoLogDoseNoPersons": {
-        "placeholders": { "dose": { "type": "String" } }
+        "placeholders": {
+            "dose": {
+                "type": "String"
+            }
+        }
     },
     "autoLogDoseLabel": "Integrated dose: {dose}",
     "@autoLogDoseLabel": {
-        "placeholders": { "dose": { "type": "String" } }
+        "placeholders": {
+            "dose": {
+                "type": "String"
+            }
+        }
     },
     "autoLogDoseGaps": "{count} longer data gap(s) during measurement",
     "@autoLogDoseGaps": {
-        "placeholders": { "count": { "type": "int" } }
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
     },
     "autoLogDoseOnlyDoseRate": "Dose can only be calculated and saved from dose rate measurements.",
     "@autoLogDoseOnlyDoseRate": {},
-
     "importPersonDosesCsv": "Import doses (CSV)",
     "@importPersonDosesCsv": {},
     "exportPersonDosesCsv": "Export doses (CSV)",
@@ -1118,7 +1247,11 @@
     "@saveDatabaseSubject": {},
     "databaseSavedMessage": "Database saved: {path}",
     "@databaseSavedMessage": {
-        "placeholders": { "path": { "type": "String" } }
+        "placeholders": {
+            "path": {
+                "type": "String"
+            }
+        }
     },
     "loadDatabaseConfirmTitle": "Load database",
     "@loadDatabaseConfirmTitle": {},
@@ -1128,7 +1261,11 @@
     "@loadButton": {},
     "databaseLoadedMessage": "Loaded: {name}",
     "@databaseLoadedMessage": {
-        "placeholders": { "name": { "type": "String" } }
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
     },
     "clearDatabaseConfirmTitle": "Clear database",
     "@clearDatabaseConfirmTitle": {},
@@ -1150,7 +1287,11 @@
     "@noCompaniesYet": {},
     "companyBackupInfo": "Saved: {date}",
     "@companyBackupInfo": {
-        "placeholders": { "date": { "type": "String" } }
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
     },
     "newCompanyButton": "New company",
     "@newCompanyButton": {},
@@ -1168,19 +1309,34 @@
     "@companySwitchConfirmTitle": {},
     "companySwitchConfirmBody": "Switch to {company}? Current data is saved automatically under {active}.",
     "@companySwitchConfirmBody": {
-        "placeholders": { "company": { "type": "String" }, "active": { "type": "String" } }
+        "placeholders": {
+            "company": {
+                "type": "String"
+            },
+            "active": {
+                "type": "String"
+            }
+        }
     },
     "companySwitchAction": "Switch",
     "@companySwitchAction": {},
     "companySwitchedMessage": "Active company: {name}",
     "@companySwitchedMessage": {
-        "placeholders": { "name": { "type": "String" } }
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
     },
     "deleteCompanyBackupTitle": "Delete backup",
     "@deleteCompanyBackupTitle": {},
     "deleteCompanyBackupBody": "Delete the backup of {name} from the folder? Data currently loaded is not affected.",
     "@deleteCompanyBackupBody": {
-        "placeholders": { "name": { "type": "String" } }
+        "placeholders": {
+            "name": {
+                "type": "String"
+            }
+        }
     },
     "privateFolderHint": "The app is currently using its own private folder, which other apps cannot access. Choose a folder (e.g. Downloads or Google Drive) to reach the backups from your file manager.",
     "@privateFolderHint": {},
@@ -1307,5 +1463,11 @@
     "csvHeaderValueError": "Error (±)",
     "@csvHeaderValueError": {},
     "csvHeaderAveraging": "Averaging (samples; s)",
-    "@csvHeaderAveraging": {}
+    "@csvHeaderAveraging": {},
+    "helpManualTitle": "Help (user manual)",
+    "@helpManualTitle": {},
+    "helpManualOpenError": "The manual could not be opened.",
+    "@helpManualOpenError": {},
+    "appVersionLabel": "Version",
+    "@appVersionLabel": {}
 }

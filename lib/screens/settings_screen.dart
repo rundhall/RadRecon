@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart' as fs;
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../l10n/app_localizations.dart';
@@ -12,6 +13,7 @@ import '../services/app_reset.dart';
 import '../services/database_transfer_service.dart';
 import '../services/dose_unit_controller.dart';
 import '../services/expiry_notification_service.dart';
+import '../services/help_launcher.dart';
 import '../services/locale_controller.dart';
 import '../services/regulatory_profile.dart';
 import '../services/settings_service.dart';
@@ -436,6 +438,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           value: Locale('en'),
                           child: Text('English'),
                         ),
+                        const DropdownMenuItem(
+                          value: Locale('de'),
+                          child: Text('Deutsch'),
+                        ),
+                        const DropdownMenuItem(
+                          value: Locale('es'),
+                          child: Text('Español'),
+                        ),
+                        const DropdownMenuItem(
+                          value: Locale('fr'),
+                          child: Text('Français'),
+                        ),
+                        const DropdownMenuItem(
+                          value: Locale('it'),
+                          child: Text('Italiano'),
+                        ),
                       ],
                       onChanged: LocaleController.setLocale,
                     );
@@ -547,10 +565,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const Divider(height: 32),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.help_outline),
+                  title: Text(loc.helpManualTitle),
+                  trailing: const Icon(Icons.open_in_new),
+                  onTap: () async {
+                    final ok = await HelpLauncher.openManual();
+                    if (!ok && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(loc.helpManualOpenError)),
+                      );
+                    }
+                  },
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.volunteer_activism),
                   title: Text(loc.contributorsTitle),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: _openContributors,
+                ),
+                FutureBuilder<PackageInfo>(
+                  future: PackageInfo.fromPlatform(),
+                  builder: (context, snapshot) {
+                    final info = snapshot.data;
+                    if (info == null) return const SizedBox.shrink();
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.info_outline),
+                      title: Text(loc.appVersionLabel),
+                      trailing: Text('${info.version} (${info.buildNumber})'),
+                    );
+                  },
                 ),
               ],
             ),

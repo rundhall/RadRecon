@@ -14,6 +14,15 @@ const _cardinalLabelsHu = [
   'É', 'ÉÉK', 'ÉK', 'KÉK', 'K', 'KDK', 'DK', 'DDK',
   'D', 'DDNy', 'DNy', 'NyDNy', 'Ny', 'NyÉNy', 'ÉNy', 'ÉÉNy',
 ];
+const _cardinalLabelsDe = [
+  'N', 'NNO', 'NO', 'ONO', 'O', 'OSO', 'SO', 'SSO',
+  'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
+];
+// Spanyol, francia és olasz: ugyanaz a rövidítés-készlet (O = Oeste/Ouest/Ovest).
+const _cardinalLabelsRomance = [
+  'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
+  'S', 'SSO', 'SO', 'OSO', 'O', 'ONO', 'NO', 'NNO',
+];
 const _cardinalLabelsEn = [
   'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
   'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW',
@@ -23,9 +32,18 @@ const _cardinalLabelsEn = [
 /// nyelvtől) függ, mert a `Localizations.localeOf` a feloldott, aktív
 /// locale-t adja vissza.
 List<String> _cardinalLabelsFor(BuildContext context) {
-  return Localizations.localeOf(context).languageCode == 'en'
-      ? _cardinalLabelsEn
-      : _cardinalLabelsHu;
+  switch (Localizations.localeOf(context).languageCode) {
+    case 'en':
+      return _cardinalLabelsEn;
+    case 'de':
+      return _cardinalLabelsDe;
+    case 'es':
+    case 'fr':
+    case 'it':
+      return _cardinalLabelsRomance;
+    default:
+      return _cardinalLabelsHu;
+  }
 }
 
 /// Távolság- és irányméréshez két felmérési pont között, vagy a jelenlegi

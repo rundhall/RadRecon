@@ -1839,4 +1839,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get csvHeaderAveraging => 'Averaging (samples; s)';
+
+  @override
+  String get helpManualTitle => 'Help (user manual)';
+
+  @override
+  String get helpManualOpenError => 'The manual could not be opened.';
+
+  @override
+  String get appVersionLabel => 'Version';
 }

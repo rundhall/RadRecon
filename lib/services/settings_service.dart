@@ -127,9 +127,12 @@ class SettingsService {
     final stored = prefs.getString(_localeKey);
     switch (stored) {
       case 'hu':
-        return const Locale('hu');
       case 'en':
-        return const Locale('en');
+      case 'de':
+      case 'es':
+      case 'fr':
+      case 'it':
+        return Locale(stored!);
       default:
         return null;
     }

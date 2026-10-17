@@ -12,6 +12,15 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>hu</string>
+		<string>en</string>
+		<string>de</string>
+		<string>es</string>
+		<string>fr</string>
+		<string>it</string>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>RadRecon</string>
 	<key>CFBundleExecutable</key>

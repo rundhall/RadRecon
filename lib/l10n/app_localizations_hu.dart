@@ -1844,4 +1844,13 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get csvHeaderAveraging => 'Átlagolás (minta; mp)';
+
+  @override
+  String get helpManualTitle => 'Súgó (használati útmutató)';
+
+  @override
+  String get helpManualOpenError => 'Az útmutató nem nyitható meg.';
+
+  @override
+  String get appVersionLabel => 'Verzió';
 }

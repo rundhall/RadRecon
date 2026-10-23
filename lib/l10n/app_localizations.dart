@@ -4598,6 +4598,599 @@ abstract class AppLocalizations {
   /// In hu, this message translates to:
   /// **'Szélsebesség egysége'**
   String get displayWindUnitLabel;
+
+  /// No description provided for @protoTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Terepi sugárzásmérési jegyzőkönyv'**
+  String get protoTitle;
+
+  /// No description provided for @protoCompany.
+  ///
+  /// In hu, this message translates to:
+  /// **'Cég'**
+  String get protoCompany;
+
+  /// No description provided for @protoSurveyName.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felmérés megnevezése'**
+  String get protoSurveyName;
+
+  /// No description provided for @protoLocation.
+  ///
+  /// In hu, this message translates to:
+  /// **'Helyszín'**
+  String get protoLocation;
+
+  /// No description provided for @protoStarted.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felmérés kezdete'**
+  String get protoStarted;
+
+  /// No description provided for @protoClosed.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felmérés lezárása'**
+  String get protoClosed;
+
+  /// No description provided for @protoNotes.
+  ///
+  /// In hu, this message translates to:
+  /// **'Megjegyzés'**
+  String get protoNotes;
+
+  /// No description provided for @protoOngoing.
+  ///
+  /// In hu, this message translates to:
+  /// **'folyamatban'**
+  String get protoOngoing;
+
+  /// No description provided for @protoDate.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dátum'**
+  String get protoDate;
+
+  /// No description provided for @protoSignature.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aláírás'**
+  String get protoSignature;
+
+  /// No description provided for @protoSurveyedBy.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felmérést végezte'**
+  String get protoSurveyedBy;
+
+  /// No description provided for @protoColon.
+  ///
+  /// In hu, this message translates to:
+  /// **': '**
+  String get protoColon;
+
+  /// No description provided for @protoDecimalSep.
+  ///
+  /// In hu, this message translates to:
+  /// **','**
+  String get protoDecimalSep;
+
+  /// No description provided for @protoDateTimeFormat.
+  ///
+  /// In hu, this message translates to:
+  /// **'yyyy.MM.dd HH:mm'**
+  String get protoDateTimeFormat;
+
+  /// No description provided for @protoDateFormat.
+  ///
+  /// In hu, this message translates to:
+  /// **'yyyy.MM.dd'**
+  String get protoDateFormat;
+
+  /// No description provided for @protoPointsHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mérési pontok'**
+  String get protoPointsHeading;
+
+  /// No description provided for @protoSourceHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sugárforrás-elemzés'**
+  String get protoSourceHeading;
+
+  /// No description provided for @protoNoSourcePoints.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs forrással vagy aktivitás-becsléssel rendelkező mérési pont.'**
+  String get protoNoSourcePoints;
+
+  /// No description provided for @protoSourceNote.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csak a forrással vagy aktivitás-becsléssel rendelkező mérési pontok szerepelnek. A számított értékek tájékoztató jellegűek.'**
+  String get protoSourceNote;
+
+  /// No description provided for @protoDosimeterHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Doziméterek'**
+  String get protoDosimeterHeading;
+
+  /// No description provided for @protoVictimsHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érintettek (áldozatok)'**
+  String get protoVictimsHeading;
+
+  /// No description provided for @protoAreasHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jelölt területek'**
+  String get protoAreasHeading;
+
+  /// No description provided for @protoMeteoHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Meteorológia'**
+  String get protoMeteoHeading;
+
+  /// No description provided for @protoGasHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Gázmérés'**
+  String get protoGasHeading;
+
+  /// No description provided for @protoPhotosHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Fényképek'**
+  String get protoPhotosHeading;
+
+  /// No description provided for @protoScreenshotsHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Képernyőképek'**
+  String get protoScreenshotsHeading;
+
+  /// No description provided for @protoPhotoUnreadable.
+  ///
+  /// In hu, this message translates to:
+  /// **'(a fénykép nem olvasható)'**
+  String get protoPhotoUnreadable;
+
+  /// No description provided for @protoNoDosimeter.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs felvett doziméter'**
+  String get protoNoDosimeter;
+
+  /// No description provided for @protoYes.
+  ///
+  /// In hu, this message translates to:
+  /// **'igen'**
+  String get protoYes;
+
+  /// No description provided for @protoNo.
+  ///
+  /// In hu, this message translates to:
+  /// **'nem'**
+  String get protoNo;
+
+  /// No description provided for @protoColType.
+  ///
+  /// In hu, this message translates to:
+  /// **'Típus'**
+  String get protoColType;
+
+  /// No description provided for @protoColValue.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érték'**
+  String get protoColValue;
+
+  /// No description provided for @protoColUnit.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egység'**
+  String get protoColUnit;
+
+  /// No description provided for @protoColDistance.
+  ///
+  /// In hu, this message translates to:
+  /// **'Táv. forrástól ({unit})'**
+  String protoColDistance(String unit);
+
+  /// No description provided for @protoColInstrument.
+  ///
+  /// In hu, this message translates to:
+  /// **'Műszer'**
+  String get protoColInstrument;
+
+  /// No description provided for @protoColGps.
+  ///
+  /// In hu, this message translates to:
+  /// **'GPS koordináta'**
+  String get protoColGps;
+
+  /// No description provided for @protoColGpsAccuracy.
+  ///
+  /// In hu, this message translates to:
+  /// **'GPS pontosság ({unit})'**
+  String protoColGpsAccuracy(String unit);
+
+  /// No description provided for @protoColTime.
+  ///
+  /// In hu, this message translates to:
+  /// **'Időpont'**
+  String get protoColTime;
+
+  /// No description provided for @protoColPhoto.
+  ///
+  /// In hu, this message translates to:
+  /// **'Fénykép fájl'**
+  String get protoColPhoto;
+
+  /// No description provided for @protoColEstActivity.
+  ///
+  /// In hu, this message translates to:
+  /// **'Becsült aktivitás (mérésből)'**
+  String get protoColEstActivity;
+
+  /// No description provided for @protoColAttached.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hozzárendelt forrás(ok)'**
+  String get protoColAttached;
+
+  /// No description provided for @protoColCalcTotal.
+  ///
+  /// In hu, this message translates to:
+  /// **'Számított dózisteljesítmény'**
+  String get protoColCalcTotal;
+
+  /// No description provided for @protoColMeasured.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mért dózisteljesítmény'**
+  String get protoColMeasured;
+
+  /// No description provided for @protoColDiff.
+  ///
+  /// In hu, this message translates to:
+  /// **'Eltérés'**
+  String get protoColDiff;
+
+  /// No description provided for @protoColIdentifier.
+  ///
+  /// In hu, this message translates to:
+  /// **'Azonosító'**
+  String get protoColIdentifier;
+
+  /// No description provided for @protoColWearer.
+  ///
+  /// In hu, this message translates to:
+  /// **'Viselő'**
+  String get protoColWearer;
+
+  /// No description provided for @protoColReading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Állás (kezdő → záró)'**
+  String get protoColReading;
+
+  /// No description provided for @protoColDose.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dózis'**
+  String get protoColDose;
+
+  /// No description provided for @protoColCounted.
+  ///
+  /// In hu, this message translates to:
+  /// **'Beszámít'**
+  String get protoColCounted;
+
+  /// No description provided for @protoColFormula.
+  ///
+  /// In hu, this message translates to:
+  /// **'Képlet'**
+  String get protoColFormula;
+
+  /// No description provided for @protoColName.
+  ///
+  /// In hu, this message translates to:
+  /// **'Név'**
+  String get protoColName;
+
+  /// No description provided for @protoColTriage.
+  ///
+  /// In hu, this message translates to:
+  /// **'Triázs'**
+  String get protoColTriage;
+
+  /// No description provided for @protoColInjuries.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sérülések'**
+  String get protoColInjuries;
+
+  /// No description provided for @protoColIllnesses.
+  ///
+  /// In hu, this message translates to:
+  /// **'Betegségek'**
+  String get protoColIllnesses;
+
+  /// No description provided for @protoColAreaName.
+  ///
+  /// In hu, this message translates to:
+  /// **'Terület megnevezése'**
+  String get protoColAreaName;
+
+  /// No description provided for @protoColShape.
+  ///
+  /// In hu, this message translates to:
+  /// **'Alakzat'**
+  String get protoColShape;
+
+  /// No description provided for @protoColGeometry.
+  ///
+  /// In hu, this message translates to:
+  /// **'Geometria'**
+  String get protoColGeometry;
+
+  /// No description provided for @protoColAreaSize.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felület (m²)'**
+  String get protoColAreaSize;
+
+  /// No description provided for @protoColTemp.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hőm. ({unit})'**
+  String protoColTemp(String unit);
+
+  /// No description provided for @protoColHumidity.
+  ///
+  /// In hu, this message translates to:
+  /// **'Pára (%)'**
+  String get protoColHumidity;
+
+  /// No description provided for @protoColPressure.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nyomás ({unit})'**
+  String protoColPressure(String unit);
+
+  /// No description provided for @protoColWind.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szél ({unit})'**
+  String protoColWind(String unit);
+
+  /// No description provided for @protoColWindDir.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szélirány (°)'**
+  String get protoColWindDir;
+
+  /// No description provided for @protoColGust.
+  ///
+  /// In hu, this message translates to:
+  /// **'Széllökés ({unit})'**
+  String protoColGust(String unit);
+
+  /// No description provided for @protoColPrecip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csapadék'**
+  String get protoColPrecip;
+
+  /// No description provided for @protoColPrecipIntensity.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csapadék int. (mm/h)'**
+  String get protoColPrecipIntensity;
+
+  /// No description provided for @protoColSolar.
+  ///
+  /// In hu, this message translates to:
+  /// **'Napsugárzás (W/m²)'**
+  String get protoColSolar;
+
+  /// No description provided for @protoColCloud.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felhőzet (okta)'**
+  String get protoColCloud;
+
+  /// No description provided for @protoColVisibility.
+  ///
+  /// In hu, this message translates to:
+  /// **'Látástáv. (m)'**
+  String get protoColVisibility;
+
+  /// No description provided for @protoColSoil.
+  ///
+  /// In hu, this message translates to:
+  /// **'Talajnedv. (%)'**
+  String get protoColSoil;
+
+  /// No description provided for @protoColAerosol.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aeroszol (µg/m³)'**
+  String get protoColAerosol;
+
+  /// No description provided for @protoColOther.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egyéb'**
+  String get protoColOther;
+
+  /// No description provided for @protoShapePolygon.
+  ///
+  /// In hu, this message translates to:
+  /// **'Poligon'**
+  String get protoShapePolygon;
+
+  /// No description provided for @protoShapeCircle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kör'**
+  String get protoShapeCircle;
+
+  /// No description provided for @protoCornerPoints.
+  ///
+  /// In hu, this message translates to:
+  /// **'{count} sarokpont'**
+  String protoCornerPoints(String count);
+
+  /// No description provided for @protoCenterRadius.
+  ///
+  /// In hu, this message translates to:
+  /// **'középpont: {lat}, {lon}; sugár: {radius} m'**
+  String protoCenterRadius(String lat, String lon, String radius);
+
+  /// No description provided for @protoPersonDose.
+  ///
+  /// In hu, this message translates to:
+  /// **'{name} (dózis: {total})'**
+  String protoPersonDose(String name, String total);
+
+  /// No description provided for @protoPersonDoseBreakdown.
+  ///
+  /// In hu, this message translates to:
+  /// **'{name} (dózis: {total} – {breakdown})'**
+  String protoPersonDoseBreakdown(String name, String total, String breakdown);
+
+  /// No description provided for @protoDoseSession.
+  ///
+  /// In hu, this message translates to:
+  /// **'felmérési {dose}'**
+  String protoDoseSession(String dose);
+
+  /// No description provided for @protoDoseDosimeter.
+  ///
+  /// In hu, this message translates to:
+  /// **'doziméter {dose}'**
+  String protoDoseDosimeter(String dose);
+
+  /// No description provided for @protoInstrumentWithSerial.
+  ///
+  /// In hu, this message translates to:
+  /// **'{name} (s/n: {serial})'**
+  String protoInstrumentWithSerial(String name, String serial);
+
+  /// No description provided for @protoCalibValidUntil.
+  ///
+  /// In hu, this message translates to:
+  /// **'érvényes: {date}-ig'**
+  String protoCalibValidUntil(String date);
+
+  /// No description provided for @protoCalibCertificate.
+  ///
+  /// In hu, this message translates to:
+  /// **'bizonylat: {number}'**
+  String protoCalibCertificate(String number);
+
+  /// No description provided for @protoCalibExpiredAtMeasure.
+  ///
+  /// In hu, this message translates to:
+  /// **' – LEJÁRT a mérés időpontjában'**
+  String get protoCalibExpiredAtMeasure;
+
+  /// No description provided for @protoCalibFallback.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kalibráció érvényes: {date}-ig'**
+  String protoCalibFallback(String date);
+
+  /// No description provided for @protoUnshielded.
+  ///
+  /// In hu, this message translates to:
+  /// **'árnyékolás nélkül'**
+  String get protoUnshielded;
+
+  /// No description provided for @protoShieldedActivity.
+  ///
+  /// In hu, this message translates to:
+  /// **'árnyékolt: {activity}'**
+  String protoShieldedActivity(String activity);
+
+  /// No description provided for @protoInputData.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bemenő adatok: mért {measured}, távolság {distance}'**
+  String protoInputData(String measured, String distance);
+
+  /// No description provided for @protoShieldingInline.
+  ///
+  /// In hu, this message translates to:
+  /// **'árnyékolás'**
+  String get protoShieldingInline;
+
+  /// No description provided for @protoTransmission.
+  ///
+  /// In hu, this message translates to:
+  /// **'áteresztés T = {value}'**
+  String protoTransmission(String value);
+
+  /// No description provided for @protoNuclideIdPrefix.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nuklid-azonosítás: {text}'**
+  String protoNuclideIdPrefix(String text);
+
+  /// No description provided for @protoShotMap.
+  ///
+  /// In hu, this message translates to:
+  /// **'Térkép'**
+  String get protoShotMap;
+
+  /// No description provided for @protoShotList.
+  ///
+  /// In hu, this message translates to:
+  /// **'Pontok listája'**
+  String get protoShotList;
+
+  /// No description provided for @protoPhotoCaption.
+  ///
+  /// In hu, this message translates to:
+  /// **'{index}. pont · {type} · {location} · {time}'**
+  String protoPhotoCaption(
+    String index,
+    String type,
+    String location,
+    String time,
+  );
+
+  /// No description provided for @mapMeasureTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Távolságmérés'**
+  String get mapMeasureTooltip;
+
+  /// No description provided for @mapMeasureHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Koppints két pontra a vonalhoz. A vonal címkéjére koppintva kijelölheted, színezheted vagy törölheted.'**
+  String get mapMeasureHint;
+
+  /// No description provided for @mapMeasureClear.
+  ///
+  /// In hu, this message translates to:
+  /// **'Összes törlése'**
+  String get mapMeasureClear;
+
+  /// No description provided for @mapMeasureDeleteSelected.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kijelölt törlése'**
+  String get mapMeasureDeleteSelected;
 }
 
 class _AppLocalizationsDelegate

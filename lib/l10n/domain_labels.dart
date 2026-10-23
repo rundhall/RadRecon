@@ -1,6 +1,8 @@
 import 'app_localizations.dart';
+import '../models/measurement_type.dart';
 import '../models/meteorology.dart';
 import '../models/person_condition.dart';
+import '../models/session_dosimeter.dart';
 import '../models/session_person_link.dart';
 
 /// A jegyzőkönyv a magyar `label`-öket használja; a felület az aktuális
@@ -36,6 +38,28 @@ extension PrecipitationText on PrecipitationState {
         PrecipitationState.snow => loc.rrPrecipSnow,
         PrecipitationState.sleet => loc.rrPrecipSleet,
         PrecipitationState.hail => loc.rrPrecipHail,
+      };
+}
+
+extension MeasurementTypeText on MeasurementType {
+  String localized(AppLocalizations loc) => switch (this) {
+        MeasurementType.doseRate => loc.measurementTypeDoseRate,
+        MeasurementType.surfaceContamination =>
+          loc.measurementTypeSurfaceContamination,
+        MeasurementType.cps => loc.measurementTypeCps,
+        MeasurementType.neutronCps => loc.measurementTypeNeutronCps,
+        MeasurementType.sample => loc.measurementTypeSample,
+        MeasurementType.meteorology => loc.measurementTypeMeteorology,
+        MeasurementType.gasMeasurement => loc.measurementTypeGasMeasurement,
+      };
+}
+
+extension DosimeterKindText on DosimeterKind {
+  String localized(AppLocalizations loc) => switch (this) {
+        DosimeterKind.epdGamma => loc.dosimeterKindEpdGamma,
+        DosimeterKind.epdNeutron => loc.dosimeterKindEpdNeutron,
+        DosimeterKind.tlOfficial => loc.dosimeterKindTlOfficial,
+        DosimeterKind.tlWorkplace => loc.dosimeterKindTlWorkplace,
       };
 }
 

@@ -2480,4 +2480,348 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get displayWindUnitLabel => 'Szélsebesség egysége';
+
+  @override
+  String get protoTitle => 'Terepi sugárzásmérési jegyzőkönyv';
+
+  @override
+  String get protoCompany => 'Cég';
+
+  @override
+  String get protoSurveyName => 'Felmérés megnevezése';
+
+  @override
+  String get protoLocation => 'Helyszín';
+
+  @override
+  String get protoStarted => 'Felmérés kezdete';
+
+  @override
+  String get protoClosed => 'Felmérés lezárása';
+
+  @override
+  String get protoNotes => 'Megjegyzés';
+
+  @override
+  String get protoOngoing => 'folyamatban';
+
+  @override
+  String get protoDate => 'Dátum';
+
+  @override
+  String get protoSignature => 'Aláírás';
+
+  @override
+  String get protoSurveyedBy => 'Felmérést végezte';
+
+  @override
+  String get protoColon => ': ';
+
+  @override
+  String get protoDecimalSep => ',';
+
+  @override
+  String get protoDateTimeFormat => 'yyyy.MM.dd HH:mm';
+
+  @override
+  String get protoDateFormat => 'yyyy.MM.dd';
+
+  @override
+  String get protoPointsHeading => 'Mérési pontok';
+
+  @override
+  String get protoSourceHeading => 'Sugárforrás-elemzés';
+
+  @override
+  String get protoNoSourcePoints =>
+      'Nincs forrással vagy aktivitás-becsléssel rendelkező mérési pont.';
+
+  @override
+  String get protoSourceNote =>
+      'Csak a forrással vagy aktivitás-becsléssel rendelkező mérési pontok szerepelnek. A számított értékek tájékoztató jellegűek.';
+
+  @override
+  String get protoDosimeterHeading => 'Doziméterek';
+
+  @override
+  String get protoVictimsHeading => 'Érintettek (áldozatok)';
+
+  @override
+  String get protoAreasHeading => 'Jelölt területek';
+
+  @override
+  String get protoMeteoHeading => 'Meteorológia';
+
+  @override
+  String get protoGasHeading => 'Gázmérés';
+
+  @override
+  String get protoPhotosHeading => 'Fényképek';
+
+  @override
+  String get protoScreenshotsHeading => 'Képernyőképek';
+
+  @override
+  String get protoPhotoUnreadable => '(a fénykép nem olvasható)';
+
+  @override
+  String get protoNoDosimeter => 'Nincs felvett doziméter';
+
+  @override
+  String get protoYes => 'igen';
+
+  @override
+  String get protoNo => 'nem';
+
+  @override
+  String get protoColType => 'Típus';
+
+  @override
+  String get protoColValue => 'Érték';
+
+  @override
+  String get protoColUnit => 'Egység';
+
+  @override
+  String protoColDistance(String unit) {
+    return 'Táv. forrástól ($unit)';
+  }
+
+  @override
+  String get protoColInstrument => 'Műszer';
+
+  @override
+  String get protoColGps => 'GPS koordináta';
+
+  @override
+  String protoColGpsAccuracy(String unit) {
+    return 'GPS pontosság ($unit)';
+  }
+
+  @override
+  String get protoColTime => 'Időpont';
+
+  @override
+  String get protoColPhoto => 'Fénykép fájl';
+
+  @override
+  String get protoColEstActivity => 'Becsült aktivitás (mérésből)';
+
+  @override
+  String get protoColAttached => 'Hozzárendelt forrás(ok)';
+
+  @override
+  String get protoColCalcTotal => 'Számított dózisteljesítmény';
+
+  @override
+  String get protoColMeasured => 'Mért dózisteljesítmény';
+
+  @override
+  String get protoColDiff => 'Eltérés';
+
+  @override
+  String get protoColIdentifier => 'Azonosító';
+
+  @override
+  String get protoColWearer => 'Viselő';
+
+  @override
+  String get protoColReading => 'Állás (kezdő → záró)';
+
+  @override
+  String get protoColDose => 'Dózis';
+
+  @override
+  String get protoColCounted => 'Beszámít';
+
+  @override
+  String get protoColFormula => 'Képlet';
+
+  @override
+  String get protoColName => 'Név';
+
+  @override
+  String get protoColTriage => 'Triázs';
+
+  @override
+  String get protoColInjuries => 'Sérülések';
+
+  @override
+  String get protoColIllnesses => 'Betegségek';
+
+  @override
+  String get protoColAreaName => 'Terület megnevezése';
+
+  @override
+  String get protoColShape => 'Alakzat';
+
+  @override
+  String get protoColGeometry => 'Geometria';
+
+  @override
+  String get protoColAreaSize => 'Felület (m²)';
+
+  @override
+  String protoColTemp(String unit) {
+    return 'Hőm. ($unit)';
+  }
+
+  @override
+  String get protoColHumidity => 'Pára (%)';
+
+  @override
+  String protoColPressure(String unit) {
+    return 'Nyomás ($unit)';
+  }
+
+  @override
+  String protoColWind(String unit) {
+    return 'Szél ($unit)';
+  }
+
+  @override
+  String get protoColWindDir => 'Szélirány (°)';
+
+  @override
+  String protoColGust(String unit) {
+    return 'Széllökés ($unit)';
+  }
+
+  @override
+  String get protoColPrecip => 'Csapadék';
+
+  @override
+  String get protoColPrecipIntensity => 'Csapadék int. (mm/h)';
+
+  @override
+  String get protoColSolar => 'Napsugárzás (W/m²)';
+
+  @override
+  String get protoColCloud => 'Felhőzet (okta)';
+
+  @override
+  String get protoColVisibility => 'Látástáv. (m)';
+
+  @override
+  String get protoColSoil => 'Talajnedv. (%)';
+
+  @override
+  String get protoColAerosol => 'Aeroszol (µg/m³)';
+
+  @override
+  String get protoColOther => 'Egyéb';
+
+  @override
+  String get protoShapePolygon => 'Poligon';
+
+  @override
+  String get protoShapeCircle => 'Kör';
+
+  @override
+  String protoCornerPoints(String count) {
+    return '$count sarokpont';
+  }
+
+  @override
+  String protoCenterRadius(String lat, String lon, String radius) {
+    return 'középpont: $lat, $lon; sugár: $radius m';
+  }
+
+  @override
+  String protoPersonDose(String name, String total) {
+    return '$name (dózis: $total)';
+  }
+
+  @override
+  String protoPersonDoseBreakdown(String name, String total, String breakdown) {
+    return '$name (dózis: $total – $breakdown)';
+  }
+
+  @override
+  String protoDoseSession(String dose) {
+    return 'felmérési $dose';
+  }
+
+  @override
+  String protoDoseDosimeter(String dose) {
+    return 'doziméter $dose';
+  }
+
+  @override
+  String protoInstrumentWithSerial(String name, String serial) {
+    return '$name (s/n: $serial)';
+  }
+
+  @override
+  String protoCalibValidUntil(String date) {
+    return 'érvényes: $date-ig';
+  }
+
+  @override
+  String protoCalibCertificate(String number) {
+    return 'bizonylat: $number';
+  }
+
+  @override
+  String get protoCalibExpiredAtMeasure => ' – LEJÁRT a mérés időpontjában';
+
+  @override
+  String protoCalibFallback(String date) {
+    return 'Kalibráció érvényes: $date-ig';
+  }
+
+  @override
+  String get protoUnshielded => 'árnyékolás nélkül';
+
+  @override
+  String protoShieldedActivity(String activity) {
+    return 'árnyékolt: $activity';
+  }
+
+  @override
+  String protoInputData(String measured, String distance) {
+    return 'Bemenő adatok: mért $measured, távolság $distance';
+  }
+
+  @override
+  String get protoShieldingInline => 'árnyékolás';
+
+  @override
+  String protoTransmission(String value) {
+    return 'áteresztés T = $value';
+  }
+
+  @override
+  String protoNuclideIdPrefix(String text) {
+    return 'Nuklid-azonosítás: $text';
+  }
+
+  @override
+  String get protoShotMap => 'Térkép';
+
+  @override
+  String get protoShotList => 'Pontok listája';
+
+  @override
+  String protoPhotoCaption(
+    String index,
+    String type,
+    String location,
+    String time,
+  ) {
+    return '$index. pont · $type · $location · $time';
+  }
+
+  @override
+  String get mapMeasureTooltip => 'Távolságmérés';
+
+  @override
+  String get mapMeasureHint =>
+      'Koppints két pontra a vonalhoz. A vonal címkéjére koppintva kijelölheted, színezheted vagy törölheted.';
+
+  @override
+  String get mapMeasureClear => 'Összes törlése';
+
+  @override
+  String get mapMeasureDeleteSelected => 'Kijelölt törlése';
 }

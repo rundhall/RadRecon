@@ -360,8 +360,8 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
     setState(() => _isExporting = true);
     try {
       final file = format == ProtocolFormat.pdf
-          ? await _exportService.exportSurveyPdf(widget.surveySessionId)
-          : await _exportService.exportSurvey(widget.surveySessionId);
+          ? await _exportService.exportSurveyPdf(widget.surveySessionId, loc)
+          : await _exportService.exportSurvey(widget.surveySessionId, loc);
       if (!mounted) return;
       await SharePlus.instance.share(
         ShareParams(

@@ -5,6 +5,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
+import '../l10n/app_localizations.dart';
+
 /// Egy fénykép a PDF-ben, a mérési pontra utaló felirattal.
 class ProtocolPhoto {
   const ProtocolPhoto({required this.caption, required this.path});
@@ -35,6 +37,7 @@ class ProtocolPdfData {
     this.gasRows = const [],
     this.areaHeaders = const [],
     this.areaRows = const [],
+    this.screenshots = const [],
   });
 
   final List<(String, String)> headerFields;
@@ -55,18 +58,24 @@ class ProtocolPdfData {
   final List<List<String>> gasRows;
   final List<String> areaHeaders;
   final List<List<String>> areaRows;
+  final List<ProtocolPhoto> screenshots;
 }
 
 /// Jegyzőkönyv PDF-et készít a `pdf` csomaggal.
 ///
-/// A magyar ékezetekhez (ő, ű) a beágyazott Noto Sans betűtípus kell: a PDF
-/// alapbetűkészletei nem tartalmazzák ezeket a karaktereket.
+/// A szövegek (címsorok, feliratok) az aktuális nyelven jönnek az
+/// [AppLocalizations]-ből. Az ékezetes karakterekhez (ő, ű, ç, ñ stb.) a
+/// beágyazott Noto Sans betűtípus kell: a PDF alapbetűkészletei nem
+/// tartalmazzák ezeket.
 class ProtocolPdfBuilder {
   ProtocolPdfBuilder._();
 
   static const _fontAsset = 'assets/fonts/NotoSans-Variable.ttf';
 
-  static Future<Uint8List> build(ProtocolPdfData data) async {
+  static Future<Uint8List> build(
+    ProtocolPdfData data,
+    AppLocalizations l,
+  ) async {
     final font = pw.Font.ttf(await rootBundle.load(_fontAsset));
     final theme = pw.ThemeData.withFont(
       base: font,
@@ -82,6 +91,12 @@ class ProtocolPdfBuilder {
       images.add(await _loadImage(photo.path));
     }
 
+    // A képernyőképek (térkép, pontlista) betöltése ugyanúgy, mint a fotóké.
+    final shotImages = <pw.MemoryImage?>[];
+    for (final shot in data.screenshots) {
+      shotImages.add(await _loadImage(shot.path));
+    }
+
     final doc = pw.Document(theme: theme);
     doc.addPage(
       pw.MultiPage(
@@ -95,21 +110,18 @@ class ProtocolPdfBuilder {
           ),
         ),
         build: (context) => [
-          pw.Text('Terepi sugárzásmérési jegyzőkönyv', style: _style(18)),
+          pw.Text(l.protoTitle, style: _style(18)),
           pw.SizedBox(height: 10),
           for (final (label, value) in data.headerFields) _field(label, value),
           pw.SizedBox(height: 14),
-          _heading('Mérési pontok'),
+          _heading(l.protoPointsHeading),
           pw.SizedBox(height: 6),
           _table(data.pointHeaders, data.pointRows),
           pw.SizedBox(height: 14),
-          _heading('Sugárforrás-elemzés'),
+          _heading(l.protoSourceHeading),
           pw.SizedBox(height: 6),
           if (data.sourceRows.isEmpty)
-            pw.Text(
-              'Nincs forrással vagy aktivitás-becsléssel rendelkező mérési pont.',
-              style: _style(8),
-            )
+            pw.Text(l.protoNoSourcePoints, style: _style(8))
           else
             _table(data.sourceHeaders, data.sourceRows),
           pw.SizedBox(height: 4),
@@ -118,30 +130,30 @@ class ProtocolPdfBuilder {
             style: _style(8, color: PdfColors.grey800),
           ),
           pw.SizedBox(height: 14),
-          _heading('Doziméterek'),
+          _heading(l.protoDosimeterHeading),
           pw.SizedBox(height: 6),
           _table(data.dosimeterHeaders, data.dosimeterRows),
           pw.SizedBox(height: 14),
           if (data.victimRows.isNotEmpty) ...[
-            _heading('Érintettek (áldozatok)'),
+            _heading(l.protoVictimsHeading),
             pw.SizedBox(height: 6),
             _table(data.victimHeaders, data.victimRows),
             pw.SizedBox(height: 14),
           ],
           if (data.areaRows.isNotEmpty) ...[
-            _heading('Jelölt területek'),
+            _heading(l.protoAreasHeading),
             pw.SizedBox(height: 6),
             _table(data.areaHeaders, data.areaRows),
             pw.SizedBox(height: 14),
           ],
           if (data.meteoRows.isNotEmpty) ...[
-            _heading('Meteorológia'),
+            _heading(l.protoMeteoHeading),
             pw.SizedBox(height: 6),
             _table(data.meteoHeaders, data.meteoRows),
             pw.SizedBox(height: 14),
           ],
           if (data.gasRows.isNotEmpty) ...[
-            _heading('Gázmérés'),
+            _heading(l.protoGasHeading),
             pw.SizedBox(height: 6),
             _table(data.gasHeaders, data.gasRows),
             pw.SizedBox(height: 14),
@@ -150,14 +162,33 @@ class ProtocolPdfBuilder {
             _field(label, value),
           if (data.photos.isNotEmpty) ...[
             pw.SizedBox(height: 14),
-            _heading('Fényképek'),
+            _heading(l.protoPhotosHeading),
             pw.SizedBox(height: 6),
             pw.Wrap(
               spacing: 16,
               runSpacing: 16,
               children: [
                 for (var i = 0; i < data.photos.length; i++)
-                  _photoTile(data.photos[i], images[i]),
+                  _photoTile(data.photos[i], images[i], l),
+              ],
+            ),
+          ],
+          if (data.screenshots.isNotEmpty) ...[
+            pw.SizedBox(height: 14),
+            _heading(l.protoScreenshotsHeading),
+            pw.SizedBox(height: 6),
+            pw.Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                for (var i = 0; i < data.screenshots.length; i++)
+                  _photoTile(
+                    data.screenshots[i],
+                    shotImages[i],
+                    l,
+                    width: 380,
+                    height: 260,
+                  ),
               ],
             ),
           ],
@@ -200,9 +231,15 @@ class ProtocolPdfBuilder {
         border: pw.TableBorder.all(color: PdfColors.grey500, width: 0.5),
       );
 
-  static pw.Widget _photoTile(ProtocolPhoto photo, pw.MemoryImage? image) =>
+  static pw.Widget _photoTile(
+    ProtocolPhoto photo,
+    pw.MemoryImage? image,
+    AppLocalizations l, {
+    double width = 260,
+    double height = 190,
+  }) =>
       pw.SizedBox(
-        width: 260,
+        width: width,
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
@@ -210,13 +247,13 @@ class ProtocolPdfBuilder {
             pw.SizedBox(height: 3),
             if (image != null)
               pw.SizedBox(
-                width: 260,
-                height: 190,
+                width: width,
+                height: height,
                 child: pw.Image(image, fit: pw.BoxFit.contain),
               )
             else
               pw.Text(
-                '(a fénykép nem olvasható)',
+                l.protoPhotoUnreadable,
                 style: _style(8, color: PdfColors.grey800),
               ),
           ],

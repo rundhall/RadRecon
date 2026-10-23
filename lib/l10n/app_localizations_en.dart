@@ -2476,4 +2476,348 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get displayWindUnitLabel => 'Wind speed unit';
+
+  @override
+  String get protoTitle => 'Field radiation survey report';
+
+  @override
+  String get protoCompany => 'Company';
+
+  @override
+  String get protoSurveyName => 'Survey name';
+
+  @override
+  String get protoLocation => 'Location';
+
+  @override
+  String get protoStarted => 'Survey started';
+
+  @override
+  String get protoClosed => 'Survey closed';
+
+  @override
+  String get protoNotes => 'Notes';
+
+  @override
+  String get protoOngoing => 'ongoing';
+
+  @override
+  String get protoDate => 'Date';
+
+  @override
+  String get protoSignature => 'Signature';
+
+  @override
+  String get protoSurveyedBy => 'Surveyed by';
+
+  @override
+  String get protoColon => ': ';
+
+  @override
+  String get protoDecimalSep => '.';
+
+  @override
+  String get protoDateTimeFormat => 'yyyy-MM-dd HH:mm';
+
+  @override
+  String get protoDateFormat => 'yyyy-MM-dd';
+
+  @override
+  String get protoPointsHeading => 'Measurement points';
+
+  @override
+  String get protoSourceHeading => 'Source analysis';
+
+  @override
+  String get protoNoSourcePoints =>
+      'No measurement point with an assigned source or activity estimate.';
+
+  @override
+  String get protoSourceNote =>
+      'Only measurement points with an assigned source or activity estimate are listed. Calculated values are for information only.';
+
+  @override
+  String get protoDosimeterHeading => 'Dosimeters';
+
+  @override
+  String get protoVictimsHeading => 'Affected persons (casualties)';
+
+  @override
+  String get protoAreasHeading => 'Marked areas';
+
+  @override
+  String get protoMeteoHeading => 'Meteorology';
+
+  @override
+  String get protoGasHeading => 'Gas measurement';
+
+  @override
+  String get protoPhotosHeading => 'Photos';
+
+  @override
+  String get protoScreenshotsHeading => 'Screenshots';
+
+  @override
+  String get protoPhotoUnreadable => '(photo cannot be read)';
+
+  @override
+  String get protoNoDosimeter => 'No dosimeter recorded';
+
+  @override
+  String get protoYes => 'yes';
+
+  @override
+  String get protoNo => 'no';
+
+  @override
+  String get protoColType => 'Type';
+
+  @override
+  String get protoColValue => 'Value';
+
+  @override
+  String get protoColUnit => 'Unit';
+
+  @override
+  String protoColDistance(String unit) {
+    return 'Distance from source ($unit)';
+  }
+
+  @override
+  String get protoColInstrument => 'Instrument';
+
+  @override
+  String get protoColGps => 'GPS coordinates';
+
+  @override
+  String protoColGpsAccuracy(String unit) {
+    return 'GPS accuracy ($unit)';
+  }
+
+  @override
+  String get protoColTime => 'Time';
+
+  @override
+  String get protoColPhoto => 'Photo file';
+
+  @override
+  String get protoColEstActivity => 'Estimated activity (from measurement)';
+
+  @override
+  String get protoColAttached => 'Assigned source(s)';
+
+  @override
+  String get protoColCalcTotal => 'Calculated dose rate';
+
+  @override
+  String get protoColMeasured => 'Measured dose rate';
+
+  @override
+  String get protoColDiff => 'Deviation';
+
+  @override
+  String get protoColIdentifier => 'Identifier';
+
+  @override
+  String get protoColWearer => 'Wearer';
+
+  @override
+  String get protoColReading => 'Reading (start → end)';
+
+  @override
+  String get protoColDose => 'Dose';
+
+  @override
+  String get protoColCounted => 'Counted';
+
+  @override
+  String get protoColFormula => 'Formula';
+
+  @override
+  String get protoColName => 'Name';
+
+  @override
+  String get protoColTriage => 'Triage';
+
+  @override
+  String get protoColInjuries => 'Injuries';
+
+  @override
+  String get protoColIllnesses => 'Illnesses';
+
+  @override
+  String get protoColAreaName => 'Area name';
+
+  @override
+  String get protoColShape => 'Shape';
+
+  @override
+  String get protoColGeometry => 'Geometry';
+
+  @override
+  String get protoColAreaSize => 'Area (m²)';
+
+  @override
+  String protoColTemp(String unit) {
+    return 'Temp. ($unit)';
+  }
+
+  @override
+  String get protoColHumidity => 'Humidity (%)';
+
+  @override
+  String protoColPressure(String unit) {
+    return 'Pressure ($unit)';
+  }
+
+  @override
+  String protoColWind(String unit) {
+    return 'Wind ($unit)';
+  }
+
+  @override
+  String get protoColWindDir => 'Wind direction (°)';
+
+  @override
+  String protoColGust(String unit) {
+    return 'Gust ($unit)';
+  }
+
+  @override
+  String get protoColPrecip => 'Precipitation';
+
+  @override
+  String get protoColPrecipIntensity => 'Precip. rate (mm/h)';
+
+  @override
+  String get protoColSolar => 'Solar radiation (W/m²)';
+
+  @override
+  String get protoColCloud => 'Cloud cover (oktas)';
+
+  @override
+  String get protoColVisibility => 'Visibility (m)';
+
+  @override
+  String get protoColSoil => 'Soil moisture (%)';
+
+  @override
+  String get protoColAerosol => 'Aerosol (µg/m³)';
+
+  @override
+  String get protoColOther => 'Other';
+
+  @override
+  String get protoShapePolygon => 'Polygon';
+
+  @override
+  String get protoShapeCircle => 'Circle';
+
+  @override
+  String protoCornerPoints(String count) {
+    return '$count corner points';
+  }
+
+  @override
+  String protoCenterRadius(String lat, String lon, String radius) {
+    return 'centre: $lat, $lon; radius: $radius m';
+  }
+
+  @override
+  String protoPersonDose(String name, String total) {
+    return '$name (dose: $total)';
+  }
+
+  @override
+  String protoPersonDoseBreakdown(String name, String total, String breakdown) {
+    return '$name (dose: $total – $breakdown)';
+  }
+
+  @override
+  String protoDoseSession(String dose) {
+    return 'survey $dose';
+  }
+
+  @override
+  String protoDoseDosimeter(String dose) {
+    return 'dosimeter $dose';
+  }
+
+  @override
+  String protoInstrumentWithSerial(String name, String serial) {
+    return '$name (S/N: $serial)';
+  }
+
+  @override
+  String protoCalibValidUntil(String date) {
+    return 'valid until $date';
+  }
+
+  @override
+  String protoCalibCertificate(String number) {
+    return 'certificate: $number';
+  }
+
+  @override
+  String get protoCalibExpiredAtMeasure => ' – EXPIRED at time of measurement';
+
+  @override
+  String protoCalibFallback(String date) {
+    return 'Calibration valid until $date';
+  }
+
+  @override
+  String get protoUnshielded => 'unshielded';
+
+  @override
+  String protoShieldedActivity(String activity) {
+    return 'shielded: $activity';
+  }
+
+  @override
+  String protoInputData(String measured, String distance) {
+    return 'Input data: measured $measured, distance $distance';
+  }
+
+  @override
+  String get protoShieldingInline => 'shielding';
+
+  @override
+  String protoTransmission(String value) {
+    return 'transmission T = $value';
+  }
+
+  @override
+  String protoNuclideIdPrefix(String text) {
+    return 'Nuclide identification: $text';
+  }
+
+  @override
+  String get protoShotMap => 'Map';
+
+  @override
+  String get protoShotList => 'Point list';
+
+  @override
+  String protoPhotoCaption(
+    String index,
+    String type,
+    String location,
+    String time,
+  ) {
+    return 'Point $index · $type · $location · $time';
+  }
+
+  @override
+  String get mapMeasureTooltip => 'Distance measurement';
+
+  @override
+  String get mapMeasureHint =>
+      'Tap two points to draw a line. Tap a line’s label to select it, then change its colour or delete it.';
+
+  @override
+  String get mapMeasureClear => 'Delete all';
+
+  @override
+  String get mapMeasureDeleteSelected => 'Delete selected';
 }

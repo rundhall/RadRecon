@@ -7,6 +7,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../models/instrument.dart';
 import '../models/map_area.dart';
+import '../models/map_measure_line.dart';
 import '../models/company_document.dart';
 import '../models/instrument_calibration.dart';
 import '../models/person_certificate.dart';
@@ -58,7 +59,8 @@ class DatabaseHelper {
   // v21: `sample_unit` a `measurement_points` táblában (mintavétel egysége).
   // v22: doziméterek (session_dosimeters), felmérési dózis (online+manuális
   // összevonva), és `include_annual` jelölő a dózis-bejegyzéseken.
-  static const _dbVersion = 25;
+  // v26: térképi mérővonalak (`survey_map_lines`).
+  static const _dbVersion = 26;
 
   /// A jelenlegi séma-verzió (a mentésfájlok kompatibilitás-ellenőrzéséhez).
   static const schemaVersion = _dbVersion;
@@ -390,6 +392,9 @@ class DatabaseHelper {
 
     // v25: térképi területjelölések.
     await _createSurveyMapAreasTable(db);
+
+    // v26: térképi mérővonalak.
+    await _createSurveyMapLinesTable(db);
   }
 
   Future<void> _createPersonDosesTable(Database db) async {
@@ -556,6 +561,7 @@ class DatabaseHelper {
     ''');
     await _createPointSourcesTable(db);
     await _createSurveyMapAreasTable(db);
+    await _createSurveyMapLinesTable(db);
   }
 
   Future<void> _createPointSourcesTable(Database db) async {
@@ -1265,6 +1271,64 @@ class DatabaseHelper {
   Future<void> deleteMapArea(int id) async {
     final db = await database;
     await db.delete('survey_map_areas', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // ---------------------------------------------------------------------
+  // Térképi mérővonalak
+  // ---------------------------------------------------------------------
+
+  Future<void> _createSurveyMapLinesTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS survey_map_lines (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        survey_session_id INTEGER NOT NULL,
+        color INTEGER NOT NULL,
+        geometry TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (survey_session_id) REFERENCES survey_sessions (id)
+          ON DELETE CASCADE
+      )
+    ''');
+  }
+
+  Future<List<MapMeasureLine>> getMapMeasureLines(int surveySessionId) async {
+    final db = await database;
+    final rows = await db.query(
+      'survey_map_lines',
+      where: 'survey_session_id = ?',
+      whereArgs: [surveySessionId],
+      orderBy: 'id ASC',
+    );
+    return rows.map(MapMeasureLine.fromMap).toList();
+  }
+
+  Future<int> insertMapMeasureLine(MapMeasureLine line) async {
+    final db = await database;
+    return db.insert('survey_map_lines', line.toMap());
+  }
+
+  Future<void> updateMapMeasureLineColor(int id, int colorArgb) async {
+    final db = await database;
+    await db.update(
+      'survey_map_lines',
+      {'color': colorArgb},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<void> deleteMapMeasureLine(int id) async {
+    final db = await database;
+    await db.delete('survey_map_lines', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<void> deleteAllMapMeasureLines(int surveySessionId) async {
+    final db = await database;
+    await db.delete(
+      'survey_map_lines',
+      where: 'survey_session_id = ?',
+      whereArgs: [surveySessionId],
+    );
   }
 
   Future<void> deleteSessionPerson(int linkId) async {

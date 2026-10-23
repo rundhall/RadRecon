@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart' as ll;
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/map_area.dart';
+import '../models/map_measure_line.dart';
 import '../models/measurement_point.dart';
 import '../models/measurement_type.dart';
 import '../models/nuclide_id.dart';
@@ -44,6 +45,11 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
   bool _isCapturing = false;
   List<MapArea> _areas = [];
   _DrawState? _draw; // folyamatban lévő területrajzolás
+  bool _measuring = false; // távolságmérő mód
+  List<MapMeasureLine> _lines = []; // a felmérés mérővonalai (adatbázisból)
+  ll.LatLng? _pending; // az aktuális vonal kezdőpontja
+  int? _selectedLine; // kijelölt vonal indexe
+  int _measureColor = mapAreaPalette.first; // új vonalak színe
 
   @override
   void initState() {
@@ -56,10 +62,13 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
         await DatabaseHelper.instance.getMeasurementPoints(widget.surveySessionId);
     final areas =
         await DatabaseHelper.instance.getMapAreas(widget.surveySessionId);
+    final lines = await DatabaseHelper.instance
+        .getMapMeasureLines(widget.surveySessionId);
     if (!mounted) return;
     setState(() {
       _points = points.map(withCurrentDoseUnit).toList();
       _areas = areas;
+      _lines = lines;
       _loading = false;
     });
   }
@@ -287,6 +296,245 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
   // Területjelölés
   // ---------------------------------------------------------------------
 
+  // ---------------------------------------------------------------------
+  void _startMeasure() => setState(() => _measuring = true);
+
+  /// Kilépéskor a vonalak a térképen maradnak (az adatbázisban is).
+  void _stopMeasure() => setState(() {
+        _measuring = false;
+        _pending = null;
+        _selectedLine = null;
+      });
+
+  /// Az első koppintás a vonal kezdőpontja, a második a végpontja. A kész
+  /// vonal azonnal az adatbázisba kerül.
+  Future<void> _onMeasureTap(ll.LatLng p) async {
+    final start = _pending;
+    if (start == null) {
+      setState(() {
+        _selectedLine = null;
+        _pending = p;
+      });
+      return;
+    }
+    final line = MapMeasureLine(
+      surveySessionId: widget.surveySessionId,
+      colorArgb: _measureColor,
+      a: start,
+      b: p,
+    );
+    final id = await DatabaseHelper.instance.insertMapMeasureLine(line);
+    if (!mounted) return;
+    setState(() {
+      _pending = null;
+      _selectedLine = null;
+      _lines.add(line.copyWith(id: id));
+    });
+  }
+
+  bool get _canUndo => _pending != null || _lines.isNotEmpty;
+
+  /// Folyamatban lévő kezdőpont, vagy az utolsó kész vonal visszavonása.
+  Future<void> _undoMeasure() async {
+    if (_pending != null) {
+      setState(() => _pending = null);
+      return;
+    }
+    if (_lines.isEmpty) return;
+    final last = _lines.last;
+    setState(() {
+      _lines.removeLast();
+      _selectedLine = null;
+    });
+    await DatabaseHelper.instance.deleteMapMeasureLine(last.id!);
+  }
+
+  Future<void> _clearAll() async {
+    setState(() {
+      _lines = [];
+      _pending = null;
+      _selectedLine = null;
+    });
+    await DatabaseHelper.instance
+        .deleteAllMapMeasureLines(widget.surveySessionId);
+  }
+
+  Future<void> _deleteSelected() async {
+    final i = _selectedLine;
+    if (i == null) return;
+    final line = _lines[i];
+    setState(() {
+      _lines.removeAt(i);
+      _selectedLine = null;
+    });
+    await DatabaseHelper.instance.deleteMapMeasureLine(line.id!);
+  }
+
+  void _selectLine(int i) => setState(() {
+        _selectedLine = _selectedLine == i ? null : i;
+      });
+
+  /// A paletta színe az új vonalakra; a kijelölt vonalra azonnal, és az
+  /// adatbázisban is átíródik.
+  Future<void> _setColor(int c) async {
+    setState(() => _measureColor = c);
+    final i = _selectedLine;
+    if (i == null) return;
+    final line = _lines[i];
+    setState(() => _lines[i] = line.copyWith(colorArgb: c));
+    await DatabaseHelper.instance.updateMapMeasureLineColor(line.id!, c);
+  }
+
+  Marker _endpointMarker(ll.LatLng p, Color color) => Marker(
+        point: p,
+        width: 16,
+        height: 16,
+        child: IgnorePointer(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(color: color, width: 3),
+            ),
+          ),
+        ),
+      );
+
+  /// Az elkészült vonalak, a folyamatban lévő kezdőpont és a távolság-feliratok.
+  List<Widget> _measureLayers() {
+    final pending = _pending;
+    return [
+      if (_lines.isNotEmpty)
+        PolylineLayer(polylines: [
+          for (var i = 0; i < _lines.length; i++)
+            Polyline(
+              points: [_lines[i].a, _lines[i].b],
+              strokeWidth: i == _selectedLine ? 6 : 3,
+              color: Color(_lines[i].colorArgb),
+            ),
+        ]),
+      MarkerLayer(markers: [
+        for (var i = 0; i < _lines.length; i++) ...[
+          _endpointMarker(_lines[i].a, Color(_lines[i].colorArgb)),
+          _endpointMarker(_lines[i].b, Color(_lines[i].colorArgb)),
+          Marker(
+            point: _lines[i].midpoint,
+            width: 160,
+            height: 26,
+            child: IgnorePointer(
+              ignoring: !_measuring,
+              child: GestureDetector(
+                onTap: () => _selectLine(i),
+                child: Center(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Color(_lines[i].colorArgb).withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: i == _selectedLine ? 2 : 0,
+                      ),
+                    ),
+                    child: Text(
+                      formatDistanceMeters(_lines[i].meters),
+                      maxLines: 1,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+        if (pending != null) _endpointMarker(pending, Color(_measureColor)),
+      ]),
+    ];
+  }
+
+  Widget _buildMeasureBar(AppLocalizations loc) {
+    final i = _selectedLine;
+    final selected = i == null ? null : _lines[i];
+    final nothingToClear = _lines.isEmpty && _pending == null;
+    return Material(
+      elevation: 4,
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              selected == null
+                  ? loc.mapMeasureHint
+                  : formatDistanceMeters(selected.meters),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: selected == null ? 12 : 18,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                for (final c in mapAreaPalette)
+                  GestureDetector(
+                    onTap: () => _setColor(c),
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: Color(c),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: c == (selected?.colorArgb ?? _measureColor)
+                              ? Colors.black
+                              : Colors.transparent,
+                          width: 3,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Wrap(
+              alignment: WrapAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: _canUndo ? _undoMeasure : null,
+                  child: Text(loc.mapAreaUndo),
+                ),
+                if (selected == null)
+                  TextButton(
+                    onPressed: nothingToClear ? null : _clearAll,
+                    child: Text(loc.mapMeasureClear),
+                  )
+                else
+                  TextButton(
+                    onPressed: _deleteSelected,
+                    child: Text(loc.mapMeasureDeleteSelected),
+                  ),
+                FilledButton(
+                  onPressed: _stopMeasure,
+                  child: Text(loc.mapAreaDone),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _snack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
@@ -298,6 +546,10 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
   }
 
   void _onMapTap(ll.LatLng p) {
+    if (_measuring) {
+      _onMeasureTap(p);
+      return;
+    }
     final d = _draw;
     if (d == null) return;
     setState(() {
@@ -536,7 +788,15 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
           IconButton(
             icon: const Icon(Icons.add_location_alt_outlined),
             tooltip: loc.mapAreaButtonTooltip,
-            onPressed: _draw == null ? _startAreaDraw : null,
+            onPressed: _draw == null && !_measuring ? _startAreaDraw : null,
+          ),
+          IconButton(
+            icon: const Icon(Icons.straighten),
+            tooltip: loc.mapMeasureTooltip,
+            color: _measuring ? Theme.of(context).colorScheme.primary : null,
+            onPressed: _draw != null
+                ? null
+                : (_measuring ? _stopMeasure : _startMeasure),
           ),
           IconButton(
             icon: const Icon(Icons.layers_outlined),
@@ -699,6 +959,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
                       ),
                 ],
               ),
+              ..._measureLayers(),
               MarkerLayer(
                 markers: _points.map((p) {
                   final kind = _kindOf(p);
@@ -713,7 +974,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
                     height: 36,
                     child: GestureDetector(
                       // Rajzolás közben a pont nem nyit részletet, a koppintás a csúcs.
-                      onTap: d == null ? () => _showPointDetails(p) : null,
+                      onTap: d == null && !_measuring ? () => _showPointDetails(p) : null,
                       child: Icon(
                         p.isSourcePosition
                             ? Icons.warning_amber
@@ -737,6 +998,13 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
               left: 8,
               right: 8,
               child: _buildDrawBar(loc, d),
+            ),
+          if (_measuring)
+            Positioned(
+              top: 8,
+              left: 8,
+              right: 8,
+              child: _buildMeasureBar(loc),
             ),
           if (_points.isEmpty && d == null)
             Positioned(

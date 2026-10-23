@@ -1866,5 +1866,357 @@
   "displayPressureUnitLabel": "Nyomás egysége",
   "@displayPressureUnitLabel": {},
   "displayWindUnitLabel": "Szélsebesség egysége",
-  "@displayWindUnitLabel": {}
+  "@displayWindUnitLabel": {},
+  "protoTitle": "Terepi sugárzásmérési jegyzőkönyv",
+  "@protoTitle": {},
+  "protoCompany": "Cég",
+  "@protoCompany": {},
+  "protoSurveyName": "Felmérés megnevezése",
+  "@protoSurveyName": {},
+  "protoLocation": "Helyszín",
+  "@protoLocation": {},
+  "protoStarted": "Felmérés kezdete",
+  "@protoStarted": {},
+  "protoClosed": "Felmérés lezárása",
+  "@protoClosed": {},
+  "protoNotes": "Megjegyzés",
+  "@protoNotes": {},
+  "protoOngoing": "folyamatban",
+  "@protoOngoing": {},
+  "protoDate": "Dátum",
+  "@protoDate": {},
+  "protoSignature": "Aláírás",
+  "@protoSignature": {},
+  "protoSurveyedBy": "Felmérést végezte",
+  "@protoSurveyedBy": {},
+  "protoColon": ": ",
+  "@protoColon": {},
+  "protoDecimalSep": ",",
+  "@protoDecimalSep": {},
+  "protoDateTimeFormat": "yyyy.MM.dd HH:mm",
+  "@protoDateTimeFormat": {},
+  "protoDateFormat": "yyyy.MM.dd",
+  "@protoDateFormat": {},
+  "protoPointsHeading": "Mérési pontok",
+  "@protoPointsHeading": {},
+  "protoSourceHeading": "Sugárforrás-elemzés",
+  "@protoSourceHeading": {},
+  "protoNoSourcePoints": "Nincs forrással vagy aktivitás-becsléssel rendelkező mérési pont.",
+  "@protoNoSourcePoints": {},
+  "protoSourceNote": "Csak a forrással vagy aktivitás-becsléssel rendelkező mérési pontok szerepelnek. A számított értékek tájékoztató jellegűek.",
+  "@protoSourceNote": {},
+  "protoDosimeterHeading": "Doziméterek",
+  "@protoDosimeterHeading": {},
+  "protoVictimsHeading": "Érintettek (áldozatok)",
+  "@protoVictimsHeading": {},
+  "protoAreasHeading": "Jelölt területek",
+  "@protoAreasHeading": {},
+  "protoMeteoHeading": "Meteorológia",
+  "@protoMeteoHeading": {},
+  "protoGasHeading": "Gázmérés",
+  "@protoGasHeading": {},
+  "protoPhotosHeading": "Fényképek",
+  "@protoPhotosHeading": {},
+  "protoScreenshotsHeading": "Képernyőképek",
+  "@protoScreenshotsHeading": {},
+  "protoPhotoUnreadable": "(a fénykép nem olvasható)",
+  "@protoPhotoUnreadable": {},
+  "protoNoDosimeter": "Nincs felvett doziméter",
+  "@protoNoDosimeter": {},
+  "protoYes": "igen",
+  "@protoYes": {},
+  "protoNo": "nem",
+  "@protoNo": {},
+  "protoColType": "Típus",
+  "@protoColType": {},
+  "protoColValue": "Érték",
+  "@protoColValue": {},
+  "protoColUnit": "Egység",
+  "@protoColUnit": {},
+  "protoColDistance": "Táv. forrástól ({unit})",
+  "@protoColDistance": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "protoColInstrument": "Műszer",
+  "@protoColInstrument": {},
+  "protoColGps": "GPS koordináta",
+  "@protoColGps": {},
+  "protoColGpsAccuracy": "GPS pontosság ({unit})",
+  "@protoColGpsAccuracy": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "protoColTime": "Időpont",
+  "@protoColTime": {},
+  "protoColPhoto": "Fénykép fájl",
+  "@protoColPhoto": {},
+  "protoColEstActivity": "Becsült aktivitás (mérésből)",
+  "@protoColEstActivity": {},
+  "protoColAttached": "Hozzárendelt forrás(ok)",
+  "@protoColAttached": {},
+  "protoColCalcTotal": "Számított dózisteljesítmény",
+  "@protoColCalcTotal": {},
+  "protoColMeasured": "Mért dózisteljesítmény",
+  "@protoColMeasured": {},
+  "protoColDiff": "Eltérés",
+  "@protoColDiff": {},
+  "protoColIdentifier": "Azonosító",
+  "@protoColIdentifier": {},
+  "protoColWearer": "Viselő",
+  "@protoColWearer": {},
+  "protoColReading": "Állás (kezdő → záró)",
+  "@protoColReading": {},
+  "protoColDose": "Dózis",
+  "@protoColDose": {},
+  "protoColCounted": "Beszámít",
+  "@protoColCounted": {},
+  "protoColFormula": "Képlet",
+  "@protoColFormula": {},
+  "protoColName": "Név",
+  "@protoColName": {},
+  "protoColTriage": "Triázs",
+  "@protoColTriage": {},
+  "protoColInjuries": "Sérülések",
+  "@protoColInjuries": {},
+  "protoColIllnesses": "Betegségek",
+  "@protoColIllnesses": {},
+  "protoColAreaName": "Terület megnevezése",
+  "@protoColAreaName": {},
+  "protoColShape": "Alakzat",
+  "@protoColShape": {},
+  "protoColGeometry": "Geometria",
+  "@protoColGeometry": {},
+  "protoColAreaSize": "Felület (m²)",
+  "@protoColAreaSize": {},
+  "protoColTemp": "Hőm. ({unit})",
+  "@protoColTemp": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "protoColHumidity": "Pára (%)",
+  "@protoColHumidity": {},
+  "protoColPressure": "Nyomás ({unit})",
+  "@protoColPressure": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "protoColWind": "Szél ({unit})",
+  "@protoColWind": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "protoColWindDir": "Szélirány (°)",
+  "@protoColWindDir": {},
+  "protoColGust": "Széllökés ({unit})",
+  "@protoColGust": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "protoColPrecip": "Csapadék",
+  "@protoColPrecip": {},
+  "protoColPrecipIntensity": "Csapadék int. (mm/h)",
+  "@protoColPrecipIntensity": {},
+  "protoColSolar": "Napsugárzás (W/m²)",
+  "@protoColSolar": {},
+  "protoColCloud": "Felhőzet (okta)",
+  "@protoColCloud": {},
+  "protoColVisibility": "Látástáv. (m)",
+  "@protoColVisibility": {},
+  "protoColSoil": "Talajnedv. (%)",
+  "@protoColSoil": {},
+  "protoColAerosol": "Aeroszol (µg/m³)",
+  "@protoColAerosol": {},
+  "protoColOther": "Egyéb",
+  "@protoColOther": {},
+  "protoShapePolygon": "Poligon",
+  "@protoShapePolygon": {},
+  "protoShapeCircle": "Kör",
+  "@protoShapeCircle": {},
+  "protoCornerPoints": "{count} sarokpont",
+  "@protoCornerPoints": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "protoCenterRadius": "középpont: {lat}, {lon}; sugár: {radius} m",
+  "@protoCenterRadius": {
+    "placeholders": {
+      "lat": {
+        "type": "String"
+      },
+      "lon": {
+        "type": "String"
+      },
+      "radius": {
+        "type": "String"
+      }
+    }
+  },
+  "protoPersonDose": "{name} (dózis: {total})",
+  "@protoPersonDose": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "protoPersonDoseBreakdown": "{name} (dózis: {total} – {breakdown})",
+  "@protoPersonDoseBreakdown": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "breakdown": {
+        "type": "String"
+      }
+    }
+  },
+  "protoDoseSession": "felmérési {dose}",
+  "@protoDoseSession": {
+    "placeholders": {
+      "dose": {
+        "type": "String"
+      }
+    }
+  },
+  "protoDoseDosimeter": "doziméter {dose}",
+  "@protoDoseDosimeter": {
+    "placeholders": {
+      "dose": {
+        "type": "String"
+      }
+    }
+  },
+  "protoInstrumentWithSerial": "{name} (s/n: {serial})",
+  "@protoInstrumentWithSerial": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "serial": {
+        "type": "String"
+      }
+    }
+  },
+  "protoCalibValidUntil": "érvényes: {date}-ig",
+  "@protoCalibValidUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "protoCalibCertificate": "bizonylat: {number}",
+  "@protoCalibCertificate": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "protoCalibExpiredAtMeasure": " – LEJÁRT a mérés időpontjában",
+  "@protoCalibExpiredAtMeasure": {},
+  "protoCalibFallback": "Kalibráció érvényes: {date}-ig",
+  "@protoCalibFallback": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "protoUnshielded": "árnyékolás nélkül",
+  "@protoUnshielded": {},
+  "protoShieldedActivity": "árnyékolt: {activity}",
+  "@protoShieldedActivity": {
+    "placeholders": {
+      "activity": {
+        "type": "String"
+      }
+    }
+  },
+  "protoInputData": "Bemenő adatok: mért {measured}, távolság {distance}",
+  "@protoInputData": {
+    "placeholders": {
+      "measured": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "protoShieldingInline": "árnyékolás",
+  "@protoShieldingInline": {},
+  "protoTransmission": "áteresztés T = {value}",
+  "@protoTransmission": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "protoNuclideIdPrefix": "Nuklid-azonosítás: {text}",
+  "@protoNuclideIdPrefix": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "protoShotMap": "Térkép",
+  "@protoShotMap": {},
+  "protoShotList": "Pontok listája",
+  "@protoShotList": {},
+  "protoPhotoCaption": "{index}. pont · {type} · {location} · {time}",
+  "@protoPhotoCaption": {
+    "placeholders": {
+      "index": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      },
+      "location": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mapMeasureTooltip": "Távolságmérés",
+  "@mapMeasureTooltip": {},
+  "mapMeasureHint": "Koppints két pontra a vonalhoz. A vonal címkéjére koppintva kijelölheted, színezheted vagy törölheted.",
+  "@mapMeasureHint": {},
+  "mapMeasureClear": "Összes törlése",
+  "@mapMeasureClear": {},
+  "@mapMeasureDeleteSelected": {},
+  "mapMeasureDeleteSelected": "Kijelölt törlése"
 }

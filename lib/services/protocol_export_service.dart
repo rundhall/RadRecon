@@ -9,7 +9,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../database/database_helper.dart';
-import '../models/measurement_type.dart';
+import '../l10n/app_localizations.dart';
+import '../l10n/domain_labels.dart';
 import '../models/calibration_labels.dart';
 import '../models/instrument.dart';
 import '../models/instrument_calibration.dart';
@@ -23,6 +24,7 @@ import '../models/measurement_point.dart';
 import '../models/nuclide_id.dart';
 import '../models/point_source_link.dart';
 import '../models/shielding.dart';
+import '../models/shielding_labels.dart';
 import 'value_averager.dart';
 import '../models/survey_session.dart';
 import 'activity_estimate.dart';
@@ -53,12 +55,22 @@ import 'protocol_pdf_builder.dart';
 class ProtocolExportService {
   static const _templateAssetPath = 'assets/templates/jegyzokonyv_template.docx';
 
-  final _dateFormat = DateFormat('yyyy.MM.dd HH:mm');
-  final _dateOnlyFormat = DateFormat('yyyy.MM.dd');
+  /// Az aktuális nyelv szövegei és dátumformátumai; az exportok elején
+  /// (`_begin`) állítjuk be.
+  late AppLocalizations _l;
+  late DateFormat _dateFormat;
+  late DateFormat _dateOnlyFormat;
+
+  void _begin(AppLocalizations loc) {
+    _l = loc;
+    _dateFormat = DateFormat(loc.protoDateTimeFormat);
+    _dateOnlyFormat = DateFormat(loc.protoDateFormat);
+  }
 
   /// Legenerálja a jegyzőkönyvet, és visszaadja a létrejött .zip fájl elérési
   /// útját (docx + a hozzá tartozó fotók).
-  Future<File> exportSurvey(int surveySessionId) async {
+  Future<File> exportSurvey(int surveySessionId, AppLocalizations loc) async {
+    _begin(loc);
     final inputs = await _loadInputs(surveySessionId);
     final session = inputs.session;
     final points = inputs.points;
@@ -152,13 +164,16 @@ class ProtocolExportService {
     final personsText = surveyors.map((a) {
       final totals = snapshot.totalsFor(a.person.id!);
       if (totals.total <= 0) return a.person.name;
+      final total = formatDoseText(totals.total);
       final parts = [
-        if (totals.session > 0) 'felmérési ${formatDoseText(totals.session)}',
+        if (totals.session > 0)
+          _l.protoDoseSession(formatDoseText(totals.session)),
         if (totals.dosimeter > 0)
-          'doziméter ${formatDoseText(totals.dosimeter)}',
+          _l.protoDoseDosimeter(formatDoseText(totals.dosimeter)),
       ];
-      return '${a.person.name} (dózis: ${formatDoseText(totals.total)}'
-          '${parts.length > 1 ? ' – ${parts.join(', ')}' : ''})';
+      if (parts.length < 2) return _l.protoPersonDose(a.person.name, total);
+      return _l.protoPersonDoseBreakdown(
+          a.person.name, total, parts.join(', '));
     }).join('; ');
     return _ProtocolInputs(
       session: session,
@@ -176,27 +191,39 @@ class ProtocolExportService {
 
   /// Az érintettek (áldozatok) táblázatának fejléce és kulcsai — a Word-
   /// sablonban és a PDF-ben ugyanez a sorrend.
-  static const _victimHeaders = ['#', 'Név', 'Triázs', 'Sérülések', 'Betegségek'];
+  List<String> get _victimHeaders => [
+        '#',
+        _l.protoColName,
+        _l.protoColTriage,
+        _l.protoColInjuries,
+        _l.protoColIllnesses,
+      ];
   static const _victimKeys = ['idx', 'name', 'triage', 'injuries', 'illnesses'];
 
   /// Meteorológia (pontonként) és gázmérés (vegyületenként) táblázatai.
   List<String> get _meteoHeaders => [
     '#',
-    'Hőm. (${DisplayUnits.temperature.value})',
-    'Pára (%)',
-    'Nyomás (${DisplayUnits.pressure.value})',
-    'Szél (${DisplayUnits.wind.value})',
-    'Szélirány (°)',
-    'Széllökés (${DisplayUnits.wind.value})',
-    'Csapadék', 'Csapadék int. (mm/h)', 'Napsugárzás (W/m²)',
-    'Felhőzet (okta)', 'Látástáv. (m)', 'Talajnedv. (%)', 'Aeroszol (µg/m³)',
-    'Egyéb',
+    _l.protoColTemp(DisplayUnits.temperature.value),
+    _l.protoColHumidity,
+    _l.protoColPressure(DisplayUnits.pressure.value),
+    _l.protoColWind(DisplayUnits.wind.value),
+    _l.protoColWindDir,
+    _l.protoColGust(DisplayUnits.wind.value),
+    _l.protoColPrecip, _l.protoColPrecipIntensity, _l.protoColSolar,
+    _l.protoColCloud, _l.protoColVisibility, _l.protoColSoil, _l.protoColAerosol,
+    _l.protoColOther,
   ];
   static const _meteoColumnWidths = [
     400, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000,
     1000, 1000, 1998,
   ];
-  static const _gasHeaders = ['#', 'Vegyület', 'Képlet', 'Koncentráció', 'Egység'];
+  List<String> get _gasHeaders => [
+        '#',
+        _l.rrGasSpecies,
+        _l.protoColFormula,
+        _l.rrGasConcentration,
+        _l.protoColUnit,
+      ];
   static const _gasColumnWidths = [500, 4500, 3000, 3000, 4398];
   static const _victimColumnWidths = [500, 3000, 2600, 4400, 4898];
 
@@ -230,7 +257,7 @@ class ProtocolExportService {
     return {
       'idx': '${index + 1}',
       'name': victim.person.name,
-      'triage': victim.link.triage?.label ?? 'nincs besorolva',
+      'triage': victim.link.triage?.localized(_l) ?? _l.rrTriageNone,
       'injuries': listOf(ConditionKind.injury),
       'illnesses': listOf(ConditionKind.illness),
     };
@@ -241,12 +268,16 @@ class ProtocolExportService {
     final s = d == d.roundToDouble()
         ? d.toStringAsFixed(0)
         : double.parse(d.toStringAsFixed(2)).toString();
-    return s.replaceAll('.', ',');
+    return s.replaceAll('.', _l.protoDecimalSep);
   }
 
   /// A meteorológiai megfigyeléssel rendelkező mérési pontok sorai.
-  static const _areaHeaders = [
-    '#', 'Terület megnevezése', 'Alakzat', 'Geometria', 'Felület (m²)',
+  List<String> get _areaHeaders => [
+    '#',
+    _l.protoColAreaName,
+    _l.protoColShape,
+    _l.protoColGeometry,
+    _l.protoColAreaSize,
   ];
   static const _areaColumnWidths = [500, 4000, 2400, 5498, 3000];
 
@@ -259,17 +290,20 @@ class ProtocolExportService {
       final String geometry;
       final double area;
       if (a.shape == MapAreaShape.polygon) {
-        kind = 'Poligon';
-        geometry = '${a.polygon.length} sarokpont';
+        kind = _l.protoShapePolygon;
+        geometry = _l.protoCornerPoints('${a.polygon.length}');
         area = _polygonAreaM2(a.polygon);
       } else {
         final c = a.center;
         final r = a.radiusMeters ?? 0;
-        kind = 'Kör';
+        kind = _l.protoShapeCircle;
         geometry = c == null
             ? '—'
-            : 'középpont: ${c[0].toStringAsFixed(5)}, ${c[1].toStringAsFixed(5)}; '
-                'sugár: ${_protoNum(r)} m';
+            : _l.protoCenterRadius(
+                c[0].toStringAsFixed(5),
+                c[1].toStringAsFixed(5),
+                _protoNum(r),
+              );
         area = math.pi * r * r;
       }
       rows.add(['${i + 1}', a.name, kind, geometry, _protoNum(area)]);
@@ -308,7 +342,7 @@ class ProtocolExportService {
         v(DisplayUnits.windFromMs(m.windSpeedMs)),
         v(m.windDirectionDeg),
         v(DisplayUnits.windFromMs(m.gustMs)),
-        m.precipitation?.label ?? '—',
+        m.precipitation?.localized(_l) ?? '—',
         v(m.precipitationMmH),
         v(m.solarWm2),
         v(m.cloudOkta),
@@ -328,7 +362,7 @@ class ProtocolExportService {
       for (final g in points[i].gases) {
         rows.add([
           '${i + 1}',
-          g.name,
+          localizedGasName(_l, g.name),
           g.formula.isEmpty ? '—' : g.formula,
           _protoNum(g.concentration),
           g.unit.symbol,
@@ -346,7 +380,7 @@ class ProtocolExportService {
   String _victimHeadingXml() =>
       '<w:p><w:pPr><w:pStyle w:val="Heading2"/>'
       '<w:spacing w:after="120" w:before="200"/></w:pPr>'
-      '<w:r><w:t xml:space="preserve">Érintettek (áldozatok)</w:t></w:r></w:p>';
+      '<w:r><w:t xml:space="preserve">${_xmlEscape(_l.protoVictimsHeading)}</w:t></w:r></w:p>';
 
   /// Word-táblázat a jegyzőkönyv stílusában (sötét fejléc, keretes cellák).
   String _tableXml(
@@ -410,13 +444,6 @@ class ProtocolExportService {
     'idx', 'kind', 'identifier', 'person', 'reading', 'dose', 'counted',
   ];
 
-  static const _dosimeterKindHu = {
-    DosimeterKind.epdGamma: 'EPD gamma (elektronikus)',
-    DosimeterKind.epdNeutron: 'EPD neutron (elektronikus)',
-    DosimeterKind.tlOfficial: 'TL/OSL passzív (hivatalos)',
-    DosimeterKind.tlWorkplace: 'TL/OSL passzív (munkahelyi)',
-  };
-
   /// A doziméterek táblázatának sorai. Doziméter nélkül egyetlen, "nincs
   /// felvéve" jelzésű sor kerül a táblázatba.
   List<Map<String, String>> _dosimeterValueRows(
@@ -426,7 +453,7 @@ class ProtocolExportService {
       return [
         {
           'idx': '—',
-          'kind': 'Nincs felvett doziméter',
+          'kind': _l.protoNoDosimeter,
           'identifier': '—',
           'person': '—',
           'reading': '—',
@@ -452,12 +479,12 @@ class ProtocolExportService {
     final dose = d.resolvedDoseUsv;
     return {
       'idx': '${index + 1}',
-      'kind': _dosimeterKindHu[d.kind] ?? d.kind.dbValue,
+      'kind': d.kind.localized(_l),
       'identifier': d.identifier,
       'person': d.personName ?? '—',
       'reading': reading(),
       'dose': dose == null ? '—' : formatDoseText(dose),
-      'counted': d.includeAnnual ? 'igen' : 'nem',
+      'counted': d.includeAnnual ? _l.protoYes : _l.protoNo,
     };
   }
 
@@ -473,7 +500,7 @@ class ProtocolExportService {
     return {
       'idx': '${index + 1}',
       'location': point.locationLabel ?? '—',
-      'type': measurementTypeHu[point.type] ?? point.type.name,
+      'type': point.type.localized(_l),
       'value': displayValueOf(point).value == null
           ? '—'
           : formatValueWithError(displayValueOf(point).value!, displayValueOf(point).error) +
@@ -553,7 +580,8 @@ class ProtocolExportService {
   /// A jegyzőkönyv PDF-változata: ugyanazok az adatok (fejléc, mérési pontok,
   /// sugárforrás-elemzés, aláírás-sor), a fényképek a mérési pontra utaló
   /// feliratokkal. Visszaadja a létrehozott .pdf fájlt.
-  Future<File> exportSurveyPdf(int surveySessionId) async {
+  Future<File> exportSurveyPdf(int surveySessionId, AppLocalizations loc) async {
+    _begin(loc);
     final inputs = await _loadInputs(surveySessionId);
     final session = inputs.session;
     final points = inputs.points;
@@ -593,45 +621,72 @@ class ProtocolExportService {
 
       final photoPath = point.photoPath;
       if (photoPath != null) {
-        final typeLabel = measurementTypeHu[point.type] ?? point.type.name;
         photos.add(ProtocolPhoto(
-          caption: '${i + 1}. pont · $typeLabel · '
-              '${point.locationLabel ?? '—'} · '
-              '${_dateFormat.format(point.timestamp)}',
+          caption: _l.protoPhotoCaption(
+            '${i + 1}',
+            point.type.localized(_l),
+            point.locationLabel ?? '—',
+            _dateFormat.format(point.timestamp),
+          ),
           path: photoPath,
         ));
       }
     }
 
+    // A felméréshez mentett képernyőképek (időrendben), a PDF-be ágyazva.
+    final shots = await ScreenshotService.listScreenshots(surveySessionId);
+    shots.sort((a, b) => a.path.compareTo(b.path));
+    final screenshotItems = [
+      for (final shot in shots)
+        ProtocolPhoto(caption: _screenshotCaption(shot), path: shot.path),
+    ];
+
     final data = ProtocolPdfData(
       headerFields: [
-        ('Cég', company),
-        ('Felmérés megnevezése', session.title),
-        ('Helyszín', session.location ?? '—'),
-        ('Felmérés kezdete', _dateFormat.format(session.startedAt)),
+        (_l.protoCompany, company),
+        (_l.protoSurveyName, session.title),
+        (_l.protoLocation, session.location ?? '—'),
+        (_l.protoStarted, _dateFormat.format(session.startedAt)),
         (
-          'Felmérés lezárása',
+          _l.protoClosed,
           session.closedAt == null
-              ? 'folyamatban'
+              ? _l.protoOngoing
               : _dateFormat.format(session.closedAt!)
         ),
-        ('Megjegyzés', session.notes ?? '—'),
+        (_l.protoNotes, session.notes ?? '—'),
       ],
       pointHeaders: [
-        '#', 'Helyszín', 'Típus', 'Érték', 'Egység',
-        'Táv. forrástól ($unitSymbol)', 'Műszer', 'GPS koordináta',
-        'GPS pontosság ($unitSymbol)', 'Időpont', 'Megjegyzés',
+        '#',
+        _l.protoLocation,
+        _l.protoColType,
+        _l.protoColValue,
+        _l.protoColUnit,
+        _l.protoColDistance(unitSymbol),
+        _l.protoColInstrument,
+        _l.protoColGps,
+        _l.protoColGpsAccuracy(unitSymbol),
+        _l.protoColTime,
+        _l.protoNotes,
       ],
       pointRows: pointRows,
       sourceHeaders: [
-        '#', 'Helyszín', 'Becsült aktivitás (mérésből)',
-        'Hozzárendelt forrás(ok)', 'Számított dózisteljesítmény',
-        'Mért dózisteljesítmény', 'Eltérés',
+        '#',
+        _l.protoLocation,
+        _l.protoColEstActivity,
+        _l.protoColAttached,
+        _l.protoColCalcTotal,
+        _l.protoColMeasured,
+        _l.protoColDiff,
       ],
       sourceRows: sourceRows,
-      dosimeterHeaders: const [
-        '#', 'Típus', 'Azonosító', 'Viselő', 'Állás (kezdő → záró)', 'Dózis',
-        'Beszámít',
+      dosimeterHeaders: [
+        '#',
+        _l.protoColType,
+        _l.protoColIdentifier,
+        _l.protoColWearer,
+        _l.protoColReading,
+        _l.protoColDose,
+        _l.protoColCounted,
       ],
       dosimeterRows: [
         for (final v in _dosimeterValueRows(inputs.dosimeters))
@@ -648,21 +703,21 @@ class ProtocolExportService {
         for (final v in _victimValueRows(inputs.victims, inputs.conditionsByLink))
           [for (final k in _victimKeys) v[k] ?? '—'],
       ],
-      sourceNote: 'Csak a forrással vagy aktivitás-becsléssel rendelkező mérési '
-          'pontok szerepelnek. A számított értékek tájékoztató jellegűek.',
+      sourceNote: _l.protoSourceNote,
       signatureFields: [
         (
-          'Felmérést végezte',
+          _l.protoSurveyedBy,
           inputs.personsText.isEmpty ? '—' : inputs.personsText
         ),
-        ('Cég', company),
-        ('Dátum', _dateOnlyFormat.format(DateTime.now())),
-        ('Aláírás', '_______________________'),
+        (_l.protoCompany, company),
+        (_l.protoDate, _dateOnlyFormat.format(DateTime.now())),
+        (_l.protoSignature, '_______________________'),
       ],
       photos: photos,
+      screenshots: screenshotItems,
     );
 
-    final bytes = await ProtocolPdfBuilder.build(data);
+    final bytes = await ProtocolPdfBuilder.build(data, _l);
     final docsDir = await getApplicationDocumentsDirectory();
     final pdfFile = File(p.join(
       docsDir.path,
@@ -670,6 +725,21 @@ class ProtocolExportService {
     ));
     await pdfFile.writeAsBytes(bytes);
     return pdfFile;
+  }
+
+  /// A képernyőkép felirata: a típus (térkép / pontlista) és a készítés ideje.
+  /// A fájlnév a `<címke>_<milliszekundum>.png` formátumot követi.
+  String _screenshotCaption(File shot) {
+    final name = p.basename(shot.path);
+    final base = name.startsWith('terkep')
+        ? _l.protoShotMap
+        : name.startsWith('pontok_lista')
+            ? _l.protoShotList
+            : name;
+    final ms = RegExp(r'_(\d+)\.png$').firstMatch(name)?.group(1);
+    if (ms == null) return base;
+    final when = DateTime.fromMillisecondsSinceEpoch(int.parse(ms));
+    return '$base · ${_dateFormat.format(when)}';
   }
 
   Future<Directory> _prepareOutputDir(SurveySession session) async {
@@ -689,39 +759,19 @@ class ProtocolExportService {
     return '${point.id}_$label$ext';
   }
 
-  /// A jegyzőkönyv (magyar sablon) mérés-típus címkéi. Az enum-név (pl. doseRate)
-  /// nem kerülhet a dokumentumba.
-  static const measurementTypeHu = {
-    MeasurementType.doseRate: 'Dózisteljesítmény',
-    MeasurementType.surfaceContamination: 'Felületi szennyezettség',
-    MeasurementType.cps: 'Beütésszám (cps)',
-    MeasurementType.neutronCps: 'Neutron beütésszám (cps)',
-    MeasurementType.sample: 'Mintavétel',
-    MeasurementType.meteorology: 'Meteorológia',
-    MeasurementType.gasMeasurement: 'Gázmérés',
-  };
-
-  static const _nuclideStatusHu = {
-    NuclideIdStatus.notSpecified: '',
-    NuclideIdStatus.identified: 'Azonosított nuklid(ok)',
-    NuclideIdStatus.unknown: 'Ismeretlen nuklid',
-    NuclideIdStatus.other: 'Egyéb nuklid (nincs a listában)',
-    NuclideIdStatus.mixture: 'Feltételezhetően több forrás (keverék)',
-  };
-
   /// A jegyzőkönyv sablonja fix oszlopokat tartalmaz, ezért a nuklid-azonosítás
   /// a Megjegyzés oszlop elejére kerül ("Nuklid-azonosítás: ...").
   String _notesWithNuclides(MeasurementPoint point) {
     final nuclideText = nuclideSummaryText(
       status: point.nuclideStatus,
       nuclides: point.nuclides,
-      statusLabel: (s) => _nuclideStatusHu[s] ?? '',
+      statusLabel: (s) => s == NuclideIdStatus.notSpecified ? '' : s.label(_l),
     );
     final notes = point.notes;
     if (nuclideText.isEmpty) return notes ?? '—';
     return notes == null
-        ? 'Nuklid-azonosítás: $nuclideText'
-        : 'Nuklid-azonosítás: $nuclideText. $notes';
+        ? _l.protoNuclideIdPrefix(nuclideText)
+        : '${_l.protoNuclideIdPrefix(nuclideText)}. $notes';
   }
 
   String _safeFileName(String input) =>
@@ -755,24 +805,23 @@ class ProtocolExportService {
     if (estimate == null) return null;
     final isotope = Isotope.findByName(nuclideName);
     final buf = StringBuffer(
-        '$nuclideName: ${formatActivityMBq(estimate.unshieldedMBq)} (árnyékolás nélkül)');
+        '$nuclideName: ${formatActivityMBq(estimate.unshieldedMBq)} (${_l.protoUnshielded})');
     if (estimate.shieldedMBq != null) {
-      buf.write('; árnyékolt: ${formatActivityMBq(estimate.shieldedMBq!)}');
+      buf.write('; ${_l.protoShieldedActivity(formatActivityMBq(estimate.shieldedMBq!))}');
     }
     // Bemenő adatok, hogy a becslés ellenőrizhető legyen.
-    buf.write('. Bemenő adatok: mért ${formatDoseRateUSvH(measuredUSvH)}, '
-        'távolság ${formatDistanceMeters(distance)}');
+    buf.write('. ${_l.protoInputData(formatDoseRateUSvH(measuredUSvH), formatDistanceMeters(distance))}');
     if (isotope != null) {
       buf.write(', Γ = ${_plainNumber(isotope.gammaConstant)} µSv·m²/(MBq·h)');
     }
     if (point.shieldingLayers.isNotEmpty) {
       final layers = point.shieldingLayers
-          .map((l) => '${_shieldingMaterialHu(l.material)} '
+          .map((l) => '${shieldingMaterialLabel(_l, l.material)} '
               '${_plainNumber(l.thicknessCm)} cm')
           .join(' + ');
-      buf.write(', árnyékolás: $layers');
+      buf.write(', ${_l.protoShieldingInline}: $layers');
       final t = layersTransmission(nuclideName, point.shieldingLayers);
-      if (t != null) buf.write(' (áteresztés T = ${_plainNumber(t)})');
+      if (t != null) buf.write(' (${_l.protoTransmission(_plainNumber(t))})');
     }
     buf.write('.');
     return buf.toString();
@@ -792,7 +841,10 @@ class ProtocolExportService {
     final parts = <String>[
       instrument.serialNumber == null
           ? instrument.name
-          : '${instrument.name} (s/n: ${instrument.serialNumber})',
+          : _l.protoInstrumentWithSerial(
+              instrument.name,
+              instrument.serialNumber!,
+            ),
     ];
     bool expiredAt(DateTime? until) =>
         until != null &&
@@ -804,42 +856,27 @@ class ProtocolExportService {
       if (r == null) continue;
       anyRecord = true;
       final label =
-          kind == CalibrationKind.verification ? 'Hitelesítés' : 'Kalibrálás';
+          kind == CalibrationKind.verification
+              ? _l.calibrationKindVerification
+              : _l.calibrationKindCalibration;
       final b = StringBuffer(
-          '$label: ${calibrationDateText(r.performedOn)}');
+          '$label${_l.protoColon}${calibrationDateText(r.performedOn)}');
       if (r.validUntil != null) {
-        b.write(', érvényes: ${calibrationDateText(r.validUntil!)}-ig');
+        b.write(', ${_l.protoCalibValidUntil(calibrationDateText(r.validUntil!))}');
       }
       if (r.certificateNumber != null) {
-        b.write(', bizonylat: ${r.certificateNumber}');
+        b.write(', ${_l.protoCalibCertificate(r.certificateNumber!)}');
       }
       if (r.performedBy != null) b.write(' (${r.performedBy})');
-      if (expiredAt(r.validUntil)) b.write(' – LEJÁRT a mérés időpontjában');
+      if (expiredAt(r.validUntil)) b.write(_l.protoCalibExpiredAtMeasure);
       parts.add(b.toString());
     }
     if (!anyRecord && instrument.nextCalibrationDate != null) {
       final d = instrument.nextCalibrationDate!;
-      parts.add('Kalibráció érvényes: ${calibrationDateText(d)}-ig'
-          '${expiredAt(d) ? ' – LEJÁRT a mérés időpontjában' : ''}');
+      parts.add(_l.protoCalibFallback(calibrationDateText(d)) +
+          (expiredAt(d) ? _l.protoCalibExpiredAtMeasure : ''));
     }
     return parts.join('; ');
-  }
-
-  String _shieldingMaterialHu(ShieldingMaterial m) {
-    switch (m) {
-      case ShieldingMaterial.lead:
-        return 'ólom';
-      case ShieldingMaterial.steel:
-        return 'acél';
-      case ShieldingMaterial.concrete:
-        return 'beton';
-      case ShieldingMaterial.tungsten:
-        return 'wolfram';
-      case ShieldingMaterial.aluminium:
-        return 'alumínium';
-      case ShieldingMaterial.water:
-        return 'víz';
-    }
   }
 
   /// A ponthoz rendelt források összesített, számított dózisteljesítménye
@@ -918,16 +955,6 @@ class ProtocolExportService {
     }
 
     xml = xml.replaceRange(rowStart, rowEnd, generatedRows.toString());
-
-    // A sablon fejléce fix "(m)"-et ír; a kiválasztott távolság-egységre cseréljük.
-    xml = xml.replaceAll(
-      'Táv. forrástól (m)',
-      'Táv. forrástól (${DistanceUnitController.current.symbol})',
-    );
-    xml = xml.replaceAll(
-      'GPS pontosság (m)',
-      'GPS pontosság (${DistanceUnitController.current.symbol})',
-    );
 
     // A ${sources.*} placeholdereket tartalmazó <w:tr> a "Sugárforrás-elemzés"
     // táblázat repeatelendő sablonsora — csak azok a pontok kerülnek bele,
@@ -1023,7 +1050,7 @@ class ProtocolExportService {
     // Területek, meteorológia és gázmérés az aláírás-sor elé, az érintettek után.
     final meteo = _meteoRows(points);
     final gas = _gasRows(points);
-    final signIdx = xml.indexOf('Felmérést végezte: ');
+    final signIdx = xml.indexOf(r'${lbl_surveyed_by}');
     if (signIdx == -1) {
       throw StateError('A sablonban nem található az aláírás-sor.');
     }
@@ -1031,17 +1058,17 @@ class ProtocolExportService {
     final extraBlock = StringBuffer();
     if (areaRows.isNotEmpty) {
       extraBlock
-        ..write(_headingXmlFor('Jelölt területek'))
+        ..write(_headingXmlFor(_l.protoAreasHeading))
         ..write(_tableXml(_areaHeaders, areaRows, _areaColumnWidths));
     }
     if (meteo.isNotEmpty) {
       extraBlock
-        ..write(_headingXmlFor('Meteorológia'))
+        ..write(_headingXmlFor(_l.protoMeteoHeading))
         ..write(_tableXml(_meteoHeaders, meteo, _meteoColumnWidths, fontSize: 14));
     }
     if (gas.isNotEmpty) {
       extraBlock
-        ..write(_headingXmlFor('Gázmérés'))
+        ..write(_headingXmlFor(_l.protoGasHeading))
         ..write(_tableXml(_gasHeaders, gas, _gasColumnWidths));
     }
     if (extraBlock.isNotEmpty) {
@@ -1056,11 +1083,47 @@ class ProtocolExportService {
       'survey_location': session.location ?? '—',
       'survey_started': _dateFormat.format(session.startedAt),
       'survey_closed': session.closedAt == null
-          ? 'folyamatban'
+          ? _l.protoOngoing
           : _dateFormat.format(session.closedAt!),
       'survey_notes': session.notes ?? '—',
       'surveyor_name': personsText.isEmpty ? '—' : personsText,
       'export_date': _dateOnlyFormat.format(DateTime.now()),
+      // A sablon statikus szövegei (címkék) — a nyelvtől függnek.
+      'lbl_title': _l.protoTitle,
+      'lbl_survey_name': _l.protoSurveyName,
+      'lbl_location': _l.protoLocation,
+      'lbl_started': _l.protoStarted,
+      'lbl_closed': _l.protoClosed,
+      'lbl_notes': _l.protoNotes,
+      'lbl_colon': _l.protoColon,
+      'lbl_points_heading': _l.protoPointsHeading,
+      'lbl_col_type': _l.protoColType,
+      'lbl_col_value': _l.protoColValue,
+      'lbl_col_unit': _l.protoColUnit,
+      'lbl_col_distance': _l.protoColDistance(DistanceUnitController.current.symbol),
+      'lbl_col_instrument': _l.protoColInstrument,
+      'lbl_col_gps': _l.protoColGps,
+      'lbl_col_gps_accuracy':
+          _l.protoColGpsAccuracy(DistanceUnitController.current.symbol),
+      'lbl_col_time': _l.protoColTime,
+      'lbl_col_photo': _l.protoColPhoto,
+      'lbl_source_heading': _l.protoSourceHeading,
+      'lbl_col_est_activity': _l.protoColEstActivity,
+      'lbl_col_attached': _l.protoColAttached,
+      'lbl_col_calc_total': _l.protoColCalcTotal,
+      'lbl_col_measured': _l.protoColMeasured,
+      'lbl_col_diff': _l.protoColDiff,
+      'lbl_source_note': _l.protoSourceNote,
+      'lbl_dosimeter_heading': _l.protoDosimeterHeading,
+      'lbl_col_identifier': _l.protoColIdentifier,
+      'lbl_col_wearer': _l.protoColWearer,
+      'lbl_col_reading': _l.protoColReading,
+      'lbl_col_dose': _l.protoColDose,
+      'lbl_col_counted': _l.protoColCounted,
+      'lbl_surveyed_by': _l.protoSurveyedBy,
+      'lbl_company': _l.protoCompany,
+      'lbl_date': _l.protoDate,
+      'lbl_signature': _l.protoSignature,
     };
     for (final entry in scalars.entries) {
       xml = xml.replaceAll('\${${entry.key}}', _xmlEscape(entry.value));

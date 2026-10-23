@@ -263,7 +263,6 @@
   "dosimeterDoseLabel": "Dosimeter",
   "@dosimeterValueLabel": {},
   "dosimeterValueLabel": "Ausgewertete Dosis",
- 
   "@includeInAnnualLabel": {},
   "includeInAnnualLabel": "Zählt zur Jahresdosis",
   "notCountedInAnnualLabel": "nicht in der Jahresdosis",
@@ -974,5 +973,357 @@
   "displayPressureUnitLabel": "Druckeinheit",
   "@displayPressureUnitLabel": {},
   "displayWindUnitLabel": "Windgeschwindigkeitseinheit",
-  "@displayWindUnitLabel": {}
+  "@displayWindUnitLabel": {},
+  "protoTitle": "Protokoll der Strahlenmessung im Gelände",
+  "@protoTitle": {},
+  "protoCompany": "Unternehmen",
+  "@protoCompany": {},
+  "protoSurveyName": "Bezeichnung der Messung",
+  "@protoSurveyName": {},
+  "protoLocation": "Messort",
+  "@protoLocation": {},
+  "protoStarted": "Messbeginn",
+  "@protoStarted": {},
+  "protoClosed": "Messende",
+  "@protoClosed": {},
+  "protoNotes": "Bemerkung",
+  "@protoNotes": {},
+  "protoOngoing": "laufend",
+  "@protoOngoing": {},
+  "protoDate": "Datum",
+  "@protoDate": {},
+  "protoSignature": "Unterschrift",
+  "@protoSignature": {},
+  "protoSurveyedBy": "Durchgeführt von",
+  "@protoSurveyedBy": {},
+  "protoColon": ": ",
+  "@protoColon": {},
+  "protoDecimalSep": ",",
+  "@protoDecimalSep": {},
+  "protoDateTimeFormat": "dd.MM.yyyy HH:mm",
+  "@protoDateTimeFormat": {},
+  "protoDateFormat": "dd.MM.yyyy",
+  "@protoDateFormat": {},
+  "protoPointsHeading": "Messpunkte",
+  "@protoPointsHeading": {},
+  "protoSourceHeading": "Quellenanalyse",
+  "@protoSourceHeading": {},
+  "protoNoSourcePoints": "Kein Messpunkt mit zugeordneter Quelle oder Aktivitätsschätzung.",
+  "@protoNoSourcePoints": {},
+  "protoSourceNote": "Aufgeführt werden nur Messpunkte mit zugeordneter Quelle oder Aktivitätsschätzung. Die berechneten Werte dienen nur der Information.",
+  "@protoSourceNote": {},
+  "protoDosimeterHeading": "Dosimeter",
+  "@protoDosimeterHeading": {},
+  "protoVictimsHeading": "Betroffene Personen (Opfer)",
+  "@protoVictimsHeading": {},
+  "protoAreasHeading": "Markierte Bereiche",
+  "@protoAreasHeading": {},
+  "protoMeteoHeading": "Meteorologie",
+  "@protoMeteoHeading": {},
+  "protoGasHeading": "Gasmessung",
+  "@protoGasHeading": {},
+  "protoPhotosHeading": "Fotos",
+  "@protoPhotosHeading": {},
+  "protoScreenshotsHeading": "Bildschirmfotos",
+  "@protoScreenshotsHeading": {},
+  "protoPhotoUnreadable": "(Foto nicht lesbar)",
+  "@protoPhotoUnreadable": {},
+  "protoNoDosimeter": "Kein Dosimeter erfasst",
+  "@protoNoDosimeter": {},
+  "protoYes": "ja",
+  "@protoYes": {},
+  "protoNo": "nein",
+  "@protoNo": {},
+  "protoColType": "Typ",
+  "@protoColType": {},
+  "protoColValue": "Wert",
+  "@protoColValue": {},
+  "protoColUnit": "Einheit",
+  "@protoColUnit": {},
+  "protoColDistance": "Abstand zur Quelle ({unit})",
+  "@protoColDistance": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "protoColInstrument": "Messgerät",
+  "@protoColInstrument": {},
+  "protoColGps": "GPS-Koordinaten",
+  "@protoColGps": {},
+  "protoColGpsAccuracy": "GPS-Genauigkeit ({unit})",
+  "@protoColGpsAccuracy": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "protoColTime": "Zeitpunkt",
+  "@protoColTime": {},
+  "protoColPhoto": "Fotodatei",
+  "@protoColPhoto": {},
+  "protoColEstActivity": "Geschätzte Aktivität (aus Messung)",
+  "@protoColEstActivity": {},
+  "protoColAttached": "Zugeordnete Quelle(n)",
+  "@protoColAttached": {},
+  "protoColCalcTotal": "Berechnete Dosisleistung",
+  "@protoColCalcTotal": {},
+  "protoColMeasured": "Gemessene Dosisleistung",
+  "@protoColMeasured": {},
+  "protoColDiff": "Abweichung",
+  "@protoColDiff": {},
+  "protoColIdentifier": "Kennung",
+  "@protoColIdentifier": {},
+  "protoColWearer": "Träger",
+  "@protoColWearer": {},
+  "protoColReading": "Stand (Anfang → Ende)",
+  "@protoColReading": {},
+  "protoColDose": "Dosis",
+  "@protoColDose": {},
+  "protoColCounted": "Angerechnet",
+  "@protoColCounted": {},
+  "protoColFormula": "Formel",
+  "@protoColFormula": {},
+  "protoColName": "Name",
+  "@protoColName": {},
+  "protoColTriage": "Triage",
+  "@protoColTriage": {},
+  "protoColInjuries": "Verletzungen",
+  "@protoColInjuries": {},
+  "protoColIllnesses": "Erkrankungen",
+  "@protoColIllnesses": {},
+  "protoColAreaName": "Bezeichnung des Bereichs",
+  "@protoColAreaName": {},
+  "protoColShape": "Form",
+  "@protoColShape": {},
+  "protoColGeometry": "Geometrie",
+  "@protoColGeometry": {},
+  "protoColAreaSize": "Fläche (m²)",
+  "@protoColAreaSize": {},
+  "protoColTemp": "Temp. ({unit})",
+  "@protoColTemp": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "protoColHumidity": "Feuchte (%)",
+  "@protoColHumidity": {},
+  "protoColPressure": "Druck ({unit})",
+  "@protoColPressure": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "protoColWind": "Wind ({unit})",
+  "@protoColWind": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "protoColWindDir": "Windrichtung (°)",
+  "@protoColWindDir": {},
+  "protoColGust": "Böe ({unit})",
+  "@protoColGust": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "protoColPrecip": "Niederschlag",
+  "@protoColPrecip": {},
+  "protoColPrecipIntensity": "Niederschlagsrate (mm/h)",
+  "@protoColPrecipIntensity": {},
+  "protoColSolar": "Sonnenstrahlung (W/m²)",
+  "@protoColSolar": {},
+  "protoColCloud": "Bewölkung (Achtel)",
+  "@protoColCloud": {},
+  "protoColVisibility": "Sichtweite (m)",
+  "@protoColVisibility": {},
+  "protoColSoil": "Bodenfeuchte (%)",
+  "@protoColSoil": {},
+  "protoColAerosol": "Aerosol (µg/m³)",
+  "@protoColAerosol": {},
+  "protoColOther": "Sonstiges",
+  "@protoColOther": {},
+  "protoShapePolygon": "Polygon",
+  "@protoShapePolygon": {},
+  "protoShapeCircle": "Kreis",
+  "@protoShapeCircle": {},
+  "protoCornerPoints": "{count} Eckpunkte",
+  "@protoCornerPoints": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "protoCenterRadius": "Mittelpunkt: {lat}, {lon}; Radius: {radius} m",
+  "@protoCenterRadius": {
+    "placeholders": {
+      "lat": {
+        "type": "String"
+      },
+      "lon": {
+        "type": "String"
+      },
+      "radius": {
+        "type": "String"
+      }
+    }
+  },
+  "protoPersonDose": "{name} (Dosis: {total})",
+  "@protoPersonDose": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "protoPersonDoseBreakdown": "{name} (Dosis: {total} – {breakdown})",
+  "@protoPersonDoseBreakdown": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "breakdown": {
+        "type": "String"
+      }
+    }
+  },
+  "protoDoseSession": "Messung {dose}",
+  "@protoDoseSession": {
+    "placeholders": {
+      "dose": {
+        "type": "String"
+      }
+    }
+  },
+  "protoDoseDosimeter": "Dosimeter {dose}",
+  "@protoDoseDosimeter": {
+    "placeholders": {
+      "dose": {
+        "type": "String"
+      }
+    }
+  },
+  "protoInstrumentWithSerial": "{name} (Seriennr.: {serial})",
+  "@protoInstrumentWithSerial": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "serial": {
+        "type": "String"
+      }
+    }
+  },
+  "protoCalibValidUntil": "gültig bis {date}",
+  "@protoCalibValidUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "protoCalibCertificate": "Zertifikat: {number}",
+  "@protoCalibCertificate": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "protoCalibExpiredAtMeasure": " – ABGELAUFEN zum Messzeitpunkt",
+  "@protoCalibExpiredAtMeasure": {},
+  "protoCalibFallback": "Kalibrierung gültig bis {date}",
+  "@protoCalibFallback": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "protoUnshielded": "ohne Abschirmung",
+  "@protoUnshielded": {},
+  "protoShieldedActivity": "abgeschirmt: {activity}",
+  "@protoShieldedActivity": {
+    "placeholders": {
+      "activity": {
+        "type": "String"
+      }
+    }
+  },
+  "protoInputData": "Eingangsdaten: gemessen {measured}, Abstand {distance}",
+  "@protoInputData": {
+    "placeholders": {
+      "measured": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "protoShieldingInline": "Abschirmung",
+  "@protoShieldingInline": {},
+  "protoTransmission": "Transmission T = {value}",
+  "@protoTransmission": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "protoNuclideIdPrefix": "Nuklididentifizierung: {text}",
+  "@protoNuclideIdPrefix": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "protoShotMap": "Karte",
+  "@protoShotMap": {},
+  "protoShotList": "Punktliste",
+  "@protoShotList": {},
+  "protoPhotoCaption": "Punkt {index} · {type} · {location} · {time}",
+  "@protoPhotoCaption": {
+    "placeholders": {
+      "index": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      },
+      "location": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mapMeasureTooltip": "Entfernungsmessung",
+  "@mapMeasureTooltip": {},
+  "mapMeasureHint": "Tippe auf zwei Punkte, um eine Linie zu ziehen. Tippe auf das Etikett einer Linie, um sie auszuwählen, zu färben oder zu löschen.",
+  "@mapMeasureHint": {},
+  "mapMeasureClear": "Alle löschen",
+  "@mapMeasureClear": {},
+  "@mapMeasureDeleteSelected": {},
+  "mapMeasureDeleteSelected": "Auswahl löschen"
 }

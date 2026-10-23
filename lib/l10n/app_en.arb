@@ -1,1473 +1,1870 @@
 {
-    "@@locale": "en",
-    "appTitle": "RadRecon",
-    "@appTitle": {},
-    "instrumentsTooltip": "Instruments",
-    "@instrumentsTooltip": {},
-    "searchHint": "Search",
-    "@searchHint": {},
-    "searchNoResults": "No matching results",
-    "@searchNoResults": {},
-    "alertThresholdsTooltip": "Alert thresholds",
-    "@alertThresholdsTooltip": {},
-    "noSurveysYet": "No surveys yet. Start one with the + button.",
-    "@noSurveysYet": {},
-    "newSurveyButton": "New survey",
-    "@newSurveyButton": {},
-    "newSurveyDialogTitle": "New survey",
-    "@newSurveyDialogTitle": {},
-    "surveyNameLabel": "Name",
-    "@surveyNameLabel": {},
-    "surveyLocationLabel": "Location (optional)",
-    "@surveyLocationLabel": {},
-    "editSurveyDetailsTooltip": "Edit name and location",
-    "@editSurveyDetailsTooltip": {},
-    "editSurveyDetailsTitle": "Edit survey details",
-    "@editSurveyDetailsTitle": {},
-    "cancelButton": "Cancel",
-    "@cancelButton": {},
-    "startButton": "Start",
-    "@startButton": {},
-    "surveyDefaultTitle": "Survey – {date}",
-    "@surveyDefaultTitle": {
-        "placeholders": {
-            "date": {
-                "type": "String"
-            }
-        }
-    },
-    "@noLocationPlaceholder": {},
-    "noLocationPlaceholder": "—",
-    "doseUnitSectionTitle": "Dose rate default unit",
-    "@doseUnitSectionTitle": {},
-    "doseUnitSectionHint": "These units are preselected for new measurements. When recording, another one can be picked from a list, no typing needed, and the entered number is converted automatically when the unit changes. The dose rate alert threshold is converted too.",
-    "@doseUnitSectionHint": {},
-    "unitsSectionTitle": "Units",
-    "@unitsSectionTitle": {},
-    "activityUnitLabel": "Activity default unit",
-    "@activityUnitLabel": {},
-    "distanceUnitLabel": "Distance default unit",
-    "@distanceUnitLabel": {},
-    "activityPlainLabel": "Activity",
-    "@activityPlainLabel": {},
-    "measuredDoseRatePlainLabel": "Measured dose rate",
-    "@measuredDoseRatePlainLabel": {},
-    "distanceFromSourcePlainLabel": "Distance from source",
-    "@distanceFromSourcePlainLabel": {},
-    "sourceDistancePlainLabel": "Distance from measurement point",
-    "@sourceDistancePlainLabel": {},
-    "activityAtManufacturePlainLabel": "Activity at manufacture",
-    "@activityAtManufacturePlainLabel": {},
-    "invalidDistancePlainError": "Enter a valid, positive distance.",
-    "@invalidDistancePlainError": {},
-    "invalidActivityPlainError": "Enter a valid activity.",
-    "@invalidActivityPlainError": {},
-    "invalidDoseRatePlainError": "Enter a valid dose rate.",
-    "@invalidDoseRatePlainError": {},
-    "distanceFromSourceShortLabel": "Distance from source",
-    "@distanceFromSourceShortLabel": {},
-    "calculatedActivityResultLabel": "Calculated activity",
-    "@calculatedActivityResultLabel": {},
-    "distanceIntervalPlainLabel": "Distance interval",
-    "@distanceIntervalPlainLabel": {},
-    "modbusQuantityLabel": "What the register returns",
-    "@modbusQuantityLabel": {},
-    "modbusRegisterUnitLabel": "Register unit",
-    "@modbusRegisterUnitLabel": {},
-    "modbusQuantityHelper": "When recording, the app converts the value to the default unit chosen in Settings.",
-    "@modbusQuantityHelper": {},
-    "autoLogTypeFromInstrument": "Auto-logging records the quantity configured for the instrument.",
-    "@autoLogTypeFromInstrument": {},
-    "nuclideIdSectionTitle": "Nuclide identification",
-    "@nuclideIdSectionTitle": {},
-    "nuclideStatusNone": "Not specified",
-    "@nuclideStatusNone": {},
-    "nuclideStatusIdentified": "Identified nuclide(s)",
-    "@nuclideStatusIdentified": {},
-    "nuclideStatusUnknown": "Unknown",
-    "@nuclideStatusUnknown": {},
-    "nuclideStatusOther": "Other (not in the list)",
-    "@nuclideStatusOther": {},
-    "nuclideStatusMixture": "Presumably multiple sources (mixture)",
-    "@nuclideStatusMixture": {},
-    "nuclideKnownListLabel": "Nuclides from the list",
-    "@nuclideKnownListLabel": {},
-    "nuclideCustomLabel": "Other nuclide name",
-    "@nuclideCustomLabel": {},
-    "nuclideAddButton": "Add",
-    "@nuclideAddButton": {},
-    "nuclideRequiredError": "Enter at least one nuclide, or choose Unknown.",
-    "@nuclideRequiredError": {},
-    "csvHeaderNuclides": "Nuclide identification",
-    "@csvHeaderNuclides": {},
-    "nuclideDoneButton": "Done",
-    "@nuclideDoneButton": {},
-    "unshieldedActivityLabel": "Activity (unshielded)",
-    "@unshieldedActivityLabel": {},
-    "shieldingSectionTitle": "Shielding (optional)",
-    "@shieldingSectionTitle": {},
-    "shieldingHint": "If the source is behind shielding, enter its material and thickness - the app will also estimate the actual activity of the shielded source.",
-    "@shieldingHint": {},
-    "shieldingMaterialLabel": "Shielding material",
-    "@shieldingMaterialLabel": {},
-    "shieldingNoneOption": "No shielding",
-    "@shieldingNoneOption": {},
-    "shieldingThicknessLabel": "Shielding thickness",
-    "@shieldingThicknessLabel": {},
-    "shieldingThicknessError": "Enter a positive thickness",
-    "@shieldingThicknessError": {},
-    "shieldedActivityLabel": "Estimated activity of the shielded source",
-    "@shieldedActivityLabel": {},
-    "shieldingDisclaimer": "Approximate estimate: attenuation is modelled with half-value layers (each HVL of thickness halves the dose rate) using indicative HVL values. Scattered radiation (buildup), source geometry and the spectrum are simplified, so the result tends to overestimate the activity. Verify against an authoritative source for official protocols.",
-    "@shieldingDisclaimer": {},
-    "shieldingMaterialLead": "Lead",
-    "@shieldingMaterialLead": {},
-    "shieldingMaterialSteel": "Steel (iron)",
-    "@shieldingMaterialSteel": {},
-    "shieldingMaterialConcrete": "Concrete",
-    "@shieldingMaterialConcrete": {},
-    "shieldingMaterialTungsten": "Tungsten",
-    "@shieldingMaterialTungsten": {},
-    "shieldingMaterialAluminium": "Aluminium",
-    "@shieldingMaterialAluminium": {},
-    "shieldingMaterialWater": "Water",
-    "@shieldingMaterialWater": {},
-    "csvUnshieldedNote": "unshielded",
-    "@csvUnshieldedNote": {},
-    "csvShieldedSourceNote": "shielded source",
-    "@csvShieldedSourceNote": {},
-    "shieldingAddLayer": "Add layer",
-    "@shieldingAddLayer": {},
-    "shieldingLayerLabel": "Layer",
-    "@shieldingLayerLabel": {},
-    "shieldingRemoveLayer": "Remove layer",
-    "@shieldingRemoveLayer": {},
-    "doseRateUnshieldedLabel": "Dose rate (unshielded)",
-    "@doseRateUnshieldedLabel": {},
-    "doseRateShieldedLabel": "Dose rate behind the shielding",
-    "@doseRateShieldedLabel": {},
-    "calibrationSectionTitle": "Verification and calibration",
-    "@calibrationSectionTitle": {},
-    "calibrationKindVerification": "Verification",
-    "@calibrationKindVerification": {},
-    "calibrationKindCalibration": "Calibration",
-    "@calibrationKindCalibration": {},
-    "calibrationAddButton": "Add record",
-    "@calibrationAddButton": {},
-    "calibrationDialogTitle": "Verification / calibration record",
-    "@calibrationDialogTitle": {},
-    "calibrationKindLabel": "Type",
-    "@calibrationKindLabel": {},
-    "calibrationPerformedOnLabel": "Date performed",
-    "@calibrationPerformedOnLabel": {},
-    "calibrationValidUntilLabel": "Valid until",
-    "@calibrationValidUntilLabel": {},
-    "calibrationCertificateLabel": "Certificate number",
-    "@calibrationCertificateLabel": {},
-    "calibrationPerformedByLabel": "Performed by (lab / authority)",
-    "@calibrationPerformedByLabel": {},
-    "calibrationAttachFile": "Attach certificate",
-    "@calibrationAttachFile": {},
-    "calibrationRemoveFile": "Remove attachment",
-    "@calibrationRemoveFile": {},
-    "calibrationOpenFile": "Open / share certificate",
-    "@calibrationOpenFile": {},
-    "calibrationEmptyList": "No records yet.",
-    "@calibrationEmptyList": {},
-    "calibrationStatusValid": "Valid",
-    "@calibrationStatusValid": {},
-    "calibrationStatusSoon": "Expires soon",
-    "@calibrationStatusSoon": {},
-    "calibrationStatusExpired": "EXPIRED",
-    "@calibrationStatusExpired": {},
-    "calibrationStatusUnknown": "No data",
-    "@calibrationStatusUnknown": {},
-    "calibrationExpiredWarning": "Warning: the selected instrument's verification/calibration has expired. Valid until:",
-    "@calibrationExpiredWarning": {},
-    "calibrationSoonWarning": "Warning: the selected instrument's verification/calibration expires soon. Valid until:",
-    "@calibrationSoonWarning": {},
-    "calibrationUnknownWarning": "The selected instrument has no verification/calibration data.",
-    "@calibrationUnknownWarning": {},
-    "calibrationSaveAnywayTitle": "Expired verification/calibration",
-    "@calibrationSaveAnywayTitle": {},
-    "calibrationSaveAnywayBody": "The measurement was taken with an instrument whose verification/calibration has expired; the protocol will flag this. Save anyway?",
-    "@calibrationSaveAnywayBody": {},
-    "calibrationSaveAnywayConfirm": "Save anyway",
-    "@calibrationSaveAnywayConfirm": {},
-    "calibrationValidUntilBeforeError": "Validity cannot be before the date performed",
-    "@calibrationValidUntilBeforeError": {},
-    "csvHeaderInstrumentCalibration": "Instrument verification/calibration",
-    "@csvHeaderInstrumentCalibration": {},
-    "personPhoneLabel": "Phone number",
-    "@personPhoneLabel": {},
-    "personEmailLabel": "Email address",
-    "@personEmailLabel": {},
-    "personAddEmail": "Add email address",
-    "@personAddEmail": {},
-    "personRemoveEmail": "Remove email",
-    "@personRemoveEmail": {},
-    "personEmailInvalidError": "Invalid email address",
-    "@personEmailInvalidError": {},
-    "personCertificatesTitle": "Certificates",
-    "@personCertificatesTitle": {},
-    "personCertificateAdd": "Add certificate",
-    "@personCertificateAdd": {},
-    "personCertificateDialogTitle": "Certificate",
-    "@personCertificateDialogTitle": {},
-    "personCertificateNameLabel": "Name (e.g. radiation protection exam)",
-    "@personCertificateNameLabel": {},
-    "personCertificateNumberLabel": "Certificate number",
-    "@personCertificateNumberLabel": {},
-    "personCertificateIssuerLabel": "Issuer",
-    "@personCertificateIssuerLabel": {},
-    "personCertificateIssuedLabel": "Issue date",
-    "@personCertificateIssuedLabel": {},
-    "personCertificateNameRequired": "Enter the certificate name",
-    "@personCertificateNameRequired": {},
-    "personCertificateValidBeforeError": "Validity cannot be before the issue date",
-    "@personCertificateValidBeforeError": {},
-    "personCertificatesEmpty": "No certificates yet.",
-    "@personCertificatesEmpty": {},
-    "sourceCertificateTitle": "Source certificate",
-    "@sourceCertificateTitle": {},
-    "sourceCertificateAttach": "Attach certificate",
-    "@sourceCertificateAttach": {},
-    "sourceCertificateEmpty": "No certificate attached.",
-    "@sourceCertificateEmpty": {},
-    "companyDocumentsTooltip": "Company documents and permits",
-    "@companyDocumentsTooltip": {},
-    "companyDocumentNew": "New document",
-    "@companyDocumentNew": {},
-    "companyDocumentEdit": "Edit document",
-    "@companyDocumentEdit": {},
-    "companyDocumentTitleLabel": "Document name",
-    "@companyDocumentTitleLabel": {},
-    "companyDocumentIdentifierLabel": "Identifier (file / permit number)",
-    "@companyDocumentIdentifierLabel": {},
-    "companyDocumentIssuerLabel": "Issuer / authority",
-    "@companyDocumentIssuerLabel": {},
-    "companyDocumentIssuedLabel": "Issue / effective date",
-    "@companyDocumentIssuedLabel": {},
-    "companyDocumentValidUntilLabel": "Valid / review due until",
-    "@companyDocumentValidUntilLabel": {},
-    "companyDocumentFilesTitle": "Attached files",
-    "@companyDocumentFilesTitle": {},
-    "companyDocumentAttach": "Attach file",
-    "@companyDocumentAttach": {},
-    "companyDocumentsEmpty": "No documents yet.",
-    "@companyDocumentsEmpty": {},
-    "companyDocumentDeleteTitle": "Delete document",
-    "@companyDocumentDeleteTitle": {},
-    "companyDocumentDeleteConfirm": "Delete this document?",
-    "@companyDocumentDeleteConfirm": {},
-    "companyDocSuggestionsLabel": "Common documents",
-    "@companyDocSuggestionsLabel": {},
-    "companyDocSuggestRadiationPolicy": "Workplace radiation protection policy",
-    "@companyDocSuggestRadiationPolicy": {},
-    "companyDocSuggestRadiationDescription": "Radiation protection description",
-    "@companyDocSuggestRadiationDescription": {},
-    "companyDocSuggestPhysicalProtection": "Physical protection plan",
-    "@companyDocSuggestPhysicalProtection": {},
-    "companyDocSuggestEmergencyPlan": "Emergency response plan",
-    "@companyDocSuggestEmergencyPlan": {},
-    "nuclideEditButton": "Edit nuclides",
-    "@nuclideEditButton": {},
-    "languageSectionTitle": "Language",
-    "@languageSectionTitle": {},
-    "languageSystemOption": "Phone language",
-    "@languageSystemOption": {},
-    "@settingsTitle": {},
-    "@appearanceSectionTitle": {},
-    "@themeLight": {},
-    "@themeDark": {},
-    "@themeSystem": {},
-    "settingsTitle": "Settings",
-    "appearanceSectionTitle": "Appearance",
-    "themeLight": "Light",
-    "themeDark": "Dark",
-    "themeSystem": "System",
-    "alertThresholdExplanation": "If a recorded measurement reaches or exceeds the threshold set here, the app will alert you (sound + pop-up). Leave empty for no alert on that type.",
-    "@alertThresholdExplanation": {},
-    "noThresholdSetHint": "No threshold set",
-    "@noThresholdSetHint": {},
-    "saveButton": "Save",
-    "@saveButton": {},
-    "settingsSavedMessage": "Settings saved.",
-    "@settingsSavedMessage": {},
-    "@measurementTypeDoseRate": {},
-    "measurementTypeDoseRate": "Dose rate",
-    "@measurementTypeSurfaceContamination": {},
-    "measurementTypeSurfaceContamination": "Surface contamination",
-    "@measurementTypeCps": {},
-    "measurementTypeCps": "Count rate (cps)",
-    "@measurementTypeNeutronCps": {},
-    "measurementTypeNeutronCps": "Neutron count rate (cps)",
-    "@measurementTypeSample": {},
-    "measurementTypeSample": "Sampling",
-    "instrumentDeleteTitle": "Delete instrument",
-    "@instrumentDeleteTitle": {},
-    "instrumentDeleteConfirm": "Delete \"{name}\"? Past measurements linked to it are kept — only the instrument reference is removed from them.",
-    "@instrumentDeleteConfirm": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "deleteButton": "Delete",
-    "@deleteButton": {},
-    "noInstrumentsYet": "No instruments yet. Add one with the + button.",
-    "@noInstrumentsYet": {},
-    "noCalibrationData": "No calibration data",
-    "@noCalibrationData": {},
-    "nextCalibrationOn": "Next calibration: {date}",
-    "@nextCalibrationOn": {
-        "placeholders": {
-            "date": {
-                "type": "String"
-            }
-        }
-    },
-    "noSerialNumber": "no serial number",
-    "@noSerialNumber": {},
-    "@newInstrumentButton": {},
-    "newInstrumentButton": "New instrument",
-    "@editInstrumentTitle": {},
-    "editInstrumentTitle": "Edit instrument",
-    "@instrumentNameLabel": {},
-    "@requiredFieldError": {},
-    "@serialNumberLabel": {},
-    "lastCalibrationLabel": "Last calibration date",
-    "@lastCalibrationLabel": {},
-    "@notSetLabel": {},
-    "@calibrationFactorLabel": {},
-    "@modbusConnectedLabel": {},
-    "@modbusHostLabel": {},
-    "@modbusPortLabel": {},
-    "@modbusUnitIdLabel": {},
-    "@modbusRegisterAddressLabel": {},
-    "@modbusRegisterAddressHelper": {},
-    "instrumentNameLabel": "Instrument name / type",
-    "requiredFieldError": "Required",
-    "serialNumberLabel": "Serial number",
-    "nextCalibrationLabel": "Next calibration date",
-    "notSetLabel": "Not set",
-    "calibrationFactorLabel": "Calibration factor",
-    "modbusConnectedLabel": "Reachable over WiFi Modbus/TCP",
-    "modbusHostLabel": "IP address / host",
-    "modbusPortLabel": "Port (e.g. 502)",
-    "modbusUnitIdLabel": "Modbus Unit ID (slave address)",
-    "modbusRegisterAddressLabel": "Register address (e.g. 294)",
-    "modbusRegisterAddressHelper": "Starting holding register of the measured value (float32)",
-    "modbusGpsEnabledLabel": "Read GPS position over Modbus",
-    "modbusGpsLatAddressLabel": "Latitude register (float32, default 426)",
-    "modbusGpsLonAddressLabel": "Longitude register (float32, default 428)",
-    "@modbusGpsEnabledLabel": {},
-    "@modbusGpsLatAddressLabel": {},
-    "@modbusGpsLonAddressLabel": {},
-    "@pickPositionTitle": {},
-    "pickPositionTitle": "Pick a position",
-    "@confirmPositionButton": {},
-    "confirmPositionButton": "Confirm position",
-    "isotopeCalculatorTitle": "Isotope calculator",
-    "@isotopeCalculatorTitle": {},
-    "@gammaConstantsDisclaimer": {},
-    "gammaConstantsDisclaimer": "The Γ-constants are for reference only. For an official protocol, verify them against an authoritative source before documenting the result.",
-    "@isotopeLabel": {},
-    "isotopeLabel": "Isotope",
-    "@modeDoseFromActivity": {},
-    "modeDoseFromActivity": "Activity to\ndose rate",
-    "@modeActivityFromDose": {},
-    "modeActivityFromDose": "Dose rate to\nactivity",
-    "@distanceFromSourceLabel": {},
-    "distanceFromSourceLabel": "Distance from source (m)",
-    "@activityLabel": {},
-    "activityLabel": "Activity (MBq)",
-    "@measuredDoseRateLabel": {},
-    "measuredDoseRateLabel": "Measured dose rate (µSv/h)",
-    "@calculateButton": {},
-    "calculateButton": "Calculate",
-    "@invalidDistanceError": {},
-    "invalidDistanceError": "Enter a valid, positive distance (m).",
-    "@invalidActivityError": {},
-    "invalidActivityError": "Enter a valid activity (MBq).",
-    "@invalidDoseRateError": {},
-    "invalidDoseRateError": "Enter a valid dose rate (µSv/h).",
-    "calculationErrorMessage": "Calculation error: {error}",
-    "@calculationErrorMessage": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "calculatedDoseRateResult": "Calculated dose rate: {uSvH} µSv/h\n({nSvH} nSv/h)",
-    "@calculatedDoseRateResult": {
-        "placeholders": {
-            "uSvH": {
-                "type": "String"
-            },
-            "nSvH": {
-                "type": "String"
-            }
-        }
-    },
-    "calculatedActivityResult": "Calculated activity: {mbq} MBq\n({gbq} GBq)",
-    "@calculatedActivityResult": {
-        "placeholders": {
-            "mbq": {
-                "type": "String"
-            },
-            "gbq": {
-                "type": "String"
-            }
-        }
-    },
-    "distanceToolTitle": "Distance measurement",
-    "@distanceToolTitle": {},
-    "@locationServiceDisabledError": {},
-    "locationServiceDisabledError": "Location services are turned off.",
-    "@locationPermissionDeniedError": {},
-    "locationPermissionDeniedError": "Location permission denied.",
-    "gpsErrorMessage": "GPS error: {error}",
-    "@gpsErrorMessage": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "selectTargetFirstError": "Select the target point first.",
-    "@selectTargetFirstError": {},
-    "@selectStartPointError": {},
-    "@selectTargetPointError": {},
-    "@startFromCurrentPositionLabel": {},
-    "@noPositionFetchedYet": {},
-    "@refreshGpsButton": {},
-    "@startPointLabel": {},
-    "@targetPointLabel": {},
-    "@liveTrackingLabel": {},
-    "@liveTrackingSubtitle": {},
-    "@calculateDistanceButton": {},
-    "@liveTrackingRunningHint": {},
-    "@noGpsPositionError": {},
-    "noGpsPositionError": "No GPS position. Refresh, or choose a starting point.",
-    "selectStartPointError": "Choose a starting point.",
-    "selectTargetPointError": "Choose the target point.",
-    "startFromCurrentPositionLabel": "Start from: my current position",
-    "noPositionFetchedYet": "Not fetched yet",
-    "refreshGpsButton": "Refresh GPS",
-    "startPointLabel": "Starting point",
-    "targetPointLabel": "Target point",
-    "liveTrackingLabel": "Live tracking",
-    "liveTrackingSubtitle": "Continuously updates distance and bearing as you walk.",
-    "calculateDistanceButton": "Calculate",
-    "liveTrackingRunningHint": "Live tracking is running — walk in the direction of the arrow.",
-    "sourceSearchTitle": "Source search",
-    "@sourceSearchTitle": {},
-    "measurementTypeLabel": "Measurement type",
-    "@measurementTypeLabel": {},
-    "pointsRecordedForType": "{count, plural, one{{count} point recorded} other{{count} points recorded}} for this type within this survey.",
-    "@pointsRecordedForType": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "@lowConfidenceWarning": {},
-    "lowConfidenceWarning": "Few points (< 4) — the estimate is unreliable; take more measurements at different spots in the search area.",
-    "gradientEstimateLabel": "Estimated gradient: {value} {unit}/m",
-    "@gradientEstimateLabel": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            },
-            "unit": {
-                "type": "String"
-            }
-        }
-    },
-    "directionEstimateHint": "The measured value is estimated to increase in this direction.",
-    "@directionEstimateHint": {},
-    "sourceSearchDisclaimer": "The suggested direction is based on a simple linear gradient estimate from the points recorded so far in this survey. It can be inaccurate with noisy field data, few points, or when the real source is far relative to the surveyed area's size. For guidance only — it does not replace professional judgment.",
-    "@sourceSearchDisclaimer": {},
-    "newMeasurementButton": "New measurement",
-    "@newMeasurementButton": {},
-    "mapTitle": "Map",
-    "@mapTitle": {},
-    "noPointsRecordedYet": "No measurement points recorded yet.",
-    "@noPointsRecordedYet": {},
-    "saveScreenshotTooltip": "Save screenshot for the protocol",
-    "@saveScreenshotTooltip": {},
-    "screenshotSavedMessage": "Map saved — it will be attached when exporting the protocol.",
-    "@screenshotSavedMessage": {},
-    "screenshotErrorMessage": "Screenshot error: {error}",
-    "@screenshotErrorMessage": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "valueLabel": "Value: {value} {unit}",
-    "@valueLabel": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            },
-            "unit": {
-                "type": "String"
-            }
-        }
-    },
-    "distanceFromSourceValue": "Distance from source: {value} m",
-    "@distanceFromSourceValue": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            }
-        }
-    },
-    "timestampLabel": "Time: {value}",
-    "@timestampLabel": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            }
-        }
-    },
-    "sourcePositionLabel": "Source position",
-    "@sourcePositionLabel": {},
-    "editButton": "Edit",
-    "@editButton": {},
-    "@closeSurveyTitle": {},
-    "@closeSurveyConfirm": {},
-    "@closeSurveyButton": {},
-    "@surveyClosedMessage": {},
-    "@listScreenshotSavedMessage": {},
-    "closeSurveyTitle": "Close survey",
-    "closeSurveyConfirm": "Once closed, the protocol will show today's date as the end time. Points aren't locked by this — you can still edit them later.",
-    "closeSurveyButton": "Close",
-    "surveyClosedMessage": "Survey closed.",
-    "listScreenshotSavedMessage": "List screenshot saved — it will be attached when exporting the protocol.",
-    "exportErrorMessage": "Export error: {error}",
-    "@exportErrorMessage": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "importErrorMessage": "Import error: {error}",
-    "@importErrorMessage": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "protocolShareSubject": "Protocol – {title}",
-    "@protocolShareSubject": {
-        "placeholders": {
-            "title": {
-                "type": "String"
-            }
-        }
-    },
-    "dataExportSubject": "Measurement points (data) – {title}",
-    "@dataExportSubject": {
-        "placeholders": {
-            "title": {
-                "type": "String"
-            }
-        }
-    },
-    "csvExportSubject": "Measurement points (CSV) – {title}",
-    "@csvExportSubject": {
-        "placeholders": {
-            "title": {
-                "type": "String"
-            }
-        }
-    },
-    "importDoneTitle": "Import complete",
-    "@importDoneTitle": {},
-    "importedPointsMessage": "{points} points imported.\n{instruments} new instruments created.\n{sources} new radiation sources created.",
-    "@importedPointsMessage": {
-        "placeholders": {
-            "points": {
-                "type": "int"
-            },
-            "instruments": {
-                "type": "int"
-            },
-            "sources": {
-                "type": "int"
-            }
-        }
-    },
-    "@okButton": {},
-    "okButton": "OK",
-    "toolsTooltip": "Tools",
-    "@toolsTooltip": {},
-    "autoLogMenuItem": "Automatic logging",
-    "@autoLogMenuItem": {},
-    "captureListScreenshotMenuItem": "Save list screenshot",
-    "@captureListScreenshotMenuItem": {},
-    "exportProtocolMenuItem": "Export protocol",
-    "@exportProtocolMenuItem": {},
-    "exportJsonMenuItem": "Export points (data, JSON)",
-    "@exportJsonMenuItem": {},
-    "exportCsvMenuItem": "Export points (table, CSV)",
-    "@exportCsvMenuItem": {},
-    "importJsonMenuItem": "Import points (JSON)",
-    "@importJsonMenuItem": {},
-    "newPointButton": "New point",
-    "@newPointButton": {},
-    "sampleTakenListLabel": "Sampling · {date}",
-    "@sampleTakenListLabel": {
-        "placeholders": {
-            "date": {
-                "type": "String"
-            }
-        }
-    },
-    "unknownModbusError": "Unknown Modbus error.",
-    "@unknownModbusError": {},
-    "noValidPositionError": "No valid position given.",
-    "@noValidPositionError": {},
-    "thresholdExceededTitle": "Alert threshold exceeded",
-    "@thresholdExceededTitle": {},
-    "thresholdExceededMessage": "The measured value ({value} {unit}) reaches or exceeds the threshold set for {type} ({threshold} {unit}).",
-    "@thresholdExceededMessage": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            },
-            "unit": {
-                "type": "String"
-            },
-            "type": {
-                "type": "String"
-            },
-            "threshold": {
-                "type": "String"
-            }
-        }
-    },
-    "newPointTitle": "New measurement point",
-    "@newPointTitle": {},
-    "editPointTitle": "Edit point",
-    "@editPointTitle": {},
-    "locationLabelFieldLabel": "Location name",
-    "@locationLabelFieldLabel": {},
-    "measuredValueLabel": "Measured value",
-    "@measuredValueLabel": {},
-    "numberRequiredError": "Enter a number",
-    "@numberRequiredError": {},
-    "unitLabel": "Unit",
-    "@unitLabel": {},
-    "instrumentLabel": "Instrument",
-    "@instrumentLabel": {},
-    "addInstrumentTooltip": "Add new instrument",
-    "@addInstrumentTooltip": {},
-    "queryingLabel": "Querying...",
-    "@queryingLabel": {},
-    "modbusQueryButton": "Modbus query ({name})",
-    "@modbusQueryButton": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "sourcePositionSwitchLabel": "This is the source position (max value)",
-    "@sourcePositionSwitchLabel": {},
-    "sampleTakenSwitchLabel": "A physical sample was taken here",
-    "@sampleTakenSwitchLabel": {},
-    "sampleContainerLabel": "Container ID",
-    "@sampleContainerLabel": {},
-    "sampleAmountLabel": "Amount",
-    "@sampleAmountLabel": {},
-    "sampleMethodLabel": "Sampling method",
-    "@sampleMethodLabel": {},
-    "notesLabel": "Notes",
-    "@notesLabel": {},
-    "takePhotoLabel": "Take photo",
-    "@takePhotoLabel": {},
-    "retakePhotoLabel": "Replace photo",
-    "@retakePhotoLabel": {},
-    "chooseFromGalleryLabel": "Choose from gallery",
-    "@chooseFromGalleryLabel": {},
-    "positionLabel": "Position",
-    "@positionLabel": {},
-    "latitudeLabel": "Latitude",
-    "@latitudeLabel": {},
-    "longitudeLabel": "Longitude",
-    "@longitudeLabel": {},
-    "invalidValueError": "Invalid",
-    "@invalidValueError": {},
-    "liveGpsButton": "Live GPS",
-    "@liveGpsButton": {},
-    "onMapButton": "On the map",
-    "@onMapButton": {},
-    "autoLogDisclaimer": "Logging only runs while this screen is open. If the phone locks or you switch apps, the measurement pauses — you'll need to restart it when you come back.",
-    "@autoLogDisclaimer": {},
-    "@noModbusInstrumentMessage": {},
-    "noModbusInstrumentMessage": "No instrument reachable over Modbus/TCP is set up. Add one in the Instruments list (WiFi Modbus/TCP switch on, IP, Unit ID and register address filled in).",
-    "triggerModeTime": "Time-based",
-    "@triggerModeTime": {},
-    "triggerModeDistance": "Distance-based",
-    "@triggerModeDistance": {},
-    "intervalSecondsLabel": "Interval (seconds)",
-    "@intervalSecondsLabel": {},
-    "distanceIntervalLabel": "Distance interval (meters)",
-    "@distanceIntervalLabel": {},
-    "connectingLabel": "Connecting...",
-    "@connectingLabel": {},
-    "stopButton": "Stop",
-    "@stopButton": {},
-    "loggingRunningLabel": "Logging running...",
-    "@loggingRunningLabel": {},
-    "loggingStoppedLabel": "Logging stopped",
-    "@loggingStoppedLabel": {},
-    "capturedPointsLabel": "Points recorded: {count}",
-    "@capturedPointsLabel": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "lastValueLabel": "Last value: {value} {unit}",
-    "@lastValueLabel": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            },
-            "unit": {
-                "type": "String"
-            }
-        }
-    },
-    "failedReadingsLabel": "Failed readings: {count}",
-    "@failedReadingsLabel": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "lastErrorSuffix": " (last error: {error})",
-    "@lastErrorSuffix": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "intervalMinError": "The interval must be at least 1 second.",
-    "@intervalMinError": {},
-    "distanceMinError": "The distance must be at least 1 meter.",
-    "@distanceMinError": {},
-    "modbusConnectErrorMessage": "Modbus connection error: {error}",
-    "@modbusConnectErrorMessage": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "@csvHeaderSerialNumber": {},
-    "@csvHeaderLocation": {},
-    "@csvHeaderType": {},
-    "@csvHeaderValue": {},
-    "@csvHeaderUnit": {},
-    "@csvHeaderDistanceFromSource": {},
-    "@csvHeaderInstrument": {},
-    "@csvHeaderGpsLatitude": {},
-    "@csvHeaderGpsLongitude": {},
-    "@csvHeaderGpsAccuracy": {},
-    "@csvHeaderTimestamp": {},
-    "@csvHeaderSample": {},
-    "@csvHeaderNotes": {},
-    "@csvHeaderEstimatedActivity": {},
-    "@csvHeaderAttachedSources": {},
-    "@csvHeaderCalculatedDoseRate": {},
-    "@csvHeaderDoseRateDifference": {},
-    "@csvYes": {},
-    "@csvNo": {},
-    "@importUnknownTypeWarning": {},
-    "@importMissingGpsWarning": {},
-    "csvHeaderSerialNumber": "No.",
-    "csvHeaderLocation": "Location",
-    "csvHeaderType": "Type",
-    "csvHeaderValue": "Value",
-    "csvHeaderUnit": "Unit",
-    "csvHeaderDistanceFromSource": "Distance from source",
-    "csvHeaderInstrument": "Instrument",
-    "csvHeaderGpsLatitude": "GPS latitude",
-    "csvHeaderGpsLongitude": "GPS longitude",
-    "csvHeaderGpsAccuracy": "GPS accuracy",
-    "csvHeaderTimestamp": "Timestamp",
-    "csvHeaderSample": "Sampling",
-    "csvHeaderNotes": "Notes",
-    "csvHeaderEstimatedActivity": "Estimated activity (from measurement)",
-    "csvHeaderAttachedSources": "Attached source(s)",
-    "csvHeaderCalculatedDoseRate": "Calculated dose rate",
-    "csvHeaderDoseRateDifference": "Difference",
-    "csvYes": "yes",
-    "csvNo": "no",
-    "importUnknownTypeWarning": "Unknown measurement type skipped for one point.",
-    "importMissingGpsWarning": "A point was skipped due to a missing GPS coordinate.",
-    "manageSourcesLabel": "Manage radioactive source(s)",
-    "@manageSourcesLabel": {},
-    "sourcesCountLabel": "{count} source(s)",
-    "@sourcesCountLabel": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "radiationSourcesTitle": "Sources",
-    "@radiationSourcesTitle": {},
-    "newSourceButton": "Add source",
-    "@newSourceButton": {},
-    "newSourceTitle": "New source",
-    "@newSourceTitle": {},
-    "editSourceTitle": "Edit source",
-    "@editSourceTitle": {},
-    "noSourcesRecordedYet": "No sources attached to this point yet.",
-    "@noSourcesRecordedYet": {},
-    "sourcesTooltip": "Sources",
-    "@sourcesTooltip": {},
-    "pointSourcesTitle": "Source(s) at this point",
-    "@pointSourcesTitle": {},
-    "attachSourceButton": "Attach source",
-    "@attachSourceButton": {},
-    "pickSourceTitle": "Select source",
-    "@pickSourceTitle": {},
-    "noSourcesToAttach": "No sources available yet — add one first in the main Sources list.",
-    "@noSourcesToAttach": {},
-    "noSourcesYet": "No sources added yet. Add one with the + button.",
-    "@noSourcesYet": {},
-    "enterDistanceDialogTitle": "Enter distance",
-    "@enterDistanceDialogTitle": {},
-    "detachSourceConfirmTitle": "Detach source",
-    "@detachSourceConfirmTitle": {},
-    "detachSourceConfirmMessage": "Detach source \"{identifier}\" from this point? The source stays in your registry — only this link is removed.",
-    "@detachSourceConfirmMessage": {
-        "placeholders": {
-            "identifier": {
-                "type": "String"
-            }
-        }
-    },
-    "detachButton": "Detach",
-    "@detachButton": {},
-    "totalCalculatedDoseRateLabel": "Total calculated dose rate (all sources)",
-    "@totalCalculatedDoseRateLabel": {},
-    "sourcesUnknownNuclideSkippedNote": "{count} source(s) have an unknown nuclide and are excluded from the total.",
-    "@sourcesUnknownNuclideSkippedNote": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "sourceIdentifierLabel": "Unique identifier",
-    "@sourceIdentifierLabel": {},
-    "nuclideLabel": "Nuclide",
-    "@nuclideLabel": {},
-    "customNuclideOption": "Other (manual entry)",
-    "@customNuclideOption": {},
-    "customNuclideNameLabel": "Nuclide name",
-    "@customNuclideNameLabel": {},
-    "activityAtManufactureLabel": "Activity at manufacture (MBq)",
-    "@activityAtManufactureLabel": {},
-    "activityErrorPercentLabel": "Activity error (±%)",
-    "@activityErrorPercentLabel": {},
-    "manufactureDateLabel": "Manufacture date",
-    "@manufactureDateLabel": {},
-    "serviceLifeExpiryDateLabel": "Service life expiry",
-    "@serviceLifeExpiryDateLabel": {},
-    "nextInspectionDateLabel": "Next inspection date",
-    "@nextInspectionDateLabel": {},
-    "sourceDistanceLabel": "Distance from measurement point (m)",
-    "@sourceDistanceLabel": {},
-    "asOfDateLabel": "Activity as-of date",
-    "@asOfDateLabel": {},
-    "currentActivityResultLabel": "Current activity",
-    "@currentActivityResultLabel": {},
-    "calculatedDoseRateResultLabel": "Calculated dose rate",
-    "@calculatedDoseRateResultLabel": {},
-    "measuredDoseRateResultLabel": "Measured dose rate (at point)",
-    "@measuredDoseRateResultLabel": {},
-    "doseRateDifferenceResultLabel": "Difference (measured − calculated)",
-    "@doseRateDifferenceResultLabel": {},
-    "unknownNuclideDecayWarning": "Unknown nuclide: no stored half-life or gamma constant, so current activity and calculated dose rate can't be determined. The source data can still be saved, but the comparison is skipped.",
-    "@unknownNuclideDecayWarning": {},
-    "noMeasuredValueForComparisonNote": "No measured value recorded for this point — comparison isn't possible.",
-    "@noMeasuredValueForComparisonNote": {},
-    "unrecognizedUnitForComparisonNote": "The measurement unit ({unit}) can't be converted automatically — comparison isn't possible.",
-    "@unrecognizedUnitForComparisonNote": {
-        "placeholders": {
-            "unit": {
-                "type": "String"
-            }
-        }
-    },
-    "sourceExpiredWarning": "The source's service life has expired.",
-    "@sourceExpiredWarning": {},
-    "deleteSourceConfirmTitle": "Delete source",
-    "@deleteSourceConfirmTitle": {},
-    "deleteSourceConfirmMessage": "Delete the source \"{identifier}\" from the registry? This also removes it from every point it's attached to. This can't be undone.",
-    "@deleteSourceConfirmMessage": {
-        "placeholders": {
-            "identifier": {
-                "type": "String"
-            }
-        }
-    },
-    "sourceCalculationDisclaimer": "Calculated values are for reference only, based on standard gamma constants and half-lives. Verify against an authoritative source for official records.",
-    "@sourceCalculationDisclaimer": {},
-    "estimatedActivityFromMeasurementLabel": "Estimated activity (from measured value)",
-    "@estimatedActivityFromMeasurementLabel": {},
-    "personsTooltip": "Persons",
-    "@personsTooltip": {},
-    "personsTitle": "Persons",
-    "@personsTitle": {},
-    "newPersonButton": "Add person",
-    "@newPersonButton": {},
-    "newPersonTitle": "New person",
-    "@newPersonTitle": {},
-    "editPersonTitle": "Edit person",
-    "@editPersonTitle": {},
-    "noPersonsYet": "No persons added yet. Add one with the + button.",
-    "@noPersonsYet": {},
-    "personNameLabel": "Name",
-    "@personNameLabel": {},
-    "medicalExamExpiryDateLabel": "Medical exam expiry",
-    "@medicalExamExpiryDateLabel": {},
-    "trainingExpiryDateLabel": "Training expiry",
-    "@trainingExpiryDateLabel": {},
-    "deletePersonConfirmTitle": "Delete person",
-    "@deletePersonConfirmTitle": {},
-    "deletePersonConfirmMessage": "Delete \"{name}\" from the registry? This also removes them from every survey they're attached to. This can't be undone.",
-    "@deletePersonConfirmMessage": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "sessionPersonsTitle": "Personnel on this survey",
-    "@sessionPersonsTitle": {},
-    "noPersonsAttachedYet": "No persons assigned to this survey yet.",
-    "@noPersonsAttachedYet": {},
-    "attachPersonButton": "Assign person",
-    "@attachPersonButton": {},
-    "pickPersonTitle": "Select person",
-    "@pickPersonTitle": {},
-    "noPersonsToAttach": "No person available to add yet — add one first in the main Persons list.",
-    "@noPersonsToAttach": {},
-    "detachPersonConfirmTitle": "Remove person",
-    "@detachPersonConfirmTitle": {},
-    "detachPersonConfirmMessage": "Remove \"{name}\" from this survey? The person stays in your registry — only this assignment is removed.",
-    "@detachPersonConfirmMessage": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "expiryNotificationsSectionTitle": "Expiry notifications",
-    "@expiryNotificationsSectionTitle": {},
-    "expiryNotificationsSwitchTitle": "Notify about expiry dates",
-    "@expiryNotificationsSwitchTitle": {},
-    "expiryNotificationsSwitchSubtitle": "For upcoming expiry dates of sources (service life, inspection) and persons (medical exam, training), sent at 8:00 in the morning.",
-    "@expiryNotificationsSwitchSubtitle": {},
-    "expiryLeadTimeLabel": "How far ahead to notify",
-    "@expiryLeadTimeLabel": {},
-    "expiryLeadSameDay": "On the day",
-    "@expiryLeadSameDay": {},
-    "expiryLeadOneDay": "1 day before",
-    "@expiryLeadOneDay": {},
-    "expiryLeadTwoDays": "2 days before",
-    "@expiryLeadTwoDays": {},
-    "expiryLeadOneWeek": "1 week before",
-    "@expiryLeadOneWeek": {},
-    "expiryNotificationsPermissionDenied": "Notifications are blocked in your phone settings. Allow RadRecon notifications there.",
-    "@expiryNotificationsPermissionDenied": {},
-    "expiryNotificationTitleToday": "Expires today",
-    "@expiryNotificationTitleToday": {},
-    "expiryNotificationTitleUpcoming": "Expires soon",
-    "@expiryNotificationTitleUpcoming": {},
-    "expiryNotificationChannelName": "Expiry notifications",
-    "@expiryNotificationChannelName": {},
-    "expiryNotificationChannelDescription": "Upcoming expiry dates of sources and persons",
-    "@expiryNotificationChannelDescription": {},
-    "importRegistryCsv": "Import CSV",
-    "@importRegistryCsv": {},
-    "exportRegistryCsv": "Export CSV",
-    "@exportRegistryCsv": {},
-    "registryCsvExportSubject": "RadRecon registry data (CSV)",
-    "@registryCsvExportSubject": {},
-    "duplicatePolicyTitle": "When a matching record exists",
-    "@duplicatePolicyTitle": {},
-    "duplicateReplace": "Replace existing record",
-    "@duplicateReplace": {},
-    "duplicateSkip": "Skip matching record",
-    "@duplicateSkip": {},
-    "duplicateKeep": "Import as a duplicate",
-    "@duplicateKeep": {},
-    "registryImportSummary": "Imported: {imported}, replaced: {replaced}, skipped: {skipped}",
-    "@registryImportSummary": {
-        "placeholders": {
-            "imported": {
-                "type": "int"
-            },
-            "replaced": {
-                "type": "int"
-            },
-            "skipped": {
-                "type": "int"
-            }
-        }
-    },
-    "modbusTestConnectionButton": "Test connection",
-    "@modbusTestConnectionButton": {},
-    "modbusTestingLabel": "Testing...",
-    "@modbusTestingLabel": {},
-    "modbusTestSuccessTitle": "Connection successful",
-    "@modbusTestSuccessTitle": {},
-    "modbusTestFailureTitle": "Connection failed",
-    "@modbusTestFailureTitle": {},
-    "modbusTestValue": "Value: {value}",
-    "@modbusTestValue": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            }
-        }
-    },
-    "modbusTestPosition": "Lat: {lat}, Lon: {lon}",
-    "@modbusTestPosition": {
-        "placeholders": {
-            "lat": {
-                "type": "String"
-            },
-            "lon": {
-                "type": "String"
-            }
-        }
-    },
-    "missingFieldMessage": "Please fill in: {field}",
-    "@missingFieldMessage": {
-        "placeholders": {
-            "field": {
-                "type": "String"
-            }
-        }
-    },
-    "errorTitle": "Error",
-    "@errorTitle": {},
-    "modbusReadErrorWithCode": "Modbus error during reading: {code}",
-    "@modbusReadErrorWithCode": {
-        "placeholders": {
-            "code": {
-                "type": "String"
-            }
-        }
-    },
-    "instrumentDidNotSendValidValue": "The instrument did not send a valid value.",
-    "@instrumentDidNotSendValidValue": {},
-    "gpsPositionReadFailed": "Failed to read GPS position from the instrument.",
-    "@gpsPositionReadFailed": {},
-    "instrumentIPAddressNotSet": "Instrument IP address not set.",
-    "@instrumentIPAddressNotSet": {},
-    "modbusUnitIdNotSet": "Modbus Unit ID not set.",
-    "@modbusUnitIdNotSet": {},
-    "registerAddressNotSet": "Register address not set.",
-    "@registerAddressNotSet": {},
-    "failedToConnectToInstrument": "Failed to connect to the instrument.",
-    "@failedToConnectToInstrument": {},
-    "connectionErrorWithDetails": "Connection error: {error}",
-    "@connectionErrorWithDetails": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "modbusAccessIncomplete": "Modbus access details for the instrument are incomplete (IP, Unit ID, register address).",
-    "@modbusAccessIncomplete": {},
-    "noDisplayableContentForScreenshot": "No displayable content for the screenshot.",
-    "@noDisplayableContentForScreenshot": {},
-    "failedToConvertScreenshotToPng": "Failed to convert the screenshot to PNG.",
-    "@failedToConvertScreenshotToPng": {},
-    "doseSourceOnline": "Online (from detector)",
-    "@doseSourceOnline": {},
-    "doseSourceManual": "Manual",
-    "@doseSourceManual": {},
-    "doseSourcePassive": "Passive dosimetry",
-    "@doseSourcePassive": {},
-    "annualDoseLabel": "Dose in {year}",
-    "@annualDoseLabel": {
-        "placeholders": {
-            "year": {
-                "type": "int"
-            }
-        }
-    },
-    "doseYearLabel": "Year",
-    "@doseYearLabel": {},
-    "doseBreakdownLabel": "online {online} · manual {manual} · passive {passive}",
-    "@doseBreakdownLabel": {
-        "placeholders": {
-            "online": {
-                "type": "String"
-            },
-            "manual": {
-                "type": "String"
-            },
-            "passive": {
-                "type": "String"
-            }
-        }
-    },
-    "personDosesTitle": "Doses – {name}",
-    "@personDosesTitle": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "personDosesTooltip": "Manage doses",
-    "@personDosesTooltip": {},
-    "noDosesYet": "No dose entries for this year yet.",
-    "@noDosesYet": {},
-    "addPassiveDoseButton": "Add passive dosimetry",
-    "@addPassiveDoseButton": {},
-    "newPassiveDoseTitle": "New passive dosimetry",
-    "@newPassiveDoseTitle": {},
-    "editDoseTitle": "Edit dose",
-    "@editDoseTitle": {},
-    "doseValueLabel": "Dose",
-    "@doseValueLabel": {},
-    "dosePeriodStartLabel": "Evaluation period start",
-    "@dosePeriodStartLabel": {},
-    "dosePeriodEndLabel": "Evaluation period end",
-    "@dosePeriodEndLabel": {},
-    "dosePeriodEndBeforeStartError": "End cannot be before start.",
-    "@dosePeriodEndBeforeStartError": {},
-    "doseTotalLabel": "Total",
-    "@doseTotalLabel": {},
-    "doseDeleteConfirmTitle": "Delete dose entry",
-    "@doseDeleteConfirmTitle": {},
-    "doseDeleteConfirmMessage": "Delete this dose entry? This cannot be undone.",
-    "@doseDeleteConfirmMessage": {},
-    "sessionDoseDialogTitle": "Dose of {name}",
-    "@sessionDoseDialogTitle": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "onlineDoseLabel": "Online dose",
-    "@onlineDoseLabel": {},
-    "manualDoseLabel": "Manual dose",
-    "@manualDoseLabel": {},
-    "closeSurveyDosesTitle": "Review doses",
-    "@closeSurveyDosesTitle": {},
-    "closeSurveyDosesHint": "Before closing, review or correct each participant dose.",
-    "@closeSurveyDosesHint": {},
-    "autoLogDoseSaved": "Dose saved for {count} person(s): {dose}",
-    "@autoLogDoseSaved": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            },
-            "dose": {
-                "type": "String"
-            }
-        }
-    },
-    "autoLogDoseNoPersons": "Measured dose ({dose}) was not saved because no person is attached to this survey.",
-    "@autoLogDoseNoPersons": {
-        "placeholders": {
-            "dose": {
-                "type": "String"
-            }
-        }
-    },
-    "autoLogDoseLabel": "Integrated dose: {dose}",
-    "@autoLogDoseLabel": {
-        "placeholders": {
-            "dose": {
-                "type": "String"
-            }
-        }
-    },
-    "autoLogDoseGaps": "{count} longer data gap(s) during measurement",
-    "@autoLogDoseGaps": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "autoLogDoseOnlyDoseRate": "Dose can only be calculated and saved from dose rate measurements.",
-    "@autoLogDoseOnlyDoseRate": {},
-    "importPersonDosesCsv": "Import doses (CSV)",
-    "@importPersonDosesCsv": {},
-    "exportPersonDosesCsv": "Export doses (CSV)",
-    "@exportPersonDosesCsv": {},
-    "importPersonCsv": "Import persons (CSV)",
-    "@importPersonCsv": {},
-    "exportPersonCsv": "Export persons (CSV)",
-    "@exportPersonCsv": {},
-    "dataManagementSectionTitle": "Data management",
-    "@dataManagementSectionTitle": {},
-    "saveDatabaseButton": "Save database to file",
-    "@saveDatabaseButton": {},
-    "loadDatabaseButton": "Load database from file",
-    "@loadDatabaseButton": {},
-    "clearDatabaseButton": "Clear database",
-    "@clearDatabaseButton": {},
-    "companySwitchButton": "Switch company",
-    "@companySwitchButton": {},
-    "dataManagementHint": "The backup file contains all data including photos, so it can be used to move to a new phone or to keep several companies' data separate.",
-    "@dataManagementHint": {},
-    "saveDatabaseSubject": "RadRecon database backup",
-    "@saveDatabaseSubject": {},
-    "databaseSavedMessage": "Database saved: {path}",
-    "@databaseSavedMessage": {
-        "placeholders": {
-            "path": {
-                "type": "String"
-            }
-        }
-    },
-    "loadDatabaseConfirmTitle": "Load database",
-    "@loadDatabaseConfirmTitle": {},
-    "loadDatabaseConfirmBody": "Loading overwrites all data currently on this device. Save it first if you still need it. Continue?",
-    "@loadDatabaseConfirmBody": {},
-    "loadButton": "Load",
-    "@loadButton": {},
-    "databaseLoadedMessage": "Loaded: {name}",
-    "@databaseLoadedMessage": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "clearDatabaseConfirmTitle": "Clear database",
-    "@clearDatabaseConfirmTitle": {},
-    "clearDatabaseConfirmBody": "All surveys, measurement points, instruments, sources, people and photos will be permanently deleted from this device. This cannot be undone — make a backup first!",
-    "@clearDatabaseConfirmBody": {},
-    "databaseClearedMessage": "Database cleared.",
-    "@databaseClearedMessage": {},
-    "companySwitchTitle": "Switch company",
-    "@companySwitchTitle": {},
-    "activeCompanyLabel": "Active company",
-    "@activeCompanyLabel": {},
-    "companiesFolderLabel": "Companies folder",
-    "@companiesFolderLabel": {},
-    "chooseFolderButton": "Choose folder",
-    "@chooseFolderButton": {},
-    "resetFolderButton": "Back to default folder",
-    "@resetFolderButton": {},
-    "noCompaniesYet": "No saved companies in this folder yet. The active company is saved automatically on the first switch, or create a new one / add a backup file with the buttons above.",
-    "@noCompaniesYet": {},
-    "companyBackupInfo": "Saved: {date}",
-    "@companyBackupInfo": {
-        "placeholders": {
-            "date": {
-                "type": "String"
-            }
-        }
-    },
-    "newCompanyButton": "New company",
-    "@newCompanyButton": {},
-    "newCompanyDialogTitle": "Create new company",
-    "@newCompanyDialogTitle": {},
-    "companyNameLabel": "Company name",
-    "@companyNameLabel": {},
-    "companyNameExistsMessage": "A company with this name already exists.",
-    "@companyNameExistsMessage": {},
-    "createButton": "Create",
-    "@createButton": {},
-    "addCompanyFromFileButton": "Add company from backup file",
-    "@addCompanyFromFileButton": {},
-    "companySwitchConfirmTitle": "Switch company",
-    "@companySwitchConfirmTitle": {},
-    "companySwitchConfirmBody": "Switch to {company}? Current data is saved automatically under {active}.",
-    "@companySwitchConfirmBody": {
-        "placeholders": {
-            "company": {
-                "type": "String"
-            },
-            "active": {
-                "type": "String"
-            }
-        }
-    },
-    "companySwitchAction": "Switch",
-    "@companySwitchAction": {},
-    "companySwitchedMessage": "Active company: {name}",
-    "@companySwitchedMessage": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "deleteCompanyBackupTitle": "Delete backup",
-    "@deleteCompanyBackupTitle": {},
-    "deleteCompanyBackupBody": "Delete the backup of {name} from the folder? Data currently loaded is not affected.",
-    "@deleteCompanyBackupBody": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "privateFolderHint": "The app is currently using its own private folder, which other apps cannot access. Choose a folder (e.g. Downloads or Google Drive) to reach the backups from your file manager.",
-    "@privateFolderHint": {},
-    "contributorsTitle": "Contributors",
-    "@contributorsTitle": {},
-    "contributorsThanks": "Thank you to everyone who helps test, develop, translate and review RadRecon. RadRecon is a nonprofit civic initiative built by volunteers.",
-    "@contributorsThanks": {},
-    "contributorsOrganizationsTitle": "Organizations and companies",
-    "@contributorsOrganizationsTitle": {},
-    "contributorsPeopleTitle": "People",
-    "@contributorsPeopleTitle": {},
-    "contributorsEmpty": "The list is still empty. Be the first!",
-    "@contributorsEmpty": {},
-    "contributorsLoadError": "The list could not be loaded.",
-    "@contributorsLoadError": {},
-    "contributorsJoinHint": "Want to be listed? Sign up as a volunteer and tell us how you want to appear:",
-    "@contributorsJoinHint": {},
-    "contributorsCopyLink": "Copy link",
-    "@contributorsCopyLink": {},
-    "contributorsLinkCopied": "Link copied.",
-    "@contributorsLinkCopied": {},
-    "contributorRoleTesting": "Testing",
-    "@contributorRoleTesting": {},
-    "contributorRoleDevelopment": "Development",
-    "@contributorRoleDevelopment": {},
-    "contributorRoleReview": "Expert review",
-    "@contributorRoleReview": {},
-    "contributorRoleTranslation": "Translation",
-    "@contributorRoleTranslation": {},
-    "contributorRoleOther": "Other",
-    "@contributorRoleOther": {},
-    "regulatoryProfileLabel": "Regulatory profile",
-    "@regulatoryProfileLabel": {},
-    "regulatoryProfileInternational": "International (IAEA)",
-    "@regulatoryProfileInternational": {},
-    "regulatoryProfileHungary": "Hungary (OAH)",
-    "@regulatoryProfileHungary": {},
-    "classificationTitle": "Classification (D, R, exemption)",
-    "@classificationTitle": {},
-    "classificationDisclaimer": "Indicative calculation from nuclide tables and the current (decay-corrected) activity. The official classification is determined by the applicable law and the regulator. The MSZ 62-7 laboratory class is an indicative value derived from the activity.",
-    "@classificationDisclaimer": {},
-    "classificationUnsealedWork": "Regular work with unsealed sources",
-    "@classificationUnsealedWork": {},
-    "classificationOutsideWorkplace": "Use outside the radiation workplace",
-    "@classificationOutsideWorkplace": {},
-    "classificationTotal": "Total (selected sources)",
-    "@classificationTotal": {},
-    "classificationPhysCat": "Physical protection category",
-    "@classificationPhysCat": {},
-    "classificationProtCat": "Radiation protection category",
-    "@classificationProtCat": {},
-    "classificationUnknownCount": "Sources without R (unknown nuclide)",
-    "@classificationUnknownCount": {},
-    "classificationActivity": "Activity",
-    "@classificationActivity": {},
-    "classificationNotDecayCorrected": "not decay-corrected",
-    "@classificationNotDecayCorrected": {},
-    "classificationDInfinite": "D = ∞ (does not contribute to R)",
-    "@classificationDInfinite": {},
-    "classificationDUnknown": "No D value for this nuclide, R cannot be calculated",
-    "@classificationDUnknown": {},
-    "classificationExemptUnknown": "No exemption values for this nuclide",
-    "@classificationExemptUnknown": {},
-    "classificationExemptActivity": "Exempt activity",
-    "@classificationExemptActivity": {},
-    "classificationSpecificConc": "Specific exemption concentration",
-    "@classificationSpecificConc": {},
-    "classificationGeneralConc": "general",
-    "@classificationGeneralConc": {},
-    "classificationBelowExempt": "Activity is at or below the exempt activity",
-    "@classificationBelowExempt": {},
-    "classificationAboveExempt": "Activity is above the exempt activity",
-    "@classificationAboveExempt": {},
-    "classificationProtLevel": "Physical protection level",
-    "@classificationProtLevel": {},
-    "classificationAdrConsignmentLimit": "exempt consignment limit",
-    "@classificationAdrConsignmentLimit": {},
-    "classificationAdrBelow": "activity is below it (not Class 7)",
-    "@classificationAdrBelow": {},
-    "classificationAdrAbove": "activity is above it (concentration also matters)",
-    "@classificationAdrAbove": {},
-    "classificationLabIndustrial": "Industrial lab",
-    "@classificationLabIndustrial": {},
-    "classificationLabMedical": "Medical lab",
-    "@classificationLabMedical": {},
-    "classificationLabAboveIII": "> III",
-    "@classificationLabAboveIII": {},
-    "classificationLabOps": "Permitted operation types",
-    "@classificationLabOps": {},
-    "classificationLabUnknown": "MSZ 62-7: no AM value for this nuclide",
-    "@classificationLabUnknown": {},
-    "autoLogChartTitle": "Measured value over time",
-    "@autoLogChartTitle": {},
-    "gpsAverageButton": "Averaged GPS",
-    "@gpsAverageButton": {},
-    "gpsAverageTitle": "Position averaging",
-    "@gpsAverageTitle": {},
-    "gpsAverageHint": "Stand still in one spot during the measurement. A longer averaging time gives a more reliable result; open sky works best. Samples are weighted by their accuracy and outlier positions are dropped.",
-    "@gpsAverageHint": {},
-    "gpsAverageStart": "Start",
-    "@gpsAverageStart": {},
-    "gpsAverageUse": "Use",
-    "@gpsAverageUse": {},
-    "gpsAverageSamples": "Samples",
-    "@gpsAverageSamples": {},
-    "gpsAverageCurrent": "Current accuracy",
-    "@gpsAverageCurrent": {},
-    "gpsAverageResult": "Estimated accuracy of the average",
-    "@gpsAverageResult": {},
-    "modbusAverageButton": "Averaging measurement",
-    "@modbusAverageButton": {},
-    "modbusAverageRunning": "Averaging",
-    "@modbusAverageRunning": {},
-    "modbusAverageDone": "Done",
-    "@modbusAverageDone": {},
-    "modbusAverageTooFew": "At least 2 valid samples are needed to calculate the error; only the value was entered.",
-    "@modbusAverageTooFew": {},
-    "measurementErrorLabel": "Error (±)",
-    "@measurementErrorLabel": {},
-    "measurementErrorHelper": "For an averaged measurement this is the standard error of the mean (1σ); it can also be entered by hand for manually entered values. It is included in the protocol.",
-    "@measurementErrorHelper": {},
-    "measurementAveragedLabel": "Averaged measurement",
-    "@measurementAveragedLabel": {},
-    "csvHeaderValueError": "Error (±)",
-    "@csvHeaderValueError": {},
-    "csvHeaderAveraging": "Averaging (samples; s)",
-    "@csvHeaderAveraging": {},
-    "helpManualTitle": "Help (user manual)",
-    "@helpManualTitle": {},
-    "helpManualOpenError": "The manual could not be opened.",
-    "@helpManualOpenError": {},
-    "appVersionLabel": "Version",
-    "@appVersionLabel": {}
+  "@@locale": "en",
+  "appTitle": "RadRecon",
+  "@appTitle": {},
+  "instrumentsTooltip": "Instruments",
+  "@instrumentsTooltip": {},
+  "searchHint": "Search",
+  "@searchHint": {},
+  "searchNoResults": "No matching results",
+  "@searchNoResults": {},
+  "alertThresholdsTooltip": "Alert thresholds",
+  "@alertThresholdsTooltip": {},
+  "noSurveysYet": "No surveys yet. Start one with the + button.",
+  "@noSurveysYet": {},
+  "newSurveyButton": "New survey",
+  "@newSurveyButton": {},
+  "newSurveyDialogTitle": "New survey",
+  "@newSurveyDialogTitle": {},
+  "surveyNameLabel": "Name",
+  "@surveyNameLabel": {},
+  "surveyLocationLabel": "Location (optional)",
+  "@surveyLocationLabel": {},
+  "editSurveyDetailsTooltip": "Edit name and location",
+  "@editSurveyDetailsTooltip": {},
+  "editSurveyDetailsTitle": "Edit survey details",
+  "@editSurveyDetailsTitle": {},
+  "cancelButton": "Cancel",
+  "deletePointTooltip": "Delete measurement point",
+  "@deletePointTooltip": {},
+  "deletePointTitle": "Delete measurement point",
+  "@deletePointTitle": {},
+  "deletePointBody": "Delete this measurement point? Its source assignments and change log will be deleted too. This cannot be undone.",
+  "@deletePointBody": {},
+  "@cancelButton": {},
+  "startButton": "Start",
+  "@startButton": {},
+  "surveyDefaultTitle": "Survey – {date}",
+  "@surveyDefaultTitle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@noLocationPlaceholder": {},
+  "noLocationPlaceholder": "—",
+  "doseUnitSectionTitle": "Dose rate default unit",
+  "@doseUnitSectionTitle": {},
+  "doseUnitSectionHint": "These units are preselected for new measurements. When recording, another one can be picked from a list, no typing needed, and the entered number is converted automatically when the unit changes. The dose rate alert threshold is converted too.",
+  "@doseUnitSectionHint": {},
+  "unitsSectionTitle": "Units",
+  "@unitsSectionTitle": {},
+  "activityUnitLabel": "Activity default unit",
+  "@activityUnitLabel": {},
+  "distanceUnitLabel": "Distance default unit",
+  "@distanceUnitLabel": {},
+  "activityPlainLabel": "Activity",
+  "@activityPlainLabel": {},
+  "measuredDoseRatePlainLabel": "Measured dose rate",
+  "@measuredDoseRatePlainLabel": {},
+  "distanceFromSourcePlainLabel": "Distance from source",
+  "@distanceFromSourcePlainLabel": {},
+  "sourceDistancePlainLabel": "Distance from measurement point",
+  "@sourceDistancePlainLabel": {},
+  "activityAtManufacturePlainLabel": "Activity at manufacture",
+  "@activityAtManufacturePlainLabel": {},
+  "invalidDistancePlainError": "Enter a valid, positive distance.",
+  "@invalidDistancePlainError": {},
+  "invalidActivityPlainError": "Enter a valid activity.",
+  "@invalidActivityPlainError": {},
+  "invalidDoseRatePlainError": "Enter a valid dose rate.",
+  "@invalidDoseRatePlainError": {},
+  "distanceFromSourceShortLabel": "Distance from source",
+  "@distanceFromSourceShortLabel": {},
+  "calculatedActivityResultLabel": "Calculated activity",
+  "@calculatedActivityResultLabel": {},
+  "distanceIntervalPlainLabel": "Distance interval",
+  "@distanceIntervalPlainLabel": {},
+  "modbusQuantityLabel": "What the register returns",
+  "@modbusQuantityLabel": {},
+  "modbusRegisterUnitLabel": "Register unit",
+  "@modbusRegisterUnitLabel": {},
+  "modbusQuantityHelper": "When recording, the app converts the value to the default unit chosen in Settings.",
+  "@modbusQuantityHelper": {},
+  "autoLogTypeFromInstrument": "Auto-logging records the quantity configured for the instrument.",
+  "@autoLogTypeFromInstrument": {},
+  "nuclideIdSectionTitle": "Nuclide identification",
+  "@nuclideIdSectionTitle": {},
+  "nuclideStatusNone": "Not specified",
+  "@nuclideStatusNone": {},
+  "nuclideStatusIdentified": "Identified nuclide(s)",
+  "@nuclideStatusIdentified": {},
+  "nuclideStatusUnknown": "Unknown",
+  "@nuclideStatusUnknown": {},
+  "nuclideStatusOther": "Other (not in the list)",
+  "@nuclideStatusOther": {},
+  "nuclideStatusMixture": "Presumably multiple sources (mixture)",
+  "@nuclideStatusMixture": {},
+  "nuclideKnownListLabel": "Nuclides from the list",
+  "@nuclideKnownListLabel": {},
+  "nuclideCustomLabel": "Other nuclide name",
+  "@nuclideCustomLabel": {},
+  "nuclideAddButton": "Add",
+  "@nuclideAddButton": {},
+  "nuclideRequiredError": "Enter at least one nuclide, or choose Unknown.",
+  "@nuclideRequiredError": {},
+  "csvHeaderNuclides": "Nuclide identification",
+  "@csvHeaderNuclides": {},
+  "nuclideDoneButton": "Done",
+  "@nuclideDoneButton": {},
+  "unshieldedActivityLabel": "Activity (unshielded)",
+  "@unshieldedActivityLabel": {},
+  "shieldingSectionTitle": "Shielding (optional)",
+  "@shieldingSectionTitle": {},
+  "shieldingHint": "If the source is behind shielding, enter its material and thickness - the app will also estimate the actual activity of the shielded source.",
+  "@shieldingHint": {},
+  "shieldingMaterialLabel": "Shielding material",
+  "@shieldingMaterialLabel": {},
+  "shieldingNoneOption": "No shielding",
+  "@shieldingNoneOption": {},
+  "shieldingThicknessLabel": "Shielding thickness",
+  "@shieldingThicknessLabel": {},
+  "shieldingThicknessError": "Enter a positive thickness",
+  "@shieldingThicknessError": {},
+  "shieldedActivityLabel": "Estimated activity of the shielded source",
+  "@shieldedActivityLabel": {},
+  "shieldingDisclaimer": "Approximate estimate: attenuation is modelled with half-value layers (each HVL of thickness halves the dose rate) using indicative HVL values. Scattered radiation (buildup), source geometry and the spectrum are simplified, so the result tends to overestimate the activity. Verify against an authoritative source for official protocols.",
+  "@shieldingDisclaimer": {},
+  "shieldingMaterialLead": "Lead",
+  "@shieldingMaterialLead": {},
+  "shieldingMaterialSteel": "Steel (iron)",
+  "@shieldingMaterialSteel": {},
+  "shieldingMaterialConcrete": "Concrete",
+  "@shieldingMaterialConcrete": {},
+  "shieldingMaterialTungsten": "Tungsten",
+  "@shieldingMaterialTungsten": {},
+  "shieldingMaterialAluminium": "Aluminium",
+  "@shieldingMaterialAluminium": {},
+  "shieldingMaterialWater": "Water",
+  "@shieldingMaterialWater": {},
+  "csvUnshieldedNote": "unshielded",
+  "@csvUnshieldedNote": {},
+  "csvShieldedSourceNote": "shielded source",
+  "@csvShieldedSourceNote": {},
+  "shieldingAddLayer": "Add layer",
+  "@shieldingAddLayer": {},
+  "shieldingLayerLabel": "Layer",
+  "@shieldingLayerLabel": {},
+  "shieldingRemoveLayer": "Remove layer",
+  "@shieldingRemoveLayer": {},
+  "doseRateUnshieldedLabel": "Dose rate (unshielded)",
+  "@doseRateUnshieldedLabel": {},
+  "doseRateShieldedLabel": "Dose rate behind the shielding",
+  "@doseRateShieldedLabel": {},
+  "calibrationSectionTitle": "Verification and calibration",
+  "@calibrationSectionTitle": {},
+  "calibrationKindVerification": "Verification",
+  "@calibrationKindVerification": {},
+  "calibrationKindCalibration": "Calibration",
+  "@calibrationKindCalibration": {},
+  "calibrationAddButton": "Add record",
+  "@calibrationAddButton": {},
+  "calibrationDialogTitle": "Verification / calibration record",
+  "@calibrationDialogTitle": {},
+  "calibrationKindLabel": "Type",
+  "@calibrationKindLabel": {},
+  "calibrationPerformedOnLabel": "Date performed",
+  "@calibrationPerformedOnLabel": {},
+  "calibrationValidUntilLabel": "Valid until",
+  "@calibrationValidUntilLabel": {},
+  "calibrationCertificateLabel": "Certificate number",
+  "@calibrationCertificateLabel": {},
+  "calibrationPerformedByLabel": "Performed by (lab / authority)",
+  "@calibrationPerformedByLabel": {},
+  "calibrationAttachFile": "Attach certificate",
+  "@calibrationAttachFile": {},
+  "calibrationRemoveFile": "Remove attachment",
+  "@calibrationRemoveFile": {},
+  "calibrationOpenFile": "Open / share certificate",
+  "@calibrationOpenFile": {},
+  "calibrationEmptyList": "No records yet.",
+  "@calibrationEmptyList": {},
+  "calibrationStatusValid": "Valid",
+  "@calibrationStatusValid": {},
+  "calibrationStatusSoon": "Expires soon",
+  "@calibrationStatusSoon": {},
+  "calibrationStatusExpired": "EXPIRED",
+  "@calibrationStatusExpired": {},
+  "calibrationStatusUnknown": "No data",
+  "@calibrationStatusUnknown": {},
+  "calibrationExpiredWarning": "Warning: the selected instrument's verification/calibration has expired. Valid until:",
+  "@calibrationExpiredWarning": {},
+  "calibrationSoonWarning": "Warning: the selected instrument's verification/calibration expires soon. Valid until:",
+  "@calibrationSoonWarning": {},
+  "calibrationUnknownWarning": "The selected instrument has no verification/calibration data.",
+  "@calibrationUnknownWarning": {},
+  "calibrationSaveAnywayTitle": "Expired verification/calibration",
+  "@calibrationSaveAnywayTitle": {},
+  "calibrationSaveAnywayBody": "The measurement was taken with an instrument whose verification/calibration has expired; the protocol will flag this. Save anyway?",
+  "@calibrationSaveAnywayBody": {},
+  "calibrationSaveAnywayConfirm": "Save anyway",
+  "@calibrationSaveAnywayConfirm": {},
+  "calibrationValidUntilBeforeError": "Validity cannot be before the date performed",
+  "@calibrationValidUntilBeforeError": {},
+  "csvHeaderInstrumentCalibration": "Instrument verification/calibration",
+  "@csvHeaderInstrumentCalibration": {},
+  "personPhoneLabel": "Phone number",
+  "@personPhoneLabel": {},
+  "personEmailLabel": "Email address",
+  "@personEmailLabel": {},
+  "personAddEmail": "Add email address",
+  "@personAddEmail": {},
+  "personRemoveEmail": "Remove email",
+  "@personRemoveEmail": {},
+  "personEmailInvalidError": "Invalid email address",
+  "@personEmailInvalidError": {},
+  "personCertificatesTitle": "Certificates",
+  "@personCertificatesTitle": {},
+  "personCertificateAdd": "Add certificate",
+  "@personCertificateAdd": {},
+  "personCertificateDialogTitle": "Certificate",
+  "@personCertificateDialogTitle": {},
+  "personCertificateNameLabel": "Name (e.g. radiation protection exam)",
+  "@personCertificateNameLabel": {},
+  "personCertificateNumberLabel": "Certificate number",
+  "@personCertificateNumberLabel": {},
+  "personCertificateIssuerLabel": "Issuer",
+  "@personCertificateIssuerLabel": {},
+  "personCertificateIssuedLabel": "Issue date",
+  "@personCertificateIssuedLabel": {},
+  "personCertificateNameRequired": "Enter the certificate name",
+  "@personCertificateNameRequired": {},
+  "personCertificateValidBeforeError": "Validity cannot be before the issue date",
+  "@personCertificateValidBeforeError": {},
+  "personCertificatesEmpty": "No certificates yet.",
+  "@personCertificatesEmpty": {},
+  "sourceCertificateTitle": "Source certificate",
+  "@sourceCertificateTitle": {},
+  "sourceCertificateAttach": "Attach certificate",
+  "@sourceCertificateAttach": {},
+  "sourceCertificateEmpty": "No certificate attached.",
+  "@sourceCertificateEmpty": {},
+  "companyDocumentsTooltip": "Company documents and permits",
+  "@companyDocumentsTooltip": {},
+  "companyDocumentNew": "New document",
+  "@companyDocumentNew": {},
+  "companyDocumentEdit": "Edit document",
+  "@companyDocumentEdit": {},
+  "companyDocumentTitleLabel": "Document name",
+  "@companyDocumentTitleLabel": {},
+  "companyDocumentIdentifierLabel": "Identifier (file / permit number)",
+  "@companyDocumentIdentifierLabel": {},
+  "companyDocumentIssuerLabel": "Issuer / authority",
+  "@companyDocumentIssuerLabel": {},
+  "companyDocumentIssuedLabel": "Issue / effective date",
+  "@companyDocumentIssuedLabel": {},
+  "companyDocumentValidUntilLabel": "Valid / review due until",
+  "@companyDocumentValidUntilLabel": {},
+  "companyDocumentFilesTitle": "Attached files",
+  "@companyDocumentFilesTitle": {},
+  "companyDocumentAttach": "Attach file",
+  "@companyDocumentAttach": {},
+  "companyDocumentsEmpty": "No documents yet.",
+  "@companyDocumentsEmpty": {},
+  "companyDocumentDeleteTitle": "Delete document",
+  "@companyDocumentDeleteTitle": {},
+  "companyDocumentDeleteConfirm": "Delete this document?",
+  "@companyDocumentDeleteConfirm": {},
+  "companyDocSuggestionsLabel": "Common documents",
+  "@companyDocSuggestionsLabel": {},
+  "companyDocSuggestRadiationPolicy": "Workplace radiation protection policy",
+  "@companyDocSuggestRadiationPolicy": {},
+  "companyDocSuggestRadiationDescription": "Radiation protection description",
+  "@companyDocSuggestRadiationDescription": {},
+  "companyDocSuggestPhysicalProtection": "Physical protection plan",
+  "@companyDocSuggestPhysicalProtection": {},
+  "companyDocSuggestEmergencyPlan": "Emergency response plan",
+  "companyDocSuggestOfficialLicense": "Official licence",
+  "@companyDocSuggestOfficialLicense": {},
+  "@companyDocSuggestEmergencyPlan": {},
+  "nuclideEditButton": "Edit nuclides",
+  "@nuclideEditButton": {},
+  "languageSectionTitle": "Language",
+  "@languageSectionTitle": {},
+  "languageSystemOption": "Phone language",
+  "@languageSystemOption": {},
+  "@settingsTitle": {},
+  "@appearanceSectionTitle": {},
+  "@themeLight": {},
+  "@themeDark": {},
+  "@themeSystem": {},
+  "settingsTitle": "Settings",
+  "appearanceSectionTitle": "Appearance",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeSystem": "System",
+  "alertThresholdExplanation": "If a recorded measurement reaches or exceeds the threshold set here, the app will alert you (sound + pop-up). Leave empty for no alert on that type.",
+  "@alertThresholdExplanation": {},
+  "noThresholdSetHint": "No threshold set",
+  "@noThresholdSetHint": {},
+  "saveButton": "Save",
+  "@saveButton": {},
+  "settingsSavedMessage": "Settings saved.",
+  "@settingsSavedMessage": {},
+  "@measurementTypeDoseRate": {},
+  "measurementTypeDoseRate": "Dose rate",
+  "@measurementTypeSurfaceContamination": {},
+  "measurementTypeSurfaceContamination": "Surface contamination",
+  "@measurementTypeCps": {},
+  "measurementTypeCps": "Count rate (cps)",
+  "@measurementTypeNeutronCps": {},
+  "measurementTypeNeutronCps": "Neutron count rate (cps)",
+  "@measurementTypeSample": {},
+  "measurementTypeSample": "Sampling",
+  "instrumentDeleteTitle": "Delete instrument",
+  "@instrumentDeleteTitle": {},
+  "instrumentDeleteConfirm": "Delete \"{name}\"? Past measurements linked to it are kept — only the instrument reference is removed from them.",
+  "@instrumentDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteButton": "Delete",
+  "@deleteButton": {},
+  "noInstrumentsYet": "No instruments yet. Add one with the + button.",
+  "@noInstrumentsYet": {},
+  "noCalibrationData": "No calibration data",
+  "@noCalibrationData": {},
+  "nextCalibrationOn": "Next calibration: {date}",
+  "@nextCalibrationOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noSerialNumber": "no serial number",
+  "@noSerialNumber": {},
+  "@newInstrumentButton": {},
+  "newInstrumentButton": "New instrument",
+  "@editInstrumentTitle": {},
+  "editInstrumentTitle": "Edit instrument",
+  "@instrumentNameLabel": {},
+  "@requiredFieldError": {},
+  "@serialNumberLabel": {},
+  "lastCalibrationLabel": "Last calibration date",
+  "@lastCalibrationLabel": {},
+  "@notSetLabel": {},
+  "@calibrationFactorLabel": {},
+  "@modbusConnectedLabel": {},
+  "@modbusHostLabel": {},
+  "@modbusPortLabel": {},
+  "@modbusUnitIdLabel": {},
+  "@modbusRegisterAddressLabel": {},
+  "@modbusRegisterAddressHelper": {},
+  "instrumentNameLabel": "Instrument name / type",
+  "requiredFieldError": "Required",
+  "serialNumberLabel": "Serial number",
+  "nextCalibrationLabel": "Next calibration date",
+  "notSetLabel": "Not set",
+  "calibrationFactorLabel": "Calibration factor",
+  "modbusConnectedLabel": "Reachable over WiFi Modbus/TCP",
+  "modbusHostLabel": "IP address / host",
+  "modbusPortLabel": "Port (e.g. 502)",
+  "modbusUnitIdLabel": "Modbus Unit ID (slave address)",
+  "modbusRegisterAddressLabel": "Register address (e.g. 294)",
+  "modbusRegisterAddressHelper": "Starting holding register of the measured value (float32)",
+  "modbusGpsEnabledLabel": "Read GPS position over Modbus",
+  "modbusGpsLatAddressLabel": "Latitude register (float32, default 426)",
+  "modbusGpsLonAddressLabel": "Longitude register (float32, default 428)",
+  "@modbusGpsEnabledLabel": {},
+  "@modbusGpsLatAddressLabel": {},
+  "@modbusGpsLonAddressLabel": {},
+  "@pickPositionTitle": {},
+  "pickPositionTitle": "Pick a position",
+  "@confirmPositionButton": {},
+  "confirmPositionButton": "Confirm position",
+  "isotopeCalculatorTitle": "Isotope calculator",
+  "@isotopeCalculatorTitle": {},
+  "@gammaConstantsDisclaimer": {},
+  "gammaConstantsDisclaimer": "The Γ-constants are for reference only. For an official protocol, verify them against an authoritative source before documenting the result.",
+  "@isotopeLabel": {},
+  "isotopeLabel": "Isotope",
+  "@modeDoseFromActivity": {},
+  "modeDoseFromActivity": "Activity to\ndose rate",
+  "@modeActivityFromDose": {},
+  "modeActivityFromDose": "Dose rate to\nactivity",
+  "@distanceFromSourceLabel": {},
+  "distanceFromSourceLabel": "Distance from source (m)",
+  "@activityLabel": {},
+  "activityLabel": "Activity (MBq)",
+  "@measuredDoseRateLabel": {},
+  "measuredDoseRateLabel": "Measured dose rate (µSv/h)",
+  "@calculateButton": {},
+  "calculateButton": "Calculate",
+  "@invalidDistanceError": {},
+  "invalidDistanceError": "Enter a valid, positive distance (m).",
+  "@invalidActivityError": {},
+  "invalidActivityError": "Enter a valid activity (MBq).",
+  "@invalidDoseRateError": {},
+  "invalidDoseRateError": "Enter a valid dose rate (µSv/h).",
+  "calculationErrorMessage": "Calculation error: {error}",
+  "@calculationErrorMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "calculatedDoseRateResult": "Calculated dose rate: {uSvH} µSv/h\n({nSvH} nSv/h)",
+  "@calculatedDoseRateResult": {
+    "placeholders": {
+      "uSvH": {
+        "type": "String"
+      },
+      "nSvH": {
+        "type": "String"
+      }
+    }
+  },
+  "calculatedActivityResult": "Calculated activity: {mbq} MBq\n({gbq} GBq)",
+  "@calculatedActivityResult": {
+    "placeholders": {
+      "mbq": {
+        "type": "String"
+      },
+      "gbq": {
+        "type": "String"
+      }
+    }
+  },
+  "distanceToolTitle": "Distance measurement",
+  "@distanceToolTitle": {},
+  "@locationServiceDisabledError": {},
+  "locationServiceDisabledError": "Location services are turned off.",
+  "@locationPermissionDeniedError": {},
+  "locationPermissionDeniedError": "Location permission denied.",
+  "gpsErrorMessage": "GPS error: {error}",
+  "@gpsErrorMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "selectTargetFirstError": "Select the target point first.",
+  "@selectTargetFirstError": {},
+  "@selectStartPointError": {},
+  "@selectTargetPointError": {},
+  "@startFromCurrentPositionLabel": {},
+  "@noPositionFetchedYet": {},
+  "@refreshGpsButton": {},
+  "@startPointLabel": {},
+  "@targetPointLabel": {},
+  "@liveTrackingLabel": {},
+  "@liveTrackingSubtitle": {},
+  "@calculateDistanceButton": {},
+  "@liveTrackingRunningHint": {},
+  "@noGpsPositionError": {},
+  "noGpsPositionError": "No GPS position. Refresh, or choose a starting point.",
+  "selectStartPointError": "Choose a starting point.",
+  "selectTargetPointError": "Choose the target point.",
+  "startFromCurrentPositionLabel": "Start from: my current position",
+  "noPositionFetchedYet": "Not fetched yet",
+  "refreshGpsButton": "Refresh GPS",
+  "startPointLabel": "Starting point",
+  "targetPointLabel": "Target point",
+  "liveTrackingLabel": "Live tracking",
+  "liveTrackingSubtitle": "Continuously updates distance and bearing as you walk.",
+  "calculateDistanceButton": "Calculate",
+  "liveTrackingRunningHint": "Live tracking is running — walk in the direction of the arrow.",
+  "sourceSearchTitle": "Source search",
+  "@sourceSearchTitle": {},
+  "measurementTypeLabel": "Measurement type",
+  "@measurementTypeLabel": {},
+  "pointsRecordedForType": "{count, plural, one{{count} point recorded} other{{count} points recorded}} for this type within this survey.",
+  "@pointsRecordedForType": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@lowConfidenceWarning": {},
+  "lowConfidenceWarning": "Few points (< 4) — the estimate is unreliable; take more measurements at different spots in the search area.",
+  "gradientEstimateLabel": "Estimated gradient: {value} {unit}/m",
+  "@gradientEstimateLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "directionEstimateHint": "The measured value is estimated to increase in this direction.",
+  "@directionEstimateHint": {},
+  "sourceSearchDisclaimer": "The suggested direction is based on a simple linear gradient estimate from the points recorded so far in this survey. It can be inaccurate with noisy field data, few points, or when the real source is far relative to the surveyed area's size. For guidance only — it does not replace professional judgment.",
+  "@sourceSearchDisclaimer": {},
+  "newMeasurementButton": "New measurement",
+  "@newMeasurementButton": {},
+  "mapTitle": "Map",
+  "@mapTitle": {},
+  "noPointsRecordedYet": "No measurement points recorded yet.",
+  "@noPointsRecordedYet": {},
+  "saveScreenshotTooltip": "Save screenshot for the protocol",
+  "@saveScreenshotTooltip": {},
+  "screenshotSavedMessage": "Map saved — it will be attached when exporting the protocol.",
+  "@screenshotSavedMessage": {},
+  "screenshotErrorMessage": "Screenshot error: {error}",
+  "@screenshotErrorMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "valueLabel": "Value: {value} {unit}",
+  "@valueLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "distanceFromSourceValue": "Distance from source: {value} m",
+  "@distanceFromSourceValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "timestampLabel": "Time: {value}",
+  "@timestampLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcePositionLabel": "Source position",
+  "@sourcePositionLabel": {},
+  "editButton": "Edit",
+  "@editButton": {},
+  "@closeSurveyTitle": {},
+  "@closeSurveyConfirm": {},
+  "@closeSurveyButton": {},
+  "@surveyClosedMessage": {},
+  "@listScreenshotSavedMessage": {},
+  "closeSurveyTitle": "Close survey",
+  "closeSurveyConfirm": "Once closed, the protocol will show today's date as the end time. Points aren't locked by this — you can still edit them later.",
+  "closeSurveyButton": "Close",
+  "surveyClosedMessage": "Survey closed.",
+  "listScreenshotSavedMessage": "List screenshot saved — it will be attached when exporting the protocol.",
+  "exportErrorMessage": "Export error: {error}",
+  "@exportErrorMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "importErrorMessage": "Import error: {error}",
+  "@importErrorMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "protocolShareSubject": "Protocol – {title}",
+  "@protocolShareSubject": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "dataExportSubject": "Measurement points (data) – {title}",
+  "@dataExportSubject": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "csvExportSubject": "Measurement points (CSV) – {title}",
+  "@csvExportSubject": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "importDoneTitle": "Import complete",
+  "@importDoneTitle": {},
+  "importedPointsMessage": "{points} points imported.\n{instruments} new instruments created.\n{sources} new radiation sources created.",
+  "@importedPointsMessage": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      },
+      "instruments": {
+        "type": "int"
+      },
+      "sources": {
+        "type": "int"
+      }
+    }
+  },
+  "@okButton": {},
+  "okButton": "OK",
+  "toolsTooltip": "Tools",
+  "@toolsTooltip": {},
+  "autoLogMenuItem": "Automatic logging",
+  "@autoLogMenuItem": {},
+  "captureListScreenshotMenuItem": "Save list screenshot",
+  "@captureListScreenshotMenuItem": {},
+  "protocolFormatTitle": "Protocol format",
+  "protocolFormatWord": "Word (ZIP: .docx + photos)",
+  "protocolFormatPdf": "PDF (with photos)",
+  "sessionDoseLabel": "Survey dose",
+  "dosimeterDoseLabel": "Dosimeter",
+  "dosimeterValueLabel": "Evaluated dose",
+  "includeInAnnualLabel": "Counts toward the annual dose",
+  "notCountedInAnnualLabel": "not counted in the annual dose",
+  "calcDoseFromPointsButton": "Calculate from points",
+  "calcDoseNeedTwoPoints": "At least 2 dose-rate points are needed.",
+  "calcDoseResultInfo": "Calculated from {count} points (linear interpolation)",
+  "@calcDoseResultInfo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dosimetersButton": "Dosimeters",
+  "addDosimeterButton": "Add dosimeter",
+  "dosimeterKindEpdGamma": "EPD gamma (electronic)",
+  "dosimeterKindEpdNeutron": "EPD neutron (electronic)",
+  "dosimeterKindTlOfficial": "TL/OSL passive (official)",
+  "dosimeterKindTlWorkplace": "TL/OSL passive (workplace)",
+  "dosimeterTypeLabel": "Type",
+  "dosimeterIdentifierLabel": "Identifier",
+  "dosimeterPersonLabel": "Worn by",
+  "dosimeterNobody": "Not assigned",
+  "dosimeterStartLabel": "Start reading",
+  "dosimeterEndLabel": "End reading",
+  "dosimeterEndBeforeStartError": "The end reading cannot be lower than the start reading.",
+  "noDosimetersYet": "No dosimeters for this survey yet.",
+  "dosimeterEditTitle": "Dosimeter",
+  "dosimeterNoReading": "no reading",
+  "dosimeterDeleteTitle": "Delete dosimeter",
+  "dosimeterDeleteMessage": "Delete this dosimeter entry?",
+  "exportProtocolMenuItem": "Export protocol",
+  "@exportProtocolMenuItem": {},
+  "exportJsonMenuItem": "Export points (data, JSON)",
+  "@exportJsonMenuItem": {},
+  "exportCsvMenuItem": "Export points (table, CSV)",
+  "@exportCsvMenuItem": {},
+  "importJsonMenuItem": "Import points (JSON)",
+  "@importJsonMenuItem": {},
+  "newPointButton": "New point",
+  "@newPointButton": {},
+  "sampleTakenListLabel": "Sampling · {date}",
+  "@sampleTakenListLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "unknownModbusError": "Unknown Modbus error.",
+  "@unknownModbusError": {},
+  "noValidPositionError": "No valid position given.",
+  "@noValidPositionError": {},
+  "thresholdExceededTitle": "Alert threshold exceeded",
+  "@thresholdExceededTitle": {},
+  "thresholdExceededMessage": "The measured value ({value} {unit}) reaches or exceeds the threshold set for {type} ({threshold} {unit}).",
+  "@thresholdExceededMessage": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      },
+      "threshold": {
+        "type": "String"
+      }
+    }
+  },
+  "newPointTitle": "New measurement point",
+  "@newPointTitle": {},
+  "editPointTitle": "Edit point",
+  "@editPointTitle": {},
+  "locationLabelFieldLabel": "Location name",
+  "@locationLabelFieldLabel": {},
+  "measuredValueLabel": "Measured value",
+  "@measuredValueLabel": {},
+  "numberRequiredError": "Enter a number",
+  "@numberRequiredError": {},
+  "unitLabel": "Unit",
+  "@unitLabel": {},
+  "instrumentLabel": "Instrument",
+  "@instrumentLabel": {},
+  "addInstrumentTooltip": "Add new instrument",
+  "@addInstrumentTooltip": {},
+  "queryingLabel": "Querying...",
+  "@queryingLabel": {},
+  "modbusQueryButton": "Modbus query ({name})",
+  "@modbusQueryButton": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcePositionSwitchLabel": "This is the source position (max value)",
+  "@sourcePositionSwitchLabel": {},
+  "sampleTakenSwitchLabel": "A physical sample was taken here",
+  "@sampleTakenSwitchLabel": {},
+  "sampleContainerLabel": "Container ID",
+  "@sampleContainerLabel": {},
+  "sampleAmountLabel": "Amount",
+  "sampleUnitLabel": "Unit",
+  "@sampleUnitLabel": {},
+  "sampleUnitOther": "Other",
+  "@sampleUnitOther": {},
+  "sampleUnitCustomLabel": "Unit name",
+  "@sampleUnitCustomLabel": {},
+  "sampleAmountInvalid": "Enter a number (e.g. 2.5 or 2,5)",
+  "@sampleAmountInvalid": {},
+  "@sampleAmountLabel": {},
+  "sampleMethodLabel": "Sampling method",
+  "@sampleMethodLabel": {},
+  "notesLabel": "Notes",
+  "@notesLabel": {},
+  "takePhotoLabel": "Take photo",
+  "@takePhotoLabel": {},
+  "retakePhotoLabel": "Replace photo",
+  "@retakePhotoLabel": {},
+  "chooseFromGalleryLabel": "Choose from gallery",
+  "@chooseFromGalleryLabel": {},
+  "positionLabel": "Position",
+  "@positionLabel": {},
+  "latitudeLabel": "Latitude",
+  "@latitudeLabel": {},
+  "longitudeLabel": "Longitude",
+  "@longitudeLabel": {},
+  "invalidValueError": "Invalid",
+  "@invalidValueError": {},
+  "liveGpsButton": "Live GPS",
+  "@liveGpsButton": {},
+  "onMapButton": "On the map",
+  "@onMapButton": {},
+  "autoLogDisclaimer": "Logging only runs while this screen is open. If the phone locks or you switch apps, the measurement pauses — you'll need to restart it when you come back.",
+  "@autoLogDisclaimer": {},
+  "@noModbusInstrumentMessage": {},
+  "noModbusInstrumentMessage": "No instrument reachable over Modbus/TCP is set up. Add one in the Instruments list (WiFi Modbus/TCP switch on, IP, Unit ID and register address filled in).",
+  "triggerModeTime": "Time-based",
+  "@triggerModeTime": {},
+  "triggerModeDistance": "Distance-based",
+  "@triggerModeDistance": {},
+  "intervalSecondsLabel": "Interval (seconds)",
+  "@intervalSecondsLabel": {},
+  "distanceIntervalLabel": "Distance interval (meters)",
+  "@distanceIntervalLabel": {},
+  "connectingLabel": "Connecting...",
+  "@connectingLabel": {},
+  "stopButton": "Stop",
+  "@stopButton": {},
+  "loggingRunningLabel": "Logging running...",
+  "@loggingRunningLabel": {},
+  "loggingStoppedLabel": "Logging stopped",
+  "@loggingStoppedLabel": {},
+  "capturedPointsLabel": "Points recorded: {count}",
+  "@capturedPointsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lastValueLabel": "Last value: {value} {unit}",
+  "@lastValueLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "failedReadingsLabel": "Failed readings: {count}",
+  "@failedReadingsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lastErrorSuffix": " (last error: {error})",
+  "@lastErrorSuffix": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "intervalMinError": "The interval must be at least 1 second.",
+  "@intervalMinError": {},
+  "distanceMinError": "The distance must be at least 1 meter.",
+  "@distanceMinError": {},
+  "modbusConnectErrorMessage": "Modbus connection error: {error}",
+  "@modbusConnectErrorMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@csvHeaderSerialNumber": {},
+  "@csvHeaderLocation": {},
+  "@csvHeaderType": {},
+  "@csvHeaderValue": {},
+  "@csvHeaderUnit": {},
+  "@csvHeaderDistanceFromSource": {},
+  "@csvHeaderInstrument": {},
+  "@csvHeaderGpsLatitude": {},
+  "@csvHeaderGpsLongitude": {},
+  "@csvHeaderGpsAccuracy": {},
+  "@csvHeaderTimestamp": {},
+  "@csvHeaderSample": {},
+  "@csvHeaderNotes": {},
+  "@csvHeaderEstimatedActivity": {},
+  "@csvHeaderAttachedSources": {},
+  "@csvHeaderCalculatedDoseRate": {},
+  "@csvHeaderDoseRateDifference": {},
+  "@csvYes": {},
+  "@csvNo": {},
+  "@importUnknownTypeWarning": {},
+  "@importMissingGpsWarning": {},
+  "csvHeaderSerialNumber": "No.",
+  "csvHeaderLocation": "Location",
+  "csvHeaderType": "Type",
+  "csvHeaderValue": "Value",
+  "csvHeaderUnit": "Unit",
+  "csvHeaderDistanceFromSource": "Distance from source",
+  "csvHeaderInstrument": "Instrument",
+  "csvHeaderGpsLatitude": "GPS latitude",
+  "csvHeaderGpsLongitude": "GPS longitude",
+  "csvHeaderGpsAccuracy": "GPS accuracy",
+  "csvHeaderTimestamp": "Timestamp",
+  "csvHeaderSample": "Sampling",
+  "csvHeaderNotes": "Notes",
+  "csvHeaderEstimatedActivity": "Estimated activity (from measurement)",
+  "csvHeaderAttachedSources": "Attached source(s)",
+  "csvHeaderCalculatedDoseRate": "Calculated dose rate",
+  "csvHeaderDoseRateDifference": "Difference",
+  "csvYes": "yes",
+  "csvNo": "no",
+  "importUnknownTypeWarning": "Unknown measurement type skipped for one point.",
+  "importMissingGpsWarning": "A point was skipped due to a missing GPS coordinate.",
+  "manageSourcesLabel": "Manage radioactive source(s)",
+  "@manageSourcesLabel": {},
+  "sourcesCountLabel": "{count} source(s)",
+  "@sourcesCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "radiationSourcesTitle": "Sources",
+  "@radiationSourcesTitle": {},
+  "newSourceButton": "Add source",
+  "@newSourceButton": {},
+  "newSourceTitle": "New source",
+  "@newSourceTitle": {},
+  "editSourceTitle": "Edit source",
+  "@editSourceTitle": {},
+  "noSourcesRecordedYet": "No sources attached to this point yet.",
+  "@noSourcesRecordedYet": {},
+  "sourcesTooltip": "Sources",
+  "@sourcesTooltip": {},
+  "pointSourcesTitle": "Source(s) at this point",
+  "@pointSourcesTitle": {},
+  "attachSourceButton": "Attach source",
+  "@attachSourceButton": {},
+  "pickSourceTitle": "Select source",
+  "@pickSourceTitle": {},
+  "noSourcesToAttach": "No sources available yet — add one first in the main Sources list.",
+  "@noSourcesToAttach": {},
+  "noSourcesYet": "No sources added yet. Add one with the + button.",
+  "@noSourcesYet": {},
+  "enterDistanceDialogTitle": "Enter distance",
+  "@enterDistanceDialogTitle": {},
+  "detachSourceConfirmTitle": "Detach source",
+  "@detachSourceConfirmTitle": {},
+  "detachSourceConfirmMessage": "Detach source \"{identifier}\" from this point? The source stays in your registry — only this link is removed.",
+  "@detachSourceConfirmMessage": {
+    "placeholders": {
+      "identifier": {
+        "type": "String"
+      }
+    }
+  },
+  "detachButton": "Detach",
+  "@detachButton": {},
+  "totalCalculatedDoseRateLabel": "Total calculated dose rate (all sources)",
+  "@totalCalculatedDoseRateLabel": {},
+  "sourcesUnknownNuclideSkippedNote": "{count} source(s) have an unknown nuclide and are excluded from the total.",
+  "@sourcesUnknownNuclideSkippedNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sourceIdentifierLabel": "Unique identifier",
+  "@sourceIdentifierLabel": {},
+  "nuclideLabel": "Nuclide",
+  "@nuclideLabel": {},
+  "customNuclideOption": "Other (manual entry)",
+  "@customNuclideOption": {},
+  "customNuclideNameLabel": "Nuclide name",
+  "@customNuclideNameLabel": {},
+  "activityAtManufactureLabel": "Activity at manufacture (MBq)",
+  "@activityAtManufactureLabel": {},
+  "activityErrorPercentLabel": "Activity error (±%)",
+  "@activityErrorPercentLabel": {},
+  "manufactureDateLabel": "Manufacture date",
+  "@manufactureDateLabel": {},
+  "serviceLifeExpiryDateLabel": "Service life expiry",
+  "@serviceLifeExpiryDateLabel": {},
+  "nextInspectionDateLabel": "Next inspection date",
+  "@nextInspectionDateLabel": {},
+  "sourceDistanceLabel": "Distance from measurement point (m)",
+  "@sourceDistanceLabel": {},
+  "asOfDateLabel": "Activity as-of date",
+  "@asOfDateLabel": {},
+  "currentActivityResultLabel": "Current activity",
+  "@currentActivityResultLabel": {},
+  "calculatedDoseRateResultLabel": "Calculated dose rate",
+  "@calculatedDoseRateResultLabel": {},
+  "measuredDoseRateResultLabel": "Measured dose rate (at point)",
+  "@measuredDoseRateResultLabel": {},
+  "doseRateDifferenceResultLabel": "Difference (measured − calculated)",
+  "@doseRateDifferenceResultLabel": {},
+  "unknownNuclideDecayWarning": "Unknown nuclide: no stored half-life or gamma constant, so current activity and calculated dose rate can't be determined. The source data can still be saved, but the comparison is skipped.",
+  "@unknownNuclideDecayWarning": {},
+  "noMeasuredValueForComparisonNote": "No measured value recorded for this point — comparison isn't possible.",
+  "@noMeasuredValueForComparisonNote": {},
+  "unrecognizedUnitForComparisonNote": "The measurement unit ({unit}) can't be converted automatically — comparison isn't possible.",
+  "@unrecognizedUnitForComparisonNote": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceExpiredWarning": "The source's service life has expired.",
+  "@sourceExpiredWarning": {},
+  "deleteSourceConfirmTitle": "Delete source",
+  "@deleteSourceConfirmTitle": {},
+  "deleteSourceConfirmMessage": "Delete the source \"{identifier}\" from the registry? This also removes it from every point it's attached to. This can't be undone.",
+  "@deleteSourceConfirmMessage": {
+    "placeholders": {
+      "identifier": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceCalculationDisclaimer": "Calculated values are for reference only, based on standard gamma constants and half-lives. Verify against an authoritative source for official records.",
+  "@sourceCalculationDisclaimer": {},
+  "estimatedActivityFromMeasurementLabel": "Estimated activity (from measured value)",
+  "@estimatedActivityFromMeasurementLabel": {},
+  "personsTooltip": "Persons",
+  "@personsTooltip": {},
+  "personsTitle": "Persons",
+  "@personsTitle": {},
+  "newPersonButton": "Add person",
+  "@newPersonButton": {},
+  "newPersonTitle": "New person",
+  "@newPersonTitle": {},
+  "editPersonTitle": "Edit person",
+  "@editPersonTitle": {},
+  "noPersonsYet": "No persons added yet. Add one with the + button.",
+  "@noPersonsYet": {},
+  "personNameLabel": "Name",
+  "@personNameLabel": {},
+  "medicalExamExpiryDateLabel": "Medical exam expiry",
+  "@medicalExamExpiryDateLabel": {},
+  "trainingExpiryDateLabel": "Training expiry",
+  "@trainingExpiryDateLabel": {},
+  "deletePersonConfirmTitle": "Delete person",
+  "@deletePersonConfirmTitle": {},
+  "deletePersonConfirmMessage": "Delete \"{name}\" from the registry? This also removes them from every survey they're attached to. This can't be undone.",
+  "@deletePersonConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionPersonsTitle": "Personnel on this survey",
+  "@sessionPersonsTitle": {},
+  "noPersonsAttachedYet": "No persons assigned to this survey yet.",
+  "@noPersonsAttachedYet": {},
+  "attachPersonButton": "Assign person",
+  "@attachPersonButton": {},
+  "pickPersonTitle": "Select person",
+  "@pickPersonTitle": {},
+  "noPersonsToAttach": "No person available to add yet — add one first in the main Persons list.",
+  "@noPersonsToAttach": {},
+  "detachPersonConfirmTitle": "Remove person",
+  "@detachPersonConfirmTitle": {},
+  "detachPersonConfirmMessage": "Remove \"{name}\" from this survey? The person stays in your registry — only this assignment is removed.",
+  "@detachPersonConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "expiryNotificationsSectionTitle": "Expiry notifications",
+  "@expiryNotificationsSectionTitle": {},
+  "expiryNotificationsSwitchTitle": "Notify about expiry dates",
+  "@expiryNotificationsSwitchTitle": {},
+  "expiryNotificationsSwitchSubtitle": "For upcoming expiry dates of sources (service life, inspection) and persons (medical exam, training), sent at 8:00 in the morning.",
+  "@expiryNotificationsSwitchSubtitle": {},
+  "expiryLeadTimeLabel": "How far ahead to notify",
+  "@expiryLeadTimeLabel": {},
+  "expiryLeadSameDay": "On the day",
+  "@expiryLeadSameDay": {},
+  "expiryLeadOneDay": "1 day before",
+  "@expiryLeadOneDay": {},
+  "expiryLeadTwoDays": "2 days before",
+  "@expiryLeadTwoDays": {},
+  "expiryLeadOneWeek": "1 week before",
+  "expiryLeadTwoWeeks": "2 weeks before",
+  "expiryLeadMonths": "{count, plural, =1{1 month before} other{{count} months before}}",
+  "@expiryLeadMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@expiryLeadOneWeek": {},
+  "expiryNotificationsPermissionDenied": "Notifications are blocked in your phone settings. Allow RadRecon notifications there.",
+  "@expiryNotificationsPermissionDenied": {},
+  "expiryNotificationTitleToday": "Expires today",
+  "@expiryNotificationTitleToday": {},
+  "expiryNotificationTitleUpcoming": "Expires soon",
+  "@expiryNotificationTitleUpcoming": {},
+  "expiryNotificationChannelName": "Expiry notifications",
+  "@expiryNotificationChannelName": {},
+  "expiryNotificationChannelDescription": "Upcoming expiry dates of sources and persons",
+  "@expiryNotificationChannelDescription": {},
+  "importRegistryCsv": "Import CSV",
+  "@importRegistryCsv": {},
+  "exportRegistryCsv": "Export CSV",
+  "@exportRegistryCsv": {},
+  "registryCsvExportSubject": "RadRecon registry data (CSV)",
+  "@registryCsvExportSubject": {},
+  "duplicatePolicyTitle": "When a matching record exists",
+  "@duplicatePolicyTitle": {},
+  "duplicateReplace": "Replace existing record",
+  "@duplicateReplace": {},
+  "duplicateSkip": "Skip matching record",
+  "@duplicateSkip": {},
+  "duplicateKeep": "Import as a duplicate",
+  "@duplicateKeep": {},
+  "registryImportSummary": "Imported: {imported}, replaced: {replaced}, skipped: {skipped}",
+  "@registryImportSummary": {
+    "placeholders": {
+      "imported": {
+        "type": "int"
+      },
+      "replaced": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "modbusTestConnectionButton": "Test connection",
+  "@modbusTestConnectionButton": {},
+  "modbusTestingLabel": "Testing...",
+  "@modbusTestingLabel": {},
+  "modbusTestSuccessTitle": "Connection successful",
+  "@modbusTestSuccessTitle": {},
+  "modbusTestFailureTitle": "Connection failed",
+  "@modbusTestFailureTitle": {},
+  "modbusTestValue": "Value: {value}",
+  "@modbusTestValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "modbusTestPosition": "Lat: {lat}, Lon: {lon}",
+  "@modbusTestPosition": {
+    "placeholders": {
+      "lat": {
+        "type": "String"
+      },
+      "lon": {
+        "type": "String"
+      }
+    }
+  },
+  "missingFieldMessage": "Please fill in: {field}",
+  "@missingFieldMessage": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "errorTitle": "Error",
+  "@errorTitle": {},
+  "modbusReadErrorWithCode": "Modbus error during reading: {code}",
+  "@modbusReadErrorWithCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "instrumentDidNotSendValidValue": "The instrument did not send a valid value.",
+  "@instrumentDidNotSendValidValue": {},
+  "gpsPositionReadFailed": "Failed to read GPS position from the instrument.",
+  "@gpsPositionReadFailed": {},
+  "instrumentIPAddressNotSet": "Instrument IP address not set.",
+  "@instrumentIPAddressNotSet": {},
+  "modbusUnitIdNotSet": "Modbus Unit ID not set.",
+  "@modbusUnitIdNotSet": {},
+  "registerAddressNotSet": "Register address not set.",
+  "@registerAddressNotSet": {},
+  "failedToConnectToInstrument": "Failed to connect to the instrument.",
+  "@failedToConnectToInstrument": {},
+  "connectionErrorWithDetails": "Connection error: {error}",
+  "@connectionErrorWithDetails": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "modbusAccessIncomplete": "Modbus access details for the instrument are incomplete (IP, Unit ID, register address).",
+  "@modbusAccessIncomplete": {},
+  "noDisplayableContentForScreenshot": "No displayable content for the screenshot.",
+  "@noDisplayableContentForScreenshot": {},
+  "failedToConvertScreenshotToPng": "Failed to convert the screenshot to PNG.",
+  "@failedToConvertScreenshotToPng": {},
+  "doseSourceOnline": "Online (from detector)",
+  "@doseSourceOnline": {},
+  "doseSourceManual": "Manual",
+  "@doseSourceManual": {},
+  "doseSourcePassive": "Passive dosimetry",
+  "@doseSourcePassive": {},
+  "annualDoseLabel": "Dose in {year}",
+  "@annualDoseLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "doseYearLabel": "Year",
+  "@doseYearLabel": {},
+  "doseBreakdownLabel": "online {online} · manual {manual} · passive {passive}",
+  "@doseBreakdownLabel": {
+    "placeholders": {
+      "online": {
+        "type": "String"
+      },
+      "manual": {
+        "type": "String"
+      },
+      "passive": {
+        "type": "String"
+      }
+    }
+  },
+  "personDosesTitle": "Doses – {name}",
+  "@personDosesTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "personDosesTooltip": "Manage doses",
+  "@personDosesTooltip": {},
+  "noDosesYet": "No dose entries for this year yet.",
+  "@noDosesYet": {},
+  "addPassiveDoseButton": "Add passive dosimetry",
+  "@addPassiveDoseButton": {},
+  "newPassiveDoseTitle": "New passive dosimetry",
+  "@newPassiveDoseTitle": {},
+  "editDoseTitle": "Edit dose",
+  "@editDoseTitle": {},
+  "doseValueLabel": "Dose",
+  "@doseValueLabel": {},
+  "dosePeriodStartLabel": "Evaluation period start",
+  "@dosePeriodStartLabel": {},
+  "dosePeriodEndLabel": "Evaluation period end",
+  "@dosePeriodEndLabel": {},
+  "dosePeriodEndBeforeStartError": "End cannot be before start.",
+  "@dosePeriodEndBeforeStartError": {},
+  "doseTotalLabel": "Total",
+  "@doseTotalLabel": {},
+  "doseDeleteConfirmTitle": "Delete dose entry",
+  "@doseDeleteConfirmTitle": {},
+  "doseDeleteConfirmMessage": "Delete this dose entry? This cannot be undone.",
+  "@doseDeleteConfirmMessage": {},
+  "sessionDoseDialogTitle": "Dose of {name}",
+  "@sessionDoseDialogTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineDoseLabel": "Online dose",
+  "@onlineDoseLabel": {},
+  "manualDoseLabel": "Manual dose",
+  "@manualDoseLabel": {},
+  "closeSurveyDosesTitle": "Review doses",
+  "@closeSurveyDosesTitle": {},
+  "closeSurveyDosesHint": "Before closing, review or correct each participant dose.",
+  "@closeSurveyDosesHint": {},
+  "autoLogDoseSaved": "Dose saved for {count} person(s): {dose}",
+  "@autoLogDoseSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "dose": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDoseNoPersons": "Measured dose ({dose}) was not saved because no person is attached to this survey.",
+  "@autoLogDoseNoPersons": {
+    "placeholders": {
+      "dose": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDoseLabel": "Integrated dose: {dose}",
+  "@autoLogDoseLabel": {
+    "placeholders": {
+      "dose": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDoseGaps": "{count} longer data gap(s) during measurement",
+  "@autoLogDoseGaps": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "autoLogDoseOnlyDoseRate": "Dose can only be calculated and saved from dose rate measurements.",
+  "@autoLogDoseOnlyDoseRate": {},
+  "importPersonDosesCsv": "Import doses (CSV)",
+  "@importPersonDosesCsv": {},
+  "exportPersonDosesCsv": "Export doses (CSV)",
+  "@exportPersonDosesCsv": {},
+  "importPersonCsv": "Import persons (CSV)",
+  "@importPersonCsv": {},
+  "exportPersonCsv": "Export persons (CSV)",
+  "@exportPersonCsv": {},
+  "dataManagementSectionTitle": "Data management",
+  "@dataManagementSectionTitle": {},
+  "saveDatabaseButton": "Save database to file",
+  "@saveDatabaseButton": {},
+  "loadDatabaseButton": "Load database from file",
+  "@loadDatabaseButton": {},
+  "clearDatabaseButton": "Clear database",
+  "@clearDatabaseButton": {},
+  "companySwitchButton": "Switch company",
+  "@companySwitchButton": {},
+  "dataManagementHint": "The backup file contains all data including photos, so it can be used to move to a new phone or to keep several companies' data separate.",
+  "@dataManagementHint": {},
+  "saveDatabaseSubject": "RadRecon database backup",
+  "@saveDatabaseSubject": {},
+  "databaseSavedMessage": "Database saved: {path}",
+  "@databaseSavedMessage": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "loadDatabaseConfirmTitle": "Load database",
+  "@loadDatabaseConfirmTitle": {},
+  "loadDatabaseConfirmBody": "Loading overwrites all data currently on this device. Save it first if you still need it. Continue?",
+  "@loadDatabaseConfirmBody": {},
+  "loadButton": "Load",
+  "@loadButton": {},
+  "databaseLoadedMessage": "Loaded: {name}",
+  "@databaseLoadedMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "clearDatabaseConfirmTitle": "Clear database",
+  "@clearDatabaseConfirmTitle": {},
+  "clearDatabaseConfirmBody": "All surveys, measurement points, instruments, sources, people and photos will be permanently deleted from this device. This cannot be undone — make a backup first!",
+  "@clearDatabaseConfirmBody": {},
+  "databaseClearedMessage": "Database cleared.",
+  "@databaseClearedMessage": {},
+  "companySwitchTitle": "Switch company",
+  "@companySwitchTitle": {},
+  "activeCompanyLabel": "Active company",
+  "@activeCompanyLabel": {},
+  "companiesFolderLabel": "Companies folder",
+  "@companiesFolderLabel": {},
+  "chooseFolderButton": "Choose folder",
+  "@chooseFolderButton": {},
+  "resetFolderButton": "Back to default folder",
+  "@resetFolderButton": {},
+  "noCompaniesYet": "No saved companies in this folder yet. The active company is saved automatically on the first switch, or create a new one / add a backup file with the buttons above.",
+  "@noCompaniesYet": {},
+  "companyBackupInfo": "Saved: {date}",
+  "@companyBackupInfo": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "newCompanyButton": "New company",
+  "@newCompanyButton": {},
+  "newCompanyDialogTitle": "Create new company",
+  "@newCompanyDialogTitle": {},
+  "companyNameLabel": "Company name",
+  "@companyNameLabel": {},
+  "companyNameExistsMessage": "A company with this name already exists.",
+  "@companyNameExistsMessage": {},
+  "createButton": "Create",
+  "@createButton": {},
+  "addCompanyFromFileButton": "Add company from backup file",
+  "@addCompanyFromFileButton": {},
+  "companySwitchConfirmTitle": "Switch company",
+  "@companySwitchConfirmTitle": {},
+  "companySwitchConfirmBody": "Switch to {company}? Current data is saved automatically under {active}.",
+  "@companySwitchConfirmBody": {
+    "placeholders": {
+      "company": {
+        "type": "String"
+      },
+      "active": {
+        "type": "String"
+      }
+    }
+  },
+  "companySwitchAction": "Switch",
+  "@companySwitchAction": {},
+  "companySwitchedMessage": "Active company: {name}",
+  "@companySwitchedMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteCompanyBackupTitle": "Delete backup",
+  "@deleteCompanyBackupTitle": {},
+  "deleteCompanyBackupBody": "Delete the backup of {name} from the folder? Data currently loaded is not affected.",
+  "@deleteCompanyBackupBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "privateFolderHint": "The app is currently using its own private folder, which other apps cannot access. Choose a folder (e.g. Downloads or Google Drive) to reach the backups from your file manager.",
+  "@privateFolderHint": {},
+  "contributorsTitle": "Contributors",
+  "@contributorsTitle": {},
+  "contributorsThanks": "Thank you to everyone who helps test, develop, translate and review RadRecon. RadRecon is a nonprofit civic initiative built by volunteers.",
+  "@contributorsThanks": {},
+  "contributorsOrganizationsTitle": "Organizations and companies",
+  "@contributorsOrganizationsTitle": {},
+  "contributorsPeopleTitle": "People",
+  "@contributorsPeopleTitle": {},
+  "contributorsEmpty": "The list is still empty. Be the first!",
+  "@contributorsEmpty": {},
+  "contributorsLoadError": "The list could not be loaded.",
+  "@contributorsLoadError": {},
+  "contributorsJoinHint": "Want to be listed? Sign up as a volunteer and tell us how you want to appear:",
+  "@contributorsJoinHint": {},
+  "contributorsCopyLink": "Copy link",
+  "@contributorsCopyLink": {},
+  "contributorsLinkCopied": "Link copied.",
+  "@contributorsLinkCopied": {},
+  "contributorRoleTesting": "Testing",
+  "@contributorRoleTesting": {},
+  "contributorRoleDevelopment": "Development",
+  "@contributorRoleDevelopment": {},
+  "contributorRoleReview": "Expert review",
+  "@contributorRoleReview": {},
+  "contributorRoleTranslation": "Translation",
+  "@contributorRoleTranslation": {},
+  "contributorRoleOther": "Other",
+  "@contributorRoleOther": {},
+  "regulatoryProfileLabel": "Regulatory profile",
+  "@regulatoryProfileLabel": {},
+  "regulatoryProfileInternational": "International (IAEA)",
+  "@regulatoryProfileInternational": {},
+  "regulatoryProfileHungary": "Hungary (OAH)",
+  "@regulatoryProfileHungary": {},
+  "classificationTitle": "Classification (D, R, exemption)",
+  "@classificationTitle": {},
+  "classificationDisclaimer": "Indicative calculation from nuclide tables and the current (decay-corrected) activity. The official classification is determined by the applicable law and the regulator. The MSZ 62-7 laboratory class is an indicative value derived from the activity.",
+  "@classificationDisclaimer": {},
+  "classificationUnsealedWork": "Regular work with unsealed sources",
+  "@classificationUnsealedWork": {},
+  "classificationOutsideWorkplace": "Use outside the radiation workplace",
+  "@classificationOutsideWorkplace": {},
+  "classificationTotal": "Total (selected sources)",
+  "@classificationTotal": {},
+  "classificationPhysCat": "Physical protection category",
+  "@classificationPhysCat": {},
+  "classificationProtCat": "Radiation protection category",
+  "@classificationProtCat": {},
+  "classificationUnknownCount": "Sources without R (unknown nuclide)",
+  "@classificationUnknownCount": {},
+  "classificationActivity": "Activity",
+  "@classificationActivity": {},
+  "classificationNotDecayCorrected": "not decay-corrected",
+  "@classificationNotDecayCorrected": {},
+  "classificationDInfinite": "D = ∞ (does not contribute to R)",
+  "@classificationDInfinite": {},
+  "classificationDUnknown": "No D value for this nuclide, R cannot be calculated",
+  "@classificationDUnknown": {},
+  "classificationExemptUnknown": "No exemption values for this nuclide",
+  "@classificationExemptUnknown": {},
+  "classificationExemptActivity": "Exempt activity",
+  "@classificationExemptActivity": {},
+  "classificationSpecificConc": "Specific exemption concentration",
+  "@classificationSpecificConc": {},
+  "classificationGeneralConc": "general",
+  "@classificationGeneralConc": {},
+  "classificationBelowExempt": "Activity is at or below the exempt activity",
+  "@classificationBelowExempt": {},
+  "classificationAboveExempt": "Activity is above the exempt activity",
+  "@classificationAboveExempt": {},
+  "classificationProtLevel": "Physical protection level",
+  "@classificationProtLevel": {},
+  "classificationAdrConsignmentLimit": "exempt consignment limit",
+  "@classificationAdrConsignmentLimit": {},
+  "classificationAdrBelow": "activity is below it (not Class 7)",
+  "@classificationAdrBelow": {},
+  "classificationAdrAbove": "activity is above it (concentration also matters)",
+  "@classificationAdrAbove": {},
+  "classificationLabIndustrial": "Industrial lab",
+  "@classificationLabIndustrial": {},
+  "classificationLabMedical": "Medical lab",
+  "@classificationLabMedical": {},
+  "classificationLabAboveIII": "> III",
+  "@classificationLabAboveIII": {},
+  "classificationLabOps": "Permitted operation types",
+  "@classificationLabOps": {},
+  "classificationLabUnknown": "MSZ 62-7: no AM value for this nuclide",
+  "@classificationLabUnknown": {},
+  "autoLogChartTitle": "Measured value over time",
+  "@autoLogChartTitle": {},
+  "gpsAverageButton": "Averaged GPS",
+  "@gpsAverageButton": {},
+  "gpsAverageTitle": "Position averaging",
+  "@gpsAverageTitle": {},
+  "gpsAverageHint": "Stand still in one spot during the measurement. A longer averaging time gives a more reliable result; open sky works best. Samples are weighted by their accuracy and outlier positions are dropped.",
+  "@gpsAverageHint": {},
+  "gpsAverageStart": "Start",
+  "@gpsAverageStart": {},
+  "gpsAverageUse": "Use",
+  "@gpsAverageUse": {},
+  "gpsAverageSamples": "Samples",
+  "@gpsAverageSamples": {},
+  "gpsAverageCurrent": "Current accuracy",
+  "@gpsAverageCurrent": {},
+  "gpsAverageResult": "Estimated accuracy of the average",
+  "@gpsAverageResult": {},
+  "modbusAverageButton": "Averaging measurement",
+  "@modbusAverageButton": {},
+  "modbusAverageRunning": "Averaging",
+  "@modbusAverageRunning": {},
+  "modbusAverageDone": "Done",
+  "@modbusAverageDone": {},
+  "modbusAverageTooFew": "At least 2 valid samples are needed to calculate the error; only the value was entered.",
+  "@modbusAverageTooFew": {},
+  "measurementErrorLabel": "Error (±)",
+  "@measurementErrorLabel": {},
+  "measurementErrorHelper": "For an averaged measurement this is the standard error of the mean (1σ); it can also be entered by hand for manually entered values. It is included in the protocol.",
+  "@measurementErrorHelper": {},
+  "measurementAveragedLabel": "Averaged measurement",
+  "@measurementAveragedLabel": {},
+  "csvHeaderValueError": "Error (±)",
+  "@csvHeaderValueError": {},
+  "csvHeaderAveraging": "Averaging (samples; s)",
+  "@csvHeaderAveraging": {},
+  "helpManualTitle": "Help (user manual)",
+  "@helpManualTitle": {},
+  "helpManualOpenError": "The manual could not be opened.",
+  "@helpManualOpenError": {},
+  "appVersionLabel": "Version",
+  "@appVersionLabel": {},
+  "appUpdateTitle": "New version available",
+  "@appUpdateTitle": {},
+  "appUpdateAvailableMessage": "Version {version} is available. Update the app for the latest fixes and features.",
+  "@appUpdateAvailableMessage": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "appUpdateRequiredMessage": "This version is no longer supported. Update to version {version} to continue.",
+  "@appUpdateRequiredMessage": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "appUpdateLater": "Later",
+  "@appUpdateLater": {},
+  "appUpdateNow": "Update",
+  "@appUpdateNow": {},
+  "rrRoleSurveyor": "Surveyor",
+  "@rrRoleSurveyor": {},
+  "rrRoleVictim": "Affected person / victim",
+  "@rrRoleVictim": {},
+  "rrTriageNone": "Not triaged",
+  "@rrTriageNone": {},
+  "rrTriageRed": "Red – immediate care",
+  "@rrTriageRed": {},
+  "rrTriageYellow": "Yellow – delayed care",
+  "@rrTriageYellow": {},
+  "rrTriageGreen": "Green – minor injury",
+  "@rrTriageGreen": {},
+  "rrTriageBlack": "Black – deceased / no treatment",
+  "@rrTriageBlack": {},
+  "rrConditionInjury": "Injury",
+  "@rrConditionInjury": {},
+  "rrConditionIllness": "Illness",
+  "@rrConditionIllness": {},
+  "rrAffectedPrefix": "Affected",
+  "@rrAffectedPrefix": {},
+  "rrEditStatusTooltip": "Role, triage, injuries",
+  "@rrEditStatusTooltip": {},
+  "rrRoleLabel": "Role",
+  "@rrRoleLabel": {},
+  "rrTriageCategoryLabel": "Triage category",
+  "@rrTriageCategoryLabel": {},
+  "rrInjuriesAndIllnesses": "Injuries and illnesses",
+  "@rrInjuriesAndIllnesses": {},
+  "rrDescriptionHint": "Description",
+  "@rrDescriptionHint": {},
+  "rrAddItem": "Add item",
+  "@rrAddItem": {},
+  "rrDeleteTooltip": "Delete",
+  "@rrDeleteTooltip": {},
+  "rrMeteoSection": "Meteorology (optional)",
+  "@rrMeteoSection": {},
+  "rrMetTemp": "Air temperature (°C)",
+  "@rrMetTemp": {},
+  "rrMetHumidity": "Relative humidity (%)",
+  "@rrMetHumidity": {},
+  "rrMetPressure": "Air pressure (hPa)",
+  "@rrMetPressure": {},
+  "rrMetWind": "Wind speed (m/s)",
+  "@rrMetWind": {},
+  "rrMetWindDir": "Wind direction (°)",
+  "@rrMetWindDir": {},
+  "rrMetGust": "Wind gust (m/s)",
+  "@rrMetGust": {},
+  "rrMetPrecipIntensity": "Precipitation intensity (mm/h)",
+  "@rrMetPrecipIntensity": {},
+  "rrMetSolar": "Solar radiation (W/m²)",
+  "@rrMetSolar": {},
+  "rrMetCloud": "Cloud cover (oktas, 0–8)",
+  "@rrMetCloud": {},
+  "rrMetVisibility": "Visibility (m)",
+  "@rrMetVisibility": {},
+  "rrMetSoil": "Soil moisture (%)",
+  "@rrMetSoil": {},
+  "rrMetAerosol": "Aerosol concentration (µg/m³)",
+  "@rrMetAerosol": {},
+  "rrPrecipState": "Precipitation state",
+  "@rrPrecipState": {},
+  "rrPrecipNone": "No precipitation",
+  "@rrPrecipNone": {},
+  "rrPrecipDrizzle": "Drizzle",
+  "@rrPrecipDrizzle": {},
+  "rrPrecipRain": "Rain",
+  "@rrPrecipRain": {},
+  "rrPrecipSnow": "Snow",
+  "@rrPrecipSnow": {},
+  "rrPrecipSleet": "Sleet",
+  "@rrPrecipSleet": {},
+  "rrPrecipHail": "Hail",
+  "@rrPrecipHail": {},
+  "rrMetOther": "Other observation",
+  "@rrMetOther": {},
+  "rrGasSection": "Gas measurement",
+  "@rrGasSection": {},
+  "rrAddGas": "Add gas",
+  "@rrAddGas": {},
+  "rrGasSpecies": "Compound",
+  "@rrGasSpecies": {},
+  "rrGasOther": "Other",
+  "@rrGasOther": {},
+  "rrGasOtherName": "Compound name",
+  "@rrGasOtherName": {},
+  "rrFormulaLabel": "Formula",
+  "@rrFormulaLabel": {},
+  "rrGasConcentration": "Concentration",
+  "@rrGasConcentration": {},
+  "rrGasUnit": "Unit",
+  "@rrGasUnit": {},
+  "rrInvalidValue": "Invalid value",
+  "@rrInvalidValue": {},
+  "rrGasAmmonia": "Ammonia",
+  "@rrGasAmmonia": {},
+  "rrGasBenzene": "Benzene",
+  "@rrGasBenzene": {},
+  "rrGasPhosphine": "Phosphine",
+  "@rrGasPhosphine": {},
+  "rrGasPhosgene": "Phosgene",
+  "@rrGasPhosgene": {},
+  "rrGasHydrogen": "Hydrogen",
+  "@rrGasHydrogen": {},
+  "rrGasHydrogenCyanide": "Hydrogen cyanide",
+  "@rrGasHydrogenCyanide": {},
+  "rrGasVoc": "Volatile organic compounds",
+  "@rrGasVoc": {},
+  "rrGasSulfurDioxide": "Sulfur dioxide",
+  "@rrGasSulfurDioxide": {},
+  "rrGasSulfurHexafluoride": "Sulfur hexafluoride",
+  "@rrGasSulfurHexafluoride": {},
+  "rrGasHydrogenSulfide": "Hydrogen sulfide",
+  "@rrGasHydrogenSulfide": {},
+  "rrGasChlorine": "Chlorine",
+  "@rrGasChlorine": {},
+  "rrGasMethane": "Methane",
+  "@rrGasMethane": {},
+  "rrGasMethanol": "Methanol",
+  "@rrGasMethanol": {},
+  "rrGasMethylSalicylate": "Methyl salicylate",
+  "@rrGasMethylSalicylate": {},
+  "rrGasNitricOxide": "Nitric oxide",
+  "@rrGasNitricOxide": {},
+  "rrGasNitrogenDioxide": "Nitrogen dioxide",
+  "@rrGasNitrogenDioxide": {},
+  "rrGasNitrogenOxides": "Nitrogen oxides",
+  "@rrGasNitrogenOxides": {},
+  "rrGasOxygen": "Oxygen",
+  "@rrGasOxygen": {},
+  "rrGasOzone": "Ozone",
+  "@rrGasOzone": {},
+  "rrGasPropane": "Propane",
+  "@rrGasPropane": {},
+  "rrGasCarbonDioxide": "Carbon dioxide",
+  "@rrGasCarbonDioxide": {},
+  "rrGasCarbonMonoxide": "Carbon monoxide",
+  "@rrGasCarbonMonoxide": {},
+  "rrGasToluene": "Toluene",
+  "@rrGasToluene": {},
+  "rrGasTributylPhosphate": "Tributyl phosphate",
+  "@rrGasTributylPhosphate": {},
+  "measurementTypeMeteorology": "Meteorology",
+  "@measurementTypeMeteorology": {},
+  "measurementTypeGasMeasurement": "Gas measurement",
+  "@measurementTypeGasMeasurement": {},
+  "mapAreaButtonTooltip": "Mark area",
+  "@mapAreaButtonTooltip": {},
+  "mapAreaListTooltip": "Marked areas",
+  "@mapAreaListTooltip": {},
+  "mapAreaNewTitle": "New area",
+  "@mapAreaNewTitle": {},
+  "mapAreaNameLabel": "Name (e.g. Surveyed area)",
+  "@mapAreaNameLabel": {},
+  "mapAreaNameRequired": "Enter the area name.",
+  "@mapAreaNameRequired": {},
+  "mapAreaShapeLabel": "Shape",
+  "@mapAreaShapeLabel": {},
+  "mapAreaPolygon": "Polygon",
+  "@mapAreaPolygon": {},
+  "mapAreaCircle": "Circle",
+  "@mapAreaCircle": {},
+  "mapAreaColorLabel": "Colour",
+  "@mapAreaColorLabel": {},
+  "mapAreaStartDrawing": "Draw",
+  "@mapAreaStartDrawing": {},
+  "mapAreaHintPolygon": "Tap the corners, then press Done.",
+  "@mapAreaHintPolygon": {},
+  "mapAreaHintCircle": "Tap the centre, then a point on the edge to set the radius.",
+  "@mapAreaHintCircle": {},
+  "mapAreaMinPointsError": "At least 3 corners are needed.",
+  "@mapAreaMinPointsError": {},
+  "mapAreaCircleIncomplete": "Mark both the centre and the radius.",
+  "@mapAreaCircleIncomplete": {},
+  "mapAreaUndo": "Undo",
+  "@mapAreaUndo": {},
+  "mapAreaDone": "Done",
+  "@mapAreaDone": {},
+  "mapAreaNoAreas": "No marked areas.",
+  "@mapAreaNoAreas": {},
+  "mapAreaDeleteConfirm": "Delete the selected area?",
+  "@mapAreaDeleteConfirm": {},
+  "mapAreaDeleteTooltip": "Delete area",
+  "@mapAreaDeleteTooltip": {},
+  "unitConverterTitle": "Unit converter",
+  "@unitConverterTitle": {},
+  "unitConverterCategoryLabel": "Quantity",
+  "@unitConverterCategoryLabel": {},
+  "unitConverterValueLabel": "Value",
+  "@unitConverterValueLabel": {},
+  "unitConverterFromLabel": "Source unit",
+  "@unitConverterFromLabel": {},
+  "unitConverterMolarMassLabel": "Molar mass (g/mol)",
+  "@unitConverterMolarMassLabel": {},
+  "unitConverterMolarMassHint": "Converting between mass and volume concentration needs the gas's molar mass, e.g. CO: 28.01. Calculated at 25 °C, 1 atm.",
+  "@unitConverterMolarMassHint": {},
+  "unitConverterNeedsMolarMass": "Enter the molar mass to convert between mass and volume units.",
+  "@unitConverterNeedsMolarMass": {},
+  "unitConverterEnterValue": "Enter a value.",
+  "@unitConverterEnterValue": {},
+  "unitConverterTapHint": "Tap a row: the value is converted to that unit and it becomes the source unit.",
+  "@unitConverterTapHint": {},
+  "unitConverterGasNote": "The %LEL unit of gas concentration cannot be converted, because it depends on the gas's limit.",
+  "@unitConverterGasNote": {},
+  "unitCatDose": "Dose",
+  "@unitCatDose": {},
+  "unitCatDoseRate": "Dose rate",
+  "@unitCatDoseRate": {},
+  "unitCatActivity": "Activity",
+  "@unitCatActivity": {},
+  "unitCatActivityConcentration": "Activity concentration",
+  "@unitCatActivityConcentration": {},
+  "unitCatSurfaceContamination": "Surface contamination",
+  "@unitCatSurfaceContamination": {},
+  "unitCatCountRate": "Count rate",
+  "@unitCatCountRate": {},
+  "unitCatLength": "Length",
+  "@unitCatLength": {},
+  "unitCatArea": "Area",
+  "@unitCatArea": {},
+  "unitCatVolume": "Volume",
+  "@unitCatVolume": {},
+  "unitCatMass": "Mass",
+  "@unitCatMass": {},
+  "unitCatTemperature": "Temperature",
+  "@unitCatTemperature": {},
+  "unitCatPressure": "Pressure",
+  "@unitCatPressure": {},
+  "unitCatSpeed": "Speed",
+  "@unitCatSpeed": {},
+  "unitCatTime": "Time",
+  "@unitCatTime": {},
+  "unitCatIrradiance": "Irradiance",
+  "@unitCatIrradiance": {},
+  "unitCatRainRate": "Precipitation rate",
+  "@unitCatRainRate": {},
+  "unitCatMassConcentration": "Mass concentration (aerosol)",
+  "@unitCatMassConcentration": {},
+  "unitCatGasConcentration": "Gas concentration",
+  "@unitCatGasConcentration": {},
+  "unitConverterGasPick": "Select gas (fills in the molar mass)",
+  "@unitConverterGasPick": {},
+  "decayCalcTitle": "Decay calculator",
+  "@decayCalcTitle": {},
+  "decayCalcIsotope": "Isotope",
+  "@decayCalcIsotope": {},
+  "decayCalcCustom": "Other (custom half-life)",
+  "@decayCalcCustom": {},
+  "decayCalcHalfLife": "Half-life",
+  "@decayCalcHalfLife": {},
+  "decayCalcInitialActivity": "Initial activity",
+  "@decayCalcInitialActivity": {},
+  "decayCalcElapsed": "Elapsed time",
+  "@decayCalcElapsed": {},
+  "decayCalcTargetActivity": "Target activity",
+  "@decayCalcTargetActivity": {},
+  "decayCalcModeForward": "Activity after time t",
+  "@decayCalcModeForward": {},
+  "decayCalcModeBackward": "Time to target activity",
+  "@decayCalcModeBackward": {},
+  "decayCalcDistance": "Distance (m, optional)",
+  "@decayCalcDistance": {},
+  "decayCalcResultActivity": "Activity",
+  "@decayCalcResultActivity": {},
+  "decayCalcResultRemaining": "Remaining fraction",
+  "@decayCalcResultRemaining": {},
+  "decayCalcResultHalfLives": "Number of half-lives",
+  "@decayCalcResultHalfLives": {},
+  "decayCalcResultDoseRate": "Dose rate at the distance",
+  "@decayCalcResultDoseRate": {},
+  "decayCalcResultTime": "Required time",
+  "@decayCalcResultTime": {},
+  "decayCalcErrorTarget": "The target activity must be positive and lower than the initial activity.",
+  "@decayCalcErrorTarget": {},
+  "decayCalcNeedsInput": "Enter the numbers.",
+  "@decayCalcNeedsInput": {},
+  "decayCalcNoHalfLife": "Enter the half-life.",
+  "@decayCalcNoHalfLife": {},
+  "decayCalcNote": "Pure exponential decay; daughter nuclides and other radiation are not included.",
+  "@decayCalcNote": {},
+  "doseLimitTitle": "Annual dose limit",
+  "@doseLimitTitle": {},
+  "doseLimitCategoryOccupational": "Occupational",
+  "@doseLimitCategoryOccupational": {},
+  "doseLimitCategoryPublic": "Public",
+  "@doseLimitCategoryPublic": {},
+  "doseLimitSourceOah": "OAH decree 2/2022 (IV. 29.)",
+  "@doseLimitSourceOah": {},
+  "doseLimitSourceIaea": "IAEA GSR Part 3",
+  "@doseLimitSourceIaea": {},
+  "doseLimitUsedLabel": "used",
+  "@doseLimitUsedLabel": {},
+  "doseLimitStatusOk": "within limit",
+  "@doseLimitStatusOk": {},
+  "doseLimitStatusWarning": "warning level reached",
+  "@doseLimitStatusWarning": {},
+  "doseLimitStatusExceeded": "limit exceeded",
+  "@doseLimitStatusExceeded": {},
+  "doseLimitNote": "Single-year check; the IAEA five-year averaging is not applied.",
+  "@doseLimitNote": {},
+  "displayUnitsHint": "The display and the protocol use these units. Data exports (CSV, JSON) and backups always keep the stored units.",
+  "@displayUnitsHint": {},
+  "displayDoseUnitLabel": "Personal dose unit",
+  "@displayDoseUnitLabel": {},
+  "displayDoseAutoOption": "Automatic (µSv, mSv above 1 mSv)",
+  "@displayDoseAutoOption": {},
+  "displaySurfaceUnitLabel": "Surface contamination unit",
+  "@displaySurfaceUnitLabel": {},
+  "displayTemperatureUnitLabel": "Temperature unit",
+  "@displayTemperatureUnitLabel": {},
+  "displayPressureUnitLabel": "Pressure unit",
+  "@displayPressureUnitLabel": {},
+  "displayWindUnitLabel": "Wind speed unit",
+  "@displayWindUnitLabel": {}
 }

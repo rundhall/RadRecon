@@ -51,6 +51,8 @@ cp "$ICON_SRC" "$STAGE/${APP_ID}.png"
 cp "$OUT/${DISPLAY_NAME}.desktop" "$STAGE/"
 tar -C "$OUT" -czf "$OUT/${DISPLAY_NAME}-${VERSION}-${ARCH_TAG}.tar.gz" "$(basename "$STAGE")"
 rm -rf "$STAGE"
+mkdir -p landingpage/downloads
+cp -f "$OUT/${DISPLAY_NAME}-${VERSION}-${ARCH_TAG}.tar.gz" "landingpage/downloads/RadRecon-linux-x64.tar.gz"
 
 echo "4) .deb csomag..."
 if command -v dpkg-deb >/dev/null; then
@@ -83,3 +85,4 @@ rm -f "$OUT/${DISPLAY_NAME}.desktop"
 echo ""
 echo "Kész:"
 ls -1 "$OUT"
+echo "Letöltési másolat: landingpage/downloads/RadRecon-linux-x64.tar.gz"

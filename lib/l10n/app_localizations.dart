@@ -184,6 +184,24 @@ abstract class AppLocalizations {
   /// **'Mégse'**
   String get cancelButton;
 
+  /// No description provided for @deletePointTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mérési pont törlése'**
+  String get deletePointTooltip;
+
+  /// No description provided for @deletePointTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mérési pont törlése'**
+  String get deletePointTitle;
+
+  /// No description provided for @deletePointBody.
+  ///
+  /// In hu, this message translates to:
+  /// **'Biztosan törlöd ezt a mérési pontot? A hozzá tartozó forrás-hozzárendelések és a módosítási napló is törlődik. Ez nem visszavonható.'**
+  String get deletePointBody;
+
   /// No description provided for @startButton.
   ///
   /// In hu, this message translates to:
@@ -898,6 +916,12 @@ abstract class AppLocalizations {
   /// **'Balesetelhárítási Intézkedési Terv'**
   String get companyDocSuggestEmergencyPlan;
 
+  /// No description provided for @companyDocSuggestOfficialLicense.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hatósági engedély'**
+  String get companyDocSuggestOfficialLicense;
+
   /// No description provided for @nuclideEditButton.
   ///
   /// In hu, this message translates to:
@@ -1552,6 +1576,180 @@ abstract class AppLocalizations {
   /// **'Lista képernyőkép mentése'**
   String get captureListScreenshotMenuItem;
 
+  /// No description provided for @protocolFormatTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jegyzőkönyv formátuma'**
+  String get protocolFormatTitle;
+
+  /// No description provided for @protocolFormatWord.
+  ///
+  /// In hu, this message translates to:
+  /// **'Word (ZIP: .docx + fotók)'**
+  String get protocolFormatWord;
+
+  /// No description provided for @protocolFormatPdf.
+  ///
+  /// In hu, this message translates to:
+  /// **'PDF (fotókkal)'**
+  String get protocolFormatPdf;
+
+  /// No description provided for @sessionDoseLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felmérési dózis'**
+  String get sessionDoseLabel;
+
+  /// No description provided for @dosimeterDoseLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Doziméter'**
+  String get dosimeterDoseLabel;
+
+  /// No description provided for @dosimeterValueLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kiértékelt dózis'**
+  String get dosimeterValueLabel;
+
+  /// No description provided for @includeInAnnualLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Beszámít az éves dózisba'**
+  String get includeInAnnualLabel;
+
+  /// No description provided for @notCountedInAnnualLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'nem számít az éves dózisba'**
+  String get notCountedInAnnualLabel;
+
+  /// No description provided for @calcDoseFromPointsButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Számítás a pontokból'**
+  String get calcDoseFromPointsButton;
+
+  /// No description provided for @calcDoseNeedTwoPoints.
+  ///
+  /// In hu, this message translates to:
+  /// **'Legalább 2 dózisteljesítmény-pont kell a számításhoz.'**
+  String get calcDoseNeedTwoPoints;
+
+  /// No description provided for @calcDoseResultInfo.
+  ///
+  /// In hu, this message translates to:
+  /// **'{count} pontból számítva (lineáris interpoláció)'**
+  String calcDoseResultInfo(int count);
+
+  /// No description provided for @dosimetersButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Doziméterek'**
+  String get dosimetersButton;
+
+  /// No description provided for @addDosimeterButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Doziméter hozzáadása'**
+  String get addDosimeterButton;
+
+  /// No description provided for @dosimeterKindEpdGamma.
+  ///
+  /// In hu, this message translates to:
+  /// **'EPD gamma (elektronikus)'**
+  String get dosimeterKindEpdGamma;
+
+  /// No description provided for @dosimeterKindEpdNeutron.
+  ///
+  /// In hu, this message translates to:
+  /// **'EPD neutron (elektronikus)'**
+  String get dosimeterKindEpdNeutron;
+
+  /// No description provided for @dosimeterKindTlOfficial.
+  ///
+  /// In hu, this message translates to:
+  /// **'TL/OSL passzív (hivatalos)'**
+  String get dosimeterKindTlOfficial;
+
+  /// No description provided for @dosimeterKindTlWorkplace.
+  ///
+  /// In hu, this message translates to:
+  /// **'TL/OSL passzív (munkahelyi)'**
+  String get dosimeterKindTlWorkplace;
+
+  /// No description provided for @dosimeterTypeLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Típus'**
+  String get dosimeterTypeLabel;
+
+  /// No description provided for @dosimeterIdentifierLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Azonosító'**
+  String get dosimeterIdentifierLabel;
+
+  /// No description provided for @dosimeterPersonLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Viselője'**
+  String get dosimeterPersonLabel;
+
+  /// No description provided for @dosimeterNobody.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs hozzárendelve'**
+  String get dosimeterNobody;
+
+  /// No description provided for @dosimeterStartLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kezdő állás'**
+  String get dosimeterStartLabel;
+
+  /// No description provided for @dosimeterEndLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Záró állás'**
+  String get dosimeterEndLabel;
+
+  /// No description provided for @dosimeterEndBeforeStartError.
+  ///
+  /// In hu, this message translates to:
+  /// **'A záró állás nem lehet kisebb a kezdőnél.'**
+  String get dosimeterEndBeforeStartError;
+
+  /// No description provided for @noDosimetersYet.
+  ///
+  /// In hu, this message translates to:
+  /// **'Még nincs doziméter ennél a felmérésnél.'**
+  String get noDosimetersYet;
+
+  /// No description provided for @dosimeterEditTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Doziméter'**
+  String get dosimeterEditTitle;
+
+  /// No description provided for @dosimeterNoReading.
+  ///
+  /// In hu, this message translates to:
+  /// **'nincs adat'**
+  String get dosimeterNoReading;
+
+  /// No description provided for @dosimeterDeleteTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Doziméter törlése'**
+  String get dosimeterDeleteTitle;
+
+  /// No description provided for @dosimeterDeleteMessage.
+  ///
+  /// In hu, this message translates to:
+  /// **'Biztosan törlöd ezt a doziméter-bejegyzést?'**
+  String get dosimeterDeleteMessage;
+
   /// No description provided for @exportProtocolMenuItem.
   ///
   /// In hu, this message translates to:
@@ -1700,6 +1898,30 @@ abstract class AppLocalizations {
   /// In hu, this message translates to:
   /// **'Mennyiség'**
   String get sampleAmountLabel;
+
+  /// No description provided for @sampleUnitLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egység'**
+  String get sampleUnitLabel;
+
+  /// No description provided for @sampleUnitOther.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egyéb'**
+  String get sampleUnitOther;
+
+  /// No description provided for @sampleUnitCustomLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egység megnevezése'**
+  String get sampleUnitCustomLabel;
+
+  /// No description provided for @sampleAmountInvalid.
+  ///
+  /// In hu, this message translates to:
+  /// **'Számot adj meg (pl. 2,5 vagy 2.5)'**
+  String get sampleAmountInvalid;
 
   /// No description provided for @sampleMethodLabel.
   ///
@@ -2402,6 +2624,18 @@ abstract class AppLocalizations {
   /// In hu, this message translates to:
   /// **'1 héttel előtte'**
   String get expiryLeadOneWeek;
+
+  /// No description provided for @expiryLeadTwoWeeks.
+  ///
+  /// In hu, this message translates to:
+  /// **'2 héttel előtte'**
+  String get expiryLeadTwoWeeks;
+
+  /// No description provided for @expiryLeadMonths.
+  ///
+  /// In hu, this message translates to:
+  /// **'{count} hónappal előtte'**
+  String expiryLeadMonths(int count);
 
   /// No description provided for @expiryNotificationsPermissionDenied.
   ///
@@ -3392,6 +3626,978 @@ abstract class AppLocalizations {
   /// In hu, this message translates to:
   /// **'Verzió'**
   String get appVersionLabel;
+
+  /// No description provided for @appUpdateTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Új verzió érhető el'**
+  String get appUpdateTitle;
+
+  /// No description provided for @appUpdateAvailableMessage.
+  ///
+  /// In hu, this message translates to:
+  /// **'A {version} verzió elérhető. Frissítsd az alkalmazást a legújabb javításokért és funkciókért.'**
+  String appUpdateAvailableMessage(String version);
+
+  /// No description provided for @appUpdateRequiredMessage.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az alkalmazás ezen verziója már nem támogatott. Frissítsd a {version} verzióra a folytatáshoz.'**
+  String appUpdateRequiredMessage(String version);
+
+  /// No description provided for @appUpdateLater.
+  ///
+  /// In hu, this message translates to:
+  /// **'Később'**
+  String get appUpdateLater;
+
+  /// No description provided for @appUpdateNow.
+  ///
+  /// In hu, this message translates to:
+  /// **'Frissítés'**
+  String get appUpdateNow;
+
+  /// No description provided for @rrRoleSurveyor.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felmérő'**
+  String get rrRoleSurveyor;
+
+  /// No description provided for @rrRoleVictim.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érintett / áldozat'**
+  String get rrRoleVictim;
+
+  /// No description provided for @rrTriageNone.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs besorolva'**
+  String get rrTriageNone;
+
+  /// No description provided for @rrTriageRed.
+  ///
+  /// In hu, this message translates to:
+  /// **'Piros – azonnali ellátás'**
+  String get rrTriageRed;
+
+  /// No description provided for @rrTriageYellow.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sárga – halasztható ellátás'**
+  String get rrTriageYellow;
+
+  /// No description provided for @rrTriageGreen.
+  ///
+  /// In hu, this message translates to:
+  /// **'Zöld – könnyű sérülés'**
+  String get rrTriageGreen;
+
+  /// No description provided for @rrTriageBlack.
+  ///
+  /// In hu, this message translates to:
+  /// **'Fekete – elhunyt / nincs ellátás'**
+  String get rrTriageBlack;
+
+  /// No description provided for @rrConditionInjury.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sérülés'**
+  String get rrConditionInjury;
+
+  /// No description provided for @rrConditionIllness.
+  ///
+  /// In hu, this message translates to:
+  /// **'Betegség'**
+  String get rrConditionIllness;
+
+  /// No description provided for @rrAffectedPrefix.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érintett'**
+  String get rrAffectedPrefix;
+
+  /// No description provided for @rrEditStatusTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szerep, triázs, sérülések'**
+  String get rrEditStatusTooltip;
+
+  /// No description provided for @rrRoleLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szerep'**
+  String get rrRoleLabel;
+
+  /// No description provided for @rrTriageCategoryLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Triázs-besorolás'**
+  String get rrTriageCategoryLabel;
+
+  /// No description provided for @rrInjuriesAndIllnesses.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sérülések és betegségek'**
+  String get rrInjuriesAndIllnesses;
+
+  /// No description provided for @rrDescriptionHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Leírás'**
+  String get rrDescriptionHint;
+
+  /// No description provided for @rrAddItem.
+  ///
+  /// In hu, this message translates to:
+  /// **'Tétel hozzáadása'**
+  String get rrAddItem;
+
+  /// No description provided for @rrDeleteTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Törlés'**
+  String get rrDeleteTooltip;
+
+  /// No description provided for @rrMeteoSection.
+  ///
+  /// In hu, this message translates to:
+  /// **'Meteorológia (opcionális)'**
+  String get rrMeteoSection;
+
+  /// No description provided for @rrMetTemp.
+  ///
+  /// In hu, this message translates to:
+  /// **'Levegő-hőmérséklet (°C)'**
+  String get rrMetTemp;
+
+  /// No description provided for @rrMetHumidity.
+  ///
+  /// In hu, this message translates to:
+  /// **'Relatív páratartalom (%)'**
+  String get rrMetHumidity;
+
+  /// No description provided for @rrMetPressure.
+  ///
+  /// In hu, this message translates to:
+  /// **'Légnyomás (hPa)'**
+  String get rrMetPressure;
+
+  /// No description provided for @rrMetWind.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szélsebesség (m/s)'**
+  String get rrMetWind;
+
+  /// No description provided for @rrMetWindDir.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szélirány (°)'**
+  String get rrMetWindDir;
+
+  /// No description provided for @rrMetGust.
+  ///
+  /// In hu, this message translates to:
+  /// **'Széllökés (m/s)'**
+  String get rrMetGust;
+
+  /// No description provided for @rrMetPrecipIntensity.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csapadékintenzitás (mm/h)'**
+  String get rrMetPrecipIntensity;
+
+  /// No description provided for @rrMetSolar.
+  ///
+  /// In hu, this message translates to:
+  /// **'Napsugárzás (W/m²)'**
+  String get rrMetSolar;
+
+  /// No description provided for @rrMetCloud.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felhőzet (okta, 0–8)'**
+  String get rrMetCloud;
+
+  /// No description provided for @rrMetVisibility.
+  ///
+  /// In hu, this message translates to:
+  /// **'Látástávolság (m)'**
+  String get rrMetVisibility;
+
+  /// No description provided for @rrMetSoil.
+  ///
+  /// In hu, this message translates to:
+  /// **'Talajnedvesség (%)'**
+  String get rrMetSoil;
+
+  /// No description provided for @rrMetAerosol.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aeroszolkoncentráció (µg/m³)'**
+  String get rrMetAerosol;
+
+  /// No description provided for @rrPrecipState.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csapadékállapot'**
+  String get rrPrecipState;
+
+  /// No description provided for @rrPrecipNone.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs csapadék'**
+  String get rrPrecipNone;
+
+  /// No description provided for @rrPrecipDrizzle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szitálás'**
+  String get rrPrecipDrizzle;
+
+  /// No description provided for @rrPrecipRain.
+  ///
+  /// In hu, this message translates to:
+  /// **'Eső'**
+  String get rrPrecipRain;
+
+  /// No description provided for @rrPrecipSnow.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hó'**
+  String get rrPrecipSnow;
+
+  /// No description provided for @rrPrecipSleet.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ónos eső'**
+  String get rrPrecipSleet;
+
+  /// No description provided for @rrPrecipHail.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jégeső'**
+  String get rrPrecipHail;
+
+  /// No description provided for @rrMetOther.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egyéb megfigyelés'**
+  String get rrMetOther;
+
+  /// No description provided for @rrGasSection.
+  ///
+  /// In hu, this message translates to:
+  /// **'Gázmérés'**
+  String get rrGasSection;
+
+  /// No description provided for @rrAddGas.
+  ///
+  /// In hu, this message translates to:
+  /// **'Gáz hozzáadása'**
+  String get rrAddGas;
+
+  /// No description provided for @rrGasSpecies.
+  ///
+  /// In hu, this message translates to:
+  /// **'Vegyület'**
+  String get rrGasSpecies;
+
+  /// No description provided for @rrGasOther.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egyéb'**
+  String get rrGasOther;
+
+  /// No description provided for @rrGasOtherName.
+  ///
+  /// In hu, this message translates to:
+  /// **'Vegyület neve'**
+  String get rrGasOtherName;
+
+  /// No description provided for @rrFormulaLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Képlet'**
+  String get rrFormulaLabel;
+
+  /// No description provided for @rrGasConcentration.
+  ///
+  /// In hu, this message translates to:
+  /// **'Koncentráció'**
+  String get rrGasConcentration;
+
+  /// No description provided for @rrGasUnit.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egység'**
+  String get rrGasUnit;
+
+  /// No description provided for @rrInvalidValue.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hibás érték'**
+  String get rrInvalidValue;
+
+  /// No description provided for @rrGasAmmonia.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ammónia'**
+  String get rrGasAmmonia;
+
+  /// No description provided for @rrGasBenzene.
+  ///
+  /// In hu, this message translates to:
+  /// **'Benzol'**
+  String get rrGasBenzene;
+
+  /// No description provided for @rrGasPhosphine.
+  ///
+  /// In hu, this message translates to:
+  /// **'Foszfin'**
+  String get rrGasPhosphine;
+
+  /// No description provided for @rrGasPhosgene.
+  ///
+  /// In hu, this message translates to:
+  /// **'Foszgén'**
+  String get rrGasPhosgene;
+
+  /// No description provided for @rrGasHydrogen.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hidrogén'**
+  String get rrGasHydrogen;
+
+  /// No description provided for @rrGasHydrogenCyanide.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hidrogén-cianid'**
+  String get rrGasHydrogenCyanide;
+
+  /// No description provided for @rrGasVoc.
+  ///
+  /// In hu, this message translates to:
+  /// **'Illékony szerves vegyületek'**
+  String get rrGasVoc;
+
+  /// No description provided for @rrGasSulfurDioxide.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kén-dioxid'**
+  String get rrGasSulfurDioxide;
+
+  /// No description provided for @rrGasSulfurHexafluoride.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kén-hexafluorid'**
+  String get rrGasSulfurHexafluoride;
+
+  /// No description provided for @rrGasHydrogenSulfide.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kén-hidrogén'**
+  String get rrGasHydrogenSulfide;
+
+  /// No description provided for @rrGasChlorine.
+  ///
+  /// In hu, this message translates to:
+  /// **'Klór'**
+  String get rrGasChlorine;
+
+  /// No description provided for @rrGasMethane.
+  ///
+  /// In hu, this message translates to:
+  /// **'Metán'**
+  String get rrGasMethane;
+
+  /// No description provided for @rrGasMethanol.
+  ///
+  /// In hu, this message translates to:
+  /// **'Metanol'**
+  String get rrGasMethanol;
+
+  /// No description provided for @rrGasMethylSalicylate.
+  ///
+  /// In hu, this message translates to:
+  /// **'Metil-szalicilát'**
+  String get rrGasMethylSalicylate;
+
+  /// No description provided for @rrGasNitricOxide.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nitrogén-monoxid'**
+  String get rrGasNitricOxide;
+
+  /// No description provided for @rrGasNitrogenDioxide.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nitrogén-dioxid'**
+  String get rrGasNitrogenDioxide;
+
+  /// No description provided for @rrGasNitrogenOxides.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nitrogén-oxidok'**
+  String get rrGasNitrogenOxides;
+
+  /// No description provided for @rrGasOxygen.
+  ///
+  /// In hu, this message translates to:
+  /// **'Oxigén'**
+  String get rrGasOxygen;
+
+  /// No description provided for @rrGasOzone.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ózon'**
+  String get rrGasOzone;
+
+  /// No description provided for @rrGasPropane.
+  ///
+  /// In hu, this message translates to:
+  /// **'Propán'**
+  String get rrGasPropane;
+
+  /// No description provided for @rrGasCarbonDioxide.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szén-dioxid'**
+  String get rrGasCarbonDioxide;
+
+  /// No description provided for @rrGasCarbonMonoxide.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szén-monoxid'**
+  String get rrGasCarbonMonoxide;
+
+  /// No description provided for @rrGasToluene.
+  ///
+  /// In hu, this message translates to:
+  /// **'Toluol'**
+  String get rrGasToluene;
+
+  /// No description provided for @rrGasTributylPhosphate.
+  ///
+  /// In hu, this message translates to:
+  /// **'Tributil-foszfát'**
+  String get rrGasTributylPhosphate;
+
+  /// No description provided for @measurementTypeMeteorology.
+  ///
+  /// In hu, this message translates to:
+  /// **'Meteorológia'**
+  String get measurementTypeMeteorology;
+
+  /// No description provided for @measurementTypeGasMeasurement.
+  ///
+  /// In hu, this message translates to:
+  /// **'Gázmérés'**
+  String get measurementTypeGasMeasurement;
+
+  /// No description provided for @mapAreaButtonTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Terület jelölése'**
+  String get mapAreaButtonTooltip;
+
+  /// No description provided for @mapAreaListTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jelölt területek'**
+  String get mapAreaListTooltip;
+
+  /// No description provided for @mapAreaNewTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Új terület'**
+  String get mapAreaNewTitle;
+
+  /// No description provided for @mapAreaNameLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Név (pl. Felmért terület)'**
+  String get mapAreaNameLabel;
+
+  /// No description provided for @mapAreaNameRequired.
+  ///
+  /// In hu, this message translates to:
+  /// **'Adja meg a terület nevét.'**
+  String get mapAreaNameRequired;
+
+  /// No description provided for @mapAreaShapeLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Alakzat'**
+  String get mapAreaShapeLabel;
+
+  /// No description provided for @mapAreaPolygon.
+  ///
+  /// In hu, this message translates to:
+  /// **'Poligon'**
+  String get mapAreaPolygon;
+
+  /// No description provided for @mapAreaCircle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kör'**
+  String get mapAreaCircle;
+
+  /// No description provided for @mapAreaColorLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szín'**
+  String get mapAreaColorLabel;
+
+  /// No description provided for @mapAreaStartDrawing.
+  ///
+  /// In hu, this message translates to:
+  /// **'Rajzolás'**
+  String get mapAreaStartDrawing;
+
+  /// No description provided for @mapAreaHintPolygon.
+  ///
+  /// In hu, this message translates to:
+  /// **'Koppintással jelölje a sarokpontokat, majd nyomja meg a Kész gombot.'**
+  String get mapAreaHintPolygon;
+
+  /// No description provided for @mapAreaHintCircle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Koppintással jelölje a középpontot, majd egy pontot a sugár megadásához.'**
+  String get mapAreaHintCircle;
+
+  /// No description provided for @mapAreaMinPointsError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Legalább 3 sarokpont kell.'**
+  String get mapAreaMinPointsError;
+
+  /// No description provided for @mapAreaCircleIncomplete.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jelölje meg a középpontot és a sugarat is.'**
+  String get mapAreaCircleIncomplete;
+
+  /// No description provided for @mapAreaUndo.
+  ///
+  /// In hu, this message translates to:
+  /// **'Visszavonás'**
+  String get mapAreaUndo;
+
+  /// No description provided for @mapAreaDone.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kész'**
+  String get mapAreaDone;
+
+  /// No description provided for @mapAreaNoAreas.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs jelölt terület.'**
+  String get mapAreaNoAreas;
+
+  /// No description provided for @mapAreaDeleteConfirm.
+  ///
+  /// In hu, this message translates to:
+  /// **'Törli a kijelölt területet?'**
+  String get mapAreaDeleteConfirm;
+
+  /// No description provided for @mapAreaDeleteTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Terület törlése'**
+  String get mapAreaDeleteTooltip;
+
+  /// No description provided for @unitConverterTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mértékegység-váltó'**
+  String get unitConverterTitle;
+
+  /// No description provided for @unitConverterCategoryLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mennyiség'**
+  String get unitConverterCategoryLabel;
+
+  /// No description provided for @unitConverterValueLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érték'**
+  String get unitConverterValueLabel;
+
+  /// No description provided for @unitConverterFromLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kiindulási egység'**
+  String get unitConverterFromLabel;
+
+  /// No description provided for @unitConverterMolarMassLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Moláris tömeg (g/mol)'**
+  String get unitConverterMolarMassLabel;
+
+  /// No description provided for @unitConverterMolarMassHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Tömeg- és térfogat-koncentráció között a gáz moláris tömege kell, pl. CO: 28,01. Számítás 25 °C-on, 1 atm nyomáson.'**
+  String get unitConverterMolarMassHint;
+
+  /// No description provided for @unitConverterNeedsMolarMass.
+  ///
+  /// In hu, this message translates to:
+  /// **'Adja meg a moláris tömeget a tömeg- és térfogat-egységek közötti számításhoz.'**
+  String get unitConverterNeedsMolarMass;
+
+  /// No description provided for @unitConverterEnterValue.
+  ///
+  /// In hu, this message translates to:
+  /// **'Adjon meg egy értéket.'**
+  String get unitConverterEnterValue;
+
+  /// No description provided for @unitConverterTapHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Koppintson egy sorra: az érték átíródik arra az egységre, és az lesz a kiindulási egység.'**
+  String get unitConverterTapHint;
+
+  /// No description provided for @unitConverterGasNote.
+  ///
+  /// In hu, this message translates to:
+  /// **'A gázkoncentráció %LEL egysége nem váltható át, mert a gáz határértékétől függ.'**
+  String get unitConverterGasNote;
+
+  /// No description provided for @unitCatDose.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dózis'**
+  String get unitCatDose;
+
+  /// No description provided for @unitCatDoseRate.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dózisteljesítmény'**
+  String get unitCatDoseRate;
+
+  /// No description provided for @unitCatActivity.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktivitás'**
+  String get unitCatActivity;
+
+  /// No description provided for @unitCatActivityConcentration.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktivitáskoncentráció'**
+  String get unitCatActivityConcentration;
+
+  /// No description provided for @unitCatSurfaceContamination.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felületi szennyezettség'**
+  String get unitCatSurfaceContamination;
+
+  /// No description provided for @unitCatCountRate.
+  ///
+  /// In hu, this message translates to:
+  /// **'Beütésszám'**
+  String get unitCatCountRate;
+
+  /// No description provided for @unitCatLength.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hosszúság'**
+  String get unitCatLength;
+
+  /// No description provided for @unitCatArea.
+  ///
+  /// In hu, this message translates to:
+  /// **'Terület'**
+  String get unitCatArea;
+
+  /// No description provided for @unitCatVolume.
+  ///
+  /// In hu, this message translates to:
+  /// **'Térfogat'**
+  String get unitCatVolume;
+
+  /// No description provided for @unitCatMass.
+  ///
+  /// In hu, this message translates to:
+  /// **'Tömeg'**
+  String get unitCatMass;
+
+  /// No description provided for @unitCatTemperature.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hőmérséklet'**
+  String get unitCatTemperature;
+
+  /// No description provided for @unitCatPressure.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nyomás'**
+  String get unitCatPressure;
+
+  /// No description provided for @unitCatSpeed.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sebesség'**
+  String get unitCatSpeed;
+
+  /// No description provided for @unitCatTime.
+  ///
+  /// In hu, this message translates to:
+  /// **'Idő'**
+  String get unitCatTime;
+
+  /// No description provided for @unitCatIrradiance.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sugárzási teljesítmény'**
+  String get unitCatIrradiance;
+
+  /// No description provided for @unitCatRainRate.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csapadék-intenzitás'**
+  String get unitCatRainRate;
+
+  /// No description provided for @unitCatMassConcentration.
+  ///
+  /// In hu, this message translates to:
+  /// **'Tömegkoncentráció (aeroszol)'**
+  String get unitCatMassConcentration;
+
+  /// No description provided for @unitCatGasConcentration.
+  ///
+  /// In hu, this message translates to:
+  /// **'Gázkoncentráció'**
+  String get unitCatGasConcentration;
+
+  /// No description provided for @unitConverterGasPick.
+  ///
+  /// In hu, this message translates to:
+  /// **'Gáz kiválasztása (kitölti a moláris tömeget)'**
+  String get unitConverterGasPick;
+
+  /// No description provided for @decayCalcTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bomlás-számító'**
+  String get decayCalcTitle;
+
+  /// No description provided for @decayCalcIsotope.
+  ///
+  /// In hu, this message translates to:
+  /// **'Izotóp'**
+  String get decayCalcIsotope;
+
+  /// No description provided for @decayCalcCustom.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egyéb (kézi felezési idő)'**
+  String get decayCalcCustom;
+
+  /// No description provided for @decayCalcHalfLife.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felezési idő'**
+  String get decayCalcHalfLife;
+
+  /// No description provided for @decayCalcInitialActivity.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kezdeti aktivitás'**
+  String get decayCalcInitialActivity;
+
+  /// No description provided for @decayCalcElapsed.
+  ///
+  /// In hu, this message translates to:
+  /// **'Eltelt idő'**
+  String get decayCalcElapsed;
+
+  /// No description provided for @decayCalcTargetActivity.
+  ///
+  /// In hu, this message translates to:
+  /// **'Célaktivitás'**
+  String get decayCalcTargetActivity;
+
+  /// No description provided for @decayCalcModeForward.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktivitás t idő után'**
+  String get decayCalcModeForward;
+
+  /// No description provided for @decayCalcModeBackward.
+  ///
+  /// In hu, this message translates to:
+  /// **'Idő a célaktivitásig'**
+  String get decayCalcModeBackward;
+
+  /// No description provided for @decayCalcDistance.
+  ///
+  /// In hu, this message translates to:
+  /// **'Távolság (m, opcionális)'**
+  String get decayCalcDistance;
+
+  /// No description provided for @decayCalcResultActivity.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktivitás'**
+  String get decayCalcResultActivity;
+
+  /// No description provided for @decayCalcResultRemaining.
+  ///
+  /// In hu, this message translates to:
+  /// **'Megmaradt hányad'**
+  String get decayCalcResultRemaining;
+
+  /// No description provided for @decayCalcResultHalfLives.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felezési idők száma'**
+  String get decayCalcResultHalfLives;
+
+  /// No description provided for @decayCalcResultDoseRate.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dózisteljesítmény a távolságban'**
+  String get decayCalcResultDoseRate;
+
+  /// No description provided for @decayCalcResultTime.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szükséges idő'**
+  String get decayCalcResultTime;
+
+  /// No description provided for @decayCalcErrorTarget.
+  ///
+  /// In hu, this message translates to:
+  /// **'A célaktivitásnak pozitívnak és kisebbnek kell lennie a kezdeti aktivitásnál.'**
+  String get decayCalcErrorTarget;
+
+  /// No description provided for @decayCalcNeedsInput.
+  ///
+  /// In hu, this message translates to:
+  /// **'Adja meg a számokat.'**
+  String get decayCalcNeedsInput;
+
+  /// No description provided for @decayCalcNoHalfLife.
+  ///
+  /// In hu, this message translates to:
+  /// **'Adja meg a felezési időt.'**
+  String get decayCalcNoHalfLife;
+
+  /// No description provided for @decayCalcNote.
+  ///
+  /// In hu, this message translates to:
+  /// **'Tiszta exponenciális bomlás; a leánynuklidokat és a többi sugárzást nem veszi figyelembe.'**
+  String get decayCalcNote;
+
+  /// No description provided for @doseLimitTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Éves dózis-keret'**
+  String get doseLimitTitle;
+
+  /// No description provided for @doseLimitCategoryOccupational.
+  ///
+  /// In hu, this message translates to:
+  /// **'Foglalkozásszerű'**
+  String get doseLimitCategoryOccupational;
+
+  /// No description provided for @doseLimitCategoryPublic.
+  ///
+  /// In hu, this message translates to:
+  /// **'Lakosság'**
+  String get doseLimitCategoryPublic;
+
+  /// No description provided for @doseLimitSourceOah.
+  ///
+  /// In hu, this message translates to:
+  /// **'OAH 2/2022 (IV. 29.) rendelet'**
+  String get doseLimitSourceOah;
+
+  /// No description provided for @doseLimitSourceIaea.
+  ///
+  /// In hu, this message translates to:
+  /// **'IAEA GSR Part 3'**
+  String get doseLimitSourceIaea;
+
+  /// No description provided for @doseLimitUsedLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'kihasználtság'**
+  String get doseLimitUsedLabel;
+
+  /// No description provided for @doseLimitStatusOk.
+  ///
+  /// In hu, this message translates to:
+  /// **'keret rendben'**
+  String get doseLimitStatusOk;
+
+  /// No description provided for @doseLimitStatusWarning.
+  ///
+  /// In hu, this message translates to:
+  /// **'figyelmeztetési szint elérve'**
+  String get doseLimitStatusWarning;
+
+  /// No description provided for @doseLimitStatusExceeded.
+  ///
+  /// In hu, this message translates to:
+  /// **'keret túllépve'**
+  String get doseLimitStatusExceeded;
+
+  /// No description provided for @doseLimitNote.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egyéves összeg vizsgálata; az IAEA 5 éves átlagolása nincs figyelembe véve.'**
+  String get doseLimitNote;
+
+  /// No description provided for @displayUnitsHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'A megjelenítés és a jegyzőkönyv ezt használja. Az adatexport (CSV, JSON) és a mentés mindig az eredeti, tárolt egységben marad.'**
+  String get displayUnitsHint;
+
+  /// No description provided for @displayDoseUnitLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Személyes dózis egysége'**
+  String get displayDoseUnitLabel;
+
+  /// No description provided for @displayDoseAutoOption.
+  ///
+  /// In hu, this message translates to:
+  /// **'Automatikus (µSv, 1 mSv felett mSv)'**
+  String get displayDoseAutoOption;
+
+  /// No description provided for @displaySurfaceUnitLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felületi szennyezettség egysége'**
+  String get displaySurfaceUnitLabel;
+
+  /// No description provided for @displayTemperatureUnitLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hőmérséklet egysége'**
+  String get displayTemperatureUnitLabel;
+
+  /// No description provided for @displayPressureUnitLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nyomás egysége'**
+  String get displayPressureUnitLabel;
+
+  /// No description provided for @displayWindUnitLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szélsebesség egysége'**
+  String get displayWindUnitLabel;
 }
 
 class _AppLocalizationsDelegate

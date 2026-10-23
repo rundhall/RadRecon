@@ -8,7 +8,9 @@ import 'package:share_plus/share_plus.dart';
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/person.dart';
+import '../models/dose_limit.dart';
 import '../models/person_dose.dart';
+import '../services/regulatory_profile.dart';
 import '../services/registry_csv_service.dart';
 import '../widgets/dose_widgets.dart';
 import 'person_dose_screen.dart';
@@ -31,6 +33,7 @@ class _PersonListScreenState extends State<PersonListScreen> {
   final _csvService = RegistryCsvService();
   String _searchQuery = '';
   bool _isTransferring = false;
+  DoseLimitCategory _limitCategory = DoseLimitCategory.occupational;
 
   @override
   void initState() {
@@ -182,6 +185,72 @@ class _PersonListScreenState extends State<PersonListScreen> {
     }
   }
 
+  /// Az éves dózis-keret fejléce: a kiválasztott profil szerinti határ és forrás.
+  Widget _limitHeader(AppLocalizations loc, RegulatoryProfile profile) {
+    final limit = annualLimitMsv(profile, _limitCategory);
+    final source = profile == RegulatoryProfile.hungary
+        ? loc.doseLimitSourceOah
+        : loc.doseLimitSourceIaea;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${loc.doseLimitTitle}: ${limit.toStringAsFixed(0)} mSv',
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(source, style: Theme.of(context).textTheme.bodySmall),
+                Text(loc.doseLimitNote,
+                    style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
+          ),
+          DropdownButtonHideUnderline(
+            child: DropdownButton<DoseLimitCategory>(
+              value: _limitCategory,
+              items: [
+                DropdownMenuItem(
+                  value: DoseLimitCategory.occupational,
+                  child: Text(loc.doseLimitCategoryOccupational),
+                ),
+                DropdownMenuItem(
+                  value: DoseLimitCategory.public,
+                  child: Text(loc.doseLimitCategoryPublic),
+                ),
+              ],
+              onChanged: (c) {
+                if (c != null) setState(() => _limitCategory = c);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Az egy személyre jutó éves dózis kihasználtsága a kiválasztott kerettel.
+  Widget _limitStatusLine(AppLocalizations loc, DoseTotals totals) {
+    final limit = annualLimitMsv(
+        RegulatoryProfileController.profile.value, _limitCategory);
+    final used = totals.total / 1000; // a tárolt dózis µSv
+    final status = doseLimitStatus(used, limit);
+    final (color, text) = switch (status) {
+      DoseLimitStatus.ok => (Colors.green.shade700, loc.doseLimitStatusOk),
+      DoseLimitStatus.warning => (
+          Colors.orange.shade800,
+          loc.doseLimitStatusWarning
+        ),
+      DoseLimitStatus.exceeded => (Colors.red, loc.doseLimitStatusExceeded),
+    };
+    final pct = (used / limit * 100).toStringAsFixed(0);
+    return Text(
+      '${loc.doseLimitUsedLabel}: $pct % · $text',
+      style: TextStyle(color: color, fontWeight: FontWeight.w600),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
@@ -293,6 +362,10 @@ class _PersonListScreenState extends State<PersonListScreen> {
                   ],
                 ),
               ),
+              ValueListenableBuilder<RegulatoryProfile>(
+                valueListenable: RegulatoryProfileController.profile,
+                builder: (context, profile, _) => _limitHeader(loc, profile),
+              ),
               Expanded(
                 child: allPersons.isEmpty
                     ? Center(child: Text(loc.noPersonsYet))
@@ -346,6 +419,7 @@ class _PersonListScreenState extends State<PersonListScreen> {
                                           fontWeight: FontWeight.w600),
                                     ),
                                     Text(doseBreakdownText(context, totals)),
+                                    _limitStatusLine(loc, totals),
                                   ],
                                 ),
                                 trailing: Row(

@@ -22,6 +22,8 @@ List<String> modbusUnitsFor(MeasurementType type) {
     case MeasurementType.neutronCps:
       return const ['cps'];
     case MeasurementType.sample:
+    case MeasurementType.meteorology:
+    case MeasurementType.gasMeasurement:
       return const [];
   }
 }

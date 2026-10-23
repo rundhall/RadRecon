@@ -13,6 +13,8 @@ enum MeasurementType {
   cps, // nyers beütésszám, cps
   neutronCps, // neutron beütésszám, cps
   sample, // fizikai mintavétel (nem élő mérés)
+  meteorology, // meteorológiai megfigyelés (nincs mérési érték)
+  gasMeasurement, // gázmérés, vegyületenként (nincs mérési érték)
 }
 
 extension MeasurementTypeX on MeasurementType {
@@ -29,6 +31,10 @@ extension MeasurementTypeX on MeasurementType {
         return 'neutron_cps';
       case MeasurementType.sample:
         return 'sample';
+      case MeasurementType.meteorology:
+        return 'meteorology';
+      case MeasurementType.gasMeasurement:
+        return 'gas_measurement';
     }
   }
 
@@ -46,9 +52,18 @@ extension MeasurementTypeX on MeasurementType {
       case MeasurementType.neutronCps:
         return 'cps';
       case MeasurementType.sample:
+      case MeasurementType.meteorology:
+      case MeasurementType.gasMeasurement:
         return '';
     }
   }
+
+  /// A típus rögzít-e mérési értéket (dózis, felületi szennyezettség, beütés).
+  /// A mintavétel, a meteorológia és a gázmérés nem.
+  bool get hasValue =>
+      this != MeasurementType.sample &&
+      this != MeasurementType.meteorology &&
+      this != MeasurementType.gasMeasurement;
 
   /// Nyelvfüggő megjelenítési név — `context` kell hozzá, mert a fordítás a
   /// generált `AppLocalizations`-on keresztül érhető el.
@@ -65,6 +80,10 @@ extension MeasurementTypeX on MeasurementType {
         return loc.measurementTypeNeutronCps;
       case MeasurementType.sample:
         return loc.measurementTypeSample;
+      case MeasurementType.meteorology:
+        return loc.measurementTypeMeteorology;
+      case MeasurementType.gasMeasurement:
+        return loc.measurementTypeGasMeasurement;
 
     }
   }

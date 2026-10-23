@@ -2,13 +2,32 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/quantity_unit.dart';
+import '../services/number_input.dart';
 
-/// Szám + mértékegység-választó (legördülő lista). A felhasználó csak számot
-/// gépel, az egységet listából választja, így az átváltás nem rontható el.
+/// Egységváltáskor a mezőben lévő szám új szövege.
 ///
-/// Egységváltáskor a mezőben lévő szám automatikusan átváltódik az új
-/// egységre, hogy a megjelenített érték fizikailag ugyanaz maradjon.
-class QuantityField<U extends QuantityUnit> extends StatelessWidget {
+/// - Kézzel beírt számnál a szám marad: a felhasználó a számot már az új
+///   egységben adta meg (beírta a 30-at, majd cm-t választott → 30 cm).
+/// - Programmal kitöltött értéknél (pl. mentett pont) a fizikai mennyiség
+///   marad, vagyis átszámolunk (0,3 m → 30 cm).
+String unitChangeText({
+  required String text,
+  required bool typedByUser,
+  required double fromBase,
+  required double toBase,
+}) {
+  if (typedByUser) return text;
+  final v = parseDecimal(text);
+  if (v == null) return text;
+  return QuantityField.formatNumber(v * fromBase / toBase);
+}
+
+/// Szám + mértékegység-választó (legördülő lista).
+///
+/// Egységváltáskor a kézzel beírt szám változatlan marad, mert a felhasználó
+/// az új egységben gondolta. A programmal kitöltött érték (pl. mentett pont)
+/// fizikai mennyisége viszont megmarad, a szám átszámolódik.
+class QuantityField<U extends QuantityUnit> extends StatefulWidget {
   const QuantityField({
     super.key,
     required this.controller,
@@ -38,42 +57,63 @@ class QuantityField<U extends QuantityUnit> extends StatelessWidget {
   static String formatNumber(double v) =>
       double.parse(v.toStringAsPrecision(8)).toString();
 
+  @override
+  State<QuantityField<U>> createState() => _QuantityFieldState<U>();
+}
+
+class _QuantityFieldState<U extends QuantityUnit>
+    extends State<QuantityField<U>> {
+  /// Az utoljára kézzel beírt szöveg. Ha a mező szövege ettől eltér,
+  /// a számot a program töltötte ki.
+  String? _typedText;
+
   void _changeUnit(U next) {
+    final unit = widget.unit;
     if (next == unit) return;
-    final current = double.tryParse(controller.text.trim());
-    if (current != null) {
-      final converted = current * unit.baseFactor / next.baseFactor;
-      controller.text = formatNumber(converted);
-    }
-    onUnitChanged(next);
+    final typedByUser =
+        _typedText != null && widget.controller.text == _typedText;
+    widget.controller.text = unitChangeText(
+      text: widget.controller.text,
+      typedByUser: typedByUser,
+      fromBase: unit.baseFactor,
+      toBase: next.baseFactor,
+    );
+    widget.onUnitChanged(next);
   }
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
+    final unit = widget.unit;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: TextFormField(
-            controller: controller,
-            autofocus: autofocus,
-            decoration: InputDecoration(labelText: label, errorText: errorText),
+            controller: widget.controller,
+            autofocus: widget.autofocus,
+            decoration: InputDecoration(
+              labelText: widget.label,
+              errorText: widget.errorText,
+            ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            validator: validator,
-            onChanged: (_) => onChanged?.call(),
+            validator: widget.validator,
+            onChanged: (v) {
+              _typedText = v;
+              widget.onChanged?.call();
+            },
           ),
         ),
         const SizedBox(width: 8),
         SizedBox(
-          width: unitWidth,
+          width: widget.unitWidth,
           child: DropdownButtonFormField<U>(
             key: ValueKey('unit-${unit.symbol}'),
             initialValue: unit,
             isExpanded: true,
             decoration: InputDecoration(labelText: loc.unitLabel),
             items: [
-              for (final u in units)
+              for (final u in widget.units)
                 DropdownMenuItem<U>(value: u, child: Text(u.symbol)),
             ],
             onChanged: (u) {

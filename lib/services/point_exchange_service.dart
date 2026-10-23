@@ -5,6 +5,8 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../database/database_helper.dart';
+import '../models/gas_reading.dart';
+import '../models/meteorology.dart';
 import '../models/instrument.dart';
 import '../models/calibration_labels.dart';
 import '../models/instrument_calibration.dart';
@@ -230,6 +232,9 @@ class PointExchangeService {
                 'sample_container_id': pt.sampleContainerId,
                 'sample_amount': pt.sampleAmount,
                 'sample_method': pt.sampleMethod,
+                'sample_unit': pt.sampleUnit,
+                'meteo_json': pt.meteoJson,
+                'gas_json': pt.gasJson,
                 'notes': pt.notes,
                 'timestamp': pt.timestamp.toIso8601String(),
               })
@@ -639,6 +644,9 @@ class PointExchangeService {
         sampleContainerId: entry['sample_container_id'] as String?,
         sampleAmount: (entry['sample_amount'] as num?)?.toDouble(),
         sampleMethod: entry['sample_method'] as String?,
+        sampleUnit: entry['sample_unit'] as String?,
+        meteorology: Meteorology.fromJsonString(entry['meteo_json'] as String?),
+        gases: GasReading.listFromJsonString(entry['gas_json'] as String?),
         notes: entry['notes'] as String?,
         timestamp: entry['timestamp'] == null
             ? now

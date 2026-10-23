@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../widgets/distance_echo.dart';
+import '../services/number_input.dart';
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/distance_unit.dart';
@@ -49,7 +51,7 @@ class _PointSourceDetailScreenState extends State<PointSourceDetailScreen> {
 
   /// A távolság mező értéke méterben (a választott egységből).
   double? _distanceMeters() {
-    final v = double.tryParse(_distanceCtrl.text.trim());
+    final v = parseDecimal(_distanceCtrl.text);
     return v == null ? null : _distanceUnit.toMeters(v);
   }
 
@@ -165,6 +167,7 @@ class _PointSourceDetailScreenState extends State<PointSourceDetailScreen> {
             onUnitChanged: (u) => setState(() => _distanceUnit = u),
             onChanged: () => setState(() {}),
           ),
+          DistanceEcho(text: _distanceCtrl.text, unit: _distanceUnit),
           const SizedBox(height: 12),
           Text(
             '${loc.manufactureDateLabel}: ${_dateFormat.format(source.manufactureDate)}'

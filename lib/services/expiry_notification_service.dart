@@ -151,16 +151,36 @@ class ExpiryNotificationService {
 
     final candidates = <_Candidate>[];
 
+    final todayStart = DateTime(now.year, now.month, now.day);
+
     void add(String subject, String kind, DateTime? expiry) {
       if (expiry == null) return;
-      final fireAt = tz.TZDateTime(
+      // Már lejárt (vagy ma lejáró) tétel nem kap értesítést.
+      if (!DateTime(expiry.year, expiry.month, expiry.day)
+          .isAfter(todayStart)) {
+        return;
+      }
+      final alertDay = lead.alertDayFor(expiry);
+      var fireAt = tz.TZDateTime(
         tz.local,
-        expiry.year,
-        expiry.month,
-        expiry.day - lead.days,
+        alertDay.year,
+        alertDay.month,
+        alertDay.day,
         notificationHour,
       );
-      if (!fireAt.isAfter(now)) return;
+      if (!fireAt.isAfter(now)) {
+        // Az előrehozás időpontja már elmúlt, de a lejárat még nem: a
+        // következő reggeli időpontra ütemezzük. Különben pl. 6 hónapos
+        // előrehozás mellett a 4 hónapon belül lejáró tételekről soha nem
+        // értesülne a felhasználó.
+        var nextMorning = tz.TZDateTime(
+            tz.local, now.year, now.month, now.day, notificationHour);
+        if (!nextMorning.isAfter(now)) {
+          nextMorning = tz.TZDateTime(
+              tz.local, now.year, now.month, now.day + 1, notificationHour);
+        }
+        fireAt = nextMorning;
+      }
       candidates.add(
         _Candidate(
           fireAt: fireAt,

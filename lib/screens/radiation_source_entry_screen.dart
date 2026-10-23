@@ -7,6 +7,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../services/number_input.dart';
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/activity_unit.dart';
@@ -187,7 +188,7 @@ class _RadiationSourceEntryScreenState
           _activityUnit.toMBq(double.parse(_activityCtrl.text.trim())),
       activityErrorPercent: _errorPercentCtrl.text.trim().isEmpty
           ? null
-          : double.tryParse(_errorPercentCtrl.text.trim()),
+          : parseDecimal(_errorPercentCtrl.text),
       manufactureDate: _manufactureDate!,
       serviceLifeExpiryDate: _expiryDate,
       nextInspectionDate: _nextInspectionDate,
@@ -284,7 +285,7 @@ class _RadiationSourceEntryScreenState
                 if (v == null || v.trim().isEmpty) {
                   return loc.requiredFieldError;
                 }
-                final parsed = double.tryParse(v.trim());
+                final parsed = parseDecimal(v);
                 if (parsed == null || parsed <= 0) {
                   return loc.numberRequiredError;
                 }
@@ -390,7 +391,7 @@ class _RadiationSourceEntryScreenState
   }
 
   Widget _buildCalculationPanel(AppLocalizations loc) {
-    final enteredActivity = double.tryParse(_activityCtrl.text.trim());
+    final enteredActivity = parseDecimal(_activityCtrl.text);
     final activity =
         enteredActivity == null ? null : _activityUnit.toMBq(enteredActivity);
     final nuclideName = _effectiveNuclideName;
@@ -456,7 +457,7 @@ class _RadiationSourceEntryScreenState
       elapsedDays: elapsedDays,
     )!;
 
-    final errorPercent = double.tryParse(_errorPercentCtrl.text.trim());
+    final errorPercent = parseDecimal(_errorPercentCtrl.text);
     final activityLine = errorPercent == null
         ? formatActivityMBq(decayedActivity)
         : '${formatActivityMBq(decayedActivity)} (±${formatActivityNumberMBq(decayedActivity * errorPercent / 100)} ${ActivityUnitController.current.symbol})';

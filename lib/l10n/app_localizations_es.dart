@@ -50,6 +50,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get cancelButton => 'Cancelar';
 
   @override
+  String get deletePointTooltip => 'Eliminar punto de medición';
+
+  @override
+  String get deletePointTitle => 'Eliminar punto de medición';
+
+  @override
+  String get deletePointBody =>
+      '¿Eliminar este punto de medición? También se eliminarán sus asignaciones de fuentes y el registro de cambios. No se puede deshacer.';
+
+  @override
   String get startButton => 'Iniciar';
 
   @override
@@ -431,6 +441,9 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get companyDocSuggestEmergencyPlan =>
       'Plan de respuesta a emergencias';
+
+  @override
+  String get companyDocSuggestOfficialLicense => 'Licencia administrativa';
 
   @override
   String get nuclideEditButton => 'Editar nucleídos';
@@ -821,6 +834,97 @@ class AppLocalizationsEs extends AppLocalizations {
   String get captureListScreenshotMenuItem => 'Guardar captura de la lista';
 
   @override
+  String get protocolFormatTitle => 'Formato del protocolo';
+
+  @override
+  String get protocolFormatWord => 'Word (ZIP: .docx + fotos)';
+
+  @override
+  String get protocolFormatPdf => 'PDF (con fotos)';
+
+  @override
+  String get sessionDoseLabel => 'Dosis de la medición';
+
+  @override
+  String get dosimeterDoseLabel => 'Dosímetro';
+
+  @override
+  String get dosimeterValueLabel => 'Dosis evaluada';
+
+  @override
+  String get includeInAnnualLabel => 'Cuenta para la dosis anual';
+
+  @override
+  String get notCountedInAnnualLabel => 'no cuenta en la dosis anual';
+
+  @override
+  String get calcDoseFromPointsButton => 'Calcular desde los puntos';
+
+  @override
+  String get calcDoseNeedTwoPoints =>
+      'Se necesitan al menos 2 puntos de tasa de dosis.';
+
+  @override
+  String calcDoseResultInfo(int count) {
+    return 'Calculado a partir de $count puntos (interpolación lineal)';
+  }
+
+  @override
+  String get dosimetersButton => 'Dosímetros';
+
+  @override
+  String get addDosimeterButton => 'Añadir dosímetro';
+
+  @override
+  String get dosimeterKindEpdGamma => 'EPD gamma (electrónico)';
+
+  @override
+  String get dosimeterKindEpdNeutron => 'EPD neutrones (electrónico)';
+
+  @override
+  String get dosimeterKindTlOfficial => 'TL/OSL pasivo (oficial)';
+
+  @override
+  String get dosimeterKindTlWorkplace => 'TL/OSL pasivo (puesto de trabajo)';
+
+  @override
+  String get dosimeterTypeLabel => 'Tipo';
+
+  @override
+  String get dosimeterIdentifierLabel => 'Identificador';
+
+  @override
+  String get dosimeterPersonLabel => 'Portado por';
+
+  @override
+  String get dosimeterNobody => 'Sin asignar';
+
+  @override
+  String get dosimeterStartLabel => 'Lectura inicial';
+
+  @override
+  String get dosimeterEndLabel => 'Lectura final';
+
+  @override
+  String get dosimeterEndBeforeStartError =>
+      'La lectura final no puede ser menor que la inicial.';
+
+  @override
+  String get noDosimetersYet => 'Todavía no hay dosímetros en esta medición.';
+
+  @override
+  String get dosimeterEditTitle => 'Dosímetro';
+
+  @override
+  String get dosimeterNoReading => 'sin datos';
+
+  @override
+  String get dosimeterDeleteTitle => 'Eliminar dosímetro';
+
+  @override
+  String get dosimeterDeleteMessage => '¿Eliminar esta entrada de dosímetro?';
+
+  @override
   String get exportProtocolMenuItem => 'Exportar protocolo';
 
   @override
@@ -903,6 +1007,18 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get sampleAmountLabel => 'Cantidad';
+
+  @override
+  String get sampleUnitLabel => 'Unidad';
+
+  @override
+  String get sampleUnitOther => 'Otra';
+
+  @override
+  String get sampleUnitCustomLabel => 'Nombre de la unidad';
+
+  @override
+  String get sampleAmountInvalid => 'Introduce un número (p. ej. 2,5 o 2.5)';
 
   @override
   String get sampleMethodLabel => 'Método de muestreo';
@@ -1297,6 +1413,20 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get expiryLeadOneWeek => '1 semana antes';
+
+  @override
+  String get expiryLeadTwoWeeks => '2 semanas antes';
+
+  @override
+  String expiryLeadMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count meses antes',
+      one: '1 mes antes',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get expiryNotificationsPermissionDenied =>
@@ -1872,4 +2002,504 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get appVersionLabel => 'Versión';
+
+  @override
+  String get appUpdateTitle => 'Nueva versión disponible';
+
+  @override
+  String appUpdateAvailableMessage(String version) {
+    return 'La versión $version está disponible. Actualiza la aplicación para obtener las últimas mejoras.';
+  }
+
+  @override
+  String appUpdateRequiredMessage(String version) {
+    return 'Esta versión ya no es compatible. Actualiza a la versión $version para continuar.';
+  }
+
+  @override
+  String get appUpdateLater => 'Más tarde';
+
+  @override
+  String get appUpdateNow => 'Actualizar';
+
+  @override
+  String get rrRoleSurveyor => 'Encuestador';
+
+  @override
+  String get rrRoleVictim => 'Afectado / víctima';
+
+  @override
+  String get rrTriageNone => 'Sin clasificar';
+
+  @override
+  String get rrTriageRed => 'Rojo – atención inmediata';
+
+  @override
+  String get rrTriageYellow => 'Amarillo – atención diferida';
+
+  @override
+  String get rrTriageGreen => 'Verde – lesión leve';
+
+  @override
+  String get rrTriageBlack => 'Negro – fallecido / sin atención';
+
+  @override
+  String get rrConditionInjury => 'Lesión';
+
+  @override
+  String get rrConditionIllness => 'Enfermedad';
+
+  @override
+  String get rrAffectedPrefix => 'Afectado';
+
+  @override
+  String get rrEditStatusTooltip => 'Función, triaje, lesiones';
+
+  @override
+  String get rrRoleLabel => 'Función';
+
+  @override
+  String get rrTriageCategoryLabel => 'Categoría de triaje';
+
+  @override
+  String get rrInjuriesAndIllnesses => 'Lesiones y enfermedades';
+
+  @override
+  String get rrDescriptionHint => 'Descripción';
+
+  @override
+  String get rrAddItem => 'Añadir elemento';
+
+  @override
+  String get rrDeleteTooltip => 'Eliminar';
+
+  @override
+  String get rrMeteoSection => 'Meteorología (opcional)';
+
+  @override
+  String get rrMetTemp => 'Temperatura del aire (°C)';
+
+  @override
+  String get rrMetHumidity => 'Humedad relativa (%)';
+
+  @override
+  String get rrMetPressure => 'Presión atmosférica (hPa)';
+
+  @override
+  String get rrMetWind => 'Velocidad del viento (m/s)';
+
+  @override
+  String get rrMetWindDir => 'Dirección del viento (°)';
+
+  @override
+  String get rrMetGust => 'Racha de viento (m/s)';
+
+  @override
+  String get rrMetPrecipIntensity => 'Intensidad de precipitación (mm/h)';
+
+  @override
+  String get rrMetSolar => 'Radiación solar (W/m²)';
+
+  @override
+  String get rrMetCloud => 'Nubosidad (octavos, 0–8)';
+
+  @override
+  String get rrMetVisibility => 'Visibilidad (m)';
+
+  @override
+  String get rrMetSoil => 'Humedad del suelo (%)';
+
+  @override
+  String get rrMetAerosol => 'Concentración de aerosoles (µg/m³)';
+
+  @override
+  String get rrPrecipState => 'Estado de precipitación';
+
+  @override
+  String get rrPrecipNone => 'Sin precipitación';
+
+  @override
+  String get rrPrecipDrizzle => 'Llovizna';
+
+  @override
+  String get rrPrecipRain => 'Lluvia';
+
+  @override
+  String get rrPrecipSnow => 'Nieve';
+
+  @override
+  String get rrPrecipSleet => 'Aguanieve';
+
+  @override
+  String get rrPrecipHail => 'Granizo';
+
+  @override
+  String get rrMetOther => 'Otra observación';
+
+  @override
+  String get rrGasSection => 'Medición de gases';
+
+  @override
+  String get rrAddGas => 'Añadir gas';
+
+  @override
+  String get rrGasSpecies => 'Compuesto';
+
+  @override
+  String get rrGasOther => 'Otro';
+
+  @override
+  String get rrGasOtherName => 'Nombre del compuesto';
+
+  @override
+  String get rrFormulaLabel => 'Fórmula';
+
+  @override
+  String get rrGasConcentration => 'Concentración';
+
+  @override
+  String get rrGasUnit => 'Unidad';
+
+  @override
+  String get rrInvalidValue => 'Valor no válido';
+
+  @override
+  String get rrGasAmmonia => 'Amoníaco';
+
+  @override
+  String get rrGasBenzene => 'Benceno';
+
+  @override
+  String get rrGasPhosphine => 'Fosfina';
+
+  @override
+  String get rrGasPhosgene => 'Fosgeno';
+
+  @override
+  String get rrGasHydrogen => 'Hidrógeno';
+
+  @override
+  String get rrGasHydrogenCyanide => 'Cianuro de hidrógeno';
+
+  @override
+  String get rrGasVoc => 'Compuestos orgánicos volátiles';
+
+  @override
+  String get rrGasSulfurDioxide => 'Dióxido de azufre';
+
+  @override
+  String get rrGasSulfurHexafluoride => 'Hexafluoruro de azufre';
+
+  @override
+  String get rrGasHydrogenSulfide => 'Sulfuro de hidrógeno';
+
+  @override
+  String get rrGasChlorine => 'Cloro';
+
+  @override
+  String get rrGasMethane => 'Metano';
+
+  @override
+  String get rrGasMethanol => 'Metanol';
+
+  @override
+  String get rrGasMethylSalicylate => 'Salicilato de metilo';
+
+  @override
+  String get rrGasNitricOxide => 'Monóxido de nitrógeno';
+
+  @override
+  String get rrGasNitrogenDioxide => 'Dióxido de nitrógeno';
+
+  @override
+  String get rrGasNitrogenOxides => 'Óxidos de nitrógeno';
+
+  @override
+  String get rrGasOxygen => 'Oxígeno';
+
+  @override
+  String get rrGasOzone => 'Ozono';
+
+  @override
+  String get rrGasPropane => 'Propano';
+
+  @override
+  String get rrGasCarbonDioxide => 'Dióxido de carbono';
+
+  @override
+  String get rrGasCarbonMonoxide => 'Monóxido de carbono';
+
+  @override
+  String get rrGasToluene => 'Tolueno';
+
+  @override
+  String get rrGasTributylPhosphate => 'Fosfato de tributilo';
+
+  @override
+  String get measurementTypeMeteorology => 'Meteorología';
+
+  @override
+  String get measurementTypeGasMeasurement => 'Medición de gases';
+
+  @override
+  String get mapAreaButtonTooltip => 'Marcar área';
+
+  @override
+  String get mapAreaListTooltip => 'Áreas marcadas';
+
+  @override
+  String get mapAreaNewTitle => 'Nueva área';
+
+  @override
+  String get mapAreaNameLabel => 'Nombre (p. ej. Área medida)';
+
+  @override
+  String get mapAreaNameRequired => 'Introduzca el nombre del área.';
+
+  @override
+  String get mapAreaShapeLabel => 'Forma';
+
+  @override
+  String get mapAreaPolygon => 'Polígono';
+
+  @override
+  String get mapAreaCircle => 'Círculo';
+
+  @override
+  String get mapAreaColorLabel => 'Color';
+
+  @override
+  String get mapAreaStartDrawing => 'Dibujar';
+
+  @override
+  String get mapAreaHintPolygon => 'Toque las esquinas y luego pulse Listo.';
+
+  @override
+  String get mapAreaHintCircle =>
+      'Toque el centro y luego un punto del borde para fijar el radio.';
+
+  @override
+  String get mapAreaMinPointsError => 'Se necesitan al menos 3 esquinas.';
+
+  @override
+  String get mapAreaCircleIncomplete => 'Marque el centro y el radio.';
+
+  @override
+  String get mapAreaUndo => 'Deshacer';
+
+  @override
+  String get mapAreaDone => 'Listo';
+
+  @override
+  String get mapAreaNoAreas => 'No hay áreas marcadas.';
+
+  @override
+  String get mapAreaDeleteConfirm => '¿Eliminar el área seleccionada?';
+
+  @override
+  String get mapAreaDeleteTooltip => 'Eliminar área';
+
+  @override
+  String get unitConverterTitle => 'Conversor de unidades';
+
+  @override
+  String get unitConverterCategoryLabel => 'Magnitud';
+
+  @override
+  String get unitConverterValueLabel => 'Valor';
+
+  @override
+  String get unitConverterFromLabel => 'Unidad de origen';
+
+  @override
+  String get unitConverterMolarMassLabel => 'Masa molar (g/mol)';
+
+  @override
+  String get unitConverterMolarMassHint =>
+      'Para convertir entre concentración másica y volumétrica se necesita la masa molar, p. ej. CO: 28,01. Cálculo a 25 °C, 1 atm.';
+
+  @override
+  String get unitConverterNeedsMolarMass =>
+      'Introduzca la masa molar para convertir entre unidades de masa y de volumen.';
+
+  @override
+  String get unitConverterEnterValue => 'Introduzca un valor.';
+
+  @override
+  String get unitConverterTapHint =>
+      'Toque una fila: el valor se convierte a esa unidad y pasa a ser la unidad de origen.';
+
+  @override
+  String get unitConverterGasNote =>
+      'La unidad %LIE de la concentración de gas no se puede convertir, porque depende del límite del gas.';
+
+  @override
+  String get unitCatDose => 'Dosis';
+
+  @override
+  String get unitCatDoseRate => 'Tasa de dosis';
+
+  @override
+  String get unitCatActivity => 'Actividad';
+
+  @override
+  String get unitCatActivityConcentration => 'Concentración de actividad';
+
+  @override
+  String get unitCatSurfaceContamination => 'Contaminación superficial';
+
+  @override
+  String get unitCatCountRate => 'Tasa de conteo';
+
+  @override
+  String get unitCatLength => 'Longitud';
+
+  @override
+  String get unitCatArea => 'Superficie';
+
+  @override
+  String get unitCatVolume => 'Volumen';
+
+  @override
+  String get unitCatMass => 'Masa';
+
+  @override
+  String get unitCatTemperature => 'Temperatura';
+
+  @override
+  String get unitCatPressure => 'Presión';
+
+  @override
+  String get unitCatSpeed => 'Velocidad';
+
+  @override
+  String get unitCatTime => 'Tiempo';
+
+  @override
+  String get unitCatIrradiance => 'Irradiancia';
+
+  @override
+  String get unitCatRainRate => 'Intensidad de precipitación';
+
+  @override
+  String get unitCatMassConcentration => 'Concentración másica (aerosol)';
+
+  @override
+  String get unitCatGasConcentration => 'Concentración de gas';
+
+  @override
+  String get unitConverterGasPick => 'Seleccionar gas (rellena la masa molar)';
+
+  @override
+  String get decayCalcTitle => 'Calculadora de desintegración';
+
+  @override
+  String get decayCalcIsotope => 'Isótopo';
+
+  @override
+  String get decayCalcCustom => 'Otro (vida media propia)';
+
+  @override
+  String get decayCalcHalfLife => 'Vida media';
+
+  @override
+  String get decayCalcInitialActivity => 'Actividad inicial';
+
+  @override
+  String get decayCalcElapsed => 'Tiempo transcurrido';
+
+  @override
+  String get decayCalcTargetActivity => 'Actividad objetivo';
+
+  @override
+  String get decayCalcModeForward => 'Actividad tras el tiempo t';
+
+  @override
+  String get decayCalcModeBackward => 'Tiempo hasta la actividad objetivo';
+
+  @override
+  String get decayCalcDistance => 'Distancia (m, opcional)';
+
+  @override
+  String get decayCalcResultActivity => 'Actividad';
+
+  @override
+  String get decayCalcResultRemaining => 'Fracción restante';
+
+  @override
+  String get decayCalcResultHalfLives => 'Número de vidas medias';
+
+  @override
+  String get decayCalcResultDoseRate => 'Tasa de dosis a la distancia';
+
+  @override
+  String get decayCalcResultTime => 'Tiempo necesario';
+
+  @override
+  String get decayCalcErrorTarget =>
+      'La actividad objetivo debe ser positiva y menor que la inicial.';
+
+  @override
+  String get decayCalcNeedsInput => 'Introduzca los números.';
+
+  @override
+  String get decayCalcNoHalfLife => 'Introduzca la vida media.';
+
+  @override
+  String get decayCalcNote =>
+      'Desintegración exponencial pura; no incluye hijos ni otra radiación.';
+
+  @override
+  String get doseLimitTitle => 'Límite de dosis anual';
+
+  @override
+  String get doseLimitCategoryOccupational => 'Ocupacional';
+
+  @override
+  String get doseLimitCategoryPublic => 'Público';
+
+  @override
+  String get doseLimitSourceOah => 'Decreto OAH 2/2022 (IV. 29.)';
+
+  @override
+  String get doseLimitSourceIaea => 'IAEA GSR Part 3';
+
+  @override
+  String get doseLimitUsedLabel => 'utilizado';
+
+  @override
+  String get doseLimitStatusOk => 'dentro del límite';
+
+  @override
+  String get doseLimitStatusWarning => 'nivel de aviso alcanzado';
+
+  @override
+  String get doseLimitStatusExceeded => 'límite superado';
+
+  @override
+  String get doseLimitNote =>
+      'Comprobación de un año; no se aplica el promedio de cinco años de la AIEA.';
+
+  @override
+  String get displayUnitsHint =>
+      'La visualización y el protocolo usan estas unidades. Las exportaciones (CSV, JSON) y las copias de seguridad conservan siempre la unidad almacenada.';
+
+  @override
+  String get displayDoseUnitLabel => 'Unidad de dosis personal';
+
+  @override
+  String get displayDoseAutoOption =>
+      'Automático (µSv, mSv por encima de 1 mSv)';
+
+  @override
+  String get displaySurfaceUnitLabel => 'Unidad de contaminación superficial';
+
+  @override
+  String get displayTemperatureUnitLabel => 'Unidad de temperatura';
+
+  @override
+  String get displayPressureUnitLabel => 'Unidad de presión';
+
+  @override
+  String get displayWindUnitLabel => 'Unidad de velocidad del viento';
 }

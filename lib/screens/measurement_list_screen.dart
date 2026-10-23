@@ -9,6 +9,7 @@ import '../models/measurement_point.dart';
 import '../models/calibration_labels.dart';
 import '../models/shielding_labels.dart';
 import '../widgets/dose_widgets.dart';
+import '../widgets/measurement_kind_icon.dart';
 import '../models/survey_session.dart';
 import '../services/point_exchange_service.dart';
 import '../services/protocol_export_service.dart';
@@ -18,6 +19,9 @@ import 'distance_tool_screen.dart';
 import '../services/unit_format.dart';
 import 'gradient_search_screen.dart';
 import 'isotope_calculator_screen.dart';
+import 'unit_converter_screen.dart';
+import '../services/display_units.dart';
+import 'decay_calculator_screen.dart';
 import 'measurement_entry_screen.dart';
 import 'session_person_link_screen.dart';
 import 'survey_map_screen.dart';
@@ -28,7 +32,9 @@ enum _ListMenuAction {
   autoLog,
   distanceTool,
   isotopeCalculator,
+  decayCalculator,
   gradientSearch,
+  unitConverter,
   closeSurvey,
   exportProtocol,
   exportJsonData,
@@ -154,7 +160,7 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
     final loc = AppLocalizations.of(context)!;
     final db = DatabaseHelper.instance;
     final attached = await db.getAttachedPersons(widget.surveySessionId);
-    final doses = await db.getSessionDoses(widget.surveySessionId);
+    final doses = await db.getSessionDoseSnapshot(widget.surveySessionId);
     if (!mounted) return;
 
     // A résztvevők dózisát a lezárás előtt még utoljára lehet módosítani.
@@ -267,12 +273,22 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
           MaterialPageRoute(builder: (_) => const IsotopeCalculatorScreen()),
         );
         break;
+      case _ListMenuAction.decayCalculator:
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const DecayCalculatorScreen()),
+        );
+        break;
       case _ListMenuAction.gradientSearch:
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) =>
                 GradientSearchScreen(surveySessionId: widget.surveySessionId),
           ),
+        );
+        break;
+      case _ListMenuAction.unitConverter:
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const UnitConverterScreen()),
         );
         break;
       case _ListMenuAction.closeSurvey:
@@ -323,13 +339,33 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
 
   Future<void> _exportProtocol() async {
     final loc = AppLocalizations.of(context)!;
+    final format = await showDialog<ProtocolFormat>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text(loc.protocolFormatTitle),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, ProtocolFormat.word),
+            child: Text(loc.protocolFormatWord),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.pop(ctx, ProtocolFormat.pdf),
+            child: Text(loc.protocolFormatPdf),
+          ),
+        ],
+      ),
+    );
+    if (format == null || !mounted) return;
+
     setState(() => _isExporting = true);
     try {
-      final zipFile = await _exportService.exportSurvey(widget.surveySessionId);
+      final file = format == ProtocolFormat.pdf
+          ? await _exportService.exportSurveyPdf(widget.surveySessionId)
+          : await _exportService.exportSurvey(widget.surveySessionId);
       if (!mounted) return;
       await SharePlus.instance.share(
         ShareParams(
-          files: [XFile(zipFile.path)],
+          files: [XFile(file.path)],
           subject: loc.protocolShareSubject(_displayTitle),
         ),
       );
@@ -566,10 +602,24 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
                   ),
                 ),
                 PopupMenuItem(
+                  value: _ListMenuAction.decayCalculator,
+                  child: ListTile(
+                    leading: const Icon(Icons.timelapse),
+                    title: Text(loc.decayCalcTitle),
+                  ),
+                ),
+                PopupMenuItem(
                   value: _ListMenuAction.gradientSearch,
                   child: ListTile(
                     leading: const Icon(Icons.explore_outlined),
                     title: Text(loc.sourceSearchTitle),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: _ListMenuAction.unitConverter,
+                  child: ListTile(
+                    leading: const Icon(Icons.swap_horiz),
+                    title: Text(loc.unitConverterTitle),
                   ),
                 ),
                 PopupMenuItem(
@@ -643,7 +693,7 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
                   return ListTile(
                     leading: p.isSourcePosition
                         ? const Icon(Icons.warning_amber, color: Colors.deepOrange)
-                        : Icon(p.isSample ? Icons.science_outlined : Icons.place),
+                        : Icon(measurementKindIcon(isSample: p.isSample, type: p.type)),
                     title: Text(
                       p.locationLabel ??
                           '${p.latitude.toStringAsFixed(5)}, ${p.longitude.toStringAsFixed(5)}',
@@ -651,7 +701,7 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
                     subtitle: Text(
                       p.isSample
                           ? loc.sampleTakenListLabel(_dateFormat.format(p.timestamp))
-                          : '${p.value == null ? '—' : double.parse(p.value!.toStringAsFixed(4))} ${p.unit} · ${_dateFormat.format(p.timestamp)}',
+                          : '${displayValueText(p)} · ${_dateFormat.format(p.timestamp)}',
                     ),
                     trailing: p.gpsAccuracyMeters != null
                         ? Text('±${formatDistanceMeters(p.gpsAccuracyMeters!)}')

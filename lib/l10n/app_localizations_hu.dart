@@ -49,6 +49,16 @@ class AppLocalizationsHu extends AppLocalizations {
   String get cancelButton => 'Mégse';
 
   @override
+  String get deletePointTooltip => 'Mérési pont törlése';
+
+  @override
+  String get deletePointTitle => 'Mérési pont törlése';
+
+  @override
+  String get deletePointBody =>
+      'Biztosan törlöd ezt a mérési pontot? A hozzá tartozó forrás-hozzárendelések és a módosítási napló is törlődik. Ez nem visszavonható.';
+
+  @override
   String get startButton => 'Indítás';
 
   @override
@@ -428,6 +438,9 @@ class AppLocalizationsHu extends AppLocalizations {
   @override
   String get companyDocSuggestEmergencyPlan =>
       'Balesetelhárítási Intézkedési Terv';
+
+  @override
+  String get companyDocSuggestOfficialLicense => 'Hatósági engedély';
 
   @override
   String get nuclideEditButton => 'Nuklidok módosítása';
@@ -812,6 +825,98 @@ class AppLocalizationsHu extends AppLocalizations {
   String get captureListScreenshotMenuItem => 'Lista képernyőkép mentése';
 
   @override
+  String get protocolFormatTitle => 'Jegyzőkönyv formátuma';
+
+  @override
+  String get protocolFormatWord => 'Word (ZIP: .docx + fotók)';
+
+  @override
+  String get protocolFormatPdf => 'PDF (fotókkal)';
+
+  @override
+  String get sessionDoseLabel => 'Felmérési dózis';
+
+  @override
+  String get dosimeterDoseLabel => 'Doziméter';
+
+  @override
+  String get dosimeterValueLabel => 'Kiértékelt dózis';
+
+  @override
+  String get includeInAnnualLabel => 'Beszámít az éves dózisba';
+
+  @override
+  String get notCountedInAnnualLabel => 'nem számít az éves dózisba';
+
+  @override
+  String get calcDoseFromPointsButton => 'Számítás a pontokból';
+
+  @override
+  String get calcDoseNeedTwoPoints =>
+      'Legalább 2 dózisteljesítmény-pont kell a számításhoz.';
+
+  @override
+  String calcDoseResultInfo(int count) {
+    return '$count pontból számítva (lineáris interpoláció)';
+  }
+
+  @override
+  String get dosimetersButton => 'Doziméterek';
+
+  @override
+  String get addDosimeterButton => 'Doziméter hozzáadása';
+
+  @override
+  String get dosimeterKindEpdGamma => 'EPD gamma (elektronikus)';
+
+  @override
+  String get dosimeterKindEpdNeutron => 'EPD neutron (elektronikus)';
+
+  @override
+  String get dosimeterKindTlOfficial => 'TL/OSL passzív (hivatalos)';
+
+  @override
+  String get dosimeterKindTlWorkplace => 'TL/OSL passzív (munkahelyi)';
+
+  @override
+  String get dosimeterTypeLabel => 'Típus';
+
+  @override
+  String get dosimeterIdentifierLabel => 'Azonosító';
+
+  @override
+  String get dosimeterPersonLabel => 'Viselője';
+
+  @override
+  String get dosimeterNobody => 'Nincs hozzárendelve';
+
+  @override
+  String get dosimeterStartLabel => 'Kezdő állás';
+
+  @override
+  String get dosimeterEndLabel => 'Záró állás';
+
+  @override
+  String get dosimeterEndBeforeStartError =>
+      'A záró állás nem lehet kisebb a kezdőnél.';
+
+  @override
+  String get noDosimetersYet => 'Még nincs doziméter ennél a felmérésnél.';
+
+  @override
+  String get dosimeterEditTitle => 'Doziméter';
+
+  @override
+  String get dosimeterNoReading => 'nincs adat';
+
+  @override
+  String get dosimeterDeleteTitle => 'Doziméter törlése';
+
+  @override
+  String get dosimeterDeleteMessage =>
+      'Biztosan törlöd ezt a doziméter-bejegyzést?';
+
+  @override
   String get exportProtocolMenuItem => 'Jegyzőkönyv exportálása';
 
   @override
@@ -893,6 +998,18 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get sampleAmountLabel => 'Mennyiség';
+
+  @override
+  String get sampleUnitLabel => 'Egység';
+
+  @override
+  String get sampleUnitOther => 'Egyéb';
+
+  @override
+  String get sampleUnitCustomLabel => 'Egység megnevezése';
+
+  @override
+  String get sampleAmountInvalid => 'Számot adj meg (pl. 2,5 vagy 2.5)';
 
   @override
   String get sampleMethodLabel => 'Mintavétel módja';
@@ -1286,6 +1403,14 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get expiryLeadOneWeek => '1 héttel előtte';
+
+  @override
+  String get expiryLeadTwoWeeks => '2 héttel előtte';
+
+  @override
+  String expiryLeadMonths(int count) {
+    return '$count hónappal előtte';
+  }
 
   @override
   String get expiryNotificationsPermissionDenied =>
@@ -1853,4 +1978,506 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get appVersionLabel => 'Verzió';
+
+  @override
+  String get appUpdateTitle => 'Új verzió érhető el';
+
+  @override
+  String appUpdateAvailableMessage(String version) {
+    return 'A $version verzió elérhető. Frissítsd az alkalmazást a legújabb javításokért és funkciókért.';
+  }
+
+  @override
+  String appUpdateRequiredMessage(String version) {
+    return 'Az alkalmazás ezen verziója már nem támogatott. Frissítsd a $version verzióra a folytatáshoz.';
+  }
+
+  @override
+  String get appUpdateLater => 'Később';
+
+  @override
+  String get appUpdateNow => 'Frissítés';
+
+  @override
+  String get rrRoleSurveyor => 'Felmérő';
+
+  @override
+  String get rrRoleVictim => 'Érintett / áldozat';
+
+  @override
+  String get rrTriageNone => 'Nincs besorolva';
+
+  @override
+  String get rrTriageRed => 'Piros – azonnali ellátás';
+
+  @override
+  String get rrTriageYellow => 'Sárga – halasztható ellátás';
+
+  @override
+  String get rrTriageGreen => 'Zöld – könnyű sérülés';
+
+  @override
+  String get rrTriageBlack => 'Fekete – elhunyt / nincs ellátás';
+
+  @override
+  String get rrConditionInjury => 'Sérülés';
+
+  @override
+  String get rrConditionIllness => 'Betegség';
+
+  @override
+  String get rrAffectedPrefix => 'Érintett';
+
+  @override
+  String get rrEditStatusTooltip => 'Szerep, triázs, sérülések';
+
+  @override
+  String get rrRoleLabel => 'Szerep';
+
+  @override
+  String get rrTriageCategoryLabel => 'Triázs-besorolás';
+
+  @override
+  String get rrInjuriesAndIllnesses => 'Sérülések és betegségek';
+
+  @override
+  String get rrDescriptionHint => 'Leírás';
+
+  @override
+  String get rrAddItem => 'Tétel hozzáadása';
+
+  @override
+  String get rrDeleteTooltip => 'Törlés';
+
+  @override
+  String get rrMeteoSection => 'Meteorológia (opcionális)';
+
+  @override
+  String get rrMetTemp => 'Levegő-hőmérséklet (°C)';
+
+  @override
+  String get rrMetHumidity => 'Relatív páratartalom (%)';
+
+  @override
+  String get rrMetPressure => 'Légnyomás (hPa)';
+
+  @override
+  String get rrMetWind => 'Szélsebesség (m/s)';
+
+  @override
+  String get rrMetWindDir => 'Szélirány (°)';
+
+  @override
+  String get rrMetGust => 'Széllökés (m/s)';
+
+  @override
+  String get rrMetPrecipIntensity => 'Csapadékintenzitás (mm/h)';
+
+  @override
+  String get rrMetSolar => 'Napsugárzás (W/m²)';
+
+  @override
+  String get rrMetCloud => 'Felhőzet (okta, 0–8)';
+
+  @override
+  String get rrMetVisibility => 'Látástávolság (m)';
+
+  @override
+  String get rrMetSoil => 'Talajnedvesség (%)';
+
+  @override
+  String get rrMetAerosol => 'Aeroszolkoncentráció (µg/m³)';
+
+  @override
+  String get rrPrecipState => 'Csapadékállapot';
+
+  @override
+  String get rrPrecipNone => 'Nincs csapadék';
+
+  @override
+  String get rrPrecipDrizzle => 'Szitálás';
+
+  @override
+  String get rrPrecipRain => 'Eső';
+
+  @override
+  String get rrPrecipSnow => 'Hó';
+
+  @override
+  String get rrPrecipSleet => 'Ónos eső';
+
+  @override
+  String get rrPrecipHail => 'Jégeső';
+
+  @override
+  String get rrMetOther => 'Egyéb megfigyelés';
+
+  @override
+  String get rrGasSection => 'Gázmérés';
+
+  @override
+  String get rrAddGas => 'Gáz hozzáadása';
+
+  @override
+  String get rrGasSpecies => 'Vegyület';
+
+  @override
+  String get rrGasOther => 'Egyéb';
+
+  @override
+  String get rrGasOtherName => 'Vegyület neve';
+
+  @override
+  String get rrFormulaLabel => 'Képlet';
+
+  @override
+  String get rrGasConcentration => 'Koncentráció';
+
+  @override
+  String get rrGasUnit => 'Egység';
+
+  @override
+  String get rrInvalidValue => 'Hibás érték';
+
+  @override
+  String get rrGasAmmonia => 'Ammónia';
+
+  @override
+  String get rrGasBenzene => 'Benzol';
+
+  @override
+  String get rrGasPhosphine => 'Foszfin';
+
+  @override
+  String get rrGasPhosgene => 'Foszgén';
+
+  @override
+  String get rrGasHydrogen => 'Hidrogén';
+
+  @override
+  String get rrGasHydrogenCyanide => 'Hidrogén-cianid';
+
+  @override
+  String get rrGasVoc => 'Illékony szerves vegyületek';
+
+  @override
+  String get rrGasSulfurDioxide => 'Kén-dioxid';
+
+  @override
+  String get rrGasSulfurHexafluoride => 'Kén-hexafluorid';
+
+  @override
+  String get rrGasHydrogenSulfide => 'Kén-hidrogén';
+
+  @override
+  String get rrGasChlorine => 'Klór';
+
+  @override
+  String get rrGasMethane => 'Metán';
+
+  @override
+  String get rrGasMethanol => 'Metanol';
+
+  @override
+  String get rrGasMethylSalicylate => 'Metil-szalicilát';
+
+  @override
+  String get rrGasNitricOxide => 'Nitrogén-monoxid';
+
+  @override
+  String get rrGasNitrogenDioxide => 'Nitrogén-dioxid';
+
+  @override
+  String get rrGasNitrogenOxides => 'Nitrogén-oxidok';
+
+  @override
+  String get rrGasOxygen => 'Oxigén';
+
+  @override
+  String get rrGasOzone => 'Ózon';
+
+  @override
+  String get rrGasPropane => 'Propán';
+
+  @override
+  String get rrGasCarbonDioxide => 'Szén-dioxid';
+
+  @override
+  String get rrGasCarbonMonoxide => 'Szén-monoxid';
+
+  @override
+  String get rrGasToluene => 'Toluol';
+
+  @override
+  String get rrGasTributylPhosphate => 'Tributil-foszfát';
+
+  @override
+  String get measurementTypeMeteorology => 'Meteorológia';
+
+  @override
+  String get measurementTypeGasMeasurement => 'Gázmérés';
+
+  @override
+  String get mapAreaButtonTooltip => 'Terület jelölése';
+
+  @override
+  String get mapAreaListTooltip => 'Jelölt területek';
+
+  @override
+  String get mapAreaNewTitle => 'Új terület';
+
+  @override
+  String get mapAreaNameLabel => 'Név (pl. Felmért terület)';
+
+  @override
+  String get mapAreaNameRequired => 'Adja meg a terület nevét.';
+
+  @override
+  String get mapAreaShapeLabel => 'Alakzat';
+
+  @override
+  String get mapAreaPolygon => 'Poligon';
+
+  @override
+  String get mapAreaCircle => 'Kör';
+
+  @override
+  String get mapAreaColorLabel => 'Szín';
+
+  @override
+  String get mapAreaStartDrawing => 'Rajzolás';
+
+  @override
+  String get mapAreaHintPolygon =>
+      'Koppintással jelölje a sarokpontokat, majd nyomja meg a Kész gombot.';
+
+  @override
+  String get mapAreaHintCircle =>
+      'Koppintással jelölje a középpontot, majd egy pontot a sugár megadásához.';
+
+  @override
+  String get mapAreaMinPointsError => 'Legalább 3 sarokpont kell.';
+
+  @override
+  String get mapAreaCircleIncomplete =>
+      'Jelölje meg a középpontot és a sugarat is.';
+
+  @override
+  String get mapAreaUndo => 'Visszavonás';
+
+  @override
+  String get mapAreaDone => 'Kész';
+
+  @override
+  String get mapAreaNoAreas => 'Nincs jelölt terület.';
+
+  @override
+  String get mapAreaDeleteConfirm => 'Törli a kijelölt területet?';
+
+  @override
+  String get mapAreaDeleteTooltip => 'Terület törlése';
+
+  @override
+  String get unitConverterTitle => 'Mértékegység-váltó';
+
+  @override
+  String get unitConverterCategoryLabel => 'Mennyiség';
+
+  @override
+  String get unitConverterValueLabel => 'Érték';
+
+  @override
+  String get unitConverterFromLabel => 'Kiindulási egység';
+
+  @override
+  String get unitConverterMolarMassLabel => 'Moláris tömeg (g/mol)';
+
+  @override
+  String get unitConverterMolarMassHint =>
+      'Tömeg- és térfogat-koncentráció között a gáz moláris tömege kell, pl. CO: 28,01. Számítás 25 °C-on, 1 atm nyomáson.';
+
+  @override
+  String get unitConverterNeedsMolarMass =>
+      'Adja meg a moláris tömeget a tömeg- és térfogat-egységek közötti számításhoz.';
+
+  @override
+  String get unitConverterEnterValue => 'Adjon meg egy értéket.';
+
+  @override
+  String get unitConverterTapHint =>
+      'Koppintson egy sorra: az érték átíródik arra az egységre, és az lesz a kiindulási egység.';
+
+  @override
+  String get unitConverterGasNote =>
+      'A gázkoncentráció %LEL egysége nem váltható át, mert a gáz határértékétől függ.';
+
+  @override
+  String get unitCatDose => 'Dózis';
+
+  @override
+  String get unitCatDoseRate => 'Dózisteljesítmény';
+
+  @override
+  String get unitCatActivity => 'Aktivitás';
+
+  @override
+  String get unitCatActivityConcentration => 'Aktivitáskoncentráció';
+
+  @override
+  String get unitCatSurfaceContamination => 'Felületi szennyezettség';
+
+  @override
+  String get unitCatCountRate => 'Beütésszám';
+
+  @override
+  String get unitCatLength => 'Hosszúság';
+
+  @override
+  String get unitCatArea => 'Terület';
+
+  @override
+  String get unitCatVolume => 'Térfogat';
+
+  @override
+  String get unitCatMass => 'Tömeg';
+
+  @override
+  String get unitCatTemperature => 'Hőmérséklet';
+
+  @override
+  String get unitCatPressure => 'Nyomás';
+
+  @override
+  String get unitCatSpeed => 'Sebesség';
+
+  @override
+  String get unitCatTime => 'Idő';
+
+  @override
+  String get unitCatIrradiance => 'Sugárzási teljesítmény';
+
+  @override
+  String get unitCatRainRate => 'Csapadék-intenzitás';
+
+  @override
+  String get unitCatMassConcentration => 'Tömegkoncentráció (aeroszol)';
+
+  @override
+  String get unitCatGasConcentration => 'Gázkoncentráció';
+
+  @override
+  String get unitConverterGasPick =>
+      'Gáz kiválasztása (kitölti a moláris tömeget)';
+
+  @override
+  String get decayCalcTitle => 'Bomlás-számító';
+
+  @override
+  String get decayCalcIsotope => 'Izotóp';
+
+  @override
+  String get decayCalcCustom => 'Egyéb (kézi felezési idő)';
+
+  @override
+  String get decayCalcHalfLife => 'Felezési idő';
+
+  @override
+  String get decayCalcInitialActivity => 'Kezdeti aktivitás';
+
+  @override
+  String get decayCalcElapsed => 'Eltelt idő';
+
+  @override
+  String get decayCalcTargetActivity => 'Célaktivitás';
+
+  @override
+  String get decayCalcModeForward => 'Aktivitás t idő után';
+
+  @override
+  String get decayCalcModeBackward => 'Idő a célaktivitásig';
+
+  @override
+  String get decayCalcDistance => 'Távolság (m, opcionális)';
+
+  @override
+  String get decayCalcResultActivity => 'Aktivitás';
+
+  @override
+  String get decayCalcResultRemaining => 'Megmaradt hányad';
+
+  @override
+  String get decayCalcResultHalfLives => 'Felezési idők száma';
+
+  @override
+  String get decayCalcResultDoseRate => 'Dózisteljesítmény a távolságban';
+
+  @override
+  String get decayCalcResultTime => 'Szükséges idő';
+
+  @override
+  String get decayCalcErrorTarget =>
+      'A célaktivitásnak pozitívnak és kisebbnek kell lennie a kezdeti aktivitásnál.';
+
+  @override
+  String get decayCalcNeedsInput => 'Adja meg a számokat.';
+
+  @override
+  String get decayCalcNoHalfLife => 'Adja meg a felezési időt.';
+
+  @override
+  String get decayCalcNote =>
+      'Tiszta exponenciális bomlás; a leánynuklidokat és a többi sugárzást nem veszi figyelembe.';
+
+  @override
+  String get doseLimitTitle => 'Éves dózis-keret';
+
+  @override
+  String get doseLimitCategoryOccupational => 'Foglalkozásszerű';
+
+  @override
+  String get doseLimitCategoryPublic => 'Lakosság';
+
+  @override
+  String get doseLimitSourceOah => 'OAH 2/2022 (IV. 29.) rendelet';
+
+  @override
+  String get doseLimitSourceIaea => 'IAEA GSR Part 3';
+
+  @override
+  String get doseLimitUsedLabel => 'kihasználtság';
+
+  @override
+  String get doseLimitStatusOk => 'keret rendben';
+
+  @override
+  String get doseLimitStatusWarning => 'figyelmeztetési szint elérve';
+
+  @override
+  String get doseLimitStatusExceeded => 'keret túllépve';
+
+  @override
+  String get doseLimitNote =>
+      'Egyéves összeg vizsgálata; az IAEA 5 éves átlagolása nincs figyelembe véve.';
+
+  @override
+  String get displayUnitsHint =>
+      'A megjelenítés és a jegyzőkönyv ezt használja. Az adatexport (CSV, JSON) és a mentés mindig az eredeti, tárolt egységben marad.';
+
+  @override
+  String get displayDoseUnitLabel => 'Személyes dózis egysége';
+
+  @override
+  String get displayDoseAutoOption => 'Automatikus (µSv, 1 mSv felett mSv)';
+
+  @override
+  String get displaySurfaceUnitLabel => 'Felületi szennyezettség egysége';
+
+  @override
+  String get displayTemperatureUnitLabel => 'Hőmérséklet egysége';
+
+  @override
+  String get displayPressureUnitLabel => 'Nyomás egysége';
+
+  @override
+  String get displayWindUnitLabel => 'Szélsebesség egysége';
 }

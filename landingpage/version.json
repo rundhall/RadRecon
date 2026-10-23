@@ -1,0 +1,37 @@
+{
+  "android": {
+    "latest_build": 10,
+    "min_build": 0,
+    "latest_version": "1.1.1",
+    "download_url": "https://play.google.com/store/apps/details?id=com.rundhall.rad_recon",
+    "release_notes": ""
+  },
+  "ios": {
+    "latest_build": 10,
+    "min_build": 0,
+    "latest_version": "1.1.1",
+    "download_url": "https://apps.apple.com/hu/app/radrecon/id6818943288",
+    "release_notes": ""
+  },
+  "macos": {
+    "latest_build": 10,
+    "min_build": 0,
+    "latest_version": "1.1.1",
+    "download_url": "https://radrecon.hu/downloads/RadRecon.dmg",
+    "release_notes": ""
+  },
+  "windows": {
+    "latest_build": 10,
+    "min_build": 0,
+    "latest_version": "1.1.1",
+    "download_url": "https://radrecon.hu/downloads/RadRecon-x86_64-Installer.exe",
+    "release_notes": ""
+  },
+  "linux": {
+    "latest_build": 10,
+    "min_build": 0,
+    "latest_version": "1.1.1",
+    "download_url": "https://radrecon.hu/downloads/RadRecon-linux-x64.tar.gz",
+    "release_notes": ""
+  }
+}

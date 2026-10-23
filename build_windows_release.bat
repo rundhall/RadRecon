@@ -16,12 +16,27 @@ call flutter build windows --release
 if errorlevel 1 goto :error
 
 echo 3) Inno Setup installer keszitese...
-dart run inno_bundle:build --release
+rem Remove old installers so only the fresh one is picked up below.
+for /r "build\windows" %%f in (RadRecon-x86_64-*-Installer.exe) do del /q "%%f"
+call dart run inno_bundle --release
+if errorlevel 1 goto :error
+
+echo 4) Installer atnevezese verzio nelkul...
+set "FOUND="
+for /r "build\windows" %%f in (RadRecon-x86_64-*-Installer.exe) do set "FOUND=%%f"
+if not defined FOUND (
+  echo Nem talalhato installer a build\windows mappaban.
+  goto :error
+)
+for %%F in ("%FOUND%") do set "OUTDIR=%%~dpF"
+move /y "%FOUND%" "%OUTDIR%RadRecon-x86_64-Installer.exe"
+if errorlevel 1 goto :error
+copy /y "%OUTDIR%RadRecon-x86_64-Installer.exe" "%~dp0landingpage\downloads\RadRecon-x86_64-Installer.exe"
 if errorlevel 1 goto :error
 
 echo.
-echo Kesz. Az installer .exe eleresi utjat a fenti inno_bundle kimenet also sora mutatja
-echo (jellemzoen a build\windows\x64\installer mappaban van).
+echo Kesz. Az installer: %OUTDIR%RadRecon-x86_64-Installer.exe
+echo Masolat: landingpage\downloads\RadRecon-x86_64-Installer.exe
 goto :eof
 
 :error

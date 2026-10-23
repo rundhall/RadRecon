@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../services/number_input.dart';
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/distance_unit.dart';
@@ -183,7 +184,7 @@ class _PointSourceLinkScreenState extends State<PointSourceLinkScreen> {
             ),
             FilledButton(
               onPressed: () {
-                final parsed = double.tryParse(ctrl.text.trim());
+                final parsed = parseDecimal(ctrl.text);
                 if (parsed == null || parsed <= 0) {
                   setState(() => errorText = loc.numberRequiredError);
                   return;

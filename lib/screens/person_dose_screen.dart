@@ -42,18 +42,18 @@ class _PersonDoseScreenState extends State<PersonDoseScreen> {
     if (!years.contains(_year)) years.add(_year);
     years.sort((a, b) => b.compareTo(a));
     final doses = await db.getPersonDoses(widget.person.id!, _year);
+    final annualTotals = (await db.getAnnualDoseTotals(_year))[widget.person.id!]
+        ?? DoseTotals.zero;
     if (!mounted) return;
     setState(() {
       _years = years;
       _doses = doses;
+      _totals = annualTotals;
       _loading = false;
     });
   }
 
-  DoseTotals get _totals => _doses.fold(
-        DoseTotals.zero,
-        (t, d) => t.add(d.source, d.doseMicroSv),
-      );
+  DoseTotals _totals = DoseTotals.zero;
 
   Future<void> _edit({PersonDose? existing}) async {
     final saved = await showDialog<bool>(
@@ -103,6 +103,7 @@ class _PersonDoseScreenState extends State<PersonDoseScreen> {
       if (d.surveyTitle != null) parts.add(d.surveyTitle!);
       parts.add(_dateFormat.format(d.doseDate));
     }
+    if (!d.includeAnnual) parts.add(loc.notCountedInAnnualLabel);
     if (d.notes != null && d.notes!.isNotEmpty) parts.add(d.notes!);
     return parts.join(' · ');
   }
@@ -153,15 +154,22 @@ class _PersonDoseScreenState extends State<PersonDoseScreen> {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 8),
-                        for (final s in DoseSource.values)
+                        for (final (icon, label, value) in [
+                          (Icons.edit_outlined, loc.sessionDoseLabel,
+                              totals.session),
+                          (Icons.sensors, loc.dosimeterDoseLabel,
+                              totals.dosimeter),
+                          (doseSourceIcon(DoseSource.passive),
+                              loc.doseSourcePassive, totals.passive),
+                        ])
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 2),
                             child: Row(
                               children: [
-                                Icon(doseSourceIcon(s), size: 18),
+                                Icon(icon, size: 18),
                                 const SizedBox(width: 8),
-                                Expanded(child: Text(doseSourceLabel(loc, s))),
-                                Text(formatDose(context, totals.of(s))),
+                                Expanded(child: Text(label)),
+                                Text(formatDose(context, value)),
                               ],
                             ),
                           ),
@@ -221,6 +229,7 @@ class _DoseEditDialogState extends State<_DoseEditDialog> {
   late DateTime _end;
   bool _initialized = false;
   bool _endBeforeStart = false;
+  bool _include = true;
 
   bool get _isPassive =>
       widget.existing == null || widget.existing!.source == DoseSource.passive;
@@ -233,6 +242,7 @@ class _DoseEditDialogState extends State<_DoseEditDialog> {
     final e = widget.existing;
     if (e != null) {
       _dose.setMicroSv(e.doseMicroSv, Localizations.localeOf(context).toString());
+      _include = e.includeAnnual;
       _notes.text = e.notes ?? '';
     }
     final now = DateTime.now();
@@ -285,6 +295,7 @@ class _DoseEditDialogState extends State<_DoseEditDialog> {
         doseDate: DateTime(_end.year, _end.month, _end.day),
         periodStart: DateTime(_start.year, _start.month, _start.day),
         periodEnd: DateTime(_end.year, _end.month, _end.day),
+        includeAnnual: _include,
         notes: notes,
         createdAt: now,
         updatedAt: now,
@@ -305,6 +316,7 @@ class _DoseEditDialogState extends State<_DoseEditDialog> {
         periodEnd: _isPassive
             ? DateTime(_end.year, _end.month, _end.day)
             : e.periodEnd,
+        includeAnnual: _include,
         notes: notes,
         createdAt: e.createdAt,
         updatedAt: now,
@@ -360,6 +372,13 @@ class _DoseEditDialogState extends State<_DoseEditDialog> {
                   ),
               ],
               const SizedBox(height: 8),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                value: _include,
+                title: Text(loc.includeInAnnualLabel),
+                onChanged: (v) => setState(() => _include = v ?? true),
+              ),
               TextField(
                 controller: _notes,
                 decoration: InputDecoration(labelText: loc.notesLabel),

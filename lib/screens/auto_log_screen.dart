@@ -5,6 +5,7 @@ import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:geolocator/geolocator.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../services/number_input.dart';
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/distance_unit.dart';
@@ -12,7 +13,6 @@ import '../models/dose_rate_unit.dart';
 import '../models/instrument.dart';
 import '../models/measurement_point.dart';
 import '../models/measurement_type.dart';
-import '../models/person_dose.dart';
 import '../services/dose_integrator.dart';
 import '../services/dose_unit_controller.dart';
 import '../services/dose_unit_converter.dart';
@@ -132,7 +132,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     final interval = int.tryParse(_intervalCtrl.text.trim()) ?? 1;
     // A távolságköz méterben (a választott egységből átszámolva).
     final distance = _distanceUnit
-        .toMeters(double.tryParse(_distanceCtrl.text.trim()) ?? 5);
+        .toMeters(parseDecimal(_distanceCtrl.text) ?? 5);
     if (_mode == _TriggerMode.time && interval < 1) {
       _showError(loc.intervalMinError);
       return;
@@ -254,7 +254,6 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       await DatabaseHelper.instance.setSessionDose(
         personId: a.person.id!,
         surveySessionId: widget.surveySessionId,
-        source: DoseSource.online,
         doseMicroSv: dose,
         accumulate: true,
       );

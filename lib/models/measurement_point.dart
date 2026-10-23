@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'gas_reading.dart';
 import 'measurement_type.dart';
+import 'meteorology.dart';
 import 'nuclide_id.dart';
 import 'shielding.dart';
 
@@ -50,6 +52,9 @@ class MeasurementPoint {
   final String? sampleContainerId;
   final double? sampleAmount;
   final String? sampleMethod;
+  final String? sampleUnit; // db, ml, cm³, l, g, mg, kg vagy szabad szöveg
+  final Meteorology? meteorology; // opcionális meteorológiai megfigyelés
+  final List<GasReading> gases; // gázmérési eredmények
 
   // Média és megjegyzés
   final String? photoPath;
@@ -83,6 +88,9 @@ class MeasurementPoint {
     this.sampleContainerId,
     this.sampleAmount,
     this.sampleMethod,
+    this.sampleUnit,
+    this.meteorology,
+    this.gases = const [],
     this.photoPath,
     this.notes,
     required this.timestamp,
@@ -115,6 +123,9 @@ class MeasurementPoint {
     String? sampleContainerId,
     double? sampleAmount,
     String? sampleMethod,
+    String? sampleUnit,
+    Meteorology? meteorology,
+    List<GasReading>? gases,
     String? photoPath,
     String? notes,
     DateTime? timestamp,
@@ -148,6 +159,9 @@ class MeasurementPoint {
       sampleContainerId: sampleContainerId ?? this.sampleContainerId,
       sampleAmount: sampleAmount ?? this.sampleAmount,
       sampleMethod: sampleMethod ?? this.sampleMethod,
+      sampleUnit: sampleUnit ?? this.sampleUnit,
+      meteorology: meteorology ?? this.meteorology,
+      gases: gases ?? this.gases,
       photoPath: photoPath ?? this.photoPath,
       notes: notes ?? this.notes,
       timestamp: timestamp ?? this.timestamp,
@@ -155,6 +169,16 @@ class MeasurementPoint {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
+
+  /// A meteorológia JSON-ja a tároláshoz (üres megfigyelésnél `null`).
+  String? get meteoJson {
+    final m = meteorology;
+    return m == null || m.isEmpty ? null : m.toJsonString();
+  }
+
+  /// A gázmérések JSON-ja a tároláshoz (nincs gáz: `null`).
+  String? get gasJson =>
+      gases.isEmpty ? null : GasReading.listToJsonString(gases);
 
   Map<String, Object?> toMap() {
     return {
@@ -183,6 +207,9 @@ class MeasurementPoint {
       'sample_container_id': sampleContainerId,
       'sample_amount': sampleAmount,
       'sample_method': sampleMethod,
+      'sample_unit': sampleUnit,
+      'meteo_json': meteoJson,
+      'gas_json': gasJson,
       'photo_path': photoPath,
       'notes': notes,
       'timestamp': timestamp.toIso8601String(),
@@ -217,6 +244,9 @@ class MeasurementPoint {
       sampleContainerId: map['sample_container_id'] as String?,
       sampleAmount: (map['sample_amount'] as num?)?.toDouble(),
       sampleMethod: map['sample_method'] as String?,
+      sampleUnit: map['sample_unit'] as String?,
+      meteorology: Meteorology.fromJsonString(map['meteo_json'] as String?),
+      gases: GasReading.listFromJsonString(map['gas_json'] as String?),
       photoPath: map['photo_path'] as String?,
       notes: map['notes'] as String?,
       timestamp: DateTime.parse(map['timestamp'] as String),

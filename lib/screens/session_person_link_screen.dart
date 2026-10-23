@@ -3,11 +3,14 @@ import 'package:intl/intl.dart';
 
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/domain_labels.dart';
 import '../models/person.dart';
 import '../models/person_dose.dart';
 import '../models/session_person_link.dart';
 import '../widgets/dose_widgets.dart';
 import 'person_entry_screen.dart';
+import 'session_dosimeters_screen.dart';
+import 'session_person_status_dialog.dart';
 
 /// Egy felméréshez hozzárendelt személyek — a globális nyilvántartásból
 /// választva, tetszőleges létszámban.
@@ -23,7 +26,7 @@ class SessionPersonLinkScreen extends StatefulWidget {
 
 class _SessionPersonLinkScreenState extends State<SessionPersonLinkScreen> {
   late Future<List<AttachedPerson>> _attachedFuture;
-  Map<int, Map<DoseSource, double>> _doses = {};
+  SessionDoseSnapshot _doses = SessionDoseSnapshot.empty;
   final _dateFormat = DateFormat('yyyy.MM.dd');
 
   /// A választó-lista alján megjelenő "Személy hozzáadása" sor jelzőértéke —
@@ -43,7 +46,7 @@ class _SessionPersonLinkScreenState extends State<SessionPersonLinkScreen> {
           DatabaseHelper.instance.getAttachedPersons(widget.surveySessionId);
     });
     DatabaseHelper.instance
-        .getSessionDoses(widget.surveySessionId)
+        .getSessionDoseSnapshot(widget.surveySessionId)
         .then((doses) {
       if (mounted) setState(() => _doses = doses);
     });
@@ -173,6 +176,14 @@ class _SessionPersonLinkScreenState extends State<SessionPersonLinkScreen> {
     _reload();
   }
 
+  Future<void> _editStatus(AttachedPerson attached) async {
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (_) => SessionPersonStatusDialog(attached: attached),
+    );
+    if (saved == true) _reload();
+  }
+
   Future<void> _confirmDetach(AttachedPerson attached) async {
     final loc = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
@@ -203,7 +214,23 @@ class _SessionPersonLinkScreenState extends State<SessionPersonLinkScreen> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(loc.sessionPersonsTitle)),
+      appBar: AppBar(
+        title: Text(loc.sessionPersonsTitle),
+        actions: [
+          IconButton(
+            tooltip: loc.dosimetersButton,
+            icon: const Icon(Icons.sensors),
+            onPressed: () async {
+              await Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => SessionDosimetersScreen(
+                  surveySessionId: widget.surveySessionId,
+                ),
+              ));
+              _reload();
+            },
+          ),
+        ],
+      ),
       body: FutureBuilder<List<AttachedPerson>>(
         future: _attachedFuture,
         builder: (context, snapshot) {
@@ -221,17 +248,23 @@ class _SessionPersonLinkScreenState extends State<SessionPersonLinkScreen> {
             itemBuilder: (context, index) {
               final a = attached[index];
               final expired = a.person.isExpiredAt(now);
-              final d = _doses[a.person.id] ?? const <DoseSource, double>{};
+              final personId = a.person.id!;
               final totals = DoseTotals(
-                online: d[DoseSource.online] ?? 0,
-                manual: d[DoseSource.manual] ?? 0,
+                session: _doses.sessionDoseOf(personId)?.doseMicroSv ?? 0,
+                dosimeter: _doses
+                    .dosimetersOf(personId)
+                    .fold<double>(0, (s, d) => s + (d.resolvedDoseUsv ?? 0)),
               );
               return ListTile(
                 isThreeLine: true,
                 onTap: () => _editDose(a),
                 leading: Icon(
-                  expired ? Icons.warning_amber : Icons.person_outline,
-                  color: expired ? Colors.deepOrange : Colors.grey,
+                  a.link.role == SessionPersonRole.victim
+                      ? Icons.medical_services_outlined
+                      : (expired ? Icons.warning_amber : Icons.person_outline),
+                  color: a.link.role == SessionPersonRole.victim
+                      ? Colors.red
+                      : (expired ? Colors.deepOrange : Colors.grey),
                 ),
                 title: Text(a.person.name),
                 subtitle: Column(
@@ -246,14 +279,31 @@ class _SessionPersonLinkScreenState extends State<SessionPersonLinkScreen> {
                     const SizedBox(height: 2),
                     Text(
                       '${loc.doseTotalLabel}: ${formatDose(context, totals.total)}'
-                      ' (${loc.onlineDoseLabel.toLowerCase()} ${formatDose(context, totals.online)}'
-                      ' · ${loc.manualDoseLabel.toLowerCase()} ${formatDose(context, totals.manual)})',
+                      ' (${loc.sessionDoseLabel.toLowerCase()} ${formatDose(context, totals.session)}'
+                      ' · ${loc.dosimeterDoseLabel.toLowerCase()} ${formatDose(context, totals.dosimeter)})',
                     ),
+                    if (a.link.role == SessionPersonRole.victim) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        '${loc.rrAffectedPrefix} · ${a.link.triage?.localized(loc) ?? loc.rrTriageNone}',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ],
                   ],
                 ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => _confirmDetach(a),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      tooltip: loc.rrEditStatusTooltip,
+                      icon: const Icon(Icons.medical_services_outlined),
+                      onPressed: () => _editStatus(a),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => _confirmDetach(a),
+                    ),
+                  ],
                 ),
               );
             },

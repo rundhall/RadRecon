@@ -7,15 +7,47 @@ import '../models/dose_rate_unit.dart';
 import '../models/measurement_type.dart';
 
 /// Mennyivel a lejárat előtt jöjjön az értesítés.
+/// Napos (days) vagy hónapos (months) előrehozás. A hónapos értékek 1–12 hónapig
+/// terjedhetnek, hogy a hitelesítés/kalibrálás időben elintézhető legyen.
 enum ExpiryLeadTime {
-  sameDay(0, 'same_day'),
-  oneDay(1, 'one_day'),
-  twoDays(2, 'two_days'),
-  oneWeek(7, 'one_week');
+  sameDay(0, 0, 'same_day'),
+  oneDay(1, 0, 'one_day'),
+  twoDays(2, 0, 'two_days'),
+  oneWeek(7, 0, 'one_week'),
+  twoWeeks(14, 0, 'two_weeks'),
+  oneMonth(0, 1, 'month_1'),
+  twoMonths(0, 2, 'month_2'),
+  threeMonths(0, 3, 'month_3'),
+  fourMonths(0, 4, 'month_4'),
+  fiveMonths(0, 5, 'month_5'),
+  sixMonths(0, 6, 'month_6'),
+  sevenMonths(0, 7, 'month_7'),
+  eightMonths(0, 8, 'month_8'),
+  nineMonths(0, 9, 'month_9'),
+  tenMonths(0, 10, 'month_10'),
+  elevenMonths(0, 11, 'month_11'),
+  twelveMonths(0, 12, 'month_12');
 
-  const ExpiryLeadTime(this.days, this.storageValue);
+  const ExpiryLeadTime(this.days, this.months, this.storageValue);
   final int days;
+  final int months;
   final String storageValue;
+
+  bool get isMonths => months > 0;
+
+  /// Az a naptári nap, amelyen az értesítésnek meg kell jelennie.
+  /// Hónapos előrehozásnál a lejárat napja megmarad a céldátumban; ha a
+  /// céljhónap rövidebb, a hónap utolsó napjára szorul (pl. 31. → 28./29.).
+  DateTime alertDayFor(DateTime expiry) {
+    if (!isMonths) {
+      return DateTime(expiry.year, expiry.month, expiry.day - days);
+    }
+    final firstOfTarget = DateTime(expiry.year, expiry.month - months, 1);
+    final lastDay =
+        DateTime(firstOfTarget.year, firstOfTarget.month + 1, 0).day;
+    final day = expiry.day > lastDay ? lastDay : expiry.day;
+    return DateTime(firstOfTarget.year, firstOfTarget.month, day);
+  }
 
   static ExpiryLeadTime fromStorage(String? value) => ExpiryLeadTime.values
       .firstWhere((e) => e.storageValue == value, orElse: () => sameDay);

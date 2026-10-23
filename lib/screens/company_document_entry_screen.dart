@@ -113,6 +113,7 @@ class _CompanyDocumentEntryScreenState
       loc.companyDocSuggestRadiationDescription,
       loc.companyDocSuggestPhysicalProtection,
       loc.companyDocSuggestEmergencyPlan,
+      loc.companyDocSuggestOfficialLicense,
     ];
     return Scaffold(
       appBar: AppBar(

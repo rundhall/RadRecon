@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../services/number_input.dart';
 import '../l10n/app_localizations.dart';
 import '../models/activity_unit.dart';
 import '../models/distance_unit.dart';
@@ -12,6 +13,9 @@ import '../models/measurement_type.dart';
 import '../services/app_reset.dart';
 import '../services/database_transfer_service.dart';
 import '../services/dose_unit_controller.dart';
+import '../models/unit_catalog.dart';
+import '../services/display_units.dart';
+import '../widgets/display_unit_dropdown.dart';
 import '../services/expiry_notification_service.dart';
 import '../services/help_launcher.dart';
 import '../services/locale_controller.dart';
@@ -80,13 +84,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await ExpiryNotificationService.instance.rescheduleAll();
   }
 
-  String _leadLabel(AppLocalizations loc, ExpiryLeadTime lead) =>
-      switch (lead) {
-        ExpiryLeadTime.sameDay => loc.expiryLeadSameDay,
-        ExpiryLeadTime.oneDay => loc.expiryLeadOneDay,
-        ExpiryLeadTime.twoDays => loc.expiryLeadTwoDays,
-        ExpiryLeadTime.oneWeek => loc.expiryLeadOneWeek,
-      };
+  String _leadLabel(AppLocalizations loc, ExpiryLeadTime lead) {
+    if (lead.isMonths) return loc.expiryLeadMonths(lead.months);
+    return switch (lead) {
+      ExpiryLeadTime.sameDay => loc.expiryLeadSameDay,
+      ExpiryLeadTime.oneDay => loc.expiryLeadOneDay,
+      ExpiryLeadTime.twoDays => loc.expiryLeadTwoDays,
+      ExpiryLeadTime.oneWeek => loc.expiryLeadOneWeek,
+      ExpiryLeadTime.twoWeeks => loc.expiryLeadTwoWeeks,
+      _ => loc.expiryLeadSameDay,
+    };
+  }
 
   /// Átváltás után ne maradjanak lebegőpontos farkak (pl. 0.30000000000000004).
   String _trimNumber(double v) => double.parse(v.toStringAsPrecision(12)).toString();
@@ -227,9 +235,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _save() async {
     for (final type in MeasurementType.values) {
-      if (type == MeasurementType.sample) continue;
+      if (!type.hasValue) continue;
       final text = _controllers[type]!.text.trim();
-      final value = text.isEmpty ? null : double.tryParse(text);
+      final value = text.isEmpty ? null : parseDecimal(text);
       await _service.setThreshold(type, value);
     }
     if (mounted) {
@@ -381,6 +389,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
                     );
                   },
+                ),
+                const SizedBox(height: 12),
+                Text(loc.displayUnitsHint, style: const TextStyle(fontSize: 13)),
+                const SizedBox(height: 8),
+                DisplayUnitDropdown(
+                  label: loc.displayDoseUnitLabel,
+                  notifier: DisplayUnits.dose,
+                  category: UnitCategory.dose,
+                  autoLabel: loc.displayDoseAutoOption,
+                  onChanged: DisplayUnits.setDose,
+                ),
+                const SizedBox(height: 12),
+                DisplayUnitDropdown(
+                  label: loc.displaySurfaceUnitLabel,
+                  notifier: DisplayUnits.surface,
+                  category: UnitCategory.surfaceContamination,
+                  onChanged: DisplayUnits.setSurface,
+                ),
+                const SizedBox(height: 12),
+                DisplayUnitDropdown(
+                  label: loc.displayTemperatureUnitLabel,
+                  notifier: DisplayUnits.temperature,
+                  category: UnitCategory.temperature,
+                  onChanged: DisplayUnits.setTemperature,
+                ),
+                const SizedBox(height: 12),
+                DisplayUnitDropdown(
+                  label: loc.displayPressureUnitLabel,
+                  notifier: DisplayUnits.pressure,
+                  category: UnitCategory.pressure,
+                  onChanged: DisplayUnits.setPressure,
+                ),
+                const SizedBox(height: 12),
+                DisplayUnitDropdown(
+                  label: loc.displayWindUnitLabel,
+                  notifier: DisplayUnits.wind,
+                  category: UnitCategory.speed,
+                  onChanged: DisplayUnits.setWind,
                 ),
                 const SizedBox(height: 12),
                 ValueListenableBuilder<RegulatoryProfile>(
@@ -543,7 +589,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 20),
                 ...MeasurementType.values
-                    .where((t) => t != MeasurementType.sample)
+                    .where((t) => t.hasValue)
                     .map(
                       (type) => Padding(
                         padding: const EdgeInsets.only(bottom: 16),

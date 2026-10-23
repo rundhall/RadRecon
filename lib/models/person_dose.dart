@@ -1,12 +1,11 @@
-/// A dózis forrása — a személy éves dózisában külön jelezzük, mert más a
-/// megbízhatóságuk és más a kiértékelési ciklusuk.
-enum DoseSource {
-  /// Modbus detektor dózisteljesítményéből az app által integrált dózis
-  /// (felméréshez kötött).
-  online,
+import 'session_dosimeter.dart';
+import '../services/display_units.dart';
 
-  /// Felméréshez kötött, kézzel rögzített (vagy a lezáráskor korrigált) dózis.
-  manual,
+/// A dózis forrása. A felmérési dózis a pontokból számolt vagy kézzel
+/// rögzített érték (a korábbi online és manuális forrás összevonva).
+enum DoseSource {
+  /// Felméréshez kötött dózis: pontokból integrálva vagy kézzel megadva.
+  session,
 
   /// Felmérésektől független, utólag kiértékelt passzív dozimetria
   /// (havi / kéthavi kiértékelés).
@@ -17,18 +16,21 @@ extension DoseSourceX on DoseSource {
   /// Adatbázisban tárolt, stabil azonosító.
   String get dbValue => name;
 
-  static DoseSource fromDbValue(String value) => DoseSource.values.firstWhere(
-        (s) => s.name == value,
-        orElse: () => throw ArgumentError('Ismeretlen dózisforrás: $value'),
-      );
+  /// A régi `online` és `manual` értékeket (v22 előtti adatok, régi CSV-k)
+  /// a `session` forrásba soroljuk.
+  static DoseSource fromDbValue(String value) => switch (value) {
+        'session' || 'online' || 'manual' => DoseSource.session,
+        'passive' => DoseSource.passive,
+        _ => throw ArgumentError('Ismeretlen dózisforrás: $value'),
+      };
 }
 
 /// Egy személyhez rendelt dózis-bejegyzés. A dózis mindig µSv-ben tárolódik.
 ///
-/// - [online] / [manual]: felméréshez kötött ([surveySessionId] kitöltött),
-///   személyenként és felmérésenként legfeljebb egy-egy.
-/// - [passive]: felmérés nélküli, [periodStart]–[periodEnd] kiértékelési
-///   időszakkal; az éves összegben a [doseDate] (= időszak vége) éve számít.
+/// - [session]: felméréshez kötött, személyenként és felmérésenként legfeljebb egy.
+/// - [passive]: felmérés nélküli, [periodStart]–[periodEnd] kiértékelési időszakkal;
+///   az éves összegben a [doseDate] (= időszak vége) éve számít.
+/// - [includeAnnual]: beszámít-e az éves dózisba (a felhasználó jelöli).
 class PersonDose {
   final int? id;
   final int personId;
@@ -40,6 +42,7 @@ class PersonDose {
   final DateTime doseDate;
   final DateTime? periodStart;
   final DateTime? periodEnd;
+  final bool includeAnnual;
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -56,6 +59,7 @@ class PersonDose {
     required this.doseDate,
     this.periodStart,
     this.periodEnd,
+    this.includeAnnual = true,
     this.notes,
     required this.createdAt,
     required this.updatedAt,
@@ -71,6 +75,7 @@ class PersonDose {
         'dose_date': doseDate.toIso8601String(),
         'period_start': periodStart?.toIso8601String(),
         'period_end': periodEnd?.toIso8601String(),
+        'include_annual': includeAnnual ? 1 : 0,
         'notes': notes,
         'created_at': createdAt.toIso8601String(),
         'updated_at': updatedAt.toIso8601String(),
@@ -88,6 +93,7 @@ class PersonDose {
       doseDate: DateTime.parse(map['dose_date'] as String),
       periodStart: parse(map['period_start']),
       periodEnd: parse(map['period_end']),
+      includeAnnual: (map['include_annual'] as int? ?? 1) == 1,
       notes: map['notes'] as String?,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
@@ -96,34 +102,86 @@ class PersonDose {
   }
 }
 
-/// Egy személy egy évre összegzett dózisa forrásonkénti bontásban (µSv).
+/// Egy személy dózisa összegzve, µSv-ben, három csoportban.
 class DoseTotals {
-  final double online;
-  final double manual;
+  /// Felmérési dózis (pontokból számolt vagy kézzel megadott).
+  final double session;
+
+  /// Doziméterek dózisa.
+  final double dosimeter;
+
+  /// Passzív (felmérésektől független) dózis.
   final double passive;
 
-  const DoseTotals({this.online = 0, this.manual = 0, this.passive = 0});
+  const DoseTotals({this.session = 0, this.dosimeter = 0, this.passive = 0});
 
   static const zero = DoseTotals();
 
-  double get total => online + manual + passive;
+  double get total => session + dosimeter + passive;
 
   double of(DoseSource source) => switch (source) {
-        DoseSource.online => online,
-        DoseSource.manual => manual,
+        DoseSource.session => session,
         DoseSource.passive => passive,
       };
 
   DoseTotals add(DoseSource source, double value) => DoseTotals(
-        online: online + (source == DoseSource.online ? value : 0),
-        manual: manual + (source == DoseSource.manual ? value : 0),
+        session: session + (source == DoseSource.session ? value : 0),
+        dosimeter: dosimeter,
         passive: passive + (source == DoseSource.passive ? value : 0),
       );
+
+  DoseTotals addDosimeter(double value) => DoseTotals(
+        session: session,
+        dosimeter: dosimeter + value,
+        passive: passive,
+      );
+}
+
+/// Egy felmérés dózisai: személyenként a felmérési dózis-bejegyzés és a
+/// felmérés doziméterei. Az összesítés csak a beszámító tételeket veszi.
+class SessionDoseSnapshot {
+  const SessionDoseSnapshot({
+    required this.sessionDoses,
+    required this.dosimeters,
+  });
+
+  static const empty = SessionDoseSnapshot(
+    sessionDoses: <int, PersonDose>{},
+    dosimeters: <SessionDosimeter>[],
+  );
+
+  /// Személy-id → felmérési dózis-bejegyzés (felmérésenként legfeljebb egy).
+  final Map<int, PersonDose> sessionDoses;
+  final List<SessionDosimeter> dosimeters;
+
+  PersonDose? sessionDoseOf(int personId) => sessionDoses[personId];
+
+  List<SessionDosimeter> dosimetersOf(int personId) =>
+      dosimeters.where((d) => d.personId == personId).toList();
+
+  /// Az éves összesítésbe beszámító összegek személyenként.
+  DoseTotals totalsFor(int personId) {
+    final session = sessionDoses[personId];
+    var dosimeterSum = 0.0;
+    for (final d in dosimetersOf(personId)) {
+      if (d.includeAnnual) dosimeterSum += d.resolvedDoseUsv ?? 0;
+    }
+    return DoseTotals(
+      session: (session != null && session.includeAnnual)
+          ? session.doseMicroSv
+          : 0,
+      dosimeter: dosimeterSum,
+    );
+  }
 }
 
 /// Dózis szövegesen (magyar tizedesvesszővel), 1 mSv fölött mSv-ben —
 /// BuildContext nélküli helyekre (pl. jegyzőkönyv-export).
 String formatDoseText(double microSv) {
+  final target = DisplayUnits.dose.value;
+  if (target.isNotEmpty) {
+    return '${_trim(DisplayUnits.doseFromMicroSv(microSv, target), 3)} $target';
+  }
   final abs = microSv.abs();
   final String text;
   if (abs >= 1000) {

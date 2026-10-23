@@ -6,13 +6,16 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../models/instrument.dart';
+import '../models/map_area.dart';
 import '../models/company_document.dart';
 import '../models/instrument_calibration.dart';
 import '../models/person_certificate.dart';
 import '../models/measurement_audit_entry.dart';
 import '../models/measurement_point.dart';
 import '../models/person.dart';
+import '../models/person_condition.dart';
 import '../models/person_dose.dart';
+import '../models/session_dosimeter.dart';
 import '../models/point_source_link.dart';
 import '../models/radiation_source.dart';
 import '../models/session_person_link.dart';
@@ -52,7 +55,10 @@ class DatabaseHelper {
   // v18: `certificate_files` (műbizonylat-csatolmányok) a `radiation_sources`
   // táblában.
   // v19: `company_documents` tábla (cég dokumentumai és engedélyei).
-  static const _dbVersion = 20;
+  // v21: `sample_unit` a `measurement_points` táblában (mintavétel egysége).
+  // v22: doziméterek (session_dosimeters), felmérési dózis (online+manuális
+  // összevonva), és `include_annual` jelölő a dózis-bejegyzéseken.
+  static const _dbVersion = 25;
 
   /// A jelenlegi séma-verzió (a mentésfájlok kompatibilitás-ellenőrzéséhez).
   static const schemaVersion = _dbVersion;
@@ -186,6 +192,41 @@ class DatabaseHelper {
     final pointColumnNames = pointColumns
         .map((c) => c['name'] as String)
         .toSet();
+    if (!pointColumnNames.contains('sample_unit')) {
+      await db.execute('ALTER TABLE measurement_points ADD COLUMN sample_unit TEXT');
+    }
+
+    // v22: felmérési dózis és doziméterek.
+    final doseTables = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'person_doses'",
+    );
+    if (doseTables.isEmpty) {
+      await _createPersonDosesTable(db);
+    } else {
+      final doseColumns = (await db.rawQuery('PRAGMA table_info(person_doses)'))
+          .map((c) => c['name'] as String)
+          .toSet();
+      if (!doseColumns.contains('include_annual')) {
+        await db.execute(
+          'ALTER TABLE person_doses ADD COLUMN include_annual INTEGER NOT NULL DEFAULT 1',
+        );
+      }
+      // Az online és manuális felmérési dózis egy `session` sorba olvad
+      // (személyenként, felmérésenként), összege a korábbi érték.
+      await db.execute('''
+        INSERT INTO person_doses (person_id, survey_session_id, source, dose_usv,
+          dose_date, notes, created_at, updated_at, include_annual)
+        SELECT person_id, survey_session_id, 'session', SUM(dose_usv),
+          MIN(dose_date), NULL, MIN(created_at), MAX(updated_at), 1
+        FROM person_doses
+        WHERE survey_session_id IS NOT NULL AND source IN ('online', 'manual')
+        GROUP BY person_id, survey_session_id
+      ''');
+      await db.execute(
+        "DELETE FROM person_doses WHERE survey_session_id IS NOT NULL AND source IN ('online', 'manual')",
+      );
+    }
+    await _createSessionDosimetersTable(db);
     if (!pointColumnNames.contains('activity_calc_nuclide')) {
       await db.execute(
         'ALTER TABLE measurement_points ADD COLUMN activity_calc_nuclide TEXT',
@@ -306,12 +347,49 @@ class DatabaseHelper {
     await _createPersonCertificatesTable(db);
     await _createCompanyDocumentsTable(db);
 
-    final doseTables = await db.rawQuery(
-      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'person_doses'",
+    // v23: az összerendelt személy szerepe (felmérő / érintett), triázs-
+    // besorolása, és az érintett sérülései/betegségei.
+    final sessionPersonTables = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'survey_session_persons'",
     );
-    if (doseTables.isEmpty) {
-      await _createPersonDosesTable(db);
+    if (sessionPersonTables.isEmpty) {
+      await _createSessionPersonsTable(db);
+    } else {
+      final linkColumns =
+          (await db.rawQuery('PRAGMA table_info(survey_session_persons)'))
+              .map((c) => c['name'] as String)
+              .toSet();
+      if (!linkColumns.contains('role')) {
+        await db.execute(
+          "ALTER TABLE survey_session_persons ADD COLUMN role TEXT NOT NULL DEFAULT 'surveyor'",
+        );
+      }
+      if (!linkColumns.contains('triage')) {
+        await db.execute(
+          'ALTER TABLE survey_session_persons ADD COLUMN triage TEXT',
+        );
+      }
+      await _createSessionPersonConditionsTable(db);
     }
+
+    // v24: meteorológia és gázmérés a mérési pontokhoz (JSON-oszlopok).
+    final measurementColumns =
+        (await db.rawQuery('PRAGMA table_info(measurement_points)'))
+            .map((c) => c['name'] as String)
+            .toSet();
+    if (!measurementColumns.contains('meteo_json')) {
+      await db.execute(
+        'ALTER TABLE measurement_points ADD COLUMN meteo_json TEXT',
+      );
+    }
+    if (!measurementColumns.contains('gas_json')) {
+      await db.execute(
+        'ALTER TABLE measurement_points ADD COLUMN gas_json TEXT',
+      );
+    }
+
+    // v25: térképi területjelölések.
+    await _createSurveyMapAreasTable(db);
   }
 
   Future<void> _createPersonDosesTable(Database db) async {
@@ -325,6 +403,7 @@ class DatabaseHelper {
         dose_date TEXT NOT NULL,
         period_start TEXT,
         period_end TEXT,
+        include_annual INTEGER NOT NULL DEFAULT 1,
         notes TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
@@ -344,6 +423,32 @@ class DatabaseHelper {
       ON person_doses (person_id, survey_session_id, source)
       WHERE survey_session_id IS NOT NULL
     ''');
+  }
+
+  Future<void> _createSessionDosimetersTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS session_dosimeters (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        survey_session_id INTEGER NOT NULL,
+        kind TEXT NOT NULL,
+        identifier TEXT NOT NULL,
+        person_id INTEGER,
+        start_usv REAL,
+        end_usv REAL,
+        dose_usv REAL,
+        include_annual INTEGER NOT NULL DEFAULT 1,
+        notes TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (survey_session_id) REFERENCES survey_sessions (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (person_id) REFERENCES persons (id)
+          ON DELETE SET NULL
+      )
+    ''');
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_dosimeters_session ON session_dosimeters (survey_session_id)',
+    );
   }
 
   Future<void> _createCompanyDocumentsTable(Database db) async {
@@ -401,6 +506,8 @@ class DatabaseHelper {
         survey_session_id INTEGER NOT NULL,
         person_id INTEGER NOT NULL,
         created_at TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'surveyor',
+        triage TEXT,
         FOREIGN KEY (survey_session_id) REFERENCES survey_sessions (id)
           ON DELETE CASCADE,
         FOREIGN KEY (person_id) REFERENCES persons (id)
@@ -413,6 +520,21 @@ class DatabaseHelper {
     await db.execute(
       'CREATE INDEX idx_session_persons_person ON survey_session_persons (person_id)',
     );
+    await _createSessionPersonConditionsTable(db);
+  }
+
+  /// Az érintettek sérülései és betegségei (a hozzárendelés azonosítójához kötve).
+  Future<void> _createSessionPersonConditionsTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS session_person_conditions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        link_id INTEGER NOT NULL,
+        kind TEXT NOT NULL,
+        description TEXT NOT NULL,
+        FOREIGN KEY (link_id) REFERENCES survey_session_persons (id)
+          ON DELETE CASCADE
+      )
+    ''');
   }
 
   Future<void> _createGlobalSourceTables(Database db) async {
@@ -433,6 +555,7 @@ class DatabaseHelper {
       )
     ''');
     await _createPointSourcesTable(db);
+    await _createSurveyMapAreasTable(db);
   }
 
   Future<void> _createPointSourcesTable(Database db) async {
@@ -534,6 +657,9 @@ class DatabaseHelper {
         sample_container_id TEXT,
         sample_amount REAL,
         sample_method TEXT,
+        sample_unit TEXT,
+        meteo_json TEXT,
+        gas_json TEXT,
         photo_path TEXT,
         notes TEXT,
         timestamp TEXT NOT NULL,
@@ -571,6 +697,7 @@ class DatabaseHelper {
     await _createPersonCertificatesTable(db);
     await _createCompanyDocumentsTable(db);
     await _createPersonDosesTable(db);
+    await _createSessionDosimetersTable(db);
   }
 
   // ---------------------------------------------------------------------
@@ -735,25 +862,44 @@ class DatabaseHelper {
 
   static String _yearStart(int year) => DateTime(year).toIso8601String();
 
-  /// Az adott év dózisai személyenként, forrásonkénti bontásban (µSv).
+  /// Az adott év dózisai személyenként (µSv). Csak a beszámító tételek
+  /// számítanak: a felmérési és passzív dózisok, valamint a doziméterek.
   Future<Map<int, DoseTotals>> getAnnualDoseTotals(int year) async {
     final db = await database;
-    final rows = await db.rawQuery(
+    final doseRows = await db.rawQuery(
       '''
       SELECT person_id, source, SUM(dose_usv) AS total
       FROM person_doses
-      WHERE dose_date >= ? AND dose_date < ?
+      WHERE dose_date >= ? AND dose_date < ? AND include_annual = 1
       GROUP BY person_id, source
     ''',
       [_yearStart(year), _yearStart(year + 1)],
     );
     final result = <int, DoseTotals>{};
-    for (final row in rows) {
+    for (final row in doseRows) {
       final id = row['person_id'] as int;
       result[id] = (result[id] ?? DoseTotals.zero).add(
         DoseSourceX.fromDbValue(row['source'] as String),
         (row['total'] as num).toDouble(),
       );
+    }
+
+    final dosimeterRows = await db.rawQuery(
+      '''
+      SELECT d.*
+      FROM session_dosimeters d
+      INNER JOIN survey_sessions s ON s.id = d.survey_session_id
+      WHERE d.include_annual = 1 AND d.person_id IS NOT NULL
+        AND s.started_at >= ? AND s.started_at < ?
+    ''',
+      [_yearStart(year), _yearStart(year + 1)],
+    );
+    for (final row in dosimeterRows) {
+      final dosimeter = SessionDosimeter.fromMap(row);
+      final dose = dosimeter.resolvedDoseUsv;
+      if (dose == null) continue;
+      final id = dosimeter.personId!;
+      result[id] = (result[id] ?? DoseTotals.zero).addDosimeter(dose);
     }
     return result;
   }
@@ -787,44 +933,55 @@ class DatabaseHelper {
     return rows.map(PersonDose.fromMap).toList();
   }
 
-  /// Egy felmérés dózisai: személy-id → forrás → µSv.
-  Future<Map<int, Map<DoseSource, double>>> getSessionDoses(
-    int surveySessionId,
-  ) async {
+  /// Egy felmérés dózisai: személyenként a felmérési dózis-bejegyzés, és a
+  /// felmérés doziméterei.
+  Future<SessionDoseSnapshot> getSessionDoseSnapshot(int surveySessionId) async {
     final db = await database;
-    final rows = await db.query(
+    final doseRows = await db.query(
       'person_doses',
-      where: 'survey_session_id = ?',
+      where: "survey_session_id = ? AND source = 'session'",
       whereArgs: [surveySessionId],
     );
-    final result = <int, Map<DoseSource, double>>{};
-    for (final row in rows) {
+    final sessionDoses = <int, PersonDose>{};
+    for (final row in doseRows) {
       final dose = PersonDose.fromMap(row);
-      (result[dose.personId] ??= {})[dose.source] = dose.doseMicroSv;
+      sessionDoses[dose.personId] = dose;
     }
-    return result;
+    final dosimeterRows = await db.rawQuery(
+      '''
+      SELECT d.*, p.name AS person_name
+      FROM session_dosimeters d
+      LEFT JOIN persons p ON p.id = d.person_id
+      WHERE d.survey_session_id = ?
+      ORDER BY d.id
+    ''',
+      [surveySessionId],
+    );
+    return SessionDoseSnapshot(
+      sessionDoses: sessionDoses,
+      dosimeters: dosimeterRows.map(SessionDosimeter.fromMap).toList(),
+    );
   }
 
-  /// Felméréshez kötött (online/manuális) dózis beállítása. Ha már van ilyen
-  /// bejegyzés, felülírja — vagy ha [accumulate] igaz, hozzáadja (az online
-  /// dózis többszöri indítás/leállítás során összegződik). Nullára állításkor
-  /// a bejegyzés törlődik.
+  /// Felmérési dózis beállítása (pontokból számolt vagy kézzel megadott).
+  /// [accumulate] igaz esetén a meglévő értékhez adja (az auto-log leállításakor).
+  /// [includeAnnual] `null` esetén a meglévő jelölő marad; új sornál igaz.
+  /// Nullára állításkor a bejegyzés törlődik.
   Future<void> setSessionDose({
     required int personId,
     required int surveySessionId,
-    required DoseSource source,
     required double doseMicroSv,
     bool accumulate = false,
+    bool? includeAnnual,
     DateTime? doseDate,
   }) async {
-    assert(source != DoseSource.passive);
     final db = await database;
     final now = DateTime.now();
     await db.transaction((txn) async {
       final existing = await txn.query(
         'person_doses',
-        where: 'person_id = ? AND survey_session_id = ? AND source = ?',
-        whereArgs: [personId, surveySessionId, source.dbValue],
+        where: "person_id = ? AND survey_session_id = ? AND source = 'session'",
+        whereArgs: [personId, surveySessionId],
         limit: 1,
       );
       final previous = existing.isEmpty
@@ -833,15 +990,20 @@ class DatabaseHelper {
       final value = accumulate ? previous + doseMicroSv : doseMicroSv;
 
       if (existing.isNotEmpty) {
+        final id = existing.first['id'];
         if (value <= 0) {
-          await txn.delete('person_doses',
-              where: 'id = ?', whereArgs: [existing.first['id']]);
+          await txn.delete('person_doses', where: 'id = ?', whereArgs: [id]);
         } else {
           await txn.update(
             'person_doses',
-            {'dose_usv': value, 'updated_at': now.toIso8601String()},
+            {
+              'dose_usv': value,
+              'updated_at': now.toIso8601String(),
+              if (includeAnnual != null)
+                'include_annual': includeAnnual ? 1 : 0,
+            },
             where: 'id = ?',
-            whereArgs: [existing.first['id']],
+            whereArgs: [id],
           );
         }
       } else if (value > 0) {
@@ -850,9 +1012,10 @@ class DatabaseHelper {
           PersonDose(
             personId: personId,
             surveySessionId: surveySessionId,
-            source: source,
+            source: DoseSource.session,
             doseMicroSv: value,
             doseDate: doseDate ?? now,
+            includeAnnual: includeAnnual ?? true,
             createdAt: now,
             updatedAt: now,
           ).toMap()
@@ -860,6 +1023,29 @@ class DatabaseHelper {
         );
       }
     });
+  }
+
+  Future<int> insertSessionDosimeter(SessionDosimeter dosimeter) async {
+    final db = await database;
+    return db.insert(
+      'session_dosimeters',
+      dosimeter.toMap()..remove('id'),
+    );
+  }
+
+  Future<void> updateSessionDosimeter(SessionDosimeter dosimeter) async {
+    final db = await database;
+    await db.update(
+      'session_dosimeters',
+      dosimeter.toMap()..['updated_at'] = DateTime.now().toIso8601String(),
+      where: 'id = ?',
+      whereArgs: [dosimeter.id],
+    );
+  }
+
+  Future<void> deleteSessionDosimeter(int id) async {
+    final db = await database;
+    await db.delete('session_dosimeters', where: 'id = ?', whereArgs: [id]);
   }
 
   /// Az összes dózis-bejegyzés a személy nevével és a felmérés címével
@@ -896,6 +1082,24 @@ class DatabaseHelper {
     await db.delete('person_doses', where: 'id = ?', whereArgs: [id]);
   }
 
+  /// Mérési pont törlése. Csak nyitott (még nem lezárt) felmérésben engedélyezett.
+  /// A forrás-hozzárendelések és az auditsorok a cascade miatt vele együtt törlődnek.
+  Future<void> deleteMeasurementPoint(int id) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      final rows = await txn.rawQuery(
+        'SELECT s.closed_at AS closed_at FROM measurement_points p '
+        'JOIN survey_sessions s ON s.id = p.survey_session_id WHERE p.id = ?',
+        [id],
+      );
+      if (rows.isEmpty) return;
+      if (rows.first['closed_at'] != null) {
+        throw StateError('Lezárt felmérés mérési pontja nem törölhető.');
+      }
+      await txn.delete('measurement_points', where: 'id = ?', whereArgs: [id]);
+    });
+  }
+
   // ---------------------------------------------------------------------
   // Felmérés ↔ személy hozzárendelések
   // ---------------------------------------------------------------------
@@ -923,6 +1127,8 @@ class DatabaseHelper {
         sp.survey_session_id AS link_survey_session_id,
         sp.person_id AS link_person_id,
         sp.created_at AS link_created_at,
+        sp.role AS link_role,
+        sp.triage AS link_triage,
         p.id AS id,
         p.name AS name,
         p.medical_exam_expiry_date AS medical_exam_expiry_date,
@@ -947,6 +1153,8 @@ class DatabaseHelper {
         surveySessionId: row['link_survey_session_id'] as int,
         personId: row['link_person_id'] as int,
         createdAt: DateTime.parse(row['link_created_at'] as String),
+        role: SessionPersonRole.fromDbValue(row['link_role'] as String?),
+        triage: TriageCategory.fromDbValue(row['link_triage'] as String?),
       );
       return AttachedPerson(
         link: link,
@@ -956,8 +1164,116 @@ class DatabaseHelper {
     }).toList();
   }
 
+  /// A felméréshez rendelt személy szerepét és triázs-besorolását menti.
+  /// Felmérő szerephez a triázs nem tartozik.
+  Future<void> updateSessionPersonStatus({
+    required int linkId,
+    required SessionPersonRole role,
+    required TriageCategory? triage,
+  }) async {
+    final db = await database;
+    await db.update(
+      'survey_session_persons',
+      {
+        'role': role.dbValue,
+        'triage': role == SessionPersonRole.victim ? triage?.dbValue : null,
+      },
+      where: 'id = ?',
+      whereArgs: [linkId],
+    );
+  }
+
+  /// A felmérés érintettjeinek sérülései és betegségei, hozzárendelés
+  /// (link) azonosító szerint csoportosítva.
+  Future<Map<int, List<PersonCondition>>> getPersonConditions(
+    int surveySessionId,
+  ) async {
+    final db = await database;
+    final rows = await db.rawQuery('''
+      SELECT c.id, c.link_id, c.kind, c.description
+      FROM session_person_conditions c
+      INNER JOIN survey_session_persons sp ON sp.id = c.link_id
+      WHERE sp.survey_session_id = ?
+      ORDER BY c.id ASC
+    ''', [surveySessionId]);
+    final result = <int, List<PersonCondition>>{};
+    for (final row in rows) {
+      final c = PersonCondition.fromMap(row);
+      result.putIfAbsent(c.linkId, () => []).add(c);
+    }
+    return result;
+  }
+
+  /// Egy hozzárendelés összes sérülését/betegségét a megadott listára cseréli.
+  Future<void> replacePersonConditions(
+    int linkId,
+    List<PersonCondition> conditions,
+  ) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete(
+        'session_person_conditions',
+        where: 'link_id = ?',
+        whereArgs: [linkId],
+      );
+      for (final c in conditions) {
+        await txn.insert('session_person_conditions', {
+          'link_id': linkId,
+          'kind': c.kind.dbValue,
+          'description': c.description,
+        });
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------------
+  // Térképi területjelölések
+  // ---------------------------------------------------------------------
+
+  Future<void> _createSurveyMapAreasTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS survey_map_areas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        survey_session_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        color INTEGER NOT NULL,
+        shape TEXT NOT NULL,
+        geometry TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (survey_session_id) REFERENCES survey_sessions (id)
+          ON DELETE CASCADE
+      )
+    ''');
+  }
+
+  Future<List<MapArea>> getMapAreas(int surveySessionId) async {
+    final db = await database;
+    final rows = await db.query(
+      'survey_map_areas',
+      where: 'survey_session_id = ?',
+      whereArgs: [surveySessionId],
+      orderBy: 'id ASC',
+    );
+    return rows.map(MapArea.fromMap).toList();
+  }
+
+  Future<int> insertMapArea(MapArea area) async {
+    final db = await database;
+    return db.insert('survey_map_areas', area.toMap());
+  }
+
+  Future<void> deleteMapArea(int id) async {
+    final db = await database;
+    await db.delete('survey_map_areas', where: 'id = ?', whereArgs: [id]);
+  }
+
   Future<void> deleteSessionPerson(int linkId) async {
     final db = await database;
+    await db.delete(
+      'session_person_conditions',
+      where: 'link_id = ?',
+      whereArgs: [linkId],
+    );
     await db.delete(
       'survey_session_persons',
       where: 'id = ?',

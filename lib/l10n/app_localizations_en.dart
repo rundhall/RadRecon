@@ -49,6 +49,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancelButton => 'Cancel';
 
   @override
+  String get deletePointTooltip => 'Delete measurement point';
+
+  @override
+  String get deletePointTitle => 'Delete measurement point';
+
+  @override
+  String get deletePointBody =>
+      'Delete this measurement point? Its source assignments and change log will be deleted too. This cannot be undone.';
+
+  @override
   String get startButton => 'Start';
 
   @override
@@ -424,6 +434,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get companyDocSuggestEmergencyPlan => 'Emergency response plan';
+
+  @override
+  String get companyDocSuggestOfficialLicense => 'Official licence';
 
   @override
   String get nuclideEditButton => 'Edit nuclides';
@@ -811,6 +824,96 @@ class AppLocalizationsEn extends AppLocalizations {
   String get captureListScreenshotMenuItem => 'Save list screenshot';
 
   @override
+  String get protocolFormatTitle => 'Protocol format';
+
+  @override
+  String get protocolFormatWord => 'Word (ZIP: .docx + photos)';
+
+  @override
+  String get protocolFormatPdf => 'PDF (with photos)';
+
+  @override
+  String get sessionDoseLabel => 'Survey dose';
+
+  @override
+  String get dosimeterDoseLabel => 'Dosimeter';
+
+  @override
+  String get dosimeterValueLabel => 'Evaluated dose';
+
+  @override
+  String get includeInAnnualLabel => 'Counts toward the annual dose';
+
+  @override
+  String get notCountedInAnnualLabel => 'not counted in the annual dose';
+
+  @override
+  String get calcDoseFromPointsButton => 'Calculate from points';
+
+  @override
+  String get calcDoseNeedTwoPoints => 'At least 2 dose-rate points are needed.';
+
+  @override
+  String calcDoseResultInfo(int count) {
+    return 'Calculated from $count points (linear interpolation)';
+  }
+
+  @override
+  String get dosimetersButton => 'Dosimeters';
+
+  @override
+  String get addDosimeterButton => 'Add dosimeter';
+
+  @override
+  String get dosimeterKindEpdGamma => 'EPD gamma (electronic)';
+
+  @override
+  String get dosimeterKindEpdNeutron => 'EPD neutron (electronic)';
+
+  @override
+  String get dosimeterKindTlOfficial => 'TL/OSL passive (official)';
+
+  @override
+  String get dosimeterKindTlWorkplace => 'TL/OSL passive (workplace)';
+
+  @override
+  String get dosimeterTypeLabel => 'Type';
+
+  @override
+  String get dosimeterIdentifierLabel => 'Identifier';
+
+  @override
+  String get dosimeterPersonLabel => 'Worn by';
+
+  @override
+  String get dosimeterNobody => 'Not assigned';
+
+  @override
+  String get dosimeterStartLabel => 'Start reading';
+
+  @override
+  String get dosimeterEndLabel => 'End reading';
+
+  @override
+  String get dosimeterEndBeforeStartError =>
+      'The end reading cannot be lower than the start reading.';
+
+  @override
+  String get noDosimetersYet => 'No dosimeters for this survey yet.';
+
+  @override
+  String get dosimeterEditTitle => 'Dosimeter';
+
+  @override
+  String get dosimeterNoReading => 'no reading';
+
+  @override
+  String get dosimeterDeleteTitle => 'Delete dosimeter';
+
+  @override
+  String get dosimeterDeleteMessage => 'Delete this dosimeter entry?';
+
+  @override
   String get exportProtocolMenuItem => 'Export protocol';
 
   @override
@@ -893,6 +996,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sampleAmountLabel => 'Amount';
+
+  @override
+  String get sampleUnitLabel => 'Unit';
+
+  @override
+  String get sampleUnitOther => 'Other';
+
+  @override
+  String get sampleUnitCustomLabel => 'Unit name';
+
+  @override
+  String get sampleAmountInvalid => 'Enter a number (e.g. 2.5 or 2,5)';
 
   @override
   String get sampleMethodLabel => 'Sampling method';
@@ -1282,6 +1397,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expiryLeadOneWeek => '1 week before';
+
+  @override
+  String get expiryLeadTwoWeeks => '2 weeks before';
+
+  @override
+  String expiryLeadMonths(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count months before',
+      one: '1 month before',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get expiryNotificationsPermissionDenied =>
@@ -1848,4 +1977,503 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appVersionLabel => 'Version';
+
+  @override
+  String get appUpdateTitle => 'New version available';
+
+  @override
+  String appUpdateAvailableMessage(String version) {
+    return 'Version $version is available. Update the app for the latest fixes and features.';
+  }
+
+  @override
+  String appUpdateRequiredMessage(String version) {
+    return 'This version is no longer supported. Update to version $version to continue.';
+  }
+
+  @override
+  String get appUpdateLater => 'Later';
+
+  @override
+  String get appUpdateNow => 'Update';
+
+  @override
+  String get rrRoleSurveyor => 'Surveyor';
+
+  @override
+  String get rrRoleVictim => 'Affected person / victim';
+
+  @override
+  String get rrTriageNone => 'Not triaged';
+
+  @override
+  String get rrTriageRed => 'Red – immediate care';
+
+  @override
+  String get rrTriageYellow => 'Yellow – delayed care';
+
+  @override
+  String get rrTriageGreen => 'Green – minor injury';
+
+  @override
+  String get rrTriageBlack => 'Black – deceased / no treatment';
+
+  @override
+  String get rrConditionInjury => 'Injury';
+
+  @override
+  String get rrConditionIllness => 'Illness';
+
+  @override
+  String get rrAffectedPrefix => 'Affected';
+
+  @override
+  String get rrEditStatusTooltip => 'Role, triage, injuries';
+
+  @override
+  String get rrRoleLabel => 'Role';
+
+  @override
+  String get rrTriageCategoryLabel => 'Triage category';
+
+  @override
+  String get rrInjuriesAndIllnesses => 'Injuries and illnesses';
+
+  @override
+  String get rrDescriptionHint => 'Description';
+
+  @override
+  String get rrAddItem => 'Add item';
+
+  @override
+  String get rrDeleteTooltip => 'Delete';
+
+  @override
+  String get rrMeteoSection => 'Meteorology (optional)';
+
+  @override
+  String get rrMetTemp => 'Air temperature (°C)';
+
+  @override
+  String get rrMetHumidity => 'Relative humidity (%)';
+
+  @override
+  String get rrMetPressure => 'Air pressure (hPa)';
+
+  @override
+  String get rrMetWind => 'Wind speed (m/s)';
+
+  @override
+  String get rrMetWindDir => 'Wind direction (°)';
+
+  @override
+  String get rrMetGust => 'Wind gust (m/s)';
+
+  @override
+  String get rrMetPrecipIntensity => 'Precipitation intensity (mm/h)';
+
+  @override
+  String get rrMetSolar => 'Solar radiation (W/m²)';
+
+  @override
+  String get rrMetCloud => 'Cloud cover (oktas, 0–8)';
+
+  @override
+  String get rrMetVisibility => 'Visibility (m)';
+
+  @override
+  String get rrMetSoil => 'Soil moisture (%)';
+
+  @override
+  String get rrMetAerosol => 'Aerosol concentration (µg/m³)';
+
+  @override
+  String get rrPrecipState => 'Precipitation state';
+
+  @override
+  String get rrPrecipNone => 'No precipitation';
+
+  @override
+  String get rrPrecipDrizzle => 'Drizzle';
+
+  @override
+  String get rrPrecipRain => 'Rain';
+
+  @override
+  String get rrPrecipSnow => 'Snow';
+
+  @override
+  String get rrPrecipSleet => 'Sleet';
+
+  @override
+  String get rrPrecipHail => 'Hail';
+
+  @override
+  String get rrMetOther => 'Other observation';
+
+  @override
+  String get rrGasSection => 'Gas measurement';
+
+  @override
+  String get rrAddGas => 'Add gas';
+
+  @override
+  String get rrGasSpecies => 'Compound';
+
+  @override
+  String get rrGasOther => 'Other';
+
+  @override
+  String get rrGasOtherName => 'Compound name';
+
+  @override
+  String get rrFormulaLabel => 'Formula';
+
+  @override
+  String get rrGasConcentration => 'Concentration';
+
+  @override
+  String get rrGasUnit => 'Unit';
+
+  @override
+  String get rrInvalidValue => 'Invalid value';
+
+  @override
+  String get rrGasAmmonia => 'Ammonia';
+
+  @override
+  String get rrGasBenzene => 'Benzene';
+
+  @override
+  String get rrGasPhosphine => 'Phosphine';
+
+  @override
+  String get rrGasPhosgene => 'Phosgene';
+
+  @override
+  String get rrGasHydrogen => 'Hydrogen';
+
+  @override
+  String get rrGasHydrogenCyanide => 'Hydrogen cyanide';
+
+  @override
+  String get rrGasVoc => 'Volatile organic compounds';
+
+  @override
+  String get rrGasSulfurDioxide => 'Sulfur dioxide';
+
+  @override
+  String get rrGasSulfurHexafluoride => 'Sulfur hexafluoride';
+
+  @override
+  String get rrGasHydrogenSulfide => 'Hydrogen sulfide';
+
+  @override
+  String get rrGasChlorine => 'Chlorine';
+
+  @override
+  String get rrGasMethane => 'Methane';
+
+  @override
+  String get rrGasMethanol => 'Methanol';
+
+  @override
+  String get rrGasMethylSalicylate => 'Methyl salicylate';
+
+  @override
+  String get rrGasNitricOxide => 'Nitric oxide';
+
+  @override
+  String get rrGasNitrogenDioxide => 'Nitrogen dioxide';
+
+  @override
+  String get rrGasNitrogenOxides => 'Nitrogen oxides';
+
+  @override
+  String get rrGasOxygen => 'Oxygen';
+
+  @override
+  String get rrGasOzone => 'Ozone';
+
+  @override
+  String get rrGasPropane => 'Propane';
+
+  @override
+  String get rrGasCarbonDioxide => 'Carbon dioxide';
+
+  @override
+  String get rrGasCarbonMonoxide => 'Carbon monoxide';
+
+  @override
+  String get rrGasToluene => 'Toluene';
+
+  @override
+  String get rrGasTributylPhosphate => 'Tributyl phosphate';
+
+  @override
+  String get measurementTypeMeteorology => 'Meteorology';
+
+  @override
+  String get measurementTypeGasMeasurement => 'Gas measurement';
+
+  @override
+  String get mapAreaButtonTooltip => 'Mark area';
+
+  @override
+  String get mapAreaListTooltip => 'Marked areas';
+
+  @override
+  String get mapAreaNewTitle => 'New area';
+
+  @override
+  String get mapAreaNameLabel => 'Name (e.g. Surveyed area)';
+
+  @override
+  String get mapAreaNameRequired => 'Enter the area name.';
+
+  @override
+  String get mapAreaShapeLabel => 'Shape';
+
+  @override
+  String get mapAreaPolygon => 'Polygon';
+
+  @override
+  String get mapAreaCircle => 'Circle';
+
+  @override
+  String get mapAreaColorLabel => 'Colour';
+
+  @override
+  String get mapAreaStartDrawing => 'Draw';
+
+  @override
+  String get mapAreaHintPolygon => 'Tap the corners, then press Done.';
+
+  @override
+  String get mapAreaHintCircle =>
+      'Tap the centre, then a point on the edge to set the radius.';
+
+  @override
+  String get mapAreaMinPointsError => 'At least 3 corners are needed.';
+
+  @override
+  String get mapAreaCircleIncomplete => 'Mark both the centre and the radius.';
+
+  @override
+  String get mapAreaUndo => 'Undo';
+
+  @override
+  String get mapAreaDone => 'Done';
+
+  @override
+  String get mapAreaNoAreas => 'No marked areas.';
+
+  @override
+  String get mapAreaDeleteConfirm => 'Delete the selected area?';
+
+  @override
+  String get mapAreaDeleteTooltip => 'Delete area';
+
+  @override
+  String get unitConverterTitle => 'Unit converter';
+
+  @override
+  String get unitConverterCategoryLabel => 'Quantity';
+
+  @override
+  String get unitConverterValueLabel => 'Value';
+
+  @override
+  String get unitConverterFromLabel => 'Source unit';
+
+  @override
+  String get unitConverterMolarMassLabel => 'Molar mass (g/mol)';
+
+  @override
+  String get unitConverterMolarMassHint =>
+      'Converting between mass and volume concentration needs the gas\'s molar mass, e.g. CO: 28.01. Calculated at 25 °C, 1 atm.';
+
+  @override
+  String get unitConverterNeedsMolarMass =>
+      'Enter the molar mass to convert between mass and volume units.';
+
+  @override
+  String get unitConverterEnterValue => 'Enter a value.';
+
+  @override
+  String get unitConverterTapHint =>
+      'Tap a row: the value is converted to that unit and it becomes the source unit.';
+
+  @override
+  String get unitConverterGasNote =>
+      'The %LEL unit of gas concentration cannot be converted, because it depends on the gas\'s limit.';
+
+  @override
+  String get unitCatDose => 'Dose';
+
+  @override
+  String get unitCatDoseRate => 'Dose rate';
+
+  @override
+  String get unitCatActivity => 'Activity';
+
+  @override
+  String get unitCatActivityConcentration => 'Activity concentration';
+
+  @override
+  String get unitCatSurfaceContamination => 'Surface contamination';
+
+  @override
+  String get unitCatCountRate => 'Count rate';
+
+  @override
+  String get unitCatLength => 'Length';
+
+  @override
+  String get unitCatArea => 'Area';
+
+  @override
+  String get unitCatVolume => 'Volume';
+
+  @override
+  String get unitCatMass => 'Mass';
+
+  @override
+  String get unitCatTemperature => 'Temperature';
+
+  @override
+  String get unitCatPressure => 'Pressure';
+
+  @override
+  String get unitCatSpeed => 'Speed';
+
+  @override
+  String get unitCatTime => 'Time';
+
+  @override
+  String get unitCatIrradiance => 'Irradiance';
+
+  @override
+  String get unitCatRainRate => 'Precipitation rate';
+
+  @override
+  String get unitCatMassConcentration => 'Mass concentration (aerosol)';
+
+  @override
+  String get unitCatGasConcentration => 'Gas concentration';
+
+  @override
+  String get unitConverterGasPick => 'Select gas (fills in the molar mass)';
+
+  @override
+  String get decayCalcTitle => 'Decay calculator';
+
+  @override
+  String get decayCalcIsotope => 'Isotope';
+
+  @override
+  String get decayCalcCustom => 'Other (custom half-life)';
+
+  @override
+  String get decayCalcHalfLife => 'Half-life';
+
+  @override
+  String get decayCalcInitialActivity => 'Initial activity';
+
+  @override
+  String get decayCalcElapsed => 'Elapsed time';
+
+  @override
+  String get decayCalcTargetActivity => 'Target activity';
+
+  @override
+  String get decayCalcModeForward => 'Activity after time t';
+
+  @override
+  String get decayCalcModeBackward => 'Time to target activity';
+
+  @override
+  String get decayCalcDistance => 'Distance (m, optional)';
+
+  @override
+  String get decayCalcResultActivity => 'Activity';
+
+  @override
+  String get decayCalcResultRemaining => 'Remaining fraction';
+
+  @override
+  String get decayCalcResultHalfLives => 'Number of half-lives';
+
+  @override
+  String get decayCalcResultDoseRate => 'Dose rate at the distance';
+
+  @override
+  String get decayCalcResultTime => 'Required time';
+
+  @override
+  String get decayCalcErrorTarget =>
+      'The target activity must be positive and lower than the initial activity.';
+
+  @override
+  String get decayCalcNeedsInput => 'Enter the numbers.';
+
+  @override
+  String get decayCalcNoHalfLife => 'Enter the half-life.';
+
+  @override
+  String get decayCalcNote =>
+      'Pure exponential decay; daughter nuclides and other radiation are not included.';
+
+  @override
+  String get doseLimitTitle => 'Annual dose limit';
+
+  @override
+  String get doseLimitCategoryOccupational => 'Occupational';
+
+  @override
+  String get doseLimitCategoryPublic => 'Public';
+
+  @override
+  String get doseLimitSourceOah => 'OAH decree 2/2022 (IV. 29.)';
+
+  @override
+  String get doseLimitSourceIaea => 'IAEA GSR Part 3';
+
+  @override
+  String get doseLimitUsedLabel => 'used';
+
+  @override
+  String get doseLimitStatusOk => 'within limit';
+
+  @override
+  String get doseLimitStatusWarning => 'warning level reached';
+
+  @override
+  String get doseLimitStatusExceeded => 'limit exceeded';
+
+  @override
+  String get doseLimitNote =>
+      'Single-year check; the IAEA five-year averaging is not applied.';
+
+  @override
+  String get displayUnitsHint =>
+      'The display and the protocol use these units. Data exports (CSV, JSON) and backups always keep the stored units.';
+
+  @override
+  String get displayDoseUnitLabel => 'Personal dose unit';
+
+  @override
+  String get displayDoseAutoOption => 'Automatic (µSv, mSv above 1 mSv)';
+
+  @override
+  String get displaySurfaceUnitLabel => 'Surface contamination unit';
+
+  @override
+  String get displayTemperatureUnitLabel => 'Temperature unit';
+
+  @override
+  String get displayPressureUnitLabel => 'Pressure unit';
+
+  @override
+  String get displayWindUnitLabel => 'Wind speed unit';
 }

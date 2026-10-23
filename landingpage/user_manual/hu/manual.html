@@ -35,7 +35,7 @@
       <div class="container">
 
 <h1>RadRecon felhasználói kézikönyv</h1>
-<p>Utolsó frissítés: 2026. 10. 17.</p>
+<p>Utolsó frissítés: 2026. 10. 23.</p>
 
 <h2>Tartalom</h2>
 <ol>
@@ -57,22 +57,23 @@
 </ol>
 
 <h2 id="m1">1. Bevezetés</h2>
-<p>A RadRecon terepi sugárzásmérési felméréseket rögzít. Minden mérési pont hordozza a GPS-pozícióját, az időpontját, a műszert, az értéket és a mértékegységet, igény szerint fotót és megjegyzést. A felmérés pontjai térképen jelennek meg, és exportálhatók Word jegyzőkönyvként, JSON-ban vagy CSV-ben.</p>
-<p>Az app Androidon, iPhone-on, Windowson, macOS-en és Linuxon fut, angol és magyar nyelven. Minden adat az eszközön tárolódik. Nincs fiók és nincs regisztráció. Internetkapcsolat csak a térkép hátteréhez kell, illetve, ha használod, a hálózaton elérhető műszerekhez.</p>
+<p>A RadRecon terepi sugárzásmérési felméréseket rögzít. Minden mérési pont hordozza a GPS-pozícióját, az időpontját, a műszert, az értéket és a mértékegységet, igény szerint fotót és megjegyzést. A felmérés pontjai térképen jelennek meg, és exportálhatók Word vagy PDF jegyzőkönyvként, JSON-ban vagy CSV-ben.</p>
+<p>Az app Androidon, iPhone-on, Windowson és macOS-en fut, magyar, angol, német, spanyol, francia és olasz nyelven. Minden adat az eszközön tárolódik. Nincs fiók és nincs regisztráció. Internetkapcsolat csak a térkép hátteréhez kell, illetve, ha használod, a hálózaton elérhető műszerekhez.</p>
 
 <h2 id="m2">2. Főképernyő és beállítások</h2>
 <p>A főképernyő a felméréseidet listázza, legfrissebb elöl. Újat az <strong>Új felmérés</strong> gombbal vehetsz fel. A felső sávból a műszerek, a sugárforrások, a személyek és a beállítások érhetők el. A műszerek, források és személyek listái keresőmezővel rendelkeznek.</p>
 <h3>Beállítások</h3>
 <ul>
-<li><strong>Nyelv:</strong> angol, magyar, vagy a telefon nyelve.</li>
+<li><strong>Nyelv:</strong> magyar, angol, német, spanyol, francia vagy olasz, vagy a telefon nyelve.</li>
 <li><strong>Megjelenés:</strong> világos, sötét vagy rendszer téma.</li>
 <li><strong>Riasztási küszöbök:</strong> mérési típusonként egy határérték. Ha egy rögzített érték eléri vagy meghaladja, az app hangjelzéssel és felugró ablakkal figyelmeztet. Üresen hagyott mező esetén az adott típusra nincs riasztás.</li>
 <li><strong>Értesítés a lejáratokról:</strong> alapból kikapcsolt. Bekapcsolva az app reggel 8:00-kor emlékeztet a források (szolgálati idő, felülvizsgálat) és a személyek (orvosi alkalmassági vizsga, oktatás) közelgő lejáratára. Megadhatod, mennyivel előbb: aznap, 1 nappal, 2 nappal vagy 1 héttel korábban. Az értesítéseket a telefon beállításaiban engedélyezni kell.</li>
 <li><strong>Cégváltás:</strong> megnyitja a cégváltót, lásd a 7. fejezetet.</li>
-<li><strong>Adatbázis mentése fájlba / Adatbázis betöltése fájlból:</strong> az összes adatot egyetlen mentésfájlba menti, vagy betölt egy ilyen fájlt, például új telefonon. A betöltés felülírja az eszközön lévő összes adatot.</li>
+<li><strong>Adatbázis mentése fájlba / Adatbázis betöltése fájlból:</strong> az összes adatot (felméréseket, pontokat, műszereket, forrásokat, személyeket, a térképen jelölt területeket, fotókat és csatolt fájlokat) egyetlen mentésfájlba menti, vagy betölt egy ilyen fájlt, például új telefonon. A betöltés felülírja az eszközön lévő összes adatot.</li>
 <li><strong>Adatbázis törlése:</strong> véglegesen töröl minden felmérést, pontot, műszert, forrást, személyt és fotót az eszközről. Előtte készíts mentést.</li>
 <li><strong>Közreműködők:</strong> köszönet az önkénteseknek és a szervezeteknek, akik segítenek a RadRecon építésében, és hogyan csatlakozhatsz hozzájuk.</li>
-<li><strong>Mértékegységek:</strong> a dózisteljesítmény (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), az aktivitás (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) és a távolság (m, cm, inch, feet) alapegysége. Új mérésnél ezek az egységek vannak előre kiválasztva. Rögzítéskor legördülő listából másik is választható, és a beírt szám automatikusan átváltódik. A dózisteljesítmény riasztási küszöbe is átváltódik, a jegyzőkönyv és az exportok pedig a választott egységeket használják.</li>
+<li><strong>Mértékegységek:</strong> a dózisteljesítmény (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), az aktivitás (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) és a távolság (m, cm, inch, feet) alapegysége. Új mérésnél ezek az egységek vannak előre kiválasztva. Rögzítéskor legördülő listából másik is választható, és a beírt szám automatikusan átváltódik. A dózisteljesítmény riasztási küszöbe is átváltódik, a jegyzőkönyv pedig a választott egységeket használja.</li>
+<li><strong>Megjelenítési egységek:</strong> a személyes dózis egysége (automatikus: µSv, 1 mSv felett mSv; vagy rögzített egység), a felületi szennyezettség, a hőmérséklet, a nyomás és a szélsebesség egysége. A képernyők és a jegyzőkönyv ezeket használják. A tárolt értékek nem változnak; a CSV- és JSON-exportok és a mentésfájl a tárolt egységeket őrzi. A felületi szennyezettség riasztási küszöbét Bq/cm²-ben kell megadni.</li>
 <li><strong>Szabályozási profil:</strong> Nemzetközi (IAEA) vagy Magyarország (OAH). A magyar profil a források besorolásában a magyar kategóriákat is megmutatja, lásd a 4. fejezetet.</li>
 </ul>
 <h3>Cég dokumentumai és engedélyei</h3>
@@ -129,6 +130,8 @@
 <li><strong>Passzív dozimetria:</strong> havi vagy kéthavi kiértékelés eredménye, felméréstől függetlenül. A személyek listáján nyomd meg a személynél a <strong>Dózisok kezelése</strong> ikont, majd a <strong>Passzív dozimetria rögzítése</strong> gombot, és add meg a dózist a <strong>Kiértékelési időszak kezdete</strong> és a <strong>Kiértékelési időszak vége</strong> mezőkkel. A dózis abba az évbe számít, amelyben az időszak véget ér.</li>
 </ul>
 <p>Felmérés lezárásakor a <strong>Dózisok ellenőrzése</strong> lehetővé teszi, hogy lezárás előtt javítsd minden résztvevő dózisát. A személy dózis-képernyője az év összes bejegyzését listázza összesítéssel, és minden bejegyzés szerkeszthető vagy törölhető. A személyek listájának menüjében a <strong>Dózisok importálása (CSV)</strong> és az <strong>Dózisok exportálása (CSV)</strong> menüponttal viheted be és ki a dózisokat.</p>
+<h3>Éves dózis-keret ellenőrzés</h3>
+<p>A személyek listájának fejlécében a kiválasztott kategória éves kerete látszik: <strong>Foglalkozásszerű</strong> (évi 20 mSv) vagy <strong>Lakosság</strong> (évi 1 mSv). Minden személy sorában a kiválasztott év dózisa a keret hányadaként látszik, három állapottal: <strong>keret rendben</strong>, <strong>figyelmeztetési szint elérve</strong> (50%-tól) vagy <strong>keret túllépve</strong> (100%-tól). A két szabályozási profilban ugyanazok a határértékek; a profil csak a hivatkozott forrást módosítja (2/2022. (IV. 29.) OAH rendelet vagy IAEA GSR Part 3). Az ellenőrzés egyéves: az IAEA ötéves átlagolását nem veszi figyelembe, a kategória a teljes listára érvényes, nem személyenként. Nem helyettesíti a hivatalos értékelést.</p>
 <p>A dózisadatok a nyilvántartás vezetését segítik, a hivatalos személyi dozimetriát nem helyettesítik. Vesd össze őket a jóváhagyott dozimetriai szolgáltatód eredményeivel.</p>
 
 <h2 id="m7">7. Váltás a cégek között</h2>
@@ -153,7 +156,7 @@
 <h2 id="m9">9. Mérési pont rögzítése</h2>
 <p>A felmérésben nyomd meg az <strong>Új pont</strong> gombot.</p>
 <ul>
-<li><strong>Mérés típusa:</strong> dózisteljesítmény, felületi szennyezettség, beütésszám (cps), neutron beütésszám (cps) vagy mintavétel.</li>
+<li><strong>Mérés típusa:</strong> dózisteljesítmény, felületi szennyezettség, beütésszám (cps), neutron beütésszám (cps) vagy mintavétel. A Mintavétel alatt található a <strong>Meteorológia</strong> és a <strong>Gázmérés</strong> típus is: ezeknél nincs mért érték, az időjárási adatokat, illetve a gázkoncentrációkat a ponttal együtt kell megadni.</li>
 <li><strong>Helyszín neve, mért érték és mértékegység.</strong> Minden típushoz tartozik alapértelmezett mértékegység.</li>
 <li><strong>Távolság a forrástól</strong> és <strong>nuklid</strong>, amelyekből az app gyors aktivitásbecslést ad a mért értékből.</li>
 <li><strong>Műszer:</strong> válassz a listádból, vagy vegyél fel újat a plusz gombbal. Modbus-műszernél a <strong>Modbus lekérdezés</strong> gombbal közvetlenül beolvashatod az értéket.</li>
@@ -185,12 +188,17 @@
 <h2 id="m11">11. Térkép</h2>
 <p>A térkép a felmérés összes pontját mutatja. A fényképezőgép ikonnal képernyőképet menthetsz a térképről, amely a jegyzőkönyv exportálásakor csatolódik. A pontok listájáról a <strong>Lista képernyőkép mentése</strong> ugyanezt teszi a listával. A térkép hátteréhez internetkapcsolat kell.</p>
 
+<h3>Megjelölt területek</h3>
+<p>A területekkel a felmért terület egy részét jelölheted ki a térképen, például felmért, lezárt vagy szennyezett területet. Nyomd meg a térképen a <strong>Terület jelölése</strong> gombot. Írd be a <strong>Név</strong> mezőbe a nevet (például Felmért terület), az <strong>Alakzat</strong> mezőben válaszd a <strong>Poligon</strong> vagy a <strong>Kör</strong> lehetőséget, a <strong>Szín</strong> mezőben pedig a színt, majd nyomd meg a <strong>Rajzolás</strong> gombot. Poligonnál koppints egymás után a sarokpontokra, és nyomd meg a <strong>Kész</strong> gombot; legalább 3 sarokpont kell, a <strong>Visszavonás</strong> az utolsó sarokpontot törli. Körnél koppints a középpontra, majd a szélén egy pontra, így áll be a sugár. A területeket az app a színükkel, félig áttetszően töltve rajzolja ki. A <strong>Jelölt területek</strong> gomb listázza a felmérés területeit; a listából megerősítés után törölhetsz területet. A területek bekerülnek a Word- és a PDF-jegyzőkönyvbe (név, alakzat, geometria és terület m²-ben), és benne vannak a mentésfájlban.</p>
+
 <h2 id="m12">12. Eszközök</h2>
 <p>Az eszközök a felmérés menüjében (három pont) találhatók.</p>
 <ul>
 <li><strong>Automatikus mérés:</strong> egy Modbus/TCP műszerről időközönként (legalább 1 másodperc) vagy távolságközönként (legalább 1 méter) rögzít pontokat. Mutatja a rögzített pontok számát, az utolsó értéket és a sikertelen leolvasásokat. A naplózás csak addig működik, amíg ez a képernyő nyitva van. Ha a telefon zárolódik vagy másik appra váltasz, szünetel, és újra kell indítanod.</li>
 <li><strong>Távolságmérés:</strong> távolság és irány a jelenlegi pozíciódtól vagy egy választott kiindulási ponttól egy célpontig. Az <strong>Élő követés</strong> bekapcsolásakor az értékek menet közben frissülnek, a nyíl irányába haladva.</li>
 <li><strong>Izotóp kalkulátor:</strong> aktivitásból (MBq) dózisteljesítményt (µSv/h) számol adott távolságra, vagy a mért dózisteljesítményből aktivitást. Beépített nuklidok: Co-60, Cs-137, Ir-192, Ra-226, I-131, Na-22 és Am-241.</li>
+<li><strong>Bomlás-számító:</strong> adott idő utáni aktivitást, vagy a célaktivitás eléréséhez szükséges időt számol egy nuklid felezési idejéből (a listából, vagy kézzel megadott felezési idővel). Két módja van: az aktivitás t idő után, és az idő a célaktivitásig. Távolság megadásakor a dózisteljesítményt is mutatja abban a távolságban. A számítás tiszta exponenciális bomlás: a leánynuklidokat és a többi sugárzást nem veszi figyelembe.</li>
+<li><strong>Mértékegység-váltó:</strong> az appban használt mennyiségek egységei között vált: dózis, dózisteljesítmény, aktivitás, aktivitáskoncentráció, felületi szennyezettség, beütésszám, hossz, terület, térfogat, tömeg, hőmérséklet, nyomás, sebesség, idő, besugárzási teljesítmény, csapadékintenzitás, aeroszol tömegkoncentráció és gázkoncentráció. Koppintással egy sorra az érték átíródik arra az egységre, amely így a kiindulási egység lesz. Gáz tömeg- és térfogat-koncentrációjának átváltásához a moláris tömeg kell: a listából kiválasztott gáz kitölti, a lista 22 gázt tartalmaz; a VOC-nak és a NOx-nek nincs moláris tömege, azt kézzel kell megadni. A számítás 25 °C-on és 1 atm nyomáson történik. A %LEL egység nem váltható át, mert a gáz határértékétől függ.</li>
 <li><strong>Forráskereső:</strong> a felmérésben már rögzített pontokból megbecsli, melyik irányban nő a kiválasztott mérési típus értéke. 4-nél kevesebb pontnál a becslés megbízhatatlanként van jelölve. Vegyél fel több pontot a keresési terület különböző helyein.</li>
 </ul>
 <p>Az automatikus mérés képernyő futás közben idődiagramot rajzol az olvasott értékekről, a riasztási küszöböt piros szaggatott vonallal, így látszik a mért érték változása. A diagram az utolsó 2 órát őrzi másodpercenkénti mintavételnél, és nem mentődik. Az izotóp-kalkulátor ugyanezeket az árnyékoló rétegeket tudja használni, és ilyenkor az árnyékolt és az árnyékolás nélküli eredményt is mutatja.</p>
@@ -199,13 +207,13 @@
 <h2 id="m13">13. Lezárás, export és import</h2>
 <ul>
 <li><strong>Lezárás:</strong> a jegyzőkönyv ezután a dátumot mutatja befejezési időként. A pontok nem záródnak le, így még szerkeszthetők.</li>
-<li><strong>Jegyzőkönyv exportálása:</strong> Word jegyzőkönyvet készít a pontlistával és a csatolt képekkel. ZIP fájlként érkezik, amely a dokumentumot és egy mappát tartalmaz a fotókkal.</li>
+<li><strong>Jegyzőkönyv exportálása:</strong> Word vagy PDF jegyzőkönyvet készít; a formátumot a párbeszédablakban választod ki. A jegyzőkönyv tartalmazza a pontlistát, a jelölt területeket, a meteorológiai és a gázmérési táblázatot, valamint a csatolt képeket. A Word-jegyzőkönyv ZIP fájlként érkezik, amely a dokumentumot és egy mappát tartalmaz a fotókkal.</li>
 <li><strong>Pontok exportálása (adat, JSON):</strong> adatfájl, amelyet egy másik RadRecon telepítés be tud importálni.</li>
 <li><strong>Pontok exportálása (táblázat, CSV):</strong> Excelhez való táblázat a pozícióval, pontossággal, műszerrel, időbélyeggel, mintavétellel, megjegyzéssel, becsült aktivitással, csatolt forrásokkal és számított dózisteljesítménnyel.</li>
 <li><strong>Pontok importálása (JSON):</strong> pontokat tölt be JSON fájlból. A hiányzó műszerek és források létrejönnek, az érvényes GPS-pozíció nélküli vagy ismeretlen mérési típusú pontok figyelmeztetéssel kimaradnak.</li>
 </ul>
 <p>Ha CSV-t importálsz a műszerek, források vagy személyek listájába, választhatod, mi történjen az egyező rekorddal: <strong>Meglévő rekord cseréje</strong>, <strong>Az egyező rekord kihagyása</strong> vagy <strong>Importálás duplikátumként</strong>.</p>
-<p>A jegyzőkönyv és az exportok a beállításokban választott egységeket használják. A jegyzőkönyv az értéket a hibájával és az átlagolt mérés mintaszámával mutatja, a műszert pedig a hitelesítési/kalibrálási bejegyzéseivel. A CSV új oszlopai: <strong>Hiba (±)</strong>, <strong>Átlagolás (minta; mp)</strong> és <strong>Műszer hitelesítése/kalibrálása</strong>; a JSON fájl ugyanezeket az adatokat hordozza.</p>
+<p>A jegyzőkönyv a beállításokban választott egységeket használja. A CSV- és JSON-exportok a tárolt egységeket őrzik. A jegyzőkönyv az értéket a hibájával és az átlagolt mérés mintaszámával mutatja, a műszert pedig a hitelesítési/kalibrálási bejegyzéseivel. A CSV új oszlopai: <strong>Hiba (±)</strong>, <strong>Átlagolás (minta; mp)</strong> és <strong>Műszer hitelesítése/kalibrálása</strong>; a JSON fájl ugyanezeket az adatokat hordozza.</p>
 
 
 <h2 id="m14">14. Hibaelhárítás</h2>

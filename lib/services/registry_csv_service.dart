@@ -50,7 +50,7 @@ class RegistryCsvService {
     return _writeCsv('person_doses.csv', [
       [
         'person_name', 'source', 'dose_usv', 'dose_date', 'period_start',
-        'period_end', 'survey_title', 'notes',
+        'period_end', 'survey_title', 'notes', 'include_annual',
       ],
       ...rows.map((r) => [
             r['person_name'],
@@ -61,6 +61,7 @@ class RegistryCsvService {
             r['period_end'],
             r['survey_title'],
             r['notes'],
+            r['include_annual'],
           ]),
     ]);
   }
@@ -137,6 +138,7 @@ class RegistryCsvService {
         periodEnd: end,
         notes: _optional(row, 'notes') ??
             (survey == null ? null : 'Felmérés: $survey'),
+        includeAnnual: _optional(row, 'include_annual') != '0',
         createdAt: now,
         updatedAt: now,
       ));

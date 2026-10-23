@@ -4,10 +4,12 @@ import 'l10n/app_localizations.dart';
 import 'screens/survey_session_screen.dart';
 import 'services/app_reset.dart';
 import 'services/dose_unit_controller.dart';
+import 'services/display_units.dart';
 import 'services/expiry_notification_service.dart';
 import 'services/locale_controller.dart';
 import 'services/regulatory_profile.dart';
 import 'services/theme_controller.dart';
+import 'widgets/update_check_gate.dart';
 
 import 'dart:io';
 
@@ -62,6 +64,7 @@ void main() async {
 
   try {
     await DoseUnitController.load().timeout(const Duration(seconds: 5));
+    await DisplayUnits.load();
     await RegulatoryProfileController.load()
         .timeout(const Duration(seconds: 5));
   } catch (e, st) {
@@ -113,7 +116,7 @@ class RadReconApp extends StatelessWidget {
                 ),
                 useMaterial3: true,
               ),
-              home: const SurveySessionScreen(),
+              home: const UpdateCheckGate(child: SurveySessionScreen()),
               builder: (context, child) {
                 return Stack(
                   children: [

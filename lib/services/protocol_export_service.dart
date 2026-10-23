@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:archive/archive_io.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -8,10 +9,16 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../database/database_helper.dart';
+import '../models/measurement_type.dart';
 import '../models/calibration_labels.dart';
 import '../models/instrument.dart';
 import '../models/instrument_calibration.dart';
+import '../models/isotope.dart';
 import '../models/person_dose.dart';
+import '../models/person_condition.dart';
+import '../models/session_dosimeter.dart';
+import '../models/session_person_link.dart';
+import '../models/map_area.dart';
 import '../models/measurement_point.dart';
 import '../models/nuclide_id.dart';
 import '../models/point_source_link.dart';
@@ -22,7 +29,10 @@ import 'activity_estimate.dart';
 import 'dose_unit_controller.dart';
 import 'dose_unit_converter.dart';
 import 'unit_format.dart';
+import 'display_units.dart';
+import 'database_transfer_service.dart';
 import 'screenshot_service.dart';
+import 'protocol_pdf_builder.dart';
 
 /// A felmérés lezárásakor generálja a Word jegyzőkönyvet a
 /// `assets/templates/jegyzokonyv_template.docx` sablon alapján.
@@ -49,45 +59,13 @@ class ProtocolExportService {
   /// Legenerálja a jegyzőkönyvet, és visszaadja a létrejött .zip fájl elérési
   /// útját (docx + a hozzá tartozó fotók).
   Future<File> exportSurvey(int surveySessionId) async {
-    final db = DatabaseHelper.instance;
-    final session = await db.getSurveySession(surveySessionId);
-    if (session == null) {
-      throw StateError('Nem található felmérés: $surveySessionId');
-    }
-    // A dózisteljesítmény-pontok az aktuális alapegységben kerülnek a jegyzőkönyvbe.
-    final points = (await db.getMeasurementPoints(surveySessionId))
-        .map(withCurrentDoseUnit)
-        .toList();
-    final instruments = await db.getInstruments();
-    final instrumentById = {for (final i in instruments) i.id: i};
-    final calibrationsByInstrument = <int, List<InstrumentCalibration>>{};
-    for (final i in instruments) {
-      if (i.id != null) {
-        calibrationsByInstrument[i.id!] = await db.getCalibrations(i.id!);
-      }
-    }
-
-    final attachedByPointId = <int, List<AttachedSource>>{};
-    for (final point in points) {
-      if (point.id == null) continue;
-      attachedByPointId[point.id!] = await db.getAttachedSources(point.id!);
-    }
-
-    final attachedPersons = await db.getAttachedPersons(surveySessionId);
-    // Résztvevők a felmérésen kapott dózisukkal (online + manuális).
-    final sessionDoses = await db.getSessionDoses(surveySessionId);
-    final personsText = attachedPersons.map((a) {
-      final d = sessionDoses[a.person.id] ?? const <DoseSource, double>{};
-      final online = d[DoseSource.online] ?? 0;
-      final manual = d[DoseSource.manual] ?? 0;
-      if (online + manual <= 0) return a.person.name;
-      final parts = [
-        if (online > 0) 'online ${formatDoseText(online)}',
-        if (manual > 0) 'manuális ${formatDoseText(manual)}',
-      ];
-      return '${a.person.name} (dózis: ${formatDoseText(online + manual)}'
-          '${parts.length > 1 ? ' – ${parts.join(', ')}' : ''})';
-    }).join('; ');
+    final inputs = await _loadInputs(surveySessionId);
+    final session = inputs.session;
+    final points = inputs.points;
+    final instrumentById = inputs.instrumentById;
+    final calibrationsByInstrument = inputs.calibrationsByInstrument;
+    final attachedByPointId = inputs.attachedByPointId;
+    final personsText = inputs.personsText;
     final docxBytes = await _generateDocx(
       session,
       points,
@@ -95,6 +73,9 @@ class ProtocolExportService {
       calibrationsByInstrument,
       attachedByPointId,
       personsText,
+      inputs.dosimeters,
+      _victimValueRows(inputs.victims, inputs.conditionsByLink),
+      _areaRows(inputs.mapAreas),
     );
 
     final outputDir = await _prepareOutputDir(session);
@@ -131,6 +112,566 @@ class ProtocolExportService {
     return zipFile;
   }
 
+  Future<_ProtocolInputs> _loadInputs(int surveySessionId) async {
+    final db = DatabaseHelper.instance;
+    final session = await db.getSurveySession(surveySessionId);
+    if (session == null) {
+      throw StateError('Nem található felmérés: $surveySessionId');
+    }
+    // A dózisteljesítmény-pontok az aktuális alapegységben kerülnek a jegyzőkönyvbe.
+    final points = (await db.getMeasurementPoints(surveySessionId))
+        .map(withCurrentDoseUnit)
+        .toList();
+    final instruments = await db.getInstruments();
+    final instrumentById = {for (final i in instruments) i.id: i};
+    final calibrationsByInstrument = <int, List<InstrumentCalibration>>{};
+    for (final i in instruments) {
+      if (i.id != null) {
+        calibrationsByInstrument[i.id!] = await db.getCalibrations(i.id!);
+      }
+    }
+
+    final attachedByPointId = <int, List<AttachedSource>>{};
+    for (final point in points) {
+      if (point.id == null) continue;
+      attachedByPointId[point.id!] = await db.getAttachedSources(point.id!);
+    }
+
+    final attachedPersons = await db.getAttachedPersons(surveySessionId);
+    // A felmérést végzők és az érintettek (áldozatok) külön kezelendők.
+    final surveyors = attachedPersons
+        .where((a) => a.link.role == SessionPersonRole.surveyor)
+        .toList();
+    final victims = attachedPersons
+        .where((a) => a.link.role == SessionPersonRole.victim)
+        .toList();
+    final conditionsByLink = await db.getPersonConditions(surveySessionId);
+    final mapAreas = await db.getMapAreas(surveySessionId);
+    // Résztvevők a felmérésen kapott dózisukkal (csak a beszámítottak).
+    final snapshot = await db.getSessionDoseSnapshot(surveySessionId);
+    final personsText = surveyors.map((a) {
+      final totals = snapshot.totalsFor(a.person.id!);
+      if (totals.total <= 0) return a.person.name;
+      final parts = [
+        if (totals.session > 0) 'felmérési ${formatDoseText(totals.session)}',
+        if (totals.dosimeter > 0)
+          'doziméter ${formatDoseText(totals.dosimeter)}',
+      ];
+      return '${a.person.name} (dózis: ${formatDoseText(totals.total)}'
+          '${parts.length > 1 ? ' – ${parts.join(', ')}' : ''})';
+    }).join('; ');
+    return _ProtocolInputs(
+      session: session,
+      points: points,
+      instrumentById: instrumentById,
+      calibrationsByInstrument: calibrationsByInstrument,
+      attachedByPointId: attachedByPointId,
+      personsText: personsText,
+      dosimeters: snapshot.dosimeters,
+      victims: victims,
+      conditionsByLink: conditionsByLink,
+      mapAreas: mapAreas,
+    );
+  }
+
+  /// Az érintettek (áldozatok) táblázatának fejléce és kulcsai — a Word-
+  /// sablonban és a PDF-ben ugyanez a sorrend.
+  static const _victimHeaders = ['#', 'Név', 'Triázs', 'Sérülések', 'Betegségek'];
+  static const _victimKeys = ['idx', 'name', 'triage', 'injuries', 'illnesses'];
+
+  /// Meteorológia (pontonként) és gázmérés (vegyületenként) táblázatai.
+  List<String> get _meteoHeaders => [
+    '#',
+    'Hőm. (${DisplayUnits.temperature.value})',
+    'Pára (%)',
+    'Nyomás (${DisplayUnits.pressure.value})',
+    'Szél (${DisplayUnits.wind.value})',
+    'Szélirány (°)',
+    'Széllökés (${DisplayUnits.wind.value})',
+    'Csapadék', 'Csapadék int. (mm/h)', 'Napsugárzás (W/m²)',
+    'Felhőzet (okta)', 'Látástáv. (m)', 'Talajnedv. (%)', 'Aeroszol (µg/m³)',
+    'Egyéb',
+  ];
+  static const _meteoColumnWidths = [
+    400, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000,
+    1000, 1000, 1998,
+  ];
+  static const _gasHeaders = ['#', 'Vegyület', 'Képlet', 'Koncentráció', 'Egység'];
+  static const _gasColumnWidths = [500, 4500, 3000, 3000, 4398];
+  static const _victimColumnWidths = [500, 3000, 2600, 4400, 4898];
+
+  List<Map<String, String>> _victimValueRows(
+    List<AttachedPerson> victims,
+    Map<int, List<PersonCondition>> conditionsByLink,
+  ) {
+    return [
+      for (var i = 0; i < victims.length; i++)
+        _victimValues(
+          i,
+          victims[i],
+          conditionsByLink[victims[i].link.id] ?? const [],
+        ),
+    ];
+  }
+
+  Map<String, String> _victimValues(
+    int index,
+    AttachedPerson victim,
+    List<PersonCondition> conditions,
+  ) {
+    String listOf(ConditionKind kind) {
+      final items = [
+        for (final c in conditions)
+          if (c.kind == kind) c.description,
+      ];
+      return items.isEmpty ? '—' : items.join('; ');
+    }
+
+    return {
+      'idx': '${index + 1}',
+      'name': victim.person.name,
+      'triage': victim.link.triage?.label ?? 'nincs besorolva',
+      'injuries': listOf(ConditionKind.injury),
+      'illnesses': listOf(ConditionKind.illness),
+    };
+  }
+
+  /// Szám a magyar jegyzőkönyvhöz (tizedesvessző, legfeljebb két tizedes).
+  String _protoNum(double d) {
+    final s = d == d.roundToDouble()
+        ? d.toStringAsFixed(0)
+        : double.parse(d.toStringAsFixed(2)).toString();
+    return s.replaceAll('.', ',');
+  }
+
+  /// A meteorológiai megfigyeléssel rendelkező mérési pontok sorai.
+  static const _areaHeaders = [
+    '#', 'Terület megnevezése', 'Alakzat', 'Geometria', 'Felület (m²)',
+  ];
+  static const _areaColumnWidths = [500, 4000, 2400, 5498, 3000];
+
+  /// A jelölt területek sorai: név, alakzat, geometria és felület (m²).
+  List<List<String>> _areaRows(List<MapArea> areas) {
+    final rows = <List<String>>[];
+    for (var i = 0; i < areas.length; i++) {
+      final a = areas[i];
+      final String kind;
+      final String geometry;
+      final double area;
+      if (a.shape == MapAreaShape.polygon) {
+        kind = 'Poligon';
+        geometry = '${a.polygon.length} sarokpont';
+        area = _polygonAreaM2(a.polygon);
+      } else {
+        final c = a.center;
+        final r = a.radiusMeters ?? 0;
+        kind = 'Kör';
+        geometry = c == null
+            ? '—'
+            : 'középpont: ${c[0].toStringAsFixed(5)}, ${c[1].toStringAsFixed(5)}; '
+                'sugár: ${_protoNum(r)} m';
+        area = math.pi * r * r;
+      }
+      rows.add(['${i + 1}', a.name, kind, geometry, _protoNum(area)]);
+    }
+    return rows;
+  }
+
+  /// Poligon felülete m²-ben: a csúcsokat helyi síkvetítésbe (equirectangular)
+  /// visszük, majd a cipőfűző-képlettel számoljuk.
+  static double _polygonAreaM2(List<List<double>> pts) {
+    if (pts.length < 3) return 0;
+    const earthR = 6371000.0;
+    final lat0 = pts.map((v) => v[0]).reduce((a, b) => a + b) / pts.length;
+    final cosLat0 = math.cos(lat0 * math.pi / 180);
+    final xs = [for (final v in pts) earthR * v[1] * math.pi / 180 * cosLat0];
+    final ys = [for (final v in pts) earthR * v[0] * math.pi / 180];
+    var sum = 0.0;
+    for (var i = 0; i < pts.length; i++) {
+      final j = (i + 1) % pts.length;
+      sum += xs[i] * ys[j] - xs[j] * ys[i];
+    }
+    return sum.abs() / 2;
+  }
+
+  List<List<String>> _meteoRows(List<MeasurementPoint> points) {
+    String v(double? d) => d == null ? '—' : _protoNum(d);
+    final rows = <List<String>>[];
+    for (var i = 0; i < points.length; i++) {
+      final m = points[i].meteorology;
+      if (m == null) continue;
+      rows.add([
+        '${i + 1}',
+        v(DisplayUnits.tempFromC(m.airTemperatureC)),
+        v(m.relativeHumidityPct),
+        v(DisplayUnits.pressureFromHpa(m.pressureHpa)),
+        v(DisplayUnits.windFromMs(m.windSpeedMs)),
+        v(m.windDirectionDeg),
+        v(DisplayUnits.windFromMs(m.gustMs)),
+        m.precipitation?.label ?? '—',
+        v(m.precipitationMmH),
+        v(m.solarWm2),
+        v(m.cloudOkta),
+        v(m.visibilityM),
+        v(m.soilMoisturePct),
+        v(m.aerosolUgM3),
+        m.other ?? '—',
+      ]);
+    }
+    return rows;
+  }
+
+  /// A gázmérések sorai: pontonként, vegyületenként egy sor.
+  List<List<String>> _gasRows(List<MeasurementPoint> points) {
+    final rows = <List<String>>[];
+    for (var i = 0; i < points.length; i++) {
+      for (final g in points[i].gases) {
+        rows.add([
+          '${i + 1}',
+          g.name,
+          g.formula.isEmpty ? '—' : g.formula,
+          _protoNum(g.concentration),
+          g.unit.symbol,
+        ]);
+      }
+    }
+    return rows;
+  }
+
+  String _headingXmlFor(String text) =>
+      '<w:p><w:pPr><w:pStyle w:val="Heading2"/>'
+      '<w:spacing w:after="120" w:before="200"/></w:pPr>'
+      '<w:r><w:t xml:space="preserve">${_xmlEscape(text)}</w:t></w:r></w:p>';
+
+  String _victimHeadingXml() =>
+      '<w:p><w:pPr><w:pStyle w:val="Heading2"/>'
+      '<w:spacing w:after="120" w:before="200"/></w:pPr>'
+      '<w:r><w:t xml:space="preserve">Érintettek (áldozatok)</w:t></w:r></w:p>';
+
+  /// Word-táblázat a jegyzőkönyv stílusában (sötét fejléc, keretes cellák).
+  String _tableXml(
+    List<String> headers,
+    List<List<String>> rows,
+    List<int> widths, {
+    int fontSize = 18,
+  }) {
+    final sz = '<w:sz w:val="$fontSize"/><w:szCs w:val="$fontSize"/>';
+    final out = StringBuffer(
+      '<w:tbl><w:tblPr><w:tblW w:type="dxa" w:w="15398"/><w:tblBorders>'
+      '<w:top w:val="single" w:color="auto" w:sz="4"/>'
+      '<w:left w:val="single" w:color="auto" w:sz="4"/>'
+      '<w:bottom w:val="single" w:color="auto" w:sz="4"/>'
+      '<w:right w:val="single" w:color="auto" w:sz="4"/>'
+      '<w:insideH w:val="single" w:color="auto" w:sz="4"/>'
+      '<w:insideV w:val="single" w:color="auto" w:sz="4"/>'
+      '</w:tblBorders></w:tblPr><w:tblGrid>',
+    );
+    for (final w in widths) {
+      out.write('<w:gridCol w:w="$w"/>');
+    }
+    out.write('</w:tblGrid><w:tr><w:trPr><w:tblHeader/></w:trPr>');
+    for (var i = 0; i < headers.length; i++) {
+      out.write(
+        '<w:tc><w:tcPr><w:tcW w:type="dxa" w:w="${widths[i]}"/>'
+        '<w:shd w:fill="2F2F2F" w:val="clear"/></w:tcPr>'
+        '<w:p><w:r><w:rPr><w:b/><w:bCs/><w:color w:val="FFFFFF"/>$sz</w:rPr>'
+        '<w:t xml:space="preserve">${_xmlEscape(headers[i])}</w:t>'
+        '</w:r></w:p></w:tc>',
+      );
+    }
+    out.write('</w:tr>');
+    for (final row in rows) {
+      out.write('<w:tr>');
+      for (var i = 0; i < widths.length; i++) {
+        final value = i < row.length ? row[i] : '—';
+        out.write(
+          '<w:tc><w:tcPr><w:tcW w:type="dxa" w:w="${widths[i]}"/></w:tcPr>'
+          '<w:p><w:r><w:rPr>$sz</w:rPr>'
+          '<w:t xml:space="preserve">${_xmlEscape(value)}</w:t>'
+          '</w:r></w:p></w:tc>',
+        );
+      }
+      out.write('</w:tr>');
+    }
+    out.write('</w:tbl>');
+    return out.toString();
+  }
+
+  String _victimTableXml(List<Map<String, String>> rows) => _tableXml(
+        _victimHeaders,
+        [
+          for (final r in rows) [for (final k in _victimKeys) r[k] ?? '—'],
+        ],
+        _victimColumnWidths,
+      );
+
+  /// A doziméter-táblázat oszlopainak kulcsai (a sablon `${dosimeters.*}` helyőrzői).
+  static const _dosimeterKeys = [
+    'idx', 'kind', 'identifier', 'person', 'reading', 'dose', 'counted',
+  ];
+
+  static const _dosimeterKindHu = {
+    DosimeterKind.epdGamma: 'EPD gamma (elektronikus)',
+    DosimeterKind.epdNeutron: 'EPD neutron (elektronikus)',
+    DosimeterKind.tlOfficial: 'TL/OSL passzív (hivatalos)',
+    DosimeterKind.tlWorkplace: 'TL/OSL passzív (munkahelyi)',
+  };
+
+  /// A doziméterek táblázatának sorai. Doziméter nélkül egyetlen, "nincs
+  /// felvéve" jelzésű sor kerül a táblázatba.
+  List<Map<String, String>> _dosimeterValueRows(
+    List<SessionDosimeter> dosimeters,
+  ) {
+    if (dosimeters.isEmpty) {
+      return [
+        {
+          'idx': '—',
+          'kind': 'Nincs felvett doziméter',
+          'identifier': '—',
+          'person': '—',
+          'reading': '—',
+          'dose': '—',
+          'counted': '—',
+        },
+      ];
+    }
+    return [
+      for (var i = 0; i < dosimeters.length; i++)
+        _dosimeterValues(i, dosimeters[i]),
+    ];
+  }
+
+  Map<String, String> _dosimeterValues(int index, SessionDosimeter d) {
+    String reading() {
+      if (!d.kind.electronic) return '—';
+      final start = d.startUsv == null ? '—' : formatDoseText(d.startUsv!);
+      final end = d.endUsv == null ? '—' : formatDoseText(d.endUsv!);
+      return '$start → $end';
+    }
+
+    final dose = d.resolvedDoseUsv;
+    return {
+      'idx': '${index + 1}',
+      'kind': _dosimeterKindHu[d.kind] ?? d.kind.dbValue,
+      'identifier': d.identifier,
+      'person': d.personName ?? '—',
+      'reading': reading(),
+      'dose': dose == null ? '—' : formatDoseText(dose),
+      'counted': d.includeAnnual ? 'igen' : 'nem',
+    };
+  }
+
+  /// A mérési pont sorának cellaszövegei (kulcs = a sablon placeholder neve).
+  /// A Word- és a PDF-jegyzőkönyv ugyanezt használja.
+  Map<String, String> _pointRowValues(
+    int index,
+    MeasurementPoint point,
+    Map<int?, Instrument> instrumentById,
+    Map<int, List<InstrumentCalibration>> calibrationsByInstrument,
+  ) {
+    final instrument = instrumentById[point.instrumentId];
+    return {
+      'idx': '${index + 1}',
+      'location': point.locationLabel ?? '—',
+      'type': measurementTypeHu[point.type] ?? point.type.name,
+      'value': displayValueOf(point).value == null
+          ? '—'
+          : formatValueWithError(displayValueOf(point).value!, displayValueOf(point).error) +
+              (point.averagingSamples == null
+                  ? ''
+                  : ' (n=${point.averagingSamples}'
+                      '${point.averagingSeconds == null ? '' : ', ${point.averagingSeconds} s'})'),
+      'unit': displayValueOf(point).unit,
+      'distance': point.distanceFromSourceMeters == null
+          ? '—'
+          : double.parse(DistanceUnitController.current
+                  .fromMeters(point.distanceFromSourceMeters!)
+                  .toStringAsFixed(2))
+              .toString(),
+      'instrument': _instrumentText(
+        instrument,
+        instrument?.id == null
+            ? const []
+            : (calibrationsByInstrument[instrument!.id!] ?? const []),
+        point.timestamp,
+      ),
+      'gps':
+          '${point.latitude.toStringAsFixed(6)}, ${point.longitude.toStringAsFixed(6)}',
+      'accuracy': point.gpsAccuracyMeters == null
+          ? '—'
+          : DistanceUnitController.current
+              .fromMeters(point.gpsAccuracyMeters!)
+              .toStringAsFixed(1),
+      'timestamp': _dateFormat.format(point.timestamp),
+      'photo': point.photoPath == null ? '—' : _photoFileName(point),
+      'notes': _notesWithNuclides(point),
+    };
+  }
+
+  /// A sugárforrás-elemzés egy sora, vagy null, ha a pontnak nincs hozzárendelt
+  /// forrása és nincs aktivitás-becslése (ilyenkor a sor kimarad).
+  Map<String, String>? _sourceRowValues(
+    int index,
+    MeasurementPoint point,
+    List<AttachedSource> attached,
+  ) {
+    final estimatedActivity = _estimatedActivityText(point);
+    if (attached.isEmpty && estimatedActivity == null) return null;
+
+    final measuredUSvH = point.value == null
+        ? null
+        : toMicroSievertPerHour(point.value!, point.unit);
+    final (calculatedTotalUSvH, _) =
+        _totalCalculatedDoseRateUSvH(attached, point.timestamp);
+    final hasCalculatedTotal = attached.isNotEmpty;
+
+    return {
+      'idx': '${index + 1}',
+      'location': point.locationLabel ?? '—',
+      'estimated_activity': estimatedActivity ?? '—',
+      'attached': attached.isEmpty
+          ? '—'
+          : attached
+              .map((a) =>
+                  '${a.source.identifier} (${a.source.nuclideName}, '
+                  '${formatDistanceMeters(a.link.distanceMeters)})')
+              .join('; '),
+      'calculated_total': hasCalculatedTotal
+          ? formatDoseRateUSvH(calculatedTotalUSvH)
+          : '—',
+      'measured': measuredUSvH != null
+          ? formatDoseRateUSvH(measuredUSvH)
+          : (point.value == null
+              ? '—'
+              : '${point.value!.toStringAsFixed(2)} ${point.unit}'),
+      'diff': (measuredUSvH != null && hasCalculatedTotal)
+          ? formatDoseRateUSvH(measuredUSvH - calculatedTotalUSvH)
+          : '—',
+    };
+  }
+
+  /// A jegyzőkönyv PDF-változata: ugyanazok az adatok (fejléc, mérési pontok,
+  /// sugárforrás-elemzés, aláírás-sor), a fényképek a mérési pontra utaló
+  /// feliratokkal. Visszaadja a létrehozott .pdf fájlt.
+  Future<File> exportSurveyPdf(int surveySessionId) async {
+    final inputs = await _loadInputs(surveySessionId);
+    final session = inputs.session;
+    final points = inputs.points;
+    final companyName =
+        await DatabaseTransferService.instance.getActiveCompanyName();
+    final company = companyName.trim().isEmpty ? '—' : companyName;
+    final unitSymbol = DistanceUnitController.current.symbol;
+
+    const pointKeys = [
+      'idx', 'location', 'type', 'value', 'unit', 'distance', 'instrument',
+      'gps', 'accuracy', 'timestamp', 'notes',
+    ];
+    const sourceKeys = [
+      'idx', 'location', 'estimated_activity', 'attached',
+      'calculated_total', 'measured', 'diff',
+    ];
+
+    final pointRows = <List<String>>[];
+    final sourceRows = <List<String>>[];
+    final photos = <ProtocolPhoto>[];
+    for (var i = 0; i < points.length; i++) {
+      final point = points[i];
+      final values = _pointRowValues(
+        i,
+        point,
+        inputs.instrumentById,
+        inputs.calibrationsByInstrument,
+      );
+      pointRows.add([for (final k in pointKeys) values[k] ?? '—']);
+
+      final attached =
+          inputs.attachedByPointId[point.id] ?? const <AttachedSource>[];
+      final sourceValues = _sourceRowValues(i, point, attached);
+      if (sourceValues != null) {
+        sourceRows.add([for (final k in sourceKeys) sourceValues[k] ?? '—']);
+      }
+
+      final photoPath = point.photoPath;
+      if (photoPath != null) {
+        final typeLabel = measurementTypeHu[point.type] ?? point.type.name;
+        photos.add(ProtocolPhoto(
+          caption: '${i + 1}. pont · $typeLabel · '
+              '${point.locationLabel ?? '—'} · '
+              '${_dateFormat.format(point.timestamp)}',
+          path: photoPath,
+        ));
+      }
+    }
+
+    final data = ProtocolPdfData(
+      headerFields: [
+        ('Cég', company),
+        ('Felmérés megnevezése', session.title),
+        ('Helyszín', session.location ?? '—'),
+        ('Felmérés kezdete', _dateFormat.format(session.startedAt)),
+        (
+          'Felmérés lezárása',
+          session.closedAt == null
+              ? 'folyamatban'
+              : _dateFormat.format(session.closedAt!)
+        ),
+        ('Megjegyzés', session.notes ?? '—'),
+      ],
+      pointHeaders: [
+        '#', 'Helyszín', 'Típus', 'Érték', 'Egység',
+        'Táv. forrástól ($unitSymbol)', 'Műszer', 'GPS koordináta',
+        'GPS pontosság ($unitSymbol)', 'Időpont', 'Megjegyzés',
+      ],
+      pointRows: pointRows,
+      sourceHeaders: [
+        '#', 'Helyszín', 'Becsült aktivitás (mérésből)',
+        'Hozzárendelt forrás(ok)', 'Számított dózisteljesítmény',
+        'Mért dózisteljesítmény', 'Eltérés',
+      ],
+      sourceRows: sourceRows,
+      dosimeterHeaders: const [
+        '#', 'Típus', 'Azonosító', 'Viselő', 'Állás (kezdő → záró)', 'Dózis',
+        'Beszámít',
+      ],
+      dosimeterRows: [
+        for (final v in _dosimeterValueRows(inputs.dosimeters))
+          [for (final k in _dosimeterKeys) v[k] ?? '—'],
+      ],
+      meteoHeaders: _meteoHeaders,
+      meteoRows: _meteoRows(points),
+      gasHeaders: _gasHeaders,
+      gasRows: _gasRows(points),
+      areaHeaders: _areaHeaders,
+      areaRows: _areaRows(inputs.mapAreas),
+      victimHeaders: _victimHeaders,
+      victimRows: [
+        for (final v in _victimValueRows(inputs.victims, inputs.conditionsByLink))
+          [for (final k in _victimKeys) v[k] ?? '—'],
+      ],
+      sourceNote: 'Csak a forrással vagy aktivitás-becsléssel rendelkező mérési '
+          'pontok szerepelnek. A számított értékek tájékoztató jellegűek.',
+      signatureFields: [
+        (
+          'Felmérést végezte',
+          inputs.personsText.isEmpty ? '—' : inputs.personsText
+        ),
+        ('Cég', company),
+        ('Dátum', _dateOnlyFormat.format(DateTime.now())),
+        ('Aláírás', '_______________________'),
+      ],
+      photos: photos,
+    );
+
+    final bytes = await ProtocolPdfBuilder.build(data);
+    final docsDir = await getApplicationDocumentsDirectory();
+    final pdfFile = File(p.join(
+      docsDir.path,
+      '${_safeFileName(session.title)}_jegyzokonyv.pdf',
+    ));
+    await pdfFile.writeAsBytes(bytes);
+    return pdfFile;
+  }
+
   Future<Directory> _prepareOutputDir(SurveySession session) async {
     final tempRoot = await getTemporaryDirectory();
     final dir = Directory(
@@ -147,6 +688,18 @@ class ProtocolExportService {
         .replaceAll(RegExp(r'[^\w\-]'), '_');
     return '${point.id}_$label$ext';
   }
+
+  /// A jegyzőkönyv (magyar sablon) mérés-típus címkéi. Az enum-név (pl. doseRate)
+  /// nem kerülhet a dokumentumba.
+  static const measurementTypeHu = {
+    MeasurementType.doseRate: 'Dózisteljesítmény',
+    MeasurementType.surfaceContamination: 'Felületi szennyezettség',
+    MeasurementType.cps: 'Beütésszám (cps)',
+    MeasurementType.neutronCps: 'Neutron beütésszám (cps)',
+    MeasurementType.sample: 'Mintavétel',
+    MeasurementType.meteorology: 'Meteorológia',
+    MeasurementType.gasMeasurement: 'Gázmérés',
+  };
 
   static const _nuclideStatusHu = {
     NuclideIdStatus.notSpecified: '',
@@ -200,16 +753,33 @@ class ProtocolExportService {
       layers: point.shieldingLayers,
     );
     if (estimate == null) return null;
-    final text = '$nuclideName: ${formatActivityMBq(estimate.unshieldedMBq)} '
-        '(árnyékolás nélkül)';
-    if (estimate.shieldedMBq == null) return text;
-    final layers = point.shieldingLayers
-        .map((l) => '${_shieldingMaterialHu(l.material)} '
-            '${formatDistanceMeters(l.thicknessCm / 100)}')
-        .join(' + ');
-    return '$text; árnyékolt forrás ($layers): '
-        '${formatActivityMBq(estimate.shieldedMBq!)}';
+    final isotope = Isotope.findByName(nuclideName);
+    final buf = StringBuffer(
+        '$nuclideName: ${formatActivityMBq(estimate.unshieldedMBq)} (árnyékolás nélkül)');
+    if (estimate.shieldedMBq != null) {
+      buf.write('; árnyékolt: ${formatActivityMBq(estimate.shieldedMBq!)}');
+    }
+    // Bemenő adatok, hogy a becslés ellenőrizhető legyen.
+    buf.write('. Bemenő adatok: mért ${formatDoseRateUSvH(measuredUSvH)}, '
+        'távolság ${formatDistanceMeters(distance)}');
+    if (isotope != null) {
+      buf.write(', Γ = ${_plainNumber(isotope.gammaConstant)} µSv·m²/(MBq·h)');
+    }
+    if (point.shieldingLayers.isNotEmpty) {
+      final layers = point.shieldingLayers
+          .map((l) => '${_shieldingMaterialHu(l.material)} '
+              '${_plainNumber(l.thicknessCm)} cm')
+          .join(' + ');
+      buf.write(', árnyékolás: $layers');
+      final t = layersTransmission(nuclideName, point.shieldingLayers);
+      if (t != null) buf.write(' (áteresztés T = ${_plainNumber(t)})');
+    }
+    buf.write('.');
+    return buf.toString();
   }
+
+  static String _plainNumber(double v) =>
+      double.parse(v.toStringAsPrecision(4)).toString();
 
   /// A műszer neve + a hitelesítés/kalibrálás adatai a mérés időpontjában
   /// érvényes bejegyzések alapján (lejárt esetén jelölve).
@@ -302,6 +872,9 @@ class ProtocolExportService {
     Map<int, List<InstrumentCalibration>> calibrationsByInstrument,
     Map<int, List<AttachedSource>> attachedByPointId,
     String personsText,
+    List<SessionDosimeter> dosimeters,
+    List<Map<String, String>> victimRows,
+    List<List<String>> areaRows,
   ) async {
     final templateData = await rootBundle.load(_templateAssetPath);
     final templateArchive =
@@ -332,43 +905,7 @@ class ProtocolExportService {
     final generatedRows = StringBuffer();
     for (var i = 0; i < points.length; i++) {
       final point = points[i];
-      final instrument = instrumentById[point.instrumentId];
-      final values = <String, String>{
-        'idx': '${i + 1}',
-        'location': point.locationLabel ?? '—',
-        'type': point.type.name,
-        'value': point.value == null
-            ? '—'
-            : formatValueWithError(point.value!, point.valueError) +
-                (point.averagingSamples == null
-                    ? ''
-                    : ' (n=${point.averagingSamples}'
-                        '${point.averagingSeconds == null ? '' : ', ${point.averagingSeconds} s'})'),
-        'unit': point.unit,
-        'distance': point.distanceFromSourceMeters == null
-            ? '—'
-            : double.parse(DistanceUnitController.current
-                    .fromMeters(point.distanceFromSourceMeters!)
-                    .toStringAsFixed(2))
-                .toString(),
-        'instrument': _instrumentText(
-          instrument,
-          instrument?.id == null
-              ? const []
-              : (calibrationsByInstrument[instrument!.id!] ?? const []),
-          point.timestamp,
-        ),
-        'gps':
-            '${point.latitude.toStringAsFixed(6)}, ${point.longitude.toStringAsFixed(6)}',
-        'accuracy': point.gpsAccuracyMeters == null
-            ? '—'
-            : DistanceUnitController.current
-                .fromMeters(point.gpsAccuracyMeters!)
-                .toStringAsFixed(1),
-        'timestamp': _dateFormat.format(point.timestamp),
-        'photo': point.photoPath == null ? '—' : _photoFileName(point),
-        'notes': _notesWithNuclides(point),
-      };
+      final values = _pointRowValues(i, point, instrumentById, calibrationsByInstrument);
 
       var row = rowTemplate;
       for (final entry in values.entries) {
@@ -416,39 +953,8 @@ class ProtocolExportService {
     for (var i = 0; i < points.length; i++) {
       final point = points[i];
       final attached = attachedByPointId[point.id] ?? const [];
-      final estimatedActivity = _estimatedActivityText(point);
-      if (attached.isEmpty && estimatedActivity == null) continue;
-
-      final measuredUSvH = point.value == null
-          ? null
-          : toMicroSievertPerHour(point.value!, point.unit);
-      final (calculatedTotalUSvH, _) =
-          _totalCalculatedDoseRateUSvH(attached, point.timestamp);
-      final hasCalculatedTotal = attached.isNotEmpty;
-
-      final values = <String, String>{
-        'idx': '${i + 1}',
-        'location': point.locationLabel ?? '—',
-        'estimated_activity': estimatedActivity ?? '—',
-        'attached': attached.isEmpty
-            ? '—'
-            : attached
-                .map((a) =>
-                    '${a.source.identifier} (${a.source.nuclideName}, '
-                    '${formatDistanceMeters(a.link.distanceMeters)})')
-                .join('; '),
-        'calculated_total': hasCalculatedTotal
-            ? formatDoseRateUSvH(calculatedTotalUSvH)
-            : '—',
-        'measured': measuredUSvH != null
-            ? formatDoseRateUSvH(measuredUSvH)
-            : (point.value == null
-                ? '—'
-                : '${point.value!.toStringAsFixed(2)} ${point.unit}'),
-        'diff': (measuredUSvH != null && hasCalculatedTotal)
-            ? formatDoseRateUSvH(measuredUSvH - calculatedTotalUSvH)
-            : '—',
-      };
+      final values = _sourceRowValues(i, point, attached);
+      if (values == null) continue;
 
       var row = sourceRowTemplate;
       for (final entry in values.entries) {
@@ -466,7 +972,86 @@ class ProtocolExportService {
       generatedSourceRows.toString(),
     );
 
+    // A ${dosimeters.*} placeholdereket tartalmazó <w:tr> a doziméter-táblázat sora.
+    const dosimeterRowMarker = r'${dosimeters.';
+    final dosimeterMarkerIndex = xml.indexOf(dosimeterRowMarker);
+    if (dosimeterMarkerIndex == -1) {
+      throw StateError('A sablonban nem található a doziméter-táblázat sora.');
+    }
+    final dosimeterRowStart = xml.lastIndexOf('<w:tr>', dosimeterMarkerIndex);
+    final dosimeterRowEndTagIndex = xml.indexOf('</w:tr>', dosimeterMarkerIndex);
+    if (dosimeterRowStart == -1 || dosimeterRowEndTagIndex == -1) {
+      throw StateError(
+        'A doziméter-táblázat sablonsorának határai nem azonosíthatók.',
+      );
+    }
+    final dosimeterRowEnd = dosimeterRowEndTagIndex + '</w:tr>'.length;
+    final dosimeterRowTemplate =
+        xml.substring(dosimeterRowStart, dosimeterRowEnd);
+
+    final generatedDosimeterRows = StringBuffer();
+    for (final values in _dosimeterValueRows(dosimeters)) {
+      var row = dosimeterRowTemplate;
+      for (final entry in values.entries) {
+        row = row.replaceAll(
+          '\${dosimeters.${entry.key}}',
+          _xmlEscape(entry.value),
+        );
+      }
+      generatedDosimeterRows.write(row);
+    }
+    xml = xml.replaceRange(
+      dosimeterRowStart,
+      dosimeterRowEnd,
+      generatedDosimeterRows.toString(),
+    );
+
+    // Érintettek (áldozatok) táblázata a doziméterek után — csak ha van érintett.
+    if (victimRows.isNotEmpty) {
+      final dosimeterTableEnd = xml.indexOf('</w:tbl>', dosimeterRowStart);
+      if (dosimeterTableEnd == -1) {
+        throw StateError('A doziméter-táblázat vége nem azonosítható.');
+      }
+      final insertAt = dosimeterTableEnd + '</w:tbl>'.length;
+      xml = xml.replaceRange(
+        insertAt,
+        insertAt,
+        _victimHeadingXml() + _victimTableXml(victimRows),
+      );
+    }
+
+    // Területek, meteorológia és gázmérés az aláírás-sor elé, az érintettek után.
+    final meteo = _meteoRows(points);
+    final gas = _gasRows(points);
+    final signIdx = xml.indexOf('Felmérést végezte: ');
+    if (signIdx == -1) {
+      throw StateError('A sablonban nem található az aláírás-sor.');
+    }
+    final signStart = xml.lastIndexOf('<w:p>', signIdx);
+    final extraBlock = StringBuffer();
+    if (areaRows.isNotEmpty) {
+      extraBlock
+        ..write(_headingXmlFor('Jelölt területek'))
+        ..write(_tableXml(_areaHeaders, areaRows, _areaColumnWidths));
+    }
+    if (meteo.isNotEmpty) {
+      extraBlock
+        ..write(_headingXmlFor('Meteorológia'))
+        ..write(_tableXml(_meteoHeaders, meteo, _meteoColumnWidths, fontSize: 14));
+    }
+    if (gas.isNotEmpty) {
+      extraBlock
+        ..write(_headingXmlFor('Gázmérés'))
+        ..write(_tableXml(_gasHeaders, gas, _gasColumnWidths));
+    }
+    if (extraBlock.isNotEmpty) {
+      xml = xml.replaceRange(signStart, signStart, extraBlock.toString());
+    }
+
+    final companyName =
+        await DatabaseTransferService.instance.getActiveCompanyName();
     final scalars = <String, String>{
+      'company_name': companyName.trim().isEmpty ? '—' : companyName,
       'survey_title': session.title,
       'survey_location': session.location ?? '—',
       'survey_started': _dateFormat.format(session.startedAt),
@@ -503,4 +1088,34 @@ class ProtocolExportService {
     }
     return encoded;
   }
+}
+
+/// A jegyzőkönyv exportálásának formátuma (a menüben választható).
+enum ProtocolFormat { word, pdf }
+
+/// Egy felmérés jegyzőkönyvi adatai (a Word- és a PDF-export közös bemenete).
+class _ProtocolInputs {
+  const _ProtocolInputs({
+    required this.session,
+    required this.points,
+    required this.instrumentById,
+    required this.calibrationsByInstrument,
+    required this.attachedByPointId,
+    required this.personsText,
+    required this.dosimeters,
+    required this.victims,
+    required this.conditionsByLink,
+    required this.mapAreas,
+  });
+
+  final SurveySession session;
+  final List<MeasurementPoint> points;
+  final Map<int?, Instrument> instrumentById;
+  final Map<int, List<InstrumentCalibration>> calibrationsByInstrument;
+  final Map<int, List<AttachedSource>> attachedByPointId;
+  final String personsText;
+  final List<SessionDosimeter> dosimeters;
+  final List<AttachedPerson> victims;
+  final Map<int, List<PersonCondition>> conditionsByLink;
+  final List<MapArea> mapAreas;
 }

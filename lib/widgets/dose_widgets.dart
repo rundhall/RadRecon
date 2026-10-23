@@ -4,11 +4,19 @@ import 'package:intl/intl.dart';
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/person_dose.dart';
+import '../models/session_dosimeter.dart';
 import '../models/session_person_link.dart';
+import '../services/session_dose_calculator.dart';
+import '../services/display_units.dart';
 
 /// Dózis megjelenítése: 1 mSv alatt µSv-ben, fölötte mSv-ben.
 String formatDose(BuildContext context, double microSv) {
   final locale = Localizations.localeOf(context).toString();
+  final target = DisplayUnits.dose.value;
+  if (target.isNotEmpty) {
+    final v = DisplayUnits.doseFromMicroSv(microSv, target);
+    return '${NumberFormat('0.###', locale).format(v)} $target';
+  }
   if (microSv.abs() >= 1000) {
     return '${NumberFormat('0.###', locale).format(microSv / 1000)} mSv';
   }
@@ -27,6 +35,7 @@ class DoseFieldController {
   bool _initialMilli = false;
 
   /// Kezdőérték beállítása (µSv); 1 mSv fölött mSv-ben jelenik meg.
+  /// A mező ezután nem számít módosítottnak.
   void setMicroSv(double? microSv, String locale) {
     final useMilli = microSv != null && microSv >= 1000;
     milli.value = useMilli;
@@ -38,6 +47,15 @@ class DoseFieldController {
     }
     _initialText = text.text;
     _initialMilli = milli.value;
+  }
+
+  /// Program által beírt érték (pl. a pontokból számolt dózis) úgy, hogy a
+  /// mező módosítottnak számítson, és mentéskor íródjon.
+  void setMicroSvKeepDirty(double microSv, String locale) {
+    final useMilli = microSv >= 1000;
+    milli.value = useMilli;
+    final shown = useMilli ? microSv / 1000 : microSv;
+    text.text = NumberFormat('0.###', locale).format(shown);
   }
 
   bool get isDirty => text.text != _initialText || milli.value != _initialMilli;
@@ -107,10 +125,10 @@ class DoseValueField extends StatelessWidget {
   }
 }
 
-/// Egy felmérés résztvevőinek online és manuális dózisa egy űrlapon — a
-/// felmérés lezárásakor és a résztvevők listáján is ezt használjuk.
-/// A [SessionDosesEditorState.save] validál és csak a módosított értékeket
-/// írja az adatbázisba.
+/// Egy felmérés résztvevőinek felmérési dózisa egy űrlapon. Egy mező személyenként,
+/// mellette az "éves dózisba beszámít" jelölő, és egy gomb, amely a felmérés
+/// dózisteljesítmény-pontjaiból számolja a dózist (mindenkire ugyanazt).
+/// A [SessionDosesEditorState.save] validál és csak a módosított értékeket írja.
 class SessionDosesEditor extends StatefulWidget {
   const SessionDosesEditor({
     super.key,
@@ -122,7 +140,7 @@ class SessionDosesEditor extends StatefulWidget {
 
   final int surveySessionId;
   final List<AttachedPerson> persons;
-  final Map<int, Map<DoseSource, double>> doses;
+  final SessionDoseSnapshot doses;
   final bool showNames;
 
   @override
@@ -131,8 +149,10 @@ class SessionDosesEditor extends StatefulWidget {
 
 class SessionDosesEditorState extends State<SessionDosesEditor> {
   final _formKey = GlobalKey<FormState>();
-  final _online = <int, DoseFieldController>{};
-  final _manual = <int, DoseFieldController>{};
+  final _values = <int, DoseFieldController>{};
+  final _include = <int, bool>{};
+  final _initialInclude = <int, bool>{};
+  String? _calcInfo;
   bool _initialized = false;
 
   @override
@@ -143,20 +163,45 @@ class SessionDosesEditorState extends State<SessionDosesEditor> {
     final locale = Localizations.localeOf(context).toString();
     for (final a in widget.persons) {
       final id = a.person.id!;
-      final d = widget.doses[id] ?? const {};
-      _online[id] = DoseFieldController()
-        ..setMicroSv(d[DoseSource.online], locale);
-      _manual[id] = DoseFieldController()
-        ..setMicroSv(d[DoseSource.manual], locale);
+      final dose = widget.doses.sessionDoseOf(id);
+      _values[id] = DoseFieldController()
+        ..setMicroSv(dose?.doseMicroSv, locale);
+      final include = dose?.includeAnnual ?? true;
+      _include[id] = include;
+      _initialInclude[id] = include;
     }
   }
 
   @override
   void dispose() {
-    for (final c in [..._online.values, ..._manual.values]) {
+    for (final c in _values.values) {
       c.dispose();
     }
     super.dispose();
+  }
+
+  /// A felmérés dózisteljesítmény-pontjaiból számított dózis beírása minden
+  /// résztvevőhöz (mentésig nem íródik az adatbázisba).
+  Future<void> _calculate() async {
+    final loc = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    final points = await DatabaseHelper.instance
+        .getMeasurementPoints(widget.surveySessionId);
+    final result = SessionDoseCalculator.fromPoints(points);
+    if (!mounted) return;
+    if (result == null) {
+      setState(() => _calcInfo = null);
+      messenger.showSnackBar(
+        SnackBar(content: Text(loc.calcDoseNeedTwoPoints)),
+      );
+      return;
+    }
+    for (final a in widget.persons) {
+      _values[a.person.id!]!
+          .setMicroSvKeepDirty(result.doseMicroSv, locale);
+    }
+    setState(() => _calcInfo = loc.calcDoseResultInfo(result.pointCount));
   }
 
   /// Validál és ment; `false`, ha érvénytelen mező van.
@@ -164,18 +209,15 @@ class SessionDosesEditorState extends State<SessionDosesEditor> {
     if (!(_formKey.currentState?.validate() ?? false)) return false;
     for (final a in widget.persons) {
       final id = a.person.id!;
-      for (final (source, c) in [
-        (DoseSource.online, _online[id]!),
-        (DoseSource.manual, _manual[id]!),
-      ]) {
-        if (!c.isDirty) continue;
-        await DatabaseHelper.instance.setSessionDose(
-          personId: id,
-          surveySessionId: widget.surveySessionId,
-          source: source,
-          doseMicroSv: c.microSv ?? 0,
-        );
-      }
+      final value = _values[id]!;
+      final includeChanged = _include[id] != _initialInclude[id];
+      if (!value.isDirty && !includeChanged) continue;
+      await DatabaseHelper.instance.setSessionDose(
+        personId: id,
+        surveySessionId: widget.surveySessionId,
+        doseMicroSv: value.microSv ?? 0,
+        includeAnnual: _include[id],
+      );
     }
     return true;
   }
@@ -189,6 +231,22 @@ class SessionDosesEditorState extends State<SessionDosesEditor> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: OutlinedButton.icon(
+              onPressed: _calculate,
+              icon: const Icon(Icons.calculate_outlined),
+              label: Text(loc.calcDoseFromPointsButton),
+            ),
+          ),
+          if (_calcInfo != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                _calcInfo!,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
           for (final a in widget.persons) ...[
             if (widget.showNames)
               Padding(
@@ -199,14 +257,28 @@ class SessionDosesEditorState extends State<SessionDosesEditor> {
                 ),
               ),
             DoseValueField(
-              controller: _online[a.person.id!]!,
-              label: loc.onlineDoseLabel,
+              controller: _values[a.person.id!]!,
+              label: loc.sessionDoseLabel,
             ),
-            const SizedBox(height: 8),
-            DoseValueField(
-              controller: _manual[a.person.id!]!,
-              label: loc.manualDoseLabel,
+            CheckboxListTile(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              controlAffinity: ListTileControlAffinity.leading,
+              value: _include[a.person.id!] ?? true,
+              title: Text(loc.includeInAnnualLabel),
+              onChanged: (v) =>
+                  setState(() => _include[a.person.id!] = v ?? true),
             ),
+            for (final d in widget.doses.dosimetersOf(a.person.id!))
+              Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: Text(
+                  '${dosimeterKindLabel(loc, d.kind)} · ${d.identifier}: '
+                  '${d.resolvedDoseUsv == null ? loc.dosimeterNoReading : formatDose(context, d.resolvedDoseUsv!)}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
+            const SizedBox(height: 12),
           ],
         ],
       ),
@@ -214,26 +286,31 @@ class SessionDosesEditorState extends State<SessionDosesEditor> {
   }
 }
 
-/// A dózisforrás megjelenítési neve és ikonja.
+/// A dózis forrásának megjelenési neve és ikonja (felmérési / passzív).
 String doseSourceLabel(AppLocalizations loc, DoseSource source) =>
     switch (source) {
-      DoseSource.online => loc.doseSourceOnline,
-      DoseSource.manual => loc.doseSourceManual,
+      DoseSource.session => loc.sessionDoseLabel,
       DoseSource.passive => loc.doseSourcePassive,
     };
 
 IconData doseSourceIcon(DoseSource source) => switch (source) {
-      DoseSource.online => Icons.sensors,
-      DoseSource.manual => Icons.edit_outlined,
+      DoseSource.session => Icons.edit_outlined,
       DoseSource.passive => Icons.badge_outlined,
     };
 
-/// "online X · manuális Y · passzív Z" összefoglaló sor.
+/// A doziméter típusának megjelenési neve.
+String dosimeterKindLabel(AppLocalizations loc, DosimeterKind kind) =>
+    switch (kind) {
+      DosimeterKind.epdGamma => loc.dosimeterKindEpdGamma,
+      DosimeterKind.epdNeutron => loc.dosimeterKindEpdNeutron,
+      DosimeterKind.tlOfficial => loc.dosimeterKindTlOfficial,
+      DosimeterKind.tlWorkplace => loc.dosimeterKindTlWorkplace,
+    };
+
+/// "Felmérési X · Doziméter Y · Passzív Z" összefoglaló sor.
 String doseBreakdownText(BuildContext context, DoseTotals t) {
   final loc = AppLocalizations.of(context)!;
-  return loc.doseBreakdownLabel(
-    formatDose(context, t.online),
-    formatDose(context, t.manual),
-    formatDose(context, t.passive),
-  );
+  return '${loc.sessionDoseLabel} ${formatDose(context, t.session)} · '
+      '${loc.dosimeterDoseLabel} ${formatDose(context, t.dosimeter)} · '
+      '${loc.doseSourcePassive} ${formatDose(context, t.passive)}';
 }

@@ -35,7 +35,7 @@
       <div class="container">
 
 <h1>RadRecon User Manual</h1>
-<p>Last updated: 17.10.2026</p>
+<p>Last updated: 23.10.2026</p>
 
 <h2>Contents</h2>
 <ol>
@@ -57,22 +57,23 @@
 </ol>
 
 <h2 id="m1">1. Introduction</h2>
-<p>RadRecon records field radiation surveys. Each measurement point carries its GPS position, time, instrument, value and unit, and optionally a photo and a note. The points of a survey are shown on a map and can be exported as a Word protocol, as JSON or as CSV.</p>
-<p>The App runs on Android, iPhone, Windows, macOS and Linux, in English and Hungarian. All data is stored on the device. There is no account and no registration. An internet connection is needed only for the map background and, if you use them, for instruments on the network.</p>
+<p>RadRecon records field radiation surveys. Each measurement point carries its GPS position, time, instrument, value and unit, and optionally a photo and a note. The points of a survey are shown on a map and can be exported as a Word or PDF protocol, as JSON or as CSV.</p>
+<p>The App runs on Android, iPhone, Windows and macOS, in Hungarian, English, German, Spanish, French and Italian. All data is stored on the device. There is no account and no registration. An internet connection is needed only for the map background and, if you use them, for instruments on the network.</p>
 
 <h2 id="m2">2. Main screen and settings</h2>
 <p>The main screen lists your surveys, with the newest first. Use the <strong>New survey</strong> button to add one. The top bar gives access to the instruments, the radiation sources, the persons and the settings. The lists of instruments, sources and persons have a search field.</p>
 <h3>Settings</h3>
 <ul>
-<li><strong>Language:</strong> English, Hungarian, or the phone language.</li>
+<li><strong>Language:</strong> Hungarian, English, German, Spanish, French or Italian, or the phone language.</li>
 <li><strong>Appearance:</strong> light, dark or system theme.</li>
 <li><strong>Alert thresholds:</strong> a limit for each measurement type. When a recorded value reaches or exceeds it, the App warns you with a sound and a pop-up. Leave a field empty for no alert on that type.</li>
 <li><strong>Expiry notifications:</strong> off by default. When switched on, the App reminds you at 8:00 about upcoming expiry dates of sources (service life, inspection) and persons (medical exam, training). Choose how far ahead: on the day, 1 day, 2 days or 1 week before. Notifications must be allowed in the phone settings.</li>
 <li><strong>Switch company:</strong> opens the company switcher, see section 7.</li>
-<li><strong>Save database to file / Load database from file:</strong> saves all data to one backup file or loads such a file, for example on a new phone. Loading overwrites all data currently on the device.</li>
+<li><strong>Save database to file / Load database from file:</strong> saves all data (surveys, points, instruments, sources, persons, marked map areas, photos and attached files) to one backup file, or loads such a file, for example on a new phone. Loading overwrites all data currently on the device.</li>
 <li><strong>Clear database:</strong> permanently deletes all surveys, points, instruments, sources, persons and photos from the device. Make a backup first.</li>
 <li><strong>Contributors:</strong> thanks to the volunteers and organizations that help build RadRecon, and how to join them.</li>
-<li><strong>Units:</strong> the default unit of dose rate (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), activity (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) and distance (m, cm, inch, feet). New measurements start with these units. While recording, another unit can be chosen from a list and the typed number is converted automatically. The dose rate alert threshold is converted too, and the protocol and the exports use the selected units.</li>
+<li><strong>Units:</strong> the default unit of dose rate (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), activity (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) and distance (m, cm, inch, feet). New measurements start with these units. While recording, another unit can be chosen from a list and the typed number is converted automatically. The dose rate alert threshold is converted too, and the protocol uses the selected units.</li>
+<li><strong>Display units:</strong> the unit of personal dose (automatic: µSv, switching to mSv above 1 mSv; or a fixed unit), surface contamination, temperature, pressure and wind speed. The screens and the protocol use these units. The stored values do not change, and the CSV and JSON exports and the backup file keep the stored units. The alert threshold for surface contamination is entered in Bq/cm².</li>
 <li><strong>Regulatory profile:</strong> International (IAEA) or Hungary (OAH). The Hungarian profile adds the Hungarian categories to the classification of sources, see section 4.</li>
 </ul>
 <h3>Company documents and permits</h3>
@@ -129,6 +130,8 @@
 <li><strong>Passive dosimetry:</strong> results of a monthly or bimonthly evaluation, not tied to any survey. In the persons list press <strong>Manage doses</strong> at the person, then <strong>Add passive dosimetry</strong>, and enter the dose with <strong>Evaluation period start</strong> and <strong>Evaluation period end</strong>. The dose counts for the year in which the period ends.</li>
 </ul>
 <p>When you close a survey, <strong>Review doses</strong> lets you correct the dose of every participant before closing. The dose screen of a person lists all entries of the year with their total, and each entry can be edited or deleted. Use <strong>Import doses (CSV)</strong> and <strong>Export doses (CSV)</strong> in the persons list menu to move doses in and out.</p>
+<h3>Annual dose limit check</h3>
+<p>The header of the persons list shows the annual limit of the category selected there: <strong>Occupational</strong> (20 mSv per year) or <strong>Public</strong> (1 mSv per year). For the selected year, each person’s row shows the dose as a share of this limit, with one of three statuses: <strong>within limit</strong>, <strong>warning level reached</strong> (from 50 %) or <strong>limit exceeded</strong> (from 100 %). Both regulatory profiles use the same limits; the profile changes only the cited source (OAH decree 2/2022 or IAEA GSR Part 3). The check covers a single year: the five-year averaging of the IAEA is not applied, and the category applies to the whole list, not to individual persons. It does not replace the official assessment.</p>
 <p>The dose figures help your record keeping and do not replace official personal dosimetry. Check them against the results of your approved dosimetry service.</p>
 
 <h2 id="m7">7. Switching between companies</h2>
@@ -153,7 +156,7 @@
 <h2 id="m9">9. Recording a measurement point</h2>
 <p>Press <strong>New point</strong> in the survey.</p>
 <ul>
-<li><strong>Measurement type:</strong> dose rate, surface contamination, count rate (cps), neutron count rate (cps) or sampling.</li>
+<li><strong>Measurement type:</strong> dose rate, surface contamination, count rate (cps), neutron count rate (cps) or sampling. Sampling also includes the <strong>Meteorology</strong> and <strong>Gas measurement</strong> types, which have no measured value: the weather data or the gas concentrations are entered with the point.</li>
 <li><strong>Location name, measured value and unit.</strong> Each type has a default unit.</li>
 <li><strong>Distance from source</strong> and <strong>nuclide</strong>, which give a quick estimate of the activity from the measured value.</li>
 <li><strong>Instrument:</strong> select one from your list, or add a new one with the plus button. For a Modbus instrument use the <strong>Modbus query</strong> button to read the value directly.</li>
@@ -185,12 +188,17 @@
 <h2 id="m11">11. Map</h2>
 <p>The map shows all points of the survey. Use the camera icon to save a screenshot of the map; it is attached when you export the protocol. From the point list, <strong>Save list screenshot</strong> does the same for the list. The map background needs an internet connection.</p>
 
+<h3>Marked areas</h3>
+<p>Areas let you mark a part of the surveyed site on the map, for example a surveyed, restricted or contaminated area. Press <strong>Mark area</strong> on the map. Enter a <strong>Name</strong> (for example Surveyed area), choose the <strong>Shape</strong> (<strong>Polygon</strong> or <strong>Circle</strong>) and a <strong>Colour</strong>, then press <strong>Draw</strong>. For a polygon, tap the corners in turn and press <strong>Done</strong>; at least 3 corners are needed, and <strong>Undo</strong> removes the last corner. For a circle, tap the centre and then a point on the edge to set the radius. Areas are drawn with a semi-transparent fill in their colour. The <strong>Marked areas</strong> button lists the areas of the survey; the list lets you delete an area after confirmation. The areas are included in the Word and PDF protocols (name, shape, geometry and area in m²) and in the backup file.</p>
+
 <h2 id="m12">12. Tools</h2>
 <p>The tools are in the survey menu (three dots).</p>
 <ul>
 <li><strong>Automatic logging:</strong> records points from a Modbus/TCP instrument by time interval (at least 1 second) or distance interval (at least 1 metre). It shows the points recorded, the last value and failed readings. Logging works only while this screen is open; if the phone locks or you switch apps, it pauses and you have to restart it.</li>
 <li><strong>Distance measurement:</strong> distance and bearing from your current position or a chosen starting point to a target point. With <strong>Live tracking</strong> the values update as you walk, in the direction of the arrow.</li>
 <li><strong>Isotope calculator:</strong> converts activity (MBq) to dose rate (µSv/h) at a distance, or a measured dose rate back to activity. Built-in nuclides: Co-60, Cs-137, Ir-192, Ra-226, I-131, Na-22 and Am-241.</li>
+<li><strong>Decay calculator:</strong> works in two modes, <strong>Activity after time t</strong> and <strong>Time to target activity</strong>. It uses the half-life of a nuclide (from the list, or a custom half-life). With a distance entered, it also shows the dose rate at that distance. The calculation is pure exponential decay: daughter nuclides and other radiation are not included.</li>
+<li><strong>Unit converter:</strong> converts values between the units used in the App: dose, dose rate, activity, activity concentration, surface contamination, count rate, length, area, volume, mass, temperature, pressure, speed, time, irradiance, precipitation rate, aerosol mass concentration and gas concentration. Tap a row to convert the value to that unit; it then becomes the source unit. To convert between the mass and the volume concentration of a gas, the molar mass is needed. Choose the gas from the list to fill it in: 22 gases are listed, while VOC and NOx have no molar mass and it must be entered by hand. The conversion assumes 25 °C and 1 atm. The %LEL unit cannot be converted, because it depends on the limit of the gas.</li>
 <li><strong>Source search:</strong> estimates the direction in which the selected measurement type increases, from the points already recorded in the survey. With fewer than 4 points the estimate is flagged as unreliable. Take more points at different spots in the search area.</li>
 </ul>
 <p>The automatic logging screen draws a time chart of the readings while it runs, with the alert threshold as a red dashed line, so you can see the change of the measured value. The chart keeps the last 2 hours at one-second sampling and is not saved. The isotope calculator can use the same shielding layers and then shows the unshielded and the shielded result.</p>
@@ -199,13 +207,13 @@
 <h2 id="m13">13. Closing, exporting and importing</h2>
 <ul>
 <li><strong>Close survey:</strong> the protocol then shows the date as the end time. Points are not locked, so you can still edit them.</li>
-<li><strong>Export protocol:</strong> creates a Word protocol with the point list and attached images. It is delivered as a ZIP file that contains the document and a folder with the photos.</li>
+<li><strong>Export protocol:</strong> creates a Word or a PDF protocol, as you choose in the dialog. It contains the point list, the marked areas, the meteorology and gas tables and the attached photos. The Word protocol is delivered as a ZIP file that contains the document and a folder with the photos.</li>
 <li><strong>Export points (data, JSON):</strong> a data file that another RadRecon installation can import.</li>
 <li><strong>Export points (table, CSV):</strong> a table for Excel with position, accuracy, instrument, timestamp, sampling, notes, estimated activity, attached sources and calculated dose rate.</li>
 <li><strong>Import points (JSON):</strong> loads points from a JSON file. Missing instruments and sources are created, and points without a valid GPS position or with an unknown measurement type are skipped with a warning.</li>
 </ul>
 <p>When you import a CSV into the instruments, sources or persons list, choose what happens to a matching record: replace it, skip it, or import it as a duplicate.</p>
-<p>The protocol and the exports use the units selected in the settings. The protocol shows the value with its error and the number of samples of an averaged measurement, and the instrument with its verification/calibration records. The CSV has the additional columns <strong>Error (±)</strong>, <strong>Averaging (samples; s)</strong> and <strong>Instrument verification/calibration</strong>; the JSON file carries the same data.</p>
+<p>The protocol uses the units selected in the settings. The CSV and JSON exports keep the stored units. The protocol shows the value with its error and the number of samples of an averaged measurement, and the instrument with its verification/calibration records. The CSV has the additional columns <strong>Error (±)</strong>, <strong>Averaging (samples; s)</strong> and <strong>Instrument verification/calibration</strong>; the JSON file carries the same data.</p>
 
 
 <h2 id="m14">14. Troubleshooting</h2>

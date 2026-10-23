@@ -163,7 +163,7 @@ class _GradientSearchScreenState extends State<GradientSearchScreen> {
               initialValue: _type,
               decoration: InputDecoration(labelText: loc.measurementTypeLabel),
               items: MeasurementType.values
-                  .where((t) => t != MeasurementType.sample)
+                  .where((t) => t.hasValue)
                   .map((t) =>
                       DropdownMenuItem(value: t, child: Text(t.label(context))))
                   .toList(),

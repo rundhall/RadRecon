@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../services/number_input.dart';
 import '../l10n/app_localizations.dart';
 import '../models/distance_unit.dart';
 import '../models/shielding.dart';
@@ -18,7 +19,7 @@ class ShieldingLayerEdit {
 List<ShieldingLayer> validShieldingLayers(List<ShieldingLayerEdit> edits) {
   final out = <ShieldingLayer>[];
   for (final e in edits) {
-    final v = double.tryParse(e.ctrl.text.trim());
+    final v = parseDecimal(e.ctrl.text);
     if (v != null && v > 0) {
       out.add(ShieldingLayer(e.material, e.unit.toMeters(v) * 100));
     }

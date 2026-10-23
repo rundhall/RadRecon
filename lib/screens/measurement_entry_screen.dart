@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart' as ll;
 import 'package:file_selector/file_selector.dart' as fs;
 
+import '../widgets/distance_echo.dart';
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/calibration_labels.dart';
@@ -17,11 +18,17 @@ import '../models/measurement_point.dart';
 import '../models/measurement_type.dart';
 import '../models/nuclide_id.dart';
 import '../models/point_source_link.dart';
+import '../l10n/domain_labels.dart';
+import '../models/gas_reading.dart';
+import '../models/meteorology.dart';
+import '../models/sample_unit.dart';
 import '../models/shielding.dart';
 import '../models/shielding_labels.dart';
 import '../models/distance_unit.dart';
+import '../services/display_units.dart';
 import '../models/dose_rate_unit.dart';
 import '../services/activity_estimate.dart';
+import '../services/number_input.dart';
 import '../services/dose_unit_controller.dart';
 import '../services/dose_unit_converter.dart';
 import '../services/modbus_reader_service.dart';
@@ -74,6 +81,23 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   final _sampleContainerCtrl = TextEditingController();
   final _sampleAmountCtrl = TextEditingController();
   final _sampleMethodCtrl = TextEditingController();
+  final _sampleUnitCtrl = TextEditingController();
+  SampleUnit? _sampleUnit;
+
+  // Meteorológia (opcionális, bármelyik mező üres maradhat).
+  static const _metKeys = [
+    'temp', 'humidity', 'pressure', 'wind', 'windDir', 'gust', 'precip',
+    'solar', 'cloud', 'visibility', 'soil', 'aerosol',
+  ];
+  final Map<String, TextEditingController> _metCtrls = {
+    for (final k in _metKeys) k: TextEditingController(),
+  };
+  final _metOtherCtrl = TextEditingController();
+  PrecipitationState? _precipitation;
+
+  // Gázmérés: tetszőleges számú vegyület egy mérési ponton.
+  final List<_GasEdit> _gases = [];
+  final List<_GasEdit> _discardedGases = [];
 
   final _latCtrl = TextEditingController();
   final _lonCtrl = TextEditingController();
@@ -83,6 +107,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
 
   bool _isSourcePosition = false;
   bool _isSample = false;
+  /// Nyitott-e a felmérés (lezárt felmérésből nem törölhető pont).
+  bool _sessionOpen = false;
 
   int? _instrumentId;
   List<Instrument> _instruments = [];
@@ -90,6 +116,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
 
   // Mérési hiba (±) és átlagolt Modbus-mérés.
   final _errorCtrl = TextEditingController();
+  /// Az utoljára kézzel beírt hibaérték (lásd QuantityField).
+  String? _errorTypedText;
   int? _avgSamples;
   int? _avgSeconds;
   int _avgDuration = 60;
@@ -126,8 +154,9 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   void initState() {
     super.initState();
     _editingPoint = widget.existingPoint;
-    _unitCtrl.text = _type.defaultUnit;
+    _unitCtrl.text = _displayUnitFor(_type);
     _loadInstruments();
+    _loadSessionState();
     if (_editingPoint != null) {
       _prefillFromExisting(_editingPoint!);
       _loadAttachedSources();
@@ -138,15 +167,52 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     }
   }
 
+  Future<void> _loadSessionState() async {
+    final session =
+        await DatabaseHelper.instance.getSurveySession(widget.surveySessionId);
+    if (mounted) setState(() => _sessionOpen = session != null && !session.isClosed);
+  }
+
+  /// Mérési pont törlése megerősítés után, csak nyitott felmérésben.
+  Future<void> _confirmDeletePoint() async {
+    final loc = AppLocalizations.of(context)!;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(loc.deletePointTitle),
+        content: Text(loc.deletePointBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(loc.cancelButton),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(loc.deleteButton),
+          ),
+        ],
+      ),
+    );
+    final id = _editingPoint?.id;
+    if (ok != true || id == null || !mounted) return;
+    await DatabaseHelper.instance.deleteMeasurementPoint(id);
+    if (mounted) Navigator.of(context).pop(true);
+  }
+
   void _prefillFromExisting(MeasurementPoint p) {
     _type = p.type;
     _locationLabelCtrl.text = p.locationLabel ?? '';
-    _valueCtrl.text = p.value == null ? '' : _fmt(p.value!, 4);
-    _errorCtrl.text =
-        p.valueError == null ? '' : QuantityField.formatNumber(p.valueError!);
+    final isSurface = p.type == MeasurementType.surfaceContamination;
+    _valueCtrl.text = p.value == null
+        ? ''
+        : _fmt(isSurface ? DisplayUnits.surfaceFromCanonical(p.value!) : p.value!, 4);
+    _errorCtrl.text = p.valueError == null
+        ? ''
+        : QuantityField.formatNumber(
+            isSurface ? DisplayUnits.surfaceFromCanonical(p.valueError!) : p.valueError!);
     _avgSamples = p.averagingSamples;
     _avgSeconds = p.averagingSeconds;
-    _unitCtrl.text = p.unit;
+    _unitCtrl.text = isSurface ? DisplayUnits.surface.value : p.unit;
     _distanceCtrl.text = p.distanceFromSourceMeters == null
         ? ''
         : QuantityField.formatNumber(
@@ -161,6 +227,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     _notesCtrl.text = p.notes ?? '';
     _sampleContainerCtrl.text = p.sampleContainerId ?? '';
     _sampleAmountCtrl.text = p.sampleAmount?.toString() ?? '';
+    _sampleUnit = SampleUnit.matchStored(p.sampleUnit);
+    if (_sampleUnit == SampleUnit.other) _sampleUnitCtrl.text = p.sampleUnit ?? '';
     _sampleMethodCtrl.text = p.sampleMethod ?? '';
     _latCtrl.text = _fmt(p.latitude, 6);
     _lonCtrl.text = _fmt(p.longitude, 6);
@@ -169,6 +237,41 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     _isSample = p.isSample;
     _instrumentId = p.instrumentId;
     _photoPath = p.photoPath;
+
+    final mv = p.meteorology;
+    if (mv != null) {
+      void setMet(String key, double? v) {
+        if (v != null) _metCtrls[key]!.text = _fmt(v, 2);
+      }
+
+      setMet('temp', DisplayUnits.tempFromC(mv.airTemperatureC));
+      setMet('humidity', mv.relativeHumidityPct);
+      setMet('pressure', DisplayUnits.pressureFromHpa(mv.pressureHpa));
+      setMet('wind', DisplayUnits.windFromMs(mv.windSpeedMs));
+      setMet('windDir', mv.windDirectionDeg);
+      setMet('gust', DisplayUnits.windFromMs(mv.gustMs));
+      setMet('precip', mv.precipitationMmH);
+      setMet('solar', mv.solarWm2);
+      setMet('cloud', mv.cloudOkta);
+      setMet('visibility', mv.visibilityM);
+      setMet('soil', mv.soilMoisturePct);
+      setMet('aerosol', mv.aerosolUgM3);
+      _precipitation = mv.precipitation;
+      _metOtherCtrl.text = mv.other ?? '';
+    }
+    for (final g in p.gases) {
+      final known = gasSpecies.any((s) => s.name == g.name);
+      final e = _GasEdit(
+        species: known ? g.name : otherGasName,
+        unit: g.unit,
+      );
+      if (!known) {
+        e.nameCtrl.text = g.name;
+        e.formulaCtrl.text = g.formula;
+      }
+      e.concCtrl.text = _fmt(g.concentration, 4);
+      _gases.add(e);
+    }
   }
 
   Future<void> _loadInstruments() async {
@@ -196,7 +299,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   List<ShieldingLayer> _validLayers() {
     final out = <ShieldingLayer>[];
     for (final e in _layers) {
-      final v = double.tryParse(e.ctrl.text.trim());
+      final v = parseDecimal(e.ctrl.text);
       if (v != null && v > 0) {
         out.add(ShieldingLayer(e.material, e.unit.toMeters(v) * 100));
       }
@@ -206,7 +309,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
 
   /// A "forrás távolság" mező értéke méterben (a választott egységből).
   double? _distanceMeters() {
-    final v = double.tryParse(_distanceCtrl.text.trim());
+    final v = parseDecimal(_distanceCtrl.text);
     return v == null ? null : _distanceUnit.toMeters(v);
   }
 
@@ -261,7 +364,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   /// mentett forráshoz, csak gyors becslés. Null, ha a bemenetek nem
   /// elégségesek, vagy a mértékegység nem alakítható µSv/h-ra.
   Widget? _buildActivityFromMeasurementPanel(AppLocalizations loc) {
-    final measuredValue = double.tryParse(_valueCtrl.text.trim());
+    final measuredValue = parseDecimal(_valueCtrl.text);
     final distance = _distanceMeters();
     if (measuredValue == null || distance == null || distance <= 0) {
       return null;
@@ -358,7 +461,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                 onUnitChanged: (u) => setState(() => _layers[i].unit = u),
                 onChanged: () => setState(() {}),
                 validator: (v) {
-                  final t = double.tryParse((v ?? '').trim());
+                  final t = parseDecimal(v ?? '');
                   return (t == null || t <= 0)
                       ? loc.shieldingThicknessError
                       : null;
@@ -468,9 +571,9 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
           // a mérés típusát átállítjuk, az értéket pedig az alapegységre váltjuk.
           _type = instrument.modbusMeasurementType;
           _isSample = false;
-          _unitCtrl.text = _type.defaultUnit;
+          _unitCtrl.text = _displayUnitFor(_type);
           _valueCtrl.text = QuantityField.formatNumber(
-            instrumentReadingInAppUnit(instrument, result.value!),
+            _shownValue(_type, instrumentReadingInAppUnit(instrument, result.value!)),
           );
           _errorCtrl.clear();
           _avgSamples = null;
@@ -541,10 +644,11 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       if (stats == null) return;
       _type = instrument.modbusMeasurementType;
       _isSample = false;
-      _unitCtrl.text = _type.defaultUnit;
-      _valueCtrl.text = QuantityField.formatNumber(stats.mean);
+      _unitCtrl.text = _displayUnitFor(_type);
+      _valueCtrl.text = QuantityField.formatNumber(_shownValue(_type, stats.mean));
       final se = stats.standardError;
-      _errorCtrl.text = se == null ? '' : QuantityField.formatNumber(se);
+      _errorCtrl.text =
+          se == null ? '' : QuantityField.formatNumber(_shownValue(_type, se));
       _avgSamples = stats.n;
       _avgSeconds = seconds;
       final g = lastGps;
@@ -623,8 +727,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   }
 
   Future<void> _openMapPicker() async {
-    final currentLat = double.tryParse(_latCtrl.text.trim());
-    final currentLon = double.tryParse(_lonCtrl.text.trim());
+    final currentLat = parseDecimal(_latCtrl.text);
+    final currentLon = parseDecimal(_lonCtrl.text);
     final initialCenter = (currentLat != null && currentLon != null)
         ? ll.LatLng(currentLat, currentLon)
         : const ll.LatLng(47.4979, 19.0402); // Budapest, ha még nincs pozíció
@@ -699,6 +803,223 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
+  /// A mintavétel egységének tárolt alakja: a rövidítés, vagy az "egyéb"
+  /// választásnál a felhasználó saját szövege.
+  /// A típus bevitelben használt egysége: felületi szennyezettségnél a
+  /// beállított megjelenítési egység, egyébként az alapegység.
+  String _displayUnitFor(MeasurementType t) =>
+      t == MeasurementType.surfaceContamination
+          ? DisplayUnits.surface.value
+          : t.defaultUnit;
+
+  /// Tárolt (kanonikus) értékből a bevitelben megjelenő érték.
+  double _shownValue(MeasurementType t, double v) =>
+      t == MeasurementType.surfaceContamination
+          ? DisplayUnits.surfaceFromCanonical(v)
+          : v;
+
+  /// A bevitt (megjelenítési egységű) értékből a tárolt érték.
+  double? _toStoredValue(double? v) =>
+      (v == null || _type != MeasurementType.surfaceContamination)
+          ? v
+          : DisplayUnits.surfaceToCanonical(v);
+
+  /// A mentett egység: felületi szennyezettségnél mindig a tárolt Bq/cm².
+  String _storedUnit() => _type == MeasurementType.surfaceContamination
+      ? kSurfaceCanonicalUnit
+      : _unitCtrl.text.trim();
+
+  /// A meteorológiai címke a beállított egységgel (ha az egység váltható).
+  String _metLabel(AppLocalizations loc, String key) {
+    final base = _metLabelBase(loc, key);
+    final unit = switch (key) {
+      'temp' => DisplayUnits.temperature.value,
+      'pressure' => DisplayUnits.pressure.value,
+      'wind' || 'gust' => DisplayUnits.wind.value,
+      _ => null,
+    };
+    if (unit == null) return base;
+    final stripped = base.replaceFirst(RegExp(r'\s*\([^)]*\)$'), '');
+    return '$stripped ($unit)';
+  }
+
+  String _metLabelBase(AppLocalizations loc, String key) => switch (key) {
+        'temp' => loc.rrMetTemp,
+        'humidity' => loc.rrMetHumidity,
+        'pressure' => loc.rrMetPressure,
+        'wind' => loc.rrMetWind,
+        'windDir' => loc.rrMetWindDir,
+        'gust' => loc.rrMetGust,
+        'precip' => loc.rrMetPrecipIntensity,
+        'solar' => loc.rrMetSolar,
+        'cloud' => loc.rrMetCloud,
+        'visibility' => loc.rrMetVisibility,
+        'soil' => loc.rrMetSoil,
+        _ => loc.rrMetAerosol,
+      };
+
+  void _removeGas(_GasEdit g) {
+    setState(() {
+      _gases.remove(g);
+      _discardedGases.add(g);
+    });
+  }
+
+  double? _metValue(String key) {
+    final t = _metCtrls[key]!.text.trim();
+    return t.isEmpty ? null : parseDecimal(t);
+  }
+
+  Meteorology? _meteorologyValue() {
+    final other = _metOtherCtrl.text.trim();
+    final m = Meteorology(
+      airTemperatureC: DisplayUnits.tempToC(_metValue('temp')),
+      relativeHumidityPct: _metValue('humidity'),
+      pressureHpa: DisplayUnits.pressureToHpa(_metValue('pressure')),
+      windSpeedMs: DisplayUnits.windToMs(_metValue('wind')),
+      windDirectionDeg: _metValue('windDir'),
+      precipitation: _precipitation,
+      gustMs: DisplayUnits.windToMs(_metValue('gust')),
+      precipitationMmH: _metValue('precip'),
+      solarWm2: _metValue('solar'),
+      cloudOkta: _metValue('cloud'),
+      visibilityM: _metValue('visibility'),
+      soilMoisturePct: _metValue('soil'),
+      aerosolUgM3: _metValue('aerosol'),
+      other: other.isEmpty ? null : other,
+    );
+    return m.isEmpty ? null : m;
+  }
+
+  /// A gázmérési sorok; koncentráció nélküli vagy név nélküli sor kimarad.
+  List<GasReading> _gasValues() {
+    final out = <GasReading>[];
+    for (final g in _gases) {
+      final conc = parseDecimal(g.concCtrl.text.trim());
+      if (conc == null) continue;
+      final isOther = g.species == otherGasName;
+      final name = isOther ? g.nameCtrl.text.trim() : g.species;
+      if (name.isEmpty) continue;
+      out.add(GasReading(
+        name: name,
+        formula: isOther ? g.formulaCtrl.text.trim() : gasFormulaOf(g.species),
+        concentration: conc,
+        unit: g.unit,
+      ));
+    }
+    return out;
+  }
+
+  Widget _gasEditor(_GasEdit g) {
+    final loc = AppLocalizations.of(context)!;
+    final isOther = g.species == otherGasName;
+    final formula = gasFormulaOf(g.species);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  isExpanded: true,
+                  initialValue: g.species,
+                  decoration: InputDecoration(labelText: loc.rrGasSpecies),
+                  items: [
+                    for (final s in gasSpecies)
+                      DropdownMenuItem(
+                        value: s.name,
+                        child: Text(
+                          localizedGasName(loc, s.name),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    DropdownMenuItem(
+                      value: otherGasName,
+                      child: Text(loc.rrGasOther),
+                    ),
+                  ],
+                  onChanged: (v) {
+                    if (v != null) setState(() => g.species = v);
+                  },
+                ),
+              ),
+              IconButton(
+                tooltip: loc.rrDeleteTooltip,
+                icon: const Icon(Icons.delete_outline),
+                onPressed: () => _removeGas(g),
+              ),
+            ],
+          ),
+          if (!isOther && formula.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 12, top: 4),
+              child: Text('${loc.rrFormulaLabel}: $formula'),
+            ),
+          if (isOther) ...[
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: g.nameCtrl,
+              decoration: InputDecoration(labelText: loc.rrGasOtherName),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: g.formulaCtrl,
+              decoration: InputDecoration(labelText: loc.rrFormulaLabel),
+            ),
+          ],
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: g.concCtrl,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  decoration:
+                      InputDecoration(labelText: loc.rrGasConcentration),
+                  validator: (v) {
+                    final t = v?.trim() ?? '';
+                    if (t.isEmpty) return null;
+                    final n = parseDecimal(t);
+                    return (n == null || n < 0) ? loc.rrInvalidValue : null;
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 130,
+                child: DropdownButtonFormField<GasUnit>(
+                  isExpanded: true,
+                  initialValue: g.unit,
+                  decoration: InputDecoration(labelText: loc.rrGasUnit),
+                  items: [
+                    for (final u in GasUnit.values)
+                      DropdownMenuItem(value: u, child: Text(u.symbol)),
+                  ],
+                  onChanged: (v) {
+                    if (v != null) setState(() => g.unit = v);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String? _sampleUnitStored() {
+    final u = _sampleUnit;
+    if (u == null) return null;
+    if (u.isCustom) {
+      final t = _sampleUnitCtrl.text.trim();
+      return t.isEmpty ? null : t;
+    }
+    return u.symbol;
+  }
+
   /// Az űrlap mezőiből épít fel egy `MeasurementPoint`-ot. `id`/`timestamp`/
   /// `createdAt` nélkül új pontot ad (a `_save` és a forrás-hozzárendelés
   /// előtti automatikus mentés is ezt hívja), meglévő pontra hivatkozva
@@ -721,12 +1042,12 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       longitude: longitude,
       gpsAccuracyMeters: _gpsAccuracy,
       type: _type,
-      value: _valueCtrl.text.trim().isEmpty
+      value: !_type.hasValue || _valueCtrl.text.trim().isEmpty
           ? null
-          : double.tryParse(_valueCtrl.text.trim()),
-      valueError: _isSample || _errorCtrl.text.trim().isEmpty
+          : _toStoredValue(parseDecimal(_valueCtrl.text)),
+      valueError: _isSample || !_type.hasValue || _errorCtrl.text.trim().isEmpty
           ? null
-          : double.tryParse(_errorCtrl.text.trim().replaceAll(',', '.'))?.abs(),
+          : _toStoredValue(double.tryParse(_errorCtrl.text.trim().replaceAll(',', '.'))?.abs()),
       averagingSamples:
           _isSample || _errorCtrl.text.trim().isEmpty && _avgSamples == null
               ? null
@@ -735,13 +1056,14 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
           _isSample || _errorCtrl.text.trim().isEmpty && _avgSamples == null
               ? null
               : _avgSeconds,
-      unit: _unitCtrl.text.trim(),
+      unit: _storedUnit(),
       distanceFromSourceMeters:
           _distanceCtrl.text.trim().isEmpty ? null : _distanceMeters(),
-      activityCalcNuclide: _isSample ? null : _estimationNuclide,
+      activityCalcNuclide: _isSample || !_type.hasValue ? null : _estimationNuclide,
       instrumentId: _instrumentId,
-      nuclideStatus: _isSample ? NuclideIdStatus.notSpecified : _nuclideStatus,
-      nuclides: !_isSample && _nuclideStatus.hasNuclideList ? _nuclides : const [],
+      nuclideStatus:
+          _isSample || !_type.hasValue ? NuclideIdStatus.notSpecified : _nuclideStatus,
+      nuclides: _type.hasValue && !_isSample && _nuclideStatus.hasNuclideList ? _nuclides : const [],
       shieldingLayers: _isSample || _estimationNuclide == null
           ? const []
           : _validLayers(),
@@ -752,8 +1074,11 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
           ? _sampleContainerCtrl.text.trim()
           : null,
       sampleAmount: _isSample && _sampleAmountCtrl.text.trim().isNotEmpty
-          ? double.tryParse(_sampleAmountCtrl.text.trim())
+          ? parseDecimal(_sampleAmountCtrl.text)
           : null,
+      sampleUnit: _isSample ? _sampleUnitStored() : null,
+      meteorology: _type == MeasurementType.meteorology ? _meteorologyValue() : null,
+      gases: _type == MeasurementType.gasMeasurement ? _gasValues() : const [],
       sampleMethod: _isSample && _sampleMethodCtrl.text.trim().isNotEmpty
           ? _sampleMethodCtrl.text.trim()
           : null,
@@ -775,8 +1100,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     if (_editingPoint != null) return _editingPoint;
 
     if (!_formKey.currentState!.validate()) return null;
-    final latitude = double.tryParse(_latCtrl.text.trim());
-    final longitude = double.tryParse(_lonCtrl.text.trim());
+    final latitude = parseDecimal(_latCtrl.text);
+    final longitude = parseDecimal(_lonCtrl.text);
     if (latitude == null || longitude == null) {
       _showError(AppLocalizations.of(context)!.noValidPositionError);
       return null;
@@ -792,15 +1117,16 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    final latitude = double.tryParse(_latCtrl.text.trim());
-    final longitude = double.tryParse(_lonCtrl.text.trim());
+    final latitude = parseDecimal(_latCtrl.text);
+    final longitude = parseDecimal(_lonCtrl.text);
     if (latitude == null || longitude == null) {
       _showError(AppLocalizations.of(context)!.noValidPositionError);
       return;
     }
 
     // Azonosított / egyéb nuklidnál legalább egy nuklid nevét meg kell adni.
-    if (!_isSample &&
+    if (_type.hasValue &&
+        !_isSample &&
         (_nuclideStatus == NuclideIdStatus.identified ||
             _nuclideStatus == NuclideIdStatus.other) &&
         _nuclides.isEmpty) {
@@ -923,6 +1249,14 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     _sampleContainerCtrl.dispose();
     _sampleAmountCtrl.dispose();
     _sampleMethodCtrl.dispose();
+    _sampleUnitCtrl.dispose();
+    _metOtherCtrl.dispose();
+    for (final c in _metCtrls.values) {
+      c.dispose();
+    }
+    for (final g in [..._gases, ..._discardedGases]) {
+      g.dispose();
+    }
     super.dispose();
   }
 
@@ -935,6 +1269,12 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
           widget.existingPoint == null ? loc.newPointTitle : loc.editPointTitle,
         ),
         actions: [
+          if (_editingPoint != null && _sessionOpen)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              tooltip: loc.deletePointTooltip,
+              onPressed: _confirmDeletePoint,
+            ),
           IconButton(
             icon: const Icon(Icons.save),
             tooltip: loc.saveButton,
@@ -964,7 +1304,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                 if (t == null) return;
                 setState(() {
                   _type = t;
-                  _unitCtrl.text = t.defaultUnit;
+                  _unitCtrl.text = _displayUnitFor(t);
                   _isSample = t == MeasurementType.sample;
                 });
               },
@@ -977,7 +1317,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            if (_type != MeasurementType.sample) ...[
+            if (_type.hasValue) ...[
               if (_type == MeasurementType.doseRate &&
                   DoseRateUnit.fromSymbol(_unitCtrl.text) != null)
                 // Zárt listából választható egység (nem lehet elgépelni);
@@ -989,9 +1329,11 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                   unit: DoseRateUnit.fromSymbol(_unitCtrl.text)!,
                   onUnitChanged: (u) => setState(() {
                     final old = DoseRateUnit.fromSymbol(_unitCtrl.text);
-                    final err = double.tryParse(
-                        _errorCtrl.text.trim().replaceAll(',', '.'));
-                    if (old != null && err != null) {
+                    final err = parseDecimal(_errorCtrl.text);
+                    // Kézzel beírt hibaértéknél a szám marad, mint a mért értéknél.
+                    final typedError = _errorTypedText != null &&
+                        _errorCtrl.text == _errorTypedText;
+                    if (old != null && err != null && !typedError) {
                       _errorCtrl.text = QuantityField.formatNumber(
                           old.convertTo(u, err));
                     }
@@ -1002,7 +1344,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                     if (v == null || v.trim().isEmpty) {
                       return loc.requiredFieldError;
                     }
-                    if (double.tryParse(v.trim()) == null) {
+                    if (parseDecimal(v) == null) {
                       return loc.numberRequiredError;
                     }
                     return null;
@@ -1024,7 +1366,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                         if (v == null || v.trim().isEmpty) {
                           return loc.requiredFieldError;
                         }
-                        if (double.tryParse(v.trim()) == null) {
+                        if (parseDecimal(v) == null) {
                           return loc.numberRequiredError;
                         }
                         return null;
@@ -1053,6 +1395,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                 onUnitChanged: (u) => setState(() => _distanceUnit = u),
                 onChanged: () => setState(() {}),
               ),
+              DistanceEcho(text: _distanceCtrl.text, unit: _distanceUnit),
               const SizedBox(height: 12),
               NuclideIdSection(
                 status: _nuclideStatus,
@@ -1134,7 +1477,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                 onChanged: (v) => setState(() => _isSourcePosition = v),
               ),
             ],
-            SwitchListTile(
+            if (_type.hasValue)
+              SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(loc.sampleTakenSwitchLabel),
               value: _isSample,
@@ -1154,13 +1498,95 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
+                validator: (v) {
+                  final t = v?.trim() ?? '';
+                  if (t.isEmpty) return null;
+                  final n = parseDecimal(t);
+                  return (n == null || n < 0) ? loc.sampleAmountInvalid : null;
+                },
               ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<SampleUnit?>(
+                initialValue: _sampleUnit,
+                decoration: InputDecoration(labelText: loc.sampleUnitLabel),
+                items: [
+                  const DropdownMenuItem<SampleUnit?>(
+                    value: null,
+                    child: Text('—'),
+                  ),
+                  for (final u in SampleUnit.values)
+                    DropdownMenuItem<SampleUnit?>(
+                      value: u,
+                      child: Text(u.isCustom ? loc.sampleUnitOther : u.symbol),
+                    ),
+                ],
+                onChanged: (v) => setState(() => _sampleUnit = v),
+              ),
+              if (_sampleUnit == SampleUnit.other) ...[
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _sampleUnitCtrl,
+                  decoration:
+                      InputDecoration(labelText: loc.sampleUnitCustomLabel),
+                ),
+              ],
               const SizedBox(height: 12),
               TextFormField(
                 controller: _sampleMethodCtrl,
                 decoration: InputDecoration(labelText: loc.sampleMethodLabel),
               ),
               const SizedBox(height: 12),
+            ],
+            if (_type == MeasurementType.meteorology) ...[
+                for (final key in _metKeys) ...[
+                  TextFormField(
+                    controller: _metCtrls[key],
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                      signed: true,
+                    ),
+                    decoration:
+                        InputDecoration(labelText: _metLabel(loc, key)),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                DropdownButtonFormField<PrecipitationState?>(
+                  isExpanded: true,
+                  initialValue: _precipitation,
+                  decoration:
+                      InputDecoration(labelText: loc.rrPrecipState),
+                  items: [
+                    const DropdownMenuItem<PrecipitationState?>(
+                      value: null,
+                      child: Text('—'),
+                    ),
+                    for (final s in PrecipitationState.values)
+                      DropdownMenuItem<PrecipitationState?>(
+                        value: s,
+                        child: Text(s.localized(loc)),
+                      ),
+                  ],
+                  onChanged: (v) => setState(() => _precipitation = v),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _metOtherCtrl,
+                  decoration:
+                      InputDecoration(labelText: loc.rrMetOther),
+                ),
+                const SizedBox(height: 12),
+            ],
+            if (_type == MeasurementType.gasMeasurement) ...[
+                for (final g in _gases)
+                  KeyedSubtree(key: ObjectKey(g), child: _gasEditor(g)),
+                TextButton.icon(
+                  onPressed: () => setState(
+                    () => _gases.add(_GasEdit(species: gasSpecies.first.name)),
+                  ),
+                  icon: const Icon(Icons.add),
+                  label: Text(loc.rrAddGas),
+                ),
+                const SizedBox(height: 12),
             ],
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -1211,7 +1637,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
             if (n == null) return loc.numberRequiredError;
             return null;
           },
-          onChanged: (_) => setState(() {
+          onChanged: (v) => setState(() {
+            _errorTypedText = v;
             _avgSamples = null; // kézzel módosított hiba: nem átlagolt adat
             _avgSeconds = null;
           }),
@@ -1336,7 +1763,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                     onChanged: (_) =>
                         setState(() => _positionManuallySet = true),
                     validator: (v) {
-                      final parsed = double.tryParse((v ?? '').trim());
+                      final parsed = parseDecimal(v ?? '');
                       if (parsed == null) return loc.invalidValueError;
                       return null;
                     },
@@ -1354,7 +1781,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                     onChanged: (_) =>
                         setState(() => _positionManuallySet = true),
                     validator: (v) {
-                      final parsed = double.tryParse((v ?? '').trim());
+                      final parsed = parseDecimal(v ?? '');
                       if (parsed == null) return loc.invalidValueError;
                       return null;
                     },
@@ -1428,7 +1855,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       );
     }
 
-    final measuredValue = double.tryParse(_valueCtrl.text.trim());
+    final measuredValue = parseDecimal(_valueCtrl.text);
     if (measuredValue == null) {
       rows.add(const Divider());
       rows.add(Text(loc.noMeasuredValueForComparisonNote));
@@ -1519,4 +1946,21 @@ class _LayerEdit {
   ShieldingMaterial material;
   final TextEditingController ctrl = TextEditingController();
   DistanceUnit unit = DistanceUnit.cm;
+}
+
+/// Egy szerkesztés alatti gázmérés-sor a vezérlőivel.
+class _GasEdit {
+  _GasEdit({required this.species, this.unit = GasUnit.ppm});
+
+  String species;
+  GasUnit unit;
+  final nameCtrl = TextEditingController();
+  final formulaCtrl = TextEditingController();
+  final concCtrl = TextEditingController();
+
+  void dispose() {
+    nameCtrl.dispose();
+    formulaCtrl.dispose();
+    concCtrl.dispose();
+  }
 }

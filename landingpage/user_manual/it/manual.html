@@ -35,8 +35,8 @@
       <div class="container">
 
 <h1>Manuale utente di RadRecon</h1>
-<p>Ultimo aggiornamento: 17/10/2026</p>
-<p>L’app è disponibile in inglese e ungherese. In questo manuale i nomi dei pulsanti e delle voci di menu sono in grassetto e corrispondono alla versione inglese dell’app.</p>
+<p>Ultimo aggiornamento: 23/10/2026</p>
+<p>L’app è disponibile in sei lingue: ungherese, inglese, tedesco, spagnolo, francese e italiano. In questo manuale i nomi dei pulsanti e delle voci di menu sono in grassetto, così come compaiono nella versione italiana dell’app.</p>
 
 <h2>Indice</h2>
 <ol>
@@ -58,46 +58,47 @@
 </ol>
 
 <h2 id="m1">1. Introduzione</h2>
-<p>RadRecon registra rilevamenti radiologici sul campo. Ogni punto di misura porta la sua posizione GPS, l’ora, lo strumento, il valore e l’unità, e facoltativamente una foto e una nota. I punti di un rilevamento sono mostrati su una mappa e possono essere esportati come verbale Word, JSON o CSV.</p>
-<p>L’app funziona su Android, iPhone, Windows, macOS e Linux. Tutti i dati sono memorizzati sul dispositivo. Non ci sono account né registrazione. La connessione a internet serve solo per lo sfondo della mappa e, se li usate, per gli strumenti in rete.</p>
+<p>RadRecon registra rilevamenti radiologici sul campo. Ogni punto di misura riporta la sua posizione GPS, l’ora, lo strumento, il valore e l’unità, e facoltativamente una foto e una nota. I punti di un rilevamento sono mostrati su una mappa e possono essere esportati come verbale Word o PDF, in JSON o in CSV.</p>
+<p>L’app funziona su Android, iPhone, Windows e macOS, in ungherese, inglese, tedesco, spagnolo, francese e italiano. Tutti i dati sono memorizzati sul dispositivo. Non ci sono account né registrazione. La connessione a internet serve solo per lo sfondo della mappa e, se li usate, per gli strumenti in rete.</p>
 
 <h2 id="m2">2. Schermata principale e impostazioni</h2>
-<p>La schermata principale elenca i vostri rilevamenti, dal più recente. Usate <strong>New survey</strong> per aggiungerne uno. La barra superiore dà accesso a strumenti, sorgenti radioattive, persone e impostazioni. Gli elenchi di strumenti, sorgenti e persone hanno un campo di ricerca.</p>
+<p>La schermata principale elenca i vostri rilevamenti, dal più recente. Usate <strong>Nuovo sopralluogo</strong> per aggiungerne uno. La barra superiore dà accesso a strumenti, sorgenti radioattive, persone e impostazioni. Gli elenchi di strumenti, sorgenti e persone hanno un campo di ricerca.</p>
 <h3>Impostazioni</h3>
 <ul>
-<li><strong>Language:</strong> inglese, ungherese o la lingua del telefono.</li>
-<li><strong>Appearance:</strong> tema chiaro, scuro o di sistema.</li>
-<li><strong>Alert thresholds:</strong> un limite per ogni tipo di misura. Quando un valore registrato lo raggiunge o lo supera, l’app avvisa con un suono e una finestra. Lasciate vuoto un campo per non avere allarmi su quel tipo.</li>
-<li><strong>Expiry notifications:</strong> disattivate per impostazione predefinita. Se attivate, l’app ricorda alle 8:00 le prossime scadenze di sorgenti (vita utile, controllo) e persone (visita medica, formazione). Scegliete l’anticipo: il giorno stesso, 1 giorno, 2 giorni o 1 settimana prima. Le notifiche devono essere consentite nelle impostazioni del telefono.</li>
-<li><strong>Switch company:</strong> apre il selettore di azienda, vedere la sezione 7.</li>
-<li><strong>Save database to file / Load database from file:</strong> salva tutti i dati in un file di backup o carica un file del genere, ad esempio su un nuovo telefono. Il caricamento sovrascrive tutti i dati sul dispositivo.</li>
-<li><strong>Clear database:</strong> elimina definitivamente dal dispositivo tutti i rilevamenti, punti, strumenti, sorgenti, persone e foto. Fate prima un backup.</li>
-<li><strong>Contributors:</strong> ringraziamenti ai volontari e alle organizzazioni che aiutano a costruire RadRecon, e come unirsi a loro.</li>
-<li><strong>Units:</strong> unità predefinita di rateo di dose (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), attività (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) e distanza (m, cm, inch, feet). Le nuove misure partono con queste unità. Durante la registrazione si può scegliere un'altra unità da un elenco e il numero digitato viene convertito automaticamente. Anche la soglia di allarme del rateo di dose viene convertita; il protocollo e le esportazioni usano le unità scelte.</li>
-<li><strong>Regulatory profile:</strong> Internazionale (IAEA) o Ungheria (OAH). Il profilo ungherese aggiunge le categorie ungheresi alla classificazione delle sorgenti, vedi la sezione 4.</li>
-<li><strong>Backup contents:</strong> oltre ai dati e alle foto, il file di backup contiene tutti gli allegati: certificati di verifica e taratura degli strumenti, certificati delle persone, certificati delle sorgenti e documenti dell'azienda.</li>
+<li><strong>Lingua:</strong> ungherese, inglese, tedesco, spagnolo, francese, italiano o la lingua del telefono.</li>
+<li><strong>Aspetto:</strong> tema chiaro, scuro o di sistema.</li>
+<li><strong>Soglie di allarme:</strong> un limite per ogni tipo di misura. Quando un valore registrato lo raggiunge o lo supera, l’app avvisa con un suono e una finestra. Lasciate vuoto un campo per non avere allarmi su quel tipo.</li>
+<li><strong>Notifiche di scadenza:</strong> disattivate per impostazione predefinita. Se le attivate, l’app ricorda alle 8:00 le prossime scadenze di sorgenti (vita utile, controllo) e persone (visita medica, formazione). Scegliete l’anticipo: il giorno stesso, 1 giorno, 2 giorni o 1 settimana prima. Le notifiche devono essere consentite nelle impostazioni del telefono.</li>
+<li><strong>Cambia azienda:</strong> apre il selettore di azienda, vedere la sezione 7.</li>
+<li><strong>Salva il database in un file / Carica il database da un file:</strong> salva tutti i dati (rilevamenti, punti, strumenti, sorgenti, persone, aree contrassegnate sulla mappa, foto e allegati) in un unico file di backup, oppure carica un file del genere, ad esempio su un nuovo telefono. Il caricamento sovrascrive tutti i dati sul dispositivo.</li>
+<li><strong>Cancella il database:</strong> elimina definitivamente dal dispositivo tutti i rilevamenti, punti, strumenti, sorgenti, persone e foto. Fate prima un backup.</li>
+<li><strong>Collaboratori:</strong> ringraziamenti ai volontari e alle organizzazioni che aiutano a costruire RadRecon, e come unirsi a loro.</li>
+<li><strong>Unità:</strong> unità predefinita di rateo di dose (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), attività (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) e distanza (m, cm, inch, feet). Le nuove misure partono con queste unità. Durante la registrazione potete scegliere un’altra unità da un elenco, e il numero digitato viene convertito automaticamente. Anche la soglia di allarme del rateo di dose viene convertita. Il protocollo usa le unità scelte.</li>
+<li><strong>Unità di visualizzazione:</strong> l’unità della dose personale (automatica: µSv, con passaggio a mSv sopra 1 mSv; oppure un’unità fissa), e quelle della contaminazione superficiale, della temperatura, della pressione e della velocità del vento. Le schermate e il protocollo usano queste unità. I valori memorizzati non cambiano; le esportazioni CSV e JSON e il file di backup conservano le unità memorizzate. La soglia di allarme della contaminazione superficiale si inserisce in Bq/cm².</li>
+<li><strong>Profilo normativo:</strong> Internazionale (IAEA) o Ungheria (OAH). Il profilo ungherese aggiunge le categorie ungheresi alla classificazione delle sorgenti, vedere la sezione 4.</li>
+<li>oltre ai dati e alle foto, il file di backup contiene tutti gli allegati: certificati di verifica e taratura degli strumenti, certificati delle persone, certificati delle sorgenti e documenti dell’azienda.</li>
 </ul>
-<h3>Documenti e autorizzazioni dell'azienda</h3>
-<p>Ogni azienda ha documenti e autorizzazioni con un identificativo e una scadenza, per esempio il regolamento di radioprotezione del luogo di lavoro, la descrizione della radioprotezione, il piano di protezione fisica o il piano di intervento in caso di incidente. Aprili con l'icona del documento nella barra superiore della schermata principale e premi <strong>New document</strong>. Inserisci il nome del documento, l'identificativo (numero di pratica / autorizzazione), l'ente emittente / autorità, la data di emissione e la data «valido / da rivedere fino al», scrivi una nota e allega quanti file vuoi con <strong>Attach file</strong>. Puoi aggiungere quanti documenti vuoi.</p>
-<p>Le scadenze dei documenti dell'azienda e dei certificati delle persone fanno parte delle notifiche di scadenza. I documenti e i loro file sono inclusi nel file di backup e nel selettore dell'azienda.</p>
+<h3>Documenti e autorizzazioni dell’azienda</h3>
+<p>Ogni azienda ha documenti e autorizzazioni con un identificativo e una scadenza, per esempio il regolamento di radioprotezione del luogo di lavoro, la descrizione della radioprotezione, il piano di protezione fisica o il piano di intervento in caso di incidente. Apriteli con l’icona del documento nella barra superiore della schermata principale e premete <strong>Nuovo documento</strong>. Inserite il nome del documento, l’identificativo (numero di pratica / autorizzazione), l’ente emittente / l’autorità, la data di emissione e la data «valido / da rivedere fino al», scrivete una nota e allegate quanti file volete con <strong>Allega file</strong>. Potete aggiungere quanti documenti volete.</p>
+<p>Le scadenze dei documenti dell’azienda e dei certificati delle persone fanno parte delle notifiche di scadenza. I documenti e i loro file sono inclusi nel file di backup e nel selettore dell’azienda.</p>
 
 
 <h2 id="m3">3. Strumenti</h2>
-<p>Aggiungete i vostri strumenti una sola volta e selezionateli quando registrate i punti. Aprite l’elenco degli strumenti e premete <strong>New instrument</strong>.</p>
+<p>Aggiungete i vostri strumenti una sola volta e selezionateli quando registrate i punti. Aprite l’elenco degli strumenti e premete <strong>Nuovo strumento</strong>.</p>
 <ul>
-<li><strong>Instrument name / type</strong> (obbligatorio), <strong>Serial number</strong>, <strong>Last calibration date</strong> e <strong>Calibration factor</strong>.</li>
-<li><strong>Reachable over WiFi Modbus/TCP:</strong> attivate l’opzione e inserite indirizzo IP o host, porta (ad esempio 502), Modbus Unit ID (indirizzo slave) e indirizzo del registro (registro di holding iniziale del valore misurato, float32).</li>
+<li><strong>Nome / tipo dello strumento</strong> (obbligatorio), <strong>Numero di serie</strong>, <strong>Data dell'ultima taratura</strong> e <strong>Fattore di taratura</strong>.</li>
+<li><strong>Raggiungibile via WiFi con Modbus/TCP:</strong> attivate l’opzione e inserite indirizzo IP o host, porta (ad esempio 502), Modbus Unit ID (indirizzo slave) e indirizzo del registro (registro di holding iniziale del valore misurato, float32).</li>
 </ul>
 <p>Eliminando uno strumento le misure passate restano; viene rimosso solo il riferimento allo strumento. Dal menu dell’elenco si possono importare ed esportare gli strumenti in CSV.</p>
 <h3>Registrazioni di verifica e taratura</h3>
-<p>Ogni strumento ha uno storico di verifiche e tarature. Nella schermata dello strumento, nella sezione <strong>Verification and calibration</strong>, premi <strong>Add record</strong> e inserisci il tipo (<strong>Verification</strong> o <strong>Calibration</strong>), <strong>Date performed</strong>, <strong>Valid until</strong>, <strong>Certificate number</strong> e <strong>Performed by (lab / authority)</strong>, poi allega il certificato con <strong>Attach certificate</strong>. Lo stato dello strumento è <strong>Valid</strong>, <strong>Expires soon</strong>, <strong>EXPIRED</strong> o <strong>No data</strong>.</p>
-<p>Quando registri un punto compare un avviso se lo strumento scelto ha una verifica/taratura scaduta, in scadenza o assente, e il salvataggio di un punto fatto con uno strumento scaduto richiede conferma. Il protocollo e il CSV riportano la registrazione valida al momento della misura e segnalano quella scaduta.</p>
+<p>Ogni strumento ha uno storico di verifiche e tarature. Nella schermata dello strumento, nella sezione <strong>Verifica e taratura</strong>, premete <strong>Aggiungi registrazione</strong> e inserite il tipo (<strong>Verifica</strong> o <strong>Taratura</strong>), <strong>Data di esecuzione</strong>, <strong>Valido fino al</strong>, <strong>Numero del certificato</strong> e <strong>Eseguita da (laboratorio / autorità)</strong>, poi allegate il certificato con <strong>Allega certificato</strong>. Lo stato dello strumento è <strong>Valido</strong>, <strong>In scadenza</strong>, <strong>SCADUTO</strong> o <strong>Nessun dato</strong>.</p>
+<p>Quando registrate un punto compare un avviso se lo strumento scelto ha una verifica o una taratura scaduta, in scadenza o assente, e il salvataggio di un punto fatto con uno strumento scaduto richiede una conferma. Il protocollo e il CSV riportano la registrazione valida al momento della misura e segnalano quella scaduta.</p>
 <h3>Grandezza e unità di uno strumento Modbus</h3>
-<p>Per uno strumento Modbus imposta anche cosa contiene il registro (per esempio rateo di dose, contaminazione superficiale o frequenza di conteggio) e in quale unità lo strumento lo restituisce (per esempio nSv/h). L'App converte il valore nell'unità predefinita alla lettura e la registrazione automatica salva la grandezza configurata per lo strumento.</p>
+<p>Per uno strumento Modbus indicate anche cosa contiene il registro (per esempio rateo di dose, contaminazione superficiale o frequenza di conteggio) e in quale unità lo strumento lo restituisce (per esempio nSv/h). L’app converte il valore nell’unità predefinita alla lettura, e la registrazione automatica salva la grandezza configurata per lo strumento.</p>
 
 
 <h2 id="m4">4. Sorgenti radioattive</h2>
-<p>Le sorgenti sono conservate in un registro che si apre dalla schermata principale, inserite una volta sola e associate ai punti di misura quando serve. Una sorgente ha:</p>
+<p>Le sorgenti sono conservate in un registro che si apre dalla schermata principale; le inserite una volta sola e le associate ai punti di misura quando serve. Una sorgente ha:</p>
 <ul>
 <li>un identificativo univoco e il nuclide (dall’elenco o inserito a mano);</li>
 <li>attività alla fabbricazione (MBq) ed errore di attività (±%);</li>
@@ -105,78 +106,80 @@
 </ul>
 <p>Per i nuclidi noti l’app memorizza il tempo di dimezzamento e la costante gamma e calcola l’attività attuale. Per un nuclide sconosciuto i dati si possono salvare, ma il confronto viene saltato. Dal menu dell’elenco si possono importare ed esportare le sorgenti in CSV.</p>
 <h3>Certificato della sorgente</h3>
-<p>Nella schermata della sorgente usa <strong>Attach certificate</strong> per allegare il certificato della sorgente (quanti file vuoi). È incluso nel file di backup.</p>
+<p>Nella schermata della sorgente usate <strong>Allega certificato</strong> per allegare il certificato della sorgente (quanti file volete). È incluso nel file di backup.</p>
 <h3>Classificazione (D, R, esenzione)</h3>
-<p>Premi l'icona di classificazione nella barra superiore dell'elenco delle sorgenti. Per ogni sorgente l'App calcola, dall'attività attuale corretta per il decadimento (dall'attività alla fabbricazione se l'emivita è ignota, segnalato sulla schermata):</p>
+<p>Premete l’icona di classificazione nella barra superiore dell’elenco delle sorgenti. Per ogni sorgente l’app calcola, dall’attività attuale corretta per il decadimento (dall’attività alla fabbricazione se l’emivita è ignota, segnalato sulla schermata):</p>
 <ul>
 <li>il <strong>valore D</strong> (IAEA) e <strong>R = A/D</strong>, e da R la <strong>categoria di protezione fisica</strong> da 1 a 5 (R ≥ 1000: 1; 1000 &gt; R ≥ 10: 2; 10 &gt; R ≥ 1: 3; 1 &gt; R ≥ 0,01: 4; R &lt; 0,01: 5);</li>
-<li>i valori di esenzione (attività esente, concentrazione di esenzione specifica e generale) e se l'attività è pari o inferiore all'attività esente;</li>
+<li>i valori di esenzione (attività esente, concentrazione di esenzione specifica e generale) e se l’attività è pari o inferiore all’attività esente;</li>
 <li>i valori di trasporto ADR <strong>A1</strong>, <strong>A2</strong>, i rapporti A/A1 e A/A2 e il limite di attività del collo esente.</li>
 </ul>
 <p>La casella di ogni sorgente la seleziona per il totale: la somma degli R delle sorgenti selezionate dà la categoria delle sorgenti tenute nella stessa zona di protezione fisica.</p>
-<p>Con il profilo <strong>Hungary (OAH)</strong> la schermata mostra anche la categoria di radioprotezione I, II o III (decreto OAH 2/2022, § 25), il livello di protezione fisica B, C o D (decreto governativo 190/2011) e la classe di laboratorio secondo MSZ 62-7 dal valore AM (industriale A, B, C; medico I–III) con i tipi di operazione consentiti. Due interruttori, <strong>Regular work with unsealed sources</strong> e <strong>Use outside the radiation workplace</strong>, modificano la categoria.</p>
-<p>La classificazione è indicativa. Le eccezioni (per esempio i dispositivi portatili) non sono gestite, per la condizione di concentrazione di un'esenzione servirebbe la massa del materiale, e la classificazione ufficiale è stabilita dalla legge vigente e dall'autorità.</p>
+<p>Con il profilo <strong>Ungheria (OAH)</strong> la schermata mostra anche la categoria di radioprotezione I, II o III (decreto OAH 2/2022, § 25), il livello di protezione fisica B, C o D (decreto governativo 190/2011) e la classe di laboratorio secondo MSZ 62-7 dal valore AM (industriale A, B, C; medico I–III) con i tipi di operazione consentiti. Due interruttori, <strong>Lavoro regolare con sorgenti non sigillate</strong> e <strong>Uso al di fuori del luogo di lavoro con radiazioni</strong>, modificano la categoria.</p>
+<p>La classificazione è indicativa. Le eccezioni (per esempio i dispositivi portatili) non sono gestite, per la condizione di concentrazione di un’esenzione servirebbe la massa del materiale, e la classificazione ufficiale è stabilita dalla legge vigente e dall’autorità.</p>
 
 
 <h2 id="m5">5. Persone</h2>
-<p>Il registro delle persone contiene il personale che partecipa ai rilevamenti: nome, scadenza della visita medica e scadenza della formazione. All’interno di un rilevamento aprite l’icona delle persone e usate <strong>Assign person</strong> per aggiungerle a quel rilevamento. Rimuovere una persona da un rilevamento la lascia nel registro. Eliminarla dal registro la toglie anche da ogni rilevamento. Dal menu dell’elenco si possono importare ed esportare le persone in CSV.</p>
-<p>Oltre al nome, alla scadenza della visita medica e della formazione, una persona ha un <strong>Phone number</strong>, più <strong>Email address</strong> e un numero qualsiasi di <strong>Certificates</strong>. Premi <strong>Add certificate</strong> e inserisci la denominazione (per esempio esame di radioprotezione), il numero del certificato, l'ente emittente, la data di emissione e la validità, e allega il file. La scadenza di un certificato può essere ricordata come le altre scadenze. Il telefono e gli indirizzi e-mail sono nel CSV delle persone, i certificati no.</p>
+<p>Il registro delle persone contiene il personale che partecipa ai rilevamenti: nome, scadenza della visita medica e scadenza della formazione. All’interno di un rilevamento aprite l’icona delle persone e usate <strong>Assegna persona</strong> per aggiungerle a quel rilevamento. Rimuovere una persona da un rilevamento la lascia nel registro. Eliminarla dal registro la toglie anche da ogni rilevamento. Dal menu dell’elenco si possono importare ed esportare le persone in CSV.</p>
+<p>Oltre al nome, alla scadenza della visita medica e della formazione, una persona ha un <strong>Numero di telefono</strong>, uno o più <strong>Indirizzo e-mail</strong> e un numero qualsiasi di <strong>Certificati</strong>. Premete <strong>Aggiungi certificato</strong> e inserite la denominazione (per esempio esame di radioprotezione), il numero del certificato, l’ente emittente, la data di emissione e la validità, quindi allegate il file. La scadenza di un certificato può essere ricordata come le altre scadenze. Il telefono e gli indirizzi e-mail sono nel CSV delle persone, i certificati no.</p>
 
 
 <h2 id="m6">6. Dosi</h2>
-<p>RadRecon può tenere la dose di ogni persona. Le dosi sono salvate in µSv. L’elenco delle persone mostra la dose annuale di ciascuna, suddivisa per fonte, e ha un selettore <strong>Year</strong>.</p>
+<p>RadRecon può tenere la dose di ogni persona. Le dosi sono salvate in µSv. L’elenco delle persone mostra la dose annuale di ciascuna, suddivisa per fonte, e ha un selettore <strong>Anno</strong>.</p>
 <ul>
-<li><strong>Online (from detector):</strong> durante la registrazione automatica da uno strumento collegato via Modbus, l’app integra nel tempo il rateo di dose misurato. All’arresto della registrazione, la dose viene salvata per le persone assegnate al rilevamento. Funziona solo con misure di rateo di dose, e l’app segnala eventuali lacune di dati più lunghe. Se al rilevamento non è assegnata nessuna persona, la dose non viene salvata.</li>
-<li><strong>Manual:</strong> in un rilevamento aprite l’icona delle persone e toccate una persona per inserire o correggere la dose online e manuale per quel rilevamento.</li>
-<li><strong>Passive dosimetry:</strong> risultati di una valutazione mensile o bimestrale, indipendenti da qualsiasi rilevamento. Nell’elenco delle persone premete <strong>Manage doses</strong> accanto alla persona, poi <strong>Add passive dosimetry</strong>, e inserite la dose con <strong>Evaluation period start</strong> ed <strong>Evaluation period end</strong>. La dose conta per l’anno in cui termina il periodo.</li>
+<li><strong>Online (dal rivelatore):</strong> durante la registrazione automatica da uno strumento collegato via Modbus, l’app integra nel tempo il rateo di dose misurato. All’arresto della registrazione, la dose viene salvata per le persone assegnate al rilevamento. Funziona solo con misure di rateo di dose, e l’app segnala eventuali lacune di dati più lunghe. Se al rilevamento non è assegnata nessuna persona, la dose non viene salvata.</li>
+<li><strong>Manuale:</strong> in un rilevamento aprite l’icona delle persone e toccate una persona per inserire o correggere la dose online e manuale per quel rilevamento.</li>
+<li><strong>Dosimetria passiva:</strong> risultati di una valutazione mensile o bimestrale, indipendenti da qualsiasi rilevamento. Nell’elenco delle persone premete <strong>Gestisci le dosi</strong> accanto alla persona, poi <strong>Aggiungi dosimetria passiva</strong>, e inserite la dose con <strong>Inizio del periodo di valutazione</strong> ed <strong>Fine del periodo di valutazione</strong>. La dose conta per l’anno in cui termina il periodo.</li>
 </ul>
-<p>Alla chiusura di un rilevamento, <strong>Review doses</strong> permette di correggere la dose di ogni partecipante prima di chiudere. La schermata delle dosi di una persona elenca tutte le voci dell’anno con il totale, e ogni voce può essere modificata o eliminata. Con <strong>Import doses (CSV)</strong> ed <strong>Export doses (CSV)</strong> nel menu dell’elenco delle persone importate ed esportate le dosi.</p>
+<p>Alla chiusura di un rilevamento, <strong>Verifica le dosi</strong> permette di correggere la dose di ogni partecipante prima di chiudere. La schermata delle dosi di una persona elenca tutte le voci dell’anno con il totale, e ogni voce può essere modificata o eliminata. Con <strong>Importa dosi (CSV)</strong> ed <strong>Esporta dosi (CSV)</strong> nel menu dell’elenco delle persone importate ed esportate le dosi.</p>
+<h3>Controllo del limite annuale di dose</h3>
+<p>In cima all’elenco delle persone è indicato il limite annuale della categoria scelta: <strong>Professionale</strong> (esposizione professionale, 20 mSv all’anno) o <strong>Pubblico</strong> (popolazione, 1 mSv all’anno). Nella riga di ogni persona la dose dell’anno selezionato compare come percentuale di quel limite, con uno di tre stati: <strong>entro il limite</strong> (entro il limite), <strong>livello di avviso raggiunto</strong> (livello di avviso raggiunto, dal 50 %) o <strong>limite superato</strong> (limite superato, dal 100 %). I due profili normativi usano gli stessi limiti; il profilo cambia solo la fonte citata (decreto OAH 2/2022 o IAEA GSR Part 3). Il controllo riguarda un solo anno: non si applica la media su cinque anni dell’IAEA, e la categoria vale per l’intero elenco, non per ogni singola persona. Non sostituisce la valutazione ufficiale.</p>
 <p>I valori di dose supportano la tenuta dei vostri registri e non sostituiscono la dosimetria personale ufficiale. Confrontateli con i risultati del vostro servizio di dosimetria autorizzato.</p>
 
 <h2 id="m7">7. Cambiare azienda</h2>
-<p>Se lavorate per più aziende, potete tenere separati i dati di ciascuna. Aprite le impostazioni e premete <strong>Switch company</strong>. La schermata mostra la <strong>Active company</strong> e l’elenco delle aziende salvate.</p>
+<p>Se lavorate per più aziende, potete tenere separati i dati di ciascuna. Aprite le impostazioni e premete <strong>Cambia azienda</strong>. La schermata mostra la <strong>Azienda attiva</strong> e l’elenco delle aziende salvate.</p>
 <ul>
-<li><strong>Switch:</strong> scegliete un’azienda dall’elenco e confermate. Prima di caricare l’altra azienda, i dati attuali vengono salvati automaticamente sotto l’azienda attiva, quindi non si perde nulla.</li>
-<li><strong>New company:</strong> crea un’azienda vuota con il nome inserito.</li>
-<li><strong>Add company from backup file:</strong> aggiunge un’azienda da un file di backup, ad esempio quando passate a un nuovo telefono.</li>
+<li><strong>Cambia:</strong> scegliete un’azienda dall’elenco e confermate. Prima di caricare l’altra azienda, i dati attuali vengono salvati automaticamente sotto l’azienda attiva, quindi non si perde nulla.</li>
+<li><strong>Nuova azienda:</strong> crea un’azienda vuota con il nome inserito.</li>
+<li><strong>Aggiungi azienda da file di backup:</strong> aggiunge un’azienda da un file di backup, ad esempio quando passate a un nuovo telefono.</li>
 <li>Eliminare il backup di un’azienda lo rimuove dalla cartella. I dati attualmente caricati non vengono toccati.</li>
-<li><strong>Choose folder:</strong> per impostazione predefinita le aziende sono in una cartella privata dell’app, inaccessibile alle altre app. Scegliete una cartella come Download o un archivio cloud per raggiungere i backup dal gestore file, e annullate con <strong>Back to default folder</strong>.</li>
+<li><strong>Scegli cartella:</strong> per impostazione predefinita le aziende sono in una cartella privata dell’app, inaccessibile alle altre app. Scegliete una cartella come Download o un archivio cloud per raggiungere i backup dal gestore file, e annullate con <strong>Torna alla cartella predefinita</strong>.</li>
 </ul>
 <p>Ogni azienda è salvata come un unico file di backup con database e foto.</p>
 
 <h2 id="m8">8. Avviare un rilevamento</h2>
 <ol>
-<li>Nella schermata principale premete <strong>New survey</strong>.</li>
-<li>Inserite il nome e, facoltativamente, il luogo. Se lasciate vuoto il nome, l’app propone “Survey – data”.</li>
-<li>Premete <strong>Start</strong>. Il rilevamento si apre con un elenco di punti vuoto.</li>
+<li>Nella schermata principale premete <strong>Nuovo sopralluogo</strong>.</li>
+<li>Inserite il nome e, facoltativamente, il luogo. Se lasciate vuoto il nome, l’app propone «Survey – data».</li>
+<li>Premete <strong>Avvia</strong>. Il rilevamento si apre con un elenco di punti vuoto.</li>
 </ol>
 <p>Nome e luogo si possono modificare in seguito con l’icona di modifica, ed è lì che assegnate il personale partecipante.</p>
 
 <h2 id="m9">9. Registrare un punto di misura</h2>
-<p>Nel rilevamento premete <strong>New point</strong>.</p>
+<p>Nel rilevamento premete <strong>Nuovo punto</strong>.</p>
 <ul>
-<li><strong>Measurement type:</strong> rateo di dose, contaminazione superficiale, conteggi (cps), conteggi neutronici (cps) o campionamento.</li>
-<li><strong>Location name, Measured value e Unit.</strong> Ogni tipo ha un’unità predefinita.</li>
-<li><strong>Distance from source</strong> e <strong>Nuclide</strong>, da cui l’app ricava una stima rapida dell’attività dal valore misurato.</li>
-<li><strong>Instrument:</strong> sceglietene uno dall’elenco o aggiungetene uno nuovo con il pulsante più. Per uno strumento Modbus usate <strong>Modbus query</strong> per leggere direttamente il valore.</li>
-<li><strong>Position:</strong> latitudine e longitudine, con <strong>Live GPS</strong> per acquisire la posizione attuale o <strong>On the map</strong> per sceglierla sulla mappa.</li>
-<li><strong>This is the source position (max value):</strong> contrassegna il punto con il valore più alto.</li>
-<li><strong>A physical sample was taken here:</strong> inserite ID del contenitore, quantità e metodo di campionamento.</li>
-<li><strong>Notes</strong> e una <strong>foto</strong> scattata con la fotocamera o scelta dalla galleria.</li>
+<li><strong>Tipo di misura:</strong> rateo di dose, contaminazione superficiale, conteggi (cps), conteggi neutronici (cps) o campionamento. Il campionamento comprende anche i tipi <strong>Meteorologia</strong> e <strong>Misura dei gas</strong>, che non hanno un valore misurato: i dati meteorologici o le concentrazioni dei gas si inseriscono insieme al punto.</li>
+<li><strong>Nome del luogo, Valore misurato e Unità.</strong> Ogni tipo ha un’unità predefinita.</li>
+<li><strong>Distanza dalla sorgente</strong> e <strong>Nuclide</strong>, da cui l’app ricava una stima rapida dell’attività dal valore misurato.</li>
+<li><strong>Strumento:</strong> scegliete uno strumento dall’elenco oppure aggiungetene uno nuovo con il pulsante più. Per uno strumento Modbus usate <strong>Interrogazione Modbus</strong> per leggere direttamente il valore.</li>
+<li><strong>Posizione:</strong> latitudine e longitudine, con <strong>GPS in tempo reale</strong> per acquisire la posizione attuale o <strong>Sulla mappa</strong> per sceglierla sulla mappa.</li>
+<li><strong>Questa è la posizione della sorgente (valore massimo):</strong> contrassegna il punto con il valore più alto.</li>
+<li><strong>Qui è stato prelevato un campione fisico:</strong> inserite ID del contenitore, quantità e metodo di campionamento.</li>
+<li><strong>Note</strong> e una <strong>foto</strong> scattata con la fotocamera o scelta dalla galleria.</li>
 </ul>
 <p>Se il valore raggiunge o supera la soglia del suo tipo, l’app mostra l’allarme. Ogni modifica successiva a un punto viene scritta nella sua cronologia, così il valore originale resta tracciabile.</p>
 <h3>Unità, errore e media</h3>
-<p>Accanto al valore misurato un elenco permette di scegliere un'altra unità; il numero viene convertito automaticamente. Sotto il valore, il campo <strong>Error (±)</strong> contiene l'incertezza della misura nella stessa unità. Inseriscila a mano quando digiti il valore manualmente. Il protocollo mostra il valore come «valore ± errore», il CSV ha colonne dedicate.</p>
-<p>Con uno strumento Modbus premi <strong>Averaging measurement</strong> invece di una singola lettura. Scegli la durata (da 10 s a 5 min); l'App legge lo strumento ogni secondo e mostra la media corrente con il suo errore. <strong>Done</strong> accetta i campioni raccolti finora, Cancel li scarta. Il valore è la media, l'errore è l'errore standard della media (1σ, deviazione standard divisa per √n); il numero di campioni e la durata vengono salvati con il punto e stampati nel protocollo. Per l'errore servono almeno 2 campioni validi. L'errore è statistico: non contiene l'incertezza di taratura dello strumento ed è troppo piccolo se lo strumento leviga da sé la lettura.</p>
+<p>Accanto al valore misurato un elenco permette di scegliere un’altra unità; il numero viene convertito automaticamente. Sotto il valore, il campo <strong>Errore (±)</strong> contiene l’incertezza della misura nella stessa unità. Inseritela a mano quando digitate il valore manualmente. Il protocollo mostra il valore come «valore ± errore», il CSV ha colonne dedicate.</p>
+<p>Con uno strumento Modbus premete <strong>Misura mediata</strong> invece di una singola lettura. Scegliete la durata (da 10 s a 5 min); l’app legge lo strumento ogni secondo e mostra la media corrente con il suo errore. <strong>Fatto</strong> accetta i campioni raccolti finora, Cancel li scarta. Il valore è la media, l’errore è l’errore standard della media (1σ, deviazione standard divisa per √n); il numero di campioni e la durata vengono salvati con il punto e stampati nel protocollo. Per l’errore servono almeno 2 campioni validi. L’errore è statistico: non contiene l’incertezza di taratura dello strumento ed è troppo piccolo se lo strumento leviga da sé la lettura.</p>
 <h3>Identificazione del nuclide e schermatura</h3>
-<p>La sezione <strong>Nuclide identification</strong> registra se il nuclide è identificato (dall'elenco o altro), sconosciuto o una miscela di sorgenti. La stima dell'attività dal valore misurato compare solo se è identificato esattamente un nuclide ed è inserita la distanza dalla sorgente. Mostra l'attività (senza schermatura).</p>
-<p>Se la sorgente è dietro una schermatura, premi <strong>Add layer</strong> e scegli il materiale (piombo, acciaio, calcestruzzo, tungsteno, alluminio o acqua) e lo spessore. Si possono aggiungere più strati. L'App stima allora anche l'attività della sorgente schermata. La stima usa spessori di dimezzamento indicativi e ignora la radiazione diffusa, quindi tende a sovrastimare l'attività.</p>
+<p>La sezione <strong>Identificazione del nuclide</strong> registra se il nuclide è identificato (dall’elenco o altro), sconosciuto o una miscela di sorgenti. La stima dell’attività dal valore misurato compare solo se è identificato esattamente un nuclide ed è inserita la distanza dalla sorgente. Mostra l’attività (senza schermatura).</p>
+<p>Se la sorgente è dietro una schermatura, premete <strong>Aggiungi strato</strong> e scegliete il materiale (piombo, acciaio, calcestruzzo, tungsteno, alluminio o acqua) e lo spessore. Si possono aggiungere più strati. L’app stima allora anche l’attività della sorgente schermata. La stima usa spessori di dimezzamento indicativi e ignora la radiazione diffusa, quindi tende a sovrastimare l’attività.</p>
 <h3>Posizione GPS mediata</h3>
-<p>Se la precisione GPS è scarsa (per esempio ±10 m), fermati sul punto e premi <strong>Averaged GPS</strong> sotto la posizione. Scegli 30, 60 o 120 secondi. L'App raccoglie le posizioni, le pesa in base alla precisione, scarta i valori anomali e inserisce la posizione media con una precisione stimata. A cielo aperto il risultato è migliore. Un tempo più lungo aiuta, ma l'errore GPS è correlato nel tempo, quindi non aspettarti che la precisione migliori con la radice del numero di campioni.</p>
+<p>Se la precisione GPS è scarsa (per esempio ±10 m), restate fermi sul punto e premete <strong>GPS mediato</strong> sotto la posizione. Scegliete 30, 60 o 120 secondi. L’app raccoglie le posizioni, le pesa in base alla precisione, scarta i valori anomali e inserisce la posizione media con una precisione stimata. All’aperto il risultato è migliore. Un tempo più lungo aiuta, ma l’errore GPS è correlato nel tempo: non aspettatevi che la precisione migliori con la radice del numero di campioni.</p>
 
 
 <h2 id="m10">10. Sorgenti su un punto</h2>
-<p>Nella schermata del punto scegliete <strong>Manage radioactive source(s)</strong> e associate sorgenti dal registro. Per ciascuna inserite la distanza dal punto di misura. L’app mostra poi:</p>
+<p>Nella schermata del punto scegliete <strong>Gestisci sorgente/i radioattiva/e</strong> e associate sorgenti dal registro. Per ciascuna inserite la distanza dal punto di misura. L’app mostra poi:</p>
 <ul>
 <li>l’attività attuale, corretta per il decadimento fino alla data della misura;</li>
 <li>il rateo di dose calcolato di ogni sorgente e il totale di tutte le sorgenti;</li>
@@ -185,38 +188,42 @@
 <p>Le sorgenti con nuclide sconosciuto sono escluse dal totale e una vita utile scaduta è segnalata con un avviso. Se l’unità di misura non può essere convertita automaticamente, non viene fatto alcun confronto. Scollegare una sorgente rimuove solo il collegamento, non la sorgente dal registro.</p>
 
 <h2 id="m11">11. Mappa</h2>
-<p>La mappa mostra tutti i punti del rilevamento. Con l’icona della fotocamera salvate una schermata della mappa, che viene allegata all’esportazione del verbale. Dall’elenco dei punti, <strong>Save list screenshot</strong> fa lo stesso per l’elenco. Lo sfondo della mappa richiede una connessione a internet.</p>
+<p>La mappa mostra tutti i punti del rilevamento. Con l’icona della fotocamera salvate una schermata della mappa, che viene allegata all’esportazione del verbale. Dall’elenco dei punti, <strong>Salva schermata dell'elenco</strong> fa lo stesso per l’elenco. Lo sfondo della mappa richiede una connessione a internet.</p>
+<h3>Aree contrassegnate</h3>
+<p>Le aree permettono di contrassegnare sulla mappa una parte del sito rilevato, per esempio un’area controllata, interdetta o contaminata. Premete <strong>Segna un'area</strong> sulla mappa. Inserite un <strong>Nome</strong> (per esempio Surveyed area), scegliete la <strong>Forma</strong> (<strong>Poligono</strong> o <strong>Cerchio</strong>) e un <strong>Colore</strong>, quindi premete <strong>Disegna</strong>. In un poligono toccate i vertici uno dopo l’altro e premete <strong>Fatto</strong>; servono almeno 3 vertici, e <strong>Annulla</strong> elimina l’ultimo. In un cerchio toccate il centro e poi un punto del bordo per fissare il raggio. Le aree vengono disegnate con un riempimento semitrasparente del loro colore. Il pulsante <strong>Aree segnate</strong> elenca le aree del rilevamento; dall’elenco potete eliminare un’area dopo conferma. Le aree sono incluse nei verbali Word e PDF (nome, forma, geometria e superficie in m²) e nel file di backup.</p>
 
 <h2 id="m12">12. Strumenti di lavoro</h2>
 <p>Gli strumenti di lavoro si trovano nel menu del rilevamento (tre puntini).</p>
 <ul>
-<li><strong>Automatic logging:</strong> registra punti da uno strumento Modbus/TCP a intervalli di tempo (almeno 1 secondo) o di distanza (almeno 1 metro). Mostra i punti registrati, l’ultimo valore e le letture fallite. La registrazione funziona solo finché questa schermata è aperta; se il telefono si blocca o passate a un’altra app, si mette in pausa e va riavviata.</li>
-<li><strong>Distance measurement:</strong> distanza e direzione dalla vostra posizione attuale o da un punto di partenza scelto fino a un punto di destinazione. Con <strong>Live tracking</strong> i valori si aggiornano mentre camminate nella direzione della freccia.</li>
-<li><strong>Isotope calculator:</strong> converte l’attività (MBq) in rateo di dose (µSv/h) a una distanza, o un rateo di dose misurato in attività. Nuclidi integrati: Co-60, Cs-137, Ir-192, Ra-226, I-131, Na-22 e Am-241.</li>
-<li><strong>Source search:</strong> stima la direzione in cui aumenta il tipo di misura scelto, dai punti già registrati nel rilevamento. Con meno di 4 punti la stima è segnalata come inaffidabile. Registrate più punti in luoghi diversi dell’area di ricerca.</li>
+<li><strong>Registrazione automatica:</strong> registra punti da uno strumento Modbus/TCP a intervalli di tempo (almeno 1 secondo) o di distanza (almeno 1 metro). Mostra i punti registrati, l’ultimo valore e le letture fallite. La registrazione funziona solo finché questa schermata è aperta; se il telefono si blocca o passate a un’altra app, si mette in pausa e va riavviata.</li>
+<li><strong>Misura della distanza:</strong> distanza e direzione dalla vostra posizione attuale o da un punto di partenza scelto fino a un punto di destinazione. Con <strong>Tracciamento in tempo reale</strong> i valori si aggiornano mentre camminate nella direzione della freccia.</li>
+<li><strong>Calcolatore di isotopi:</strong> converte l’attività (MBq) in rateo di dose (µSv/h) a una distanza, oppure un rateo di dose misurato in attività. Nuclidi integrati: Co-60, Cs-137, Ir-192, Ra-226, I-131, Na-22 e Am-241.</li>
+<li><strong>Calcolatore di decadimento:</strong> calcola l’attività dopo un tempo t, oppure il tempo necessario per raggiungere un’attività obiettivo, a partire dal tempo di dimezzamento di un nuclide (scelto dall’elenco o inserito a mano). Se inserite una distanza, mostra anche il rateo di dose a quella distanza. Il calcolo è un puro decadimento esponenziale: nuclidi figli e altre radiazioni non sono inclusi. I due modi si chiamano <strong>Attività dopo il tempo t</strong> e <strong>Tempo fino all'attività obiettivo</strong>.</li>
+<li><strong>Convertitore di unità:</strong> converte i valori tra le unità usate nell’app: dose, rateo di dose, attività, concentrazione di attività, contaminazione superficiale, conteggi, lunghezza, superficie, volume, massa, temperatura, pressione, velocità, tempo, irradianza, intensità di precipitazione, concentrazione in massa degli aerosol e concentrazione dei gas. Toccate una riga per convertire il valore in quell’unità, che diventa l’unità di origine. Per convertire tra concentrazione in massa e in volume di un gas serve la massa molare: scegliete il gas dall’elenco per inserirla (l’elenco comprende 22 gas; VOC e NOx non hanno massa molare e vanno inseriti a mano). Il calcolo presuppone 25 °C e 1 atm. L’unità %LEL non si può convertire, perché dipende dal limite del gas.</li>
+<li><strong>Ricerca della sorgente:</strong> stima, dai punti già registrati nel rilevamento, la direzione in cui cresce il tipo di misura scelto. Con meno di 4 punti la stima è segnalata come inaffidabile. Registrate più punti in luoghi diversi dell’area di ricerca.</li>
 </ul>
-<p>La schermata di registrazione automatica disegna durante l'esecuzione un grafico temporale dei valori letti, con la soglia di allarme come linea rossa tratteggiata, così si vede la variazione del valore misurato. Il grafico conserva le ultime 2 ore con un campione al secondo e non viene salvato. Il calcolatore di isotopi può usare gli stessi strati di schermatura e mostra poi il risultato senza e con schermatura.</p>
+<p>Durante l’esecuzione, la schermata di registrazione automatica disegna un grafico temporale dei valori letti, con la soglia di allarme come linea rossa tratteggiata, così si vede la variazione del valore misurato. Il grafico conserva le ultime 2 ore con un campione al secondo e non viene salvato. Il calcolatore di isotopi può usare gli stessi strati di schermatura e mostra poi il risultato senza e con schermatura.</p>
 
 
 <h2 id="m13">13. Chiusura, esportazione e importazione</h2>
 <ul>
-<li><strong>Close survey:</strong> il verbale mostra poi la data come ora di fine. I punti non vengono bloccati e restano modificabili.</li>
-<li><strong>Export protocol:</strong> crea un verbale Word con l’elenco dei punti e le immagini allegate. Viene consegnato come file ZIP che contiene il documento e una cartella con le foto.</li>
-<li><strong>Export points (data, JSON):</strong> un file di dati che un’altra installazione di RadRecon può importare.</li>
-<li><strong>Export points (table, CSV):</strong> una tabella per Excel con posizione, precisione, strumento, data e ora, campionamento, note, attività stimata, sorgenti associate e rateo di dose calcolato.</li>
-<li><strong>Import points (JSON):</strong> carica punti da un file JSON. Gli strumenti e le sorgenti mancanti vengono creati; i punti senza posizione GPS valida o con tipo di misura sconosciuto vengono saltati con un avviso.</li>
+<li><strong>Chiudi sopralluogo:</strong> il verbale mostra poi la data come ora di fine. I punti non vengono bloccati e restano modificabili.</li>
+<li><strong>Esporta protocollo:</strong> crea un verbale Word o PDF, a scelta nella finestra di dialogo. Contiene l’elenco dei punti, le aree contrassegnate, le tabelle di meteorologia e dei gas e le foto allegate. Il verbale Word viene consegnato come file ZIP che contiene il documento e una cartella con le foto.</li>
+<li><strong>Esporta punti (dati, JSON):</strong> un file di dati che un’altra installazione di RadRecon può importare.</li>
+<li><strong>Esporta punti (tabella, CSV):</strong> una tabella per Excel con posizione, precisione, strumento, data e ora, campionamento, note, attività stimata, sorgenti associate e rateo di dose calcolato.</li>
+<li><strong>Importa punti (JSON):</strong> carica punti da un file JSON. Gli strumenti e le sorgenti mancanti vengono creati; i punti senza posizione GPS valida o con tipo di misura sconosciuto vengono saltati con un avviso.</li>
 </ul>
-<p>Quando importate un CSV nell’elenco di strumenti, sorgenti o persone, scegliete cosa fare con un record corrispondente: <strong>Replace existing record</strong>, <strong>Skip matching record</strong> o <strong>Import as a duplicate</strong>.</p>
-<p>Il protocollo e le esportazioni usano le unità scelte nelle impostazioni. Il protocollo mostra il valore con il suo errore e il numero di campioni di una misura mediata, e lo strumento con le sue registrazioni di verifica/taratura. Il CSV ha le colonne aggiuntive <strong>Error (±)</strong>, <strong>Averaging (samples; s)</strong> e <strong>Instrument verification/calibration</strong>; il file JSON contiene gli stessi dati.</p>
+<p>Quando importate un CSV nell’elenco di strumenti, sorgenti o persone, scegliete cosa fare con un record corrispondente: <strong>Sostituisci il record esistente</strong>, <strong>Salta il record corrispondente</strong> o <strong>Importa come duplicato</strong>.</p>
+<p>Il protocollo usa le unità scelte nelle impostazioni. Le esportazioni CSV e JSON conservano le unità memorizzate. Il protocollo mostra il valore con il suo errore e il numero di campioni di una misura mediata, e lo strumento con le sue registrazioni di verifica e taratura. Il CSV ha le colonne aggiuntive <strong>Errore (±)</strong>, <strong>Media (campioni; s)</strong> e <strong>Verifica/taratura dello strumento</strong>; il file JSON contiene gli stessi dati.</p>
 
 
 <h2 id="m14">14. Risoluzione dei problemi</h2>
 <ul>
-<li><strong>Nessuna posizione GPS:</strong> verificate che i servizi di localizzazione siano attivi e che RadRecon possa usare la posizione, poi premete <strong>Refresh GPS</strong>. Al chiuso la precisione può essere scarsa; il raggio di precisione viene salvato con il punto.</li>
+<li><strong>Nessuna posizione GPS:</strong> verificate che i servizi di localizzazione siano attivi e che RadRecon possa usare la posizione, poi premete <strong>Aggiorna GPS</strong>. Al chiuso la precisione può essere scarsa; il raggio di precisione viene salvato con il punto.</li>
 <li><strong>La richiesta Modbus non riesce:</strong> verificate che telefono e strumento siano sulla stessa rete WiFi e che indirizzo IP, porta, Unit ID e indirizzo del registro siano corretti.</li>
 <li><strong>Nessuno sfondo della mappa:</strong> i riquadri della mappa richiedono una connessione a internet.</li>
 <li><strong>Nessuna notifica di scadenza:</strong> attivatele nelle impostazioni e consentite le notifiche di RadRecon nelle impostazioni del telefono.</li>
-<li><strong>Scarsa precisione GPS:</strong> usa <strong>Averaged GPS</strong> nella schermata del punto stando fermo, vedi la sezione 9.</li>
+<li><strong>Scarsa precisione GPS:</strong> usate <strong>GPS mediato</strong> nella schermata del punto restando fermi, vedere la sezione 9.</li>
 </ul>
 <p>Se il problema persiste, scrivete a <a href="mailto:info@radrecon.hu">info@radrecon.hu</a>.</p>
 

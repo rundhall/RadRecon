@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/distance_echo.dart';
+import '../services/number_input.dart';
 import '../l10n/app_localizations.dart';
 import '../models/activity_unit.dart';
 import '../models/distance_unit.dart';
@@ -57,7 +59,7 @@ class _IsotopeCalculatorScreenState extends State<IsotopeCalculatorScreen> {
       _errorText = null;
     });
 
-    final enteredDistance = double.tryParse(_distanceCtrl.text.trim());
+    final enteredDistance = parseDecimal(_distanceCtrl.text);
     if (enteredDistance == null || enteredDistance <= 0) {
       setState(() => _errorText = loc.invalidDistancePlainError);
       return;
@@ -71,7 +73,7 @@ class _IsotopeCalculatorScreenState extends State<IsotopeCalculatorScreen> {
 
     try {
       if (_mode == _CalcMode.doseRateFromActivity) {
-        final entered = double.tryParse(_activityCtrl.text.trim());
+        final entered = parseDecimal(_activityCtrl.text);
         if (entered == null || entered <= 0) {
           setState(() => _errorText = loc.invalidActivityPlainError);
           return;
@@ -90,7 +92,7 @@ class _IsotopeCalculatorScreenState extends State<IsotopeCalculatorScreen> {
                   '${formatDoseRateUSvH(dose * transmission)}';
         });
       } else {
-        final entered = double.tryParse(_doseRateCtrl.text.trim());
+        final entered = parseDecimal(_doseRateCtrl.text);
         if (entered == null || entered <= 0) {
           setState(() => _errorText = loc.invalidDoseRatePlainError);
           return;
@@ -166,7 +168,9 @@ class _IsotopeCalculatorScreenState extends State<IsotopeCalculatorScreen> {
             units: DistanceUnit.values,
             unit: _distanceUnit,
             onUnitChanged: (u) => setState(() => _distanceUnit = u),
+            onChanged: () => setState(() {}),
           ),
+          DistanceEcho(text: _distanceCtrl.text, unit: _distanceUnit),
           const SizedBox(height: 12),
           if (_mode == _CalcMode.doseRateFromActivity)
             QuantityField<ActivityUnit>(

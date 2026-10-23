@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../services/number_input.dart';
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/calibration_labels.dart';
@@ -277,7 +278,7 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
       nextCalibrationDate: _nextCalibrationDate,
       calibrationFactor: _calibrationFactorCtrl.text.trim().isEmpty
           ? null
-          : double.tryParse(_calibrationFactorCtrl.text.trim()),
+          : parseDecimal(_calibrationFactorCtrl.text),
       isModbusConnected: _isModbusConnected,
       modbusHost: _isModbusConnected && _modbusHostCtrl.text.trim().isNotEmpty
           ? _modbusHostCtrl.text.trim()

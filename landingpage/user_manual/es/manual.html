@@ -35,8 +35,8 @@
       <div class="container">
 
 <h1>Manual de usuario de RadRecon</h1>
-<p>Última actualización: 17/10/2026</p>
-<p>La app está disponible en inglés y húngaro. En este manual, los nombres de los botones y de las opciones de menú aparecen en negrita y corresponden a la versión en inglés de la app.</p>
+<p>Última actualización: 23/10/2026</p>
+<p>La app está disponible en húngaro, inglés, alemán, español, francés e italiano. En este manual, los nombres de los botones y de las opciones de menú aparecen en negrita tal como se ven en la versión española de la app.</p>
 
 <h2>Contenido</h2>
 <ol>
@@ -58,39 +58,40 @@
 </ol>
 
 <h2 id="m1">1. Introducción</h2>
-<p>RadRecon registra inspecciones radiológicas de campo. Cada punto de medida lleva su posición GPS, la hora, el instrumento, el valor y la unidad, y opcionalmente una foto y una nota. Los puntos de una inspección se muestran en un mapa y pueden exportarse como acta en Word, como JSON o como CSV.</p>
-<p>La app funciona en Android, iPhone, Windows, macOS y Linux. Todos los datos se guardan en el dispositivo. No hay cuenta ni registro. Solo se necesita conexión a internet para el fondo del mapa y, si los usas, para los instrumentos de la red.</p>
+<p>RadRecon registra inspecciones radiológicas de campo. Cada punto de medida lleva su posición GPS, la hora, el instrumento, el valor y la unidad, y opcionalmente una foto y una nota. Los puntos de una inspección se muestran en un mapa y pueden exportarse como acta en Word o PDF, como JSON o como CSV.</p>
+<p>La app funciona en Android, iPhone, Windows y macOS. Todos los datos se guardan en el dispositivo. No hay cuenta ni registro. Solo se necesita conexión a internet para el fondo del mapa y, si los usas, para los instrumentos de la red.</p>
 
 <h2 id="m2">2. Pantalla principal y ajustes</h2>
-<p>La pantalla principal lista tus inspecciones, la más reciente primero. Usa <strong>New survey</strong> para añadir una. La barra superior da acceso a instrumentos, fuentes radiactivas, personas y ajustes. Las listas de instrumentos, fuentes y personas tienen un campo de búsqueda.</p>
+<p>La pantalla principal lista tus inspecciones, la más reciente primero. Usa <strong>Nueva inspección</strong> para añadir una. La barra superior da acceso a instrumentos, fuentes radiactivas, personas y ajustes. Las listas de instrumentos, fuentes y personas tienen un campo de búsqueda.</p>
 <h3>Ajustes</h3>
 <ul>
-<li><strong>Language:</strong> inglés, húngaro o el idioma del teléfono.</li>
-<li><strong>Appearance:</strong> tema claro, oscuro o del sistema.</li>
-<li><strong>Alert thresholds:</strong> un límite por tipo de medición. Cuando un valor registrado lo alcanza o lo supera, la app avisa con un sonido y una ventana emergente. Deja un campo vacío para no tener alerta en ese tipo.</li>
-<li><strong>Expiry notifications:</strong> desactivadas por defecto. Una vez activadas, la app te recuerda a las 8:00 los próximos vencimientos de fuentes (vida útil, revisión) y de personas (reconocimiento médico, formación). Elige con qué antelación: el mismo día, 1 día, 2 días o 1 semana antes. Las notificaciones deben estar permitidas en los ajustes del teléfono.</li>
-<li><strong>Switch company:</strong> abre el selector de empresa, ver la sección 7.</li>
-<li><strong>Save database to file / Load database from file:</strong> guarda todos los datos en un archivo de copia de seguridad o carga uno, por ejemplo en un teléfono nuevo. La carga sobrescribe todos los datos del dispositivo.</li>
-<li><strong>Clear database:</strong> elimina de forma permanente del dispositivo todas las inspecciones, puntos, instrumentos, fuentes, personas y fotos. Haz antes una copia de seguridad.</li>
-<li><strong>Contributors:</strong> agradecimiento a los voluntarios y organizaciones que ayudan a construir RadRecon, y cómo unirte.</li>
-<li><strong>Units:</strong> unidad predeterminada de tasa de dosis (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), actividad (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) y distancia (m, cm, inch, feet). Las nuevas mediciones empiezan con estas unidades. Al registrar se puede elegir otra unidad de una lista y el número escrito se convierte automáticamente. El umbral de alerta de la tasa de dosis también se convierte; el protocolo y las exportaciones usan las unidades elegidas.</li>
-<li><strong>Regulatory profile:</strong> Internacional (OIEA) o Hungría (OAH). El perfil húngaro añade las categorías húngaras a la clasificación de las fuentes, véase la sección 4.</li>
-<li><strong>Backup contents:</strong> además de los datos y las fotos, el archivo de copia contiene todos los adjuntos: certificados de verificación y calibración de los instrumentos, certificados de las personas, certificados de las fuentes y documentos de la empresa.</li>
+<li><strong>Idioma:</strong> húngaro, inglés, alemán, español, francés, italiano o el idioma del teléfono.</li>
+<li><strong>Apariencia:</strong> tema claro, oscuro o del sistema.</li>
+<li><strong>Umbrales de alerta:</strong> un límite por tipo de medición. Cuando un valor registrado lo alcanza o lo supera, la app avisa con un sonido y una ventana emergente. Deja un campo vacío para no tener alerta en ese tipo.</li>
+<li><strong>Notificaciones de vencimiento:</strong> desactivadas por defecto. Una vez activadas, la app te recuerda a las 8:00 los próximos vencimientos de fuentes (vida útil, revisión) y de personas (reconocimiento médico, formación). Elige con qué antelación: el mismo día, 1 día, 2 días o 1 semana antes. Las notificaciones deben estar permitidas en los ajustes del teléfono.</li>
+<li><strong>Cambiar de empresa:</strong> abre el selector de empresa, ver la sección 7.</li>
+<li><strong>Guardar la base de datos en un archivo / Cargar la base de datos desde un archivo:</strong> guarda todos los datos (inspecciones, puntos, instrumentos, fuentes, personas, zonas marcadas en el mapa, fotos y archivos adjuntos) en un único archivo de copia de seguridad, o carga uno, por ejemplo en un teléfono nuevo. La carga sobrescribe todos los datos del dispositivo.</li>
+<li><strong>Borrar la base de datos:</strong> elimina de forma permanente del dispositivo todas las inspecciones, puntos, instrumentos, fuentes, personas y fotos. Haz antes una copia de seguridad.</li>
+<li><strong>Colaboradores:</strong> agradecimiento a los voluntarios y organizaciones que ayudan a construir RadRecon, y cómo unirte.</li>
+<li><strong>Unidades:</strong> unidad predeterminada de tasa de dosis (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), actividad (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) y distancia (m, cm, inch, feet). Las nuevas mediciones empiezan con estas unidades. Al registrar se puede elegir otra unidad de una lista y el número escrito se convierte automáticamente. El umbral de alerta de la tasa de dosis también se convierte; el protocolo usa las unidades elegidas.</li>
+<li><strong>Unidades de visualización:</strong> la unidad de la dosis personal (automática: µSv, con cambio a mSv por encima de 1 mSv; o una unidad fija), y las de contaminación superficial, temperatura, presión y velocidad del viento. La pantalla y el protocolo usan estas unidades. Los valores almacenados no cambian; las exportaciones CSV y JSON y el archivo de copia conservan las unidades almacenadas. El umbral de alerta de la contaminación superficial se introduce en Bq/cm².</li>
+<li><strong>Perfil normativo:</strong> Internacional (OIEA) o Hungría (OAH). El perfil húngaro añade las categorías húngaras a la clasificación de las fuentes, véase la sección 4.</li>
+<li>además de los datos y las fotos, el archivo de copia contiene todos los adjuntos: certificados de verificación y calibración de los instrumentos, certificados de las personas, certificados de las fuentes y documentos de la empresa.</li>
 </ul>
 <h3>Documentos y permisos de la empresa</h3>
-<p>Cada empresa tiene documentos y permisos con un identificador y una fecha de vencimiento, por ejemplo el reglamento de protección radiológica del lugar de trabajo, la descripción de la protección radiológica, el plan de protección física o el plan de respuesta a accidentes. Ábrelos con el icono de documento de la barra superior de la pantalla principal y pulsa <strong>New document</strong>. Introduce el nombre del documento, el identificador (número de expediente / permiso), el emisor / autoridad, la fecha de emisión y la fecha «válido / revisión hasta», escribe una nota y adjunta tantos archivos como quieras con <strong>Attach file</strong>. Puedes añadir tantos documentos como necesites.</p>
+<p>Cada empresa tiene documentos y permisos con un identificador y una fecha de vencimiento, por ejemplo el reglamento de protección radiológica del lugar de trabajo, la descripción de la protección radiológica, el plan de protección física o el plan de respuesta a accidentes. Ábrelos con el icono de documento de la barra superior de la pantalla principal y pulsa <strong>Nuevo documento</strong>. Introduce el nombre del documento, el identificador (número de expediente / permiso), el emisor / autoridad, la fecha de emisión y la fecha «válido / revisión hasta», escribe una nota y adjunta tantos archivos como quieras con <strong>Adjuntar archivo</strong>. Puedes añadir tantos documentos como necesites.</p>
 <p>Las fechas de vencimiento de los documentos de la empresa y de los certificados de las personas forman parte de las notificaciones de vencimiento. Los documentos y sus archivos están incluidos en la copia de seguridad y en el selector de empresa.</p>
 
 
 <h2 id="m3">3. Instrumentos</h2>
-<p>Añade tus instrumentos una sola vez y selecciónalos al registrar puntos. Abre la lista de instrumentos y pulsa <strong>New instrument</strong>.</p>
+<p>Añade tus instrumentos una sola vez y selecciónalos al registrar puntos. Abre la lista de instrumentos y pulsa <strong>Nuevo instrumento</strong>.</p>
 <ul>
-<li><strong>Instrument name / type</strong> (obligatorio), <strong>Serial number</strong>, <strong>Last calibration date</strong> y <strong>Calibration factor</strong>.</li>
-<li><strong>Reachable over WiFi Modbus/TCP:</strong> actívalo e introduce la dirección IP o el host, el puerto (por ejemplo 502), el Modbus Unit ID (dirección esclava) y la dirección del registro (registro de retención inicial del valor medido, float32).</li>
+<li><strong>Nombre / tipo del instrumento</strong> (obligatorio), <strong>Número de serie</strong>, <strong>Fecha de la última calibración</strong> y <strong>Factor de calibración</strong>.</li>
+<li><strong>Accesible por WiFi mediante Modbus/TCP:</strong> actívalo e introduce la dirección IP o el host, el puerto (por ejemplo 502), el Modbus Unit ID (dirección esclava) y la dirección del registro (registro de retención inicial del valor medido, float32).</li>
 </ul>
 <p>Al eliminar un instrumento se conservan las mediciones anteriores; solo se quita de ellas la referencia al instrumento. El menú de la lista permite importar y exportar los instrumentos en CSV.</p>
 <h3>Registros de verificación y calibración</h3>
-<p>Cada instrumento tiene un historial de verificaciones y calibraciones. En la pantalla del instrumento, en la sección <strong>Verification and calibration</strong>, pulsa <strong>Add record</strong> e introduce el tipo (<strong>Verification</strong> o <strong>Calibration</strong>), <strong>Date performed</strong>, <strong>Valid until</strong>, <strong>Certificate number</strong> y <strong>Performed by (lab / authority)</strong>, y adjunta el certificado con <strong>Attach certificate</strong>. El estado del instrumento es <strong>Valid</strong>, <strong>Expires soon</strong>, <strong>EXPIRED</strong> o <strong>No data</strong>.</p>
+<p>Cada instrumento tiene un historial de verificaciones y calibraciones. En la pantalla del instrumento, en la sección <strong>Verificación y calibración</strong>, pulsa <strong>Añadir registro</strong> e introduce el tipo (<strong>Verificación</strong> o <strong>Calibración</strong>), <strong>Fecha de realización</strong>, <strong>Válido hasta</strong>, <strong>Número de certificado</strong> y <strong>Realizado por (laboratorio / autoridad)</strong>, y adjunta el certificado con <strong>Adjuntar certificado</strong>. El estado del instrumento es <strong>Válido</strong>, <strong>Vence pronto</strong>, <strong>VENCIDO</strong> o <strong>Sin datos</strong>.</p>
 <p>Al registrar un punto aparece una advertencia si el instrumento elegido tiene una verificación/calibración vencida, próxima a vencer o ninguna, y guardar un punto hecho con un instrumento vencido pide confirmación. El protocolo y el CSV muestran el registro válido en el momento de la medición y marcan uno vencido.</p>
 <h3>Magnitud y unidad de un instrumento Modbus</h3>
 <p>En un instrumento Modbus indica también qué contiene el registro (por ejemplo tasa de dosis, contaminación superficial o tasa de recuento) y en qué unidad lo devuelve el instrumento (por ejemplo nSv/h). La App convierte el valor a la unidad predeterminada al leerlo, y el registro automático guarda la magnitud configurada para el instrumento.</p>
@@ -105,7 +106,7 @@
 </ul>
 <p>Para los nucleidos conocidos, la app guarda el periodo de semidesintegración y la constante gamma y calcula la actividad actual. Para un nucleido desconocido los datos pueden guardarse, pero se omite la comparación. El menú de la lista permite importar y exportar las fuentes en CSV.</p>
 <h3>Certificado de la fuente</h3>
-<p>En la pantalla de la fuente usa <strong>Attach certificate</strong> para adjuntar el certificado de la fuente (tantos archivos como quieras). Está incluido en la copia de seguridad.</p>
+<p>En la pantalla de la fuente usa <strong>Adjuntar certificado</strong> para adjuntar el certificado de la fuente (tantos archivos como quieras). Está incluido en la copia de seguridad.</p>
 <h3>Clasificación (D, R, exención)</h3>
 <p>Pulsa el icono de clasificación en la barra superior de la lista de fuentes. Para cada fuente la App calcula, a partir de la actividad actual corregida por desintegración (de la actividad de fabricación si el periodo es desconocido, indicado en pantalla):</p>
 <ul>
@@ -114,69 +115,71 @@
 <li>los valores de transporte ADR <strong>A1</strong>, <strong>A2</strong>, las relaciones A/A1 y A/A2 y el límite de actividad del bulto exento.</li>
 </ul>
 <p>La casilla de cada fuente la selecciona para el total: la suma de R de las fuentes seleccionadas da la categoría de las fuentes guardadas en la misma zona de protección física.</p>
-<p>Con el perfil <strong>Hungary (OAH)</strong> la pantalla muestra además la categoría de protección radiológica I, II o III (decreto OAH 2/2022, § 25), el nivel de protección física B, C o D (decreto gubernamental 190/2011) y la clase de laboratorio según MSZ 62-7 a partir del valor AM (industrial A, B, C; médico I a III) con los tipos de operación permitidos. Dos interruptores, <strong>Regular work with unsealed sources</strong> y <strong>Use outside the radiation workplace</strong>, cambian la categoría.</p>
+<p>Con el perfil <strong>Hungría (OAH)</strong> la pantalla muestra además la categoría de protección radiológica I, II o III (decreto OAH 2/2022, § 25), el nivel de protección física B, C o D (decreto gubernamental 190/2011) y la clase de laboratorio según MSZ 62-7 a partir del valor AM (industrial A, B, C; médico I a III) con los tipos de operación permitidos. Dos interruptores, <strong>Trabajo regular con fuentes no encapsuladas</strong> y <strong>Uso fuera del lugar de trabajo con radiaciones</strong>, cambian la categoría.</p>
 <p>La clasificación es orientativa. Las excepciones (por ejemplo equipos portátiles) no se tratan, la condición de concentración de una exención requeriría la masa del material, y la clasificación oficial la determinan la ley aplicable y la autoridad.</p>
 
 
 <h2 id="m5">5. Personas</h2>
-<p>El registro de personas contiene al personal que participa en las inspecciones: nombre, vencimiento del reconocimiento médico y vencimiento de la formación. Dentro de una inspección, abre el icono de personas y usa <strong>Assign person</strong> para añadirlas a esa inspección. Quitar a una persona de una inspección la mantiene en el registro. Eliminarla del registro la quita también de todas las inspecciones. El menú de la lista permite importar y exportar las personas en CSV.</p>
-<p>Además del nombre, el vencimiento del examen médico y de la formación, una persona tiene un <strong>Phone number</strong>, varios <strong>Email address</strong> y cualquier número de <strong>Certificates</strong>. Pulsa <strong>Add certificate</strong> e introduce la denominación (por ejemplo examen de protección radiológica), el número del certificado, el emisor, la fecha de emisión y la validez, y adjunta el archivo. El vencimiento de un certificado puede recordarse como las demás fechas de vencimiento. El teléfono y los correos están en el CSV de personas, los certificados no.</p>
+<p>El registro de personas contiene al personal que participa en las inspecciones: nombre, vencimiento del reconocimiento médico y vencimiento de la formación. Dentro de una inspección, abre el icono de personas y usa <strong>Asignar persona</strong> para añadirlas a esa inspección. Quitar a una persona de una inspección la mantiene en el registro. Eliminarla del registro la quita también de todas las inspecciones. El menú de la lista permite importar y exportar las personas en CSV.</p>
+<p>Además del nombre, el vencimiento del examen médico y de la formación, una persona tiene un <strong>Número de teléfono</strong>, varios <strong>Correo electrónico</strong> y cualquier número de <strong>Certificados</strong>. Pulsa <strong>Añadir certificado</strong> e introduce la denominación (por ejemplo examen de protección radiológica), el número del certificado, el emisor, la fecha de emisión y la validez, y adjunta el archivo. El vencimiento de un certificado puede recordarse como las demás fechas de vencimiento. El teléfono y los correos están en el CSV de personas, los certificados no.</p>
 
 
 <h2 id="m6">6. Dosis</h2>
-<p>RadRecon puede llevar la dosis de cada persona. Las dosis se guardan en µSv. La lista de personas muestra la dosis anual de cada una, desglosada por fuente, y tiene un selector <strong>Year</strong>.</p>
+<p>RadRecon puede llevar la dosis de cada persona. Las dosis se guardan en µSv. La lista de personas muestra la dosis anual de cada una, desglosada por fuente, y tiene un selector <strong>Año</strong>.</p>
 <ul>
-<li><strong>Online (from detector):</strong> durante el registro automático desde un instrumento conectado por Modbus, la app integra en el tiempo la tasa de dosis medida. Al detener el registro, la dosis se guarda para las personas asignadas a la inspección. Solo funciona con mediciones de tasa de dosis, y la app avisa si hubo interrupciones de datos largas. Si no hay ninguna persona asignada a la inspección, la dosis no se guarda.</li>
+<li><strong>En línea (desde el detector):</strong> durante el registro automático desde un instrumento conectado por Modbus, la app integra en el tiempo la tasa de dosis medida. Al detener el registro, la dosis se guarda para las personas asignadas a la inspección. Solo funciona con mediciones de tasa de dosis, y la app avisa si hubo interrupciones de datos largas. Si no hay ninguna persona asignada a la inspección, la dosis no se guarda.</li>
 <li><strong>Manual:</strong> dentro de una inspección abre el icono de personas y toca una persona para introducir o corregir la dosis online y manual de esa inspección.</li>
-<li><strong>Passive dosimetry:</strong> resultados de una lectura mensual o bimestral, independientes de cualquier inspección. En la lista de personas pulsa <strong>Manage doses</strong> junto a la persona, luego <strong>Add passive dosimetry</strong>, e introduce la dosis con <strong>Evaluation period start</strong> y <strong>Evaluation period end</strong>. La dosis cuenta para el año en que termina el periodo.</li>
+<li><strong>Dosimetría pasiva:</strong> resultados de una lectura mensual o bimestral, independientes de cualquier inspección. En la lista de personas pulsa <strong>Gestionar dosis</strong> junto a la persona, luego <strong>Añadir dosimetría pasiva</strong>, e introduce la dosis con <strong>Inicio del periodo de evaluación</strong> y <strong>Fin del periodo de evaluación</strong>. La dosis cuenta para el año en que termina el periodo.</li>
 </ul>
-<p>Al cerrar una inspección, <strong>Review doses</strong> te permite corregir la dosis de cada participante antes de cerrar. La pantalla de dosis de una persona lista todas las entradas del año con su total, y cada entrada se puede editar o eliminar. Con <strong>Import doses (CSV)</strong> y <strong>Export doses (CSV)</strong> en el menú de la lista de personas importas y exportas dosis.</p>
+<p>Al cerrar una inspección, <strong>Revisar dosis</strong> te permite corregir la dosis de cada participante antes de cerrar. La pantalla de dosis de una persona lista todas las entradas del año con su total, y cada entrada se puede editar o eliminar. Con <strong>Importar dosis (CSV)</strong> y <strong>Exportar dosis (CSV)</strong> en el menú de la lista de personas importas y exportas dosis.</p>
+<h3>Control del límite anual de dosis</h3>
+<p>El encabezado de la lista de personas muestra el límite anual de la categoría elegida en su selector: <strong>Ocupacional</strong> (20 mSv al año) o <strong>Público</strong> (1 mSv al año). En la fila de cada persona se ve la dosis del año seleccionado como porcentaje de ese límite, con uno de estos estados: <strong>dentro del límite</strong> (dentro del límite), <strong>nivel de aviso alcanzado</strong> (nivel de advertencia alcanzado, desde el 50 %) o <strong>límite superado</strong> (límite superado, desde el 100 %). Los dos perfiles normativos usan los mismos límites; el perfil solo cambia la fuente citada (decreto OAH 2/2022 o IAEA GSR Parte 3). La comprobación cubre un solo año: no se aplica el promedio de cinco años de la OIEA, y la categoría vale para toda la lista, no para cada persona. No sustituye la evaluación oficial.</p>
 <p>Las dosis ayudan a llevar tus registros y no sustituyen la dosimetría personal oficial. Contrástalas con los resultados de tu servicio de dosimetría autorizado.</p>
 
 <h2 id="m7">7. Cambiar de empresa</h2>
-<p>Si trabajas para más de una empresa, puedes mantener separados los datos de cada una. Abre los ajustes y pulsa <strong>Switch company</strong>. La pantalla muestra la <strong>Active company</strong> y la lista de empresas guardadas.</p>
+<p>Si trabajas para más de una empresa, puedes mantener separados los datos de cada una. Abre los ajustes y pulsa <strong>Cambiar de empresa</strong>. La pantalla muestra la <strong>Empresa activa</strong> y la lista de empresas guardadas.</p>
 <ul>
-<li><strong>Switch:</strong> elige una empresa de la lista y confirma. Antes de cargar la otra empresa, los datos actuales se guardan automáticamente bajo la empresa activa, así que no se pierde nada.</li>
-<li><strong>New company:</strong> crea una empresa vacía con el nombre que introduzcas.</li>
-<li><strong>Add company from backup file:</strong> añade una empresa desde un archivo de copia de seguridad, por ejemplo al cambiar de teléfono.</li>
+<li><strong>Cambiar:</strong> elige una empresa de la lista y confirma. Antes de cargar la otra empresa, los datos actuales se guardan automáticamente bajo la empresa activa, así que no se pierde nada.</li>
+<li><strong>Nueva empresa:</strong> crea una empresa vacía con el nombre que introduzcas.</li>
+<li><strong>Añadir empresa desde un archivo de copia:</strong> añade una empresa desde un archivo de copia de seguridad, por ejemplo al cambiar de teléfono.</li>
 <li>Eliminar la copia de seguridad de una empresa la quita de la carpeta. Los datos cargados en ese momento no se ven afectados.</li>
-<li><strong>Choose folder:</strong> por defecto las empresas están en una carpeta privada de la app, inaccesible para otras apps. Elige una carpeta como Descargas o un almacenamiento en la nube para llegar a las copias desde tu gestor de archivos, y deshazlo con <strong>Back to default folder</strong>.</li>
+<li><strong>Elegir carpeta:</strong> por defecto las empresas están en una carpeta privada de la app, inaccesible para otras apps. Elige una carpeta como Descargas o un almacenamiento en la nube para llegar a las copias desde tu gestor de archivos, y deshazlo con <strong>Volver a la carpeta predeterminada</strong>.</li>
 </ul>
 <p>Cada empresa se guarda como un único archivo de copia de seguridad con su base de datos y sus fotos.</p>
 
 <h2 id="m8">8. Iniciar una inspección</h2>
 <ol>
-<li>En la pantalla principal pulsa <strong>New survey</strong>.</li>
+<li>En la pantalla principal pulsa <strong>Nueva inspección</strong>.</li>
 <li>Introduce el nombre y, si quieres, el lugar. Si dejas el nombre vacío, la app propone «Survey – fecha».</li>
-<li>Pulsa <strong>Start</strong>. La inspección se abre con una lista de puntos vacía.</li>
+<li>Pulsa <strong>Iniciar</strong>. La inspección se abre con una lista de puntos vacía.</li>
 </ol>
 <p>El nombre y el lugar pueden cambiarse después con el icono de edición, y ahí también asignas al personal que participa.</p>
 
 <h2 id="m9">9. Registrar un punto de medida</h2>
-<p>En la inspección pulsa <strong>New point</strong>.</p>
+<p>En la inspección pulsa <strong>Nuevo punto</strong>.</p>
 <ul>
-<li><strong>Measurement type:</strong> tasa de dosis, contaminación superficial, tasa de recuento (cps), tasa de recuento de neutrones (cps) o muestreo.</li>
-<li><strong>Location name, Measured value y Unit.</strong> Cada tipo tiene una unidad por defecto.</li>
-<li><strong>Distance from source</strong> y <strong>Nuclide</strong>, a partir de los cuales la app da una estimación rápida de la actividad a partir del valor medido.</li>
-<li><strong>Instrument:</strong> elige uno de tu lista o añade uno nuevo con el botón de más. Para un instrumento Modbus, usa <strong>Modbus query</strong> para leer el valor directamente.</li>
-<li><strong>Position:</strong> latitud y longitud, con <strong>Live GPS</strong> para tomar la posición actual u <strong>On the map</strong> para elegirla en el mapa.</li>
-<li><strong>This is the source position (max value):</strong> marca el punto de mayor lectura.</li>
-<li><strong>A physical sample was taken here:</strong> introduce el ID del contenedor, la cantidad y el método de muestreo.</li>
-<li><strong>Notes</strong> y una <strong>foto</strong> hecha con la cámara o elegida de la galería.</li>
+<li><strong>Tipo de medición:</strong> tasa de dosis, contaminación superficial, tasa de recuento (cps), tasa de recuento de neutrones (cps) o muestreo. El muestreo incluye también los tipos <strong>Meteorología</strong> y <strong>Medición de gases</strong> (meteorología y medida de gases), que no tienen valor medido: los datos meteorológicos o las concentraciones de gases se introducen con el punto.</li>
+<li><strong>Nombre del lugar, Valor medido y Unidad.</strong> Cada tipo tiene una unidad por defecto.</li>
+<li><strong>Distancia a la fuente</strong> y <strong>Nucleído</strong>, a partir de los cuales la app da una estimación rápida de la actividad a partir del valor medido.</li>
+<li><strong>Instrumento:</strong> elige uno de tu lista o añade uno nuevo con el botón de más. Para un instrumento Modbus, usa <strong>Consulta Modbus</strong> para leer el valor directamente.</li>
+<li><strong>Posición:</strong> latitud y longitud, con <strong>GPS en vivo</strong> para tomar la posición actual u <strong>En el mapa</strong> para elegirla en el mapa.</li>
+<li><strong>Esta es la posición de la fuente (valor máximo):</strong> marca el punto de mayor lectura.</li>
+<li><strong>Aquí se tomó una muestra física:</strong> introduce el ID del contenedor, la cantidad y el método de muestreo.</li>
+<li><strong>Notas</strong> y una <strong>foto</strong> hecha con la cámara o elegida de la galería.</li>
 </ul>
 <p>Si el valor alcanza o supera el umbral de su tipo, la app muestra la alerta. Todo cambio posterior en un punto se anota en su historial, de modo que el valor original sigue siendo trazable.</p>
 <h3>Unidades, error y promedio</h3>
 <p>Junto al valor medido, una lista permite elegir otra unidad; el número se convierte automáticamente. Bajo el valor, el campo <strong>Error (±)</strong> contiene la incertidumbre de la medición en la misma unidad. Introdúcela a mano cuando escribas el valor manualmente. El protocolo muestra el valor como «valor ± error» y el CSV tiene columnas propias.</p>
-<p>Con un instrumento Modbus, pulsa <strong>Averaging measurement</strong> en lugar de una consulta única. Elige la duración (de 10 s a 5 min); la App lee el instrumento cada segundo y muestra la media acumulada con su error. <strong>Done</strong> acepta las muestras reunidas hasta ese momento, Cancel las descarta. El valor es la media, el error es el error estándar de la media (1σ, desviación estándar dividida por √n); el número de muestras y la duración se guardan con el punto y se imprimen en el protocolo. Para el error hacen falta al menos 2 muestras válidas. El error es estadístico: no incluye la incertidumbre de calibración del instrumento y es demasiado pequeño si el propio instrumento suaviza su lectura.</p>
+<p>Con un instrumento Modbus, pulsa <strong>Medición promediada</strong> en lugar de una consulta única. Elige la duración (de 10 s a 5 min); la App lee el instrumento cada segundo y muestra la media acumulada con su error. <strong>Listo</strong> acepta las muestras reunidas hasta ese momento, Cancel las descarta. El valor es la media, el error es el error estándar de la media (1σ, desviación estándar dividida por √n); el número de muestras y la duración se guardan con el punto y se imprimen en el protocolo. Para el error hacen falta al menos 2 muestras válidas. El error es estadístico: no incluye la incertidumbre de calibración del instrumento y es demasiado pequeño si el propio instrumento suaviza su lectura.</p>
 <h3>Identificación del nucleído y blindaje</h3>
-<p>La sección <strong>Nuclide identification</strong> registra si el nucleído está identificado (de la lista u otro), es desconocido o es una mezcla de fuentes. La estimación de la actividad a partir del valor medido solo aparece cuando hay exactamente un nucleído identificado y se ha introducido la distancia a la fuente. Muestra la actividad (sin blindaje).</p>
-<p>Si la fuente está tras un blindaje, pulsa <strong>Add layer</strong> y elige el material (plomo, acero, hormigón, wolframio, aluminio o agua) y el espesor. Se pueden añadir varias capas. La App estima entonces también la actividad de la fuente blindada. La estimación usa espesores de semirreducción orientativos e ignora la radiación dispersa, por lo que tiende a sobrestimar la actividad.</p>
+<p>La sección <strong>Identificación del nucleído</strong> registra si el nucleído está identificado (de la lista u otro), es desconocido o es una mezcla de fuentes. La estimación de la actividad a partir del valor medido solo aparece cuando hay exactamente un nucleído identificado y se ha introducido la distancia a la fuente. Muestra la actividad (sin blindaje).</p>
+<p>Si la fuente está tras un blindaje, pulsa <strong>Añadir capa</strong> y elige el material (plomo, acero, hormigón, wolframio, aluminio o agua) y el espesor. Se pueden añadir varias capas. La App estima entonces también la actividad de la fuente blindada. La estimación usa espesores de semirreducción orientativos e ignora la radiación dispersa, por lo que tiende a sobrestimar la actividad.</p>
 <h3>Posición GPS promediada</h3>
-<p>Si la precisión del GPS es mala (por ejemplo ±10 m), quédate quieto en el punto y pulsa <strong>Averaged GPS</strong> bajo la posición. Elige 30, 60 o 120 segundos. La App reúne las posiciones, las pondera según su precisión, descarta los valores atípicos e introduce la posición media con una precisión estimada. A cielo abierto el resultado es mejor. Más tiempo ayuda, pero el error del GPS está correlacionado en el tiempo, así que no esperes que la precisión mejore con la raíz del número de muestras.</p>
+<p>Si la precisión del GPS es mala (por ejemplo ±10 m), quédate quieto en el punto y pulsa <strong>GPS promediado</strong> bajo la posición. Elige 30, 60 o 120 segundos. La App reúne las posiciones, las pondera según su precisión, descarta los valores atípicos e introduce la posición media con una precisión estimada. A cielo abierto el resultado es mejor. Más tiempo ayuda, pero el error del GPS está correlacionado en el tiempo, así que no esperes que la precisión mejore con la raíz del número de muestras.</p>
 
 
 <h2 id="m10">10. Fuentes en un punto</h2>
-<p>En la pantalla del punto elige <strong>Manage radioactive source(s)</strong> y asocia fuentes del registro. Para cada una introduce su distancia al punto de medida. La app muestra entonces:</p>
+<p>En la pantalla del punto elige <strong>Gestionar fuente(s) radiactiva(s)</strong> y asocia fuentes del registro. Para cada una introduce su distancia al punto de medida. La app muestra entonces:</p>
 <ul>
 <li>la actividad actual, corregida por decaimiento hasta la fecha de la medición;</li>
 <li>la tasa de dosis calculada de cada fuente y el total de todas las fuentes;</li>
@@ -185,38 +188,43 @@
 <p>Las fuentes con nucleido desconocido quedan fuera del total, y una vida útil vencida se señala con una advertencia. Si la unidad de medida no puede convertirse automáticamente, no se hace la comparación. Desvincular una fuente solo elimina el vínculo, no la fuente del registro.</p>
 
 <h2 id="m11">11. Mapa</h2>
-<p>El mapa muestra todos los puntos de la inspección. Con el icono de la cámara guardas una captura del mapa, que se adjunta al exportar el acta. En la lista de puntos, <strong>Save list screenshot</strong> hace lo mismo con la lista. El fondo del mapa necesita conexión a internet.</p>
+<p>El mapa muestra todos los puntos de la inspección. Con el icono de la cámara guardas una captura del mapa, que se adjunta al exportar el acta. En la lista de puntos, <strong>Guardar captura de la lista</strong> hace lo mismo con la lista. El fondo del mapa necesita conexión a internet.</p>
+
+<h3>Zonas marcadas</h3>
+<p>Las zonas permiten marcar en el mapa una parte del emplazamiento inspeccionado, por ejemplo una zona inspeccionada, restringida o contaminada. Pulsa <strong>Marcar área</strong> en el mapa. Introduce un <strong>Nombre</strong> (por ejemplo Surveyed area), elige la <strong>Forma</strong> (<strong>Polígono</strong> o <strong>Círculo</strong>) y un <strong>Color</strong>, y pulsa <strong>Dibujar</strong>. En un polígono, toca los vértices uno tras otro y pulsa <strong>Listo</strong>; hacen falta al menos 3 vértices, y <strong>Deshacer</strong> elimina el último. En un círculo, toca el centro y luego un punto del borde para fijar el radio. Las zonas se dibujan con un relleno semitransparente de su color. El botón <strong>Áreas marcadas</strong> lista las zonas de la inspección; desde la lista puedes eliminar una zona tras confirmarlo. Las zonas se incluyen en las actas Word y PDF (nombre, forma, geometría y área en m²) y en el archivo de copia.</p>
 
 <h2 id="m12">12. Herramientas</h2>
 <p>Las herramientas están en el menú de la inspección (tres puntos).</p>
 <ul>
-<li><strong>Automatic logging:</strong> registra puntos desde un instrumento Modbus/TCP por intervalo de tiempo (mínimo 1 segundo) o de distancia (mínimo 1 metro). Muestra los puntos registrados, el último valor y las lecturas fallidas. El registro solo funciona mientras esta pantalla está abierta; si el teléfono se bloquea o cambias de aplicación, se pausa y debes reiniciarlo.</li>
-<li><strong>Distance measurement:</strong> distancia y rumbo desde tu posición actual o desde un punto de partida elegido hasta un punto de destino. Con <strong>Live tracking</strong>, los valores se actualizan mientras caminas en la dirección de la flecha.</li>
-<li><strong>Isotope calculator:</strong> convierte actividad (MBq) en tasa de dosis (µSv/h) a una distancia, o una tasa de dosis medida en actividad. Nucleidos incorporados: Co-60, Cs-137, Ir-192, Ra-226, I-131, Na-22 y Am-241.</li>
-<li><strong>Source search:</strong> estima la dirección en la que aumenta el tipo de medición elegido, a partir de los puntos ya registrados en la inspección. Con menos de 4 puntos, la estimación se marca como poco fiable. Registra más puntos en distintos lugares de la zona de búsqueda.</li>
+<li><strong>Registro automático:</strong> registra puntos desde un instrumento Modbus/TCP por intervalo de tiempo (mínimo 1 segundo) o de distancia (mínimo 1 metro). Muestra los puntos registrados, el último valor y las lecturas fallidas. El registro solo funciona mientras esta pantalla está abierta; si el teléfono se bloquea o cambias de aplicación, se pausa y debes reiniciarlo.</li>
+<li><strong>Medición de distancia:</strong> distancia y rumbo desde tu posición actual o desde un punto de partida elegido hasta un punto de destino. Con <strong>Seguimiento en vivo</strong>, los valores se actualizan mientras caminas en la dirección de la flecha.</li>
+<li><strong>Calculadora de isótopos:</strong> convierte actividad (MBq) en tasa de dosis (µSv/h) a una distancia, o una tasa de dosis medida en actividad. Nucleidos incorporados: Co-60, Cs-137, Ir-192, Ra-226, I-131, Na-22 y Am-241.</li>
+<li><strong>Calculadora de desintegración:</strong> funciona en dos modos, <strong>Actividad tras el tiempo t</strong> y <strong>Tiempo hasta la actividad objetivo</strong>. Usa el periodo de semidesintegración de un nucleido (de la lista, o uno propio). Si introduces una distancia, muestra además la tasa de dosis a esa distancia. El cálculo es decaimiento exponencial puro: no incluye los nucleidos hijos ni otras radiaciones.</li>
+<li><strong>Conversor de unidades:</strong> convierte valores entre las unidades de la app: dosis, tasa de dosis, actividad, concentración de actividad, contaminación superficial, tasa de recuento, longitud, área, volumen, masa, temperatura, presión, velocidad, tiempo, irradiancia, intensidad de precipitación, concentración másica de aerosoles y concentración de gases. Pulsa una fila para convertir el valor a esa unidad, que pasa a ser la unidad de origen. Para convertir entre concentración másica y volumétrica de un gas hace falta su masa molar: elige el gas de la lista para rellenarla (la lista cubre 22 gases; VOC y NOx no tienen masa molar y hay que introducirla a mano). El cálculo supone 25 °C y 1 atm. La unidad %LEL no se puede convertir, porque depende del límite del gas.</li>
+<li><strong>Búsqueda de la fuente:</strong> estima la dirección en la que aumenta el tipo de medición elegido, a partir de los puntos ya registrados en la inspección. Con menos de 4 puntos, la estimación se marca como poco fiable. Registra más puntos en distintos lugares de la zona de búsqueda.</li>
 </ul>
 <p>La pantalla de registro automático dibuja mientras funciona un gráfico temporal de los valores leídos, con el umbral de alerta como línea roja discontinua, de modo que se ve el cambio del valor medido. El gráfico conserva las últimas 2 horas con una muestra por segundo y no se guarda. La calculadora de isótopos puede usar las mismas capas de blindaje y muestra entonces el resultado sin y con blindaje.</p>
 
 
 <h2 id="m13">13. Cierre, exportación e importación</h2>
 <ul>
-<li><strong>Close survey:</strong> el acta muestra entonces la fecha como hora de finalización. Los puntos no se bloquean, así que se pueden seguir editando.</li>
-<li><strong>Export protocol:</strong> crea un acta en Word con la lista de puntos y las imágenes adjuntas. Se entrega como un archivo ZIP que contiene el documento y una carpeta con las fotos.</li>
-<li><strong>Export points (data, JSON):</strong> un archivo de datos que otra instalación de RadRecon puede importar.</li>
-<li><strong>Export points (table, CSV):</strong> una tabla para Excel con posición, precisión, instrumento, marca de tiempo, muestreo, notas, actividad estimada, fuentes asociadas y tasa de dosis calculada.</li>
-<li><strong>Import points (JSON):</strong> carga puntos desde un archivo JSON. Los instrumentos y fuentes que faltan se crean; los puntos sin posición GPS válida o con tipo de medición desconocido se omiten con una advertencia.</li>
+<li><strong>Cerrar inspección:</strong> el acta muestra entonces la fecha como hora de finalización. Los puntos no se bloquean, así que se pueden seguir editando.</li>
+<li><strong>Exportar protocolo:</strong> crea un acta en Word o en PDF, a elegir en el diálogo. Contiene la lista de puntos, las zonas marcadas, las tablas de meteorología y de gases y las fotos adjuntas. El acta en Word se entrega como un archivo ZIP que contiene el documento y una carpeta con las fotos.</li>
+<li><strong>Exportar puntos (datos, JSON):</strong> un archivo de datos que otra instalación de RadRecon puede importar.</li>
+<li><strong>Exportar puntos (tabla, CSV):</strong> una tabla para Excel con posición, precisión, instrumento, marca de tiempo, muestreo, notas, actividad estimada, fuentes asociadas y tasa de dosis calculada.</li>
+<li><strong>Importar puntos (JSON):</strong> carga puntos desde un archivo JSON. Los instrumentos y fuentes que faltan se crean; los puntos sin posición GPS válida o con tipo de medición desconocido se omiten con una advertencia.</li>
 </ul>
-<p>Al importar un CSV en la lista de instrumentos, fuentes o personas, elige qué ocurre con un registro coincidente: <strong>Replace existing record</strong>, <strong>Skip matching record</strong> o <strong>Import as a duplicate</strong>.</p>
-<p>El protocolo y las exportaciones usan las unidades elegidas en los ajustes. El protocolo muestra el valor con su error y el número de muestras de una medición promediada, y el instrumento con sus registros de verificación/calibración. El CSV tiene las columnas adicionales <strong>Error (±)</strong>, <strong>Averaging (samples; s)</strong> y <strong>Instrument verification/calibration</strong>; el archivo JSON contiene los mismos datos.</p>
+<p>Al importar un CSV en la lista de instrumentos, fuentes o personas, elige qué ocurre con un registro coincidente: <strong>Sustituir el registro existente</strong>, <strong>Omitir el registro coincidente</strong> o <strong>Importar como duplicado</strong>.</p>
+<p>El protocolo usa las unidades elegidas en los ajustes. Las exportaciones CSV y JSON conservan las unidades almacenadas. El protocolo muestra el valor con su error y el número de muestras de una medición promediada, y el instrumento con sus registros de verificación/calibración. El CSV tiene las columnas adicionales <strong>Error (±)</strong>, <strong>Promediado (muestras; s)</strong> y <strong>Verificación/calibración del instrumento</strong>; el archivo JSON contiene los mismos datos.</p>
 
 
 <h2 id="m14">14. Solución de problemas</h2>
 <ul>
-<li><strong>Sin posición GPS:</strong> comprueba que los servicios de ubicación estén activados y que RadRecon pueda usar la ubicación, y pulsa <strong>Refresh GPS</strong>. En interiores la precisión puede ser mala; el radio de precisión se guarda con el punto.</li>
+<li><strong>Sin posición GPS:</strong> comprueba que los servicios de ubicación estén activados y que RadRecon pueda usar la ubicación, y pulsa <strong>Actualizar GPS</strong>. En interiores la precisión puede ser mala; el radio de precisión se guarda con el punto.</li>
 <li><strong>La consulta Modbus falla:</strong> comprueba que el teléfono y el instrumento estén en la misma red WiFi y que la dirección IP, el puerto, el Unit ID y la dirección del registro sean correctos.</li>
 <li><strong>Sin fondo de mapa:</strong> las teselas del mapa necesitan conexión a internet.</li>
 <li><strong>Sin notificaciones de vencimiento:</strong> actívalas en los ajustes y permite las notificaciones de RadRecon en los ajustes del teléfono.</li>
-<li><strong>Mala precisión del GPS:</strong> usa <strong>Averaged GPS</strong> en la pantalla del punto estando quieto, véase la sección 9.</li>
+<li><strong>Mala precisión del GPS:</strong> usa <strong>GPS promediado</strong> en la pantalla del punto estando quieto, véase la sección 9.</li>
 </ul>
 <p>Si el problema continúa, escribe a <a href="mailto:info@radrecon.hu">info@radrecon.hu</a>.</p>
 

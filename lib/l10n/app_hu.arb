@@ -1,1472 +1,1870 @@
 {
-    "@@locale": "hu",
-    "appTitle": "RadRecon",
-    "@appTitle": {},
-    "instrumentsTooltip": "Műszerek",
-    "@instrumentsTooltip": {},
-    "searchHint": "Keresés",
-    "@searchHint": {},
-    "searchNoResults": "Nincs találat",
-    "@searchNoResults": {},
-    "alertThresholdsTooltip": "Riasztási küszöbök",
-    "@alertThresholdsTooltip": {},
-    "noSurveysYet": "Még nincs felmérés. Indíts egyet a + gombbal.",
-    "@noSurveysYet": {},
-    "newSurveyButton": "Új felmérés",
-    "@newSurveyButton": {},
-    "newSurveyDialogTitle": "Új felmérés",
-    "@newSurveyDialogTitle": {},
-    "surveyNameLabel": "Megnevezés",
-    "@surveyNameLabel": {},
-    "surveyLocationLabel": "Helyszín (opcionális)",
-    "@surveyLocationLabel": {},
-    "editSurveyDetailsTooltip": "Megnevezés és helyszín szerkesztése",
-    "@editSurveyDetailsTooltip": {},
-    "editSurveyDetailsTitle": "Felmérés adatainak szerkesztése",
-    "@editSurveyDetailsTitle": {},
-    "cancelButton": "Mégse",
-    "@cancelButton": {},
-    "startButton": "Indítás",
-    "@startButton": {},
-    "surveyDefaultTitle": "Felmérés – {date}",
-    "@surveyDefaultTitle": {
-        "placeholders": {
-            "date": {
-                "type": "String"
-            }
-        }
-    },
-    "noLocationPlaceholder": "—",
-    "@noLocationPlaceholder": {},
-    "doseUnitSectionTitle": "Dózisteljesítmény alapegysége",
-    "@doseUnitSectionTitle": {},
-    "doseUnitSectionHint": "Új mérésnél ezek az egységek vannak előre kiválasztva. Rögzítéskor legördülő listából lehet másikat választani, beírni nem kell, és egységváltáskor a beírt szám automatikusan átváltódik. A dózisteljesítmény riasztási küszöbe is átváltódik.",
-    "@doseUnitSectionHint": {},
-    "unitsSectionTitle": "Mértékegységek",
-    "@unitsSectionTitle": {},
-    "activityUnitLabel": "Aktivitás alapegysége",
-    "@activityUnitLabel": {},
-    "distanceUnitLabel": "Távolság alapegysége",
-    "@distanceUnitLabel": {},
-    "activityPlainLabel": "Aktivitás",
-    "@activityPlainLabel": {},
-    "measuredDoseRatePlainLabel": "Mért dózisteljesítmény",
-    "@measuredDoseRatePlainLabel": {},
-    "distanceFromSourcePlainLabel": "Távolság a forrástól",
-    "@distanceFromSourcePlainLabel": {},
-    "sourceDistancePlainLabel": "Távolság a mérési ponttól",
-    "@sourceDistancePlainLabel": {},
-    "activityAtManufacturePlainLabel": "Aktivitás gyártáskor",
-    "@activityAtManufacturePlainLabel": {},
-    "invalidDistancePlainError": "Adj meg egy érvényes, pozitív távolságot.",
-    "@invalidDistancePlainError": {},
-    "invalidActivityPlainError": "Adj meg egy érvényes aktivitást.",
-    "@invalidActivityPlainError": {},
-    "invalidDoseRatePlainError": "Adj meg egy érvényes dózisteljesítményt.",
-    "@invalidDoseRatePlainError": {},
-    "distanceFromSourceShortLabel": "Táv. forrástól",
-    "@distanceFromSourceShortLabel": {},
-    "calculatedActivityResultLabel": "Számított aktivitás",
-    "@calculatedActivityResultLabel": {},
-    "distanceIntervalPlainLabel": "Távolságköz",
-    "@distanceIntervalPlainLabel": {},
-    "modbusQuantityLabel": "Mit ad vissza a regiszter",
-    "@modbusQuantityLabel": {},
-    "modbusRegisterUnitLabel": "A regiszter mértékegysége",
-    "@modbusRegisterUnitLabel": {},
-    "modbusQuantityHelper": "Rögzítéskor az app a kiolvasott értéket a Beállításokban választott alapegységre váltja.",
-    "@modbusQuantityHelper": {},
-    "autoLogTypeFromInstrument": "Az automata naplózás a műszerhez beállított mennyiséget rögzíti.",
-    "@autoLogTypeFromInstrument": {},
-    "nuclideIdSectionTitle": "Nuklid-azonosítás",
-    "@nuclideIdSectionTitle": {},
-    "nuclideStatusNone": "Nincs megadva",
-    "@nuclideStatusNone": {},
-    "nuclideStatusIdentified": "Azonosított nuklid(ok)",
-    "@nuclideStatusIdentified": {},
-    "nuclideStatusUnknown": "Ismeretlen",
-    "@nuclideStatusUnknown": {},
-    "nuclideStatusOther": "Egyéb (nem szerepel a listában)",
-    "@nuclideStatusOther": {},
-    "nuclideStatusMixture": "Feltételezhetően több forrás (keverék)",
-    "@nuclideStatusMixture": {},
-    "nuclideKnownListLabel": "Nuklidok a listából",
-    "@nuclideKnownListLabel": {},
-    "nuclideCustomLabel": "Egyéb nuklid neve",
-    "@nuclideCustomLabel": {},
-    "nuclideAddButton": "Hozzáadás",
-    "@nuclideAddButton": {},
-    "nuclideRequiredError": "Adj meg legalább egy nuklidot, vagy válaszd az Ismeretlen lehetőséget.",
-    "@nuclideRequiredError": {},
-    "csvHeaderNuclides": "Nuklid-azonosítás",
-    "@csvHeaderNuclides": {},
-    "nuclideDoneButton": "Kész",
-    "@nuclideDoneButton": {},
-    "unshieldedActivityLabel": "Aktivitás (árnyékolás nélkül)",
-    "@unshieldedActivityLabel": {},
-    "shieldingSectionTitle": "Árnyékolás (opcionális)",
-    "@shieldingSectionTitle": {},
-    "shieldingHint": "Ha a forrás árnyékolás mögött van, add meg az anyagát és a vastagságát — a program az árnyékolt forrás tényleges aktivitását is megbecsüli.",
-    "@shieldingHint": {},
-    "shieldingMaterialLabel": "Árnyékoló anyag",
-    "@shieldingMaterialLabel": {},
-    "shieldingNoneOption": "Nincs árnyékolás",
-    "@shieldingNoneOption": {},
-    "shieldingThicknessLabel": "Árnyékolás vastagsága",
-    "@shieldingThicknessLabel": {},
-    "shieldingThicknessError": "Adj meg pozitív vastagságot",
-    "@shieldingThicknessError": {},
-    "shieldedActivityLabel": "Árnyékolt forrás becsült aktivitása",
-    "@shieldedActivityLabel": {},
-    "shieldingDisclaimer": "Közelítő becslés: a gyengítést félértékréteg-modell írja le (a vastagság minden HVL-nyi egységén felezi a dózisteljesítményt), tájékoztató HVL-értékekkel. A szórt sugárzás (buildup), a forrás geometriája és a sugárzási spektrum egyszerűsítve szerepel, ezért az eredmény inkább felülbecsli az aktivitást. Hatósági jegyzőkönyvhöz ellenőrizd hiteles forrásból.",
-    "@shieldingDisclaimer": {},
-    "shieldingMaterialLead": "Ólom",
-    "@shieldingMaterialLead": {},
-    "shieldingMaterialSteel": "Acél (vas)",
-    "@shieldingMaterialSteel": {},
-    "shieldingMaterialConcrete": "Beton",
-    "@shieldingMaterialConcrete": {},
-    "shieldingMaterialTungsten": "Wolfram",
-    "@shieldingMaterialTungsten": {},
-    "shieldingMaterialAluminium": "Alumínium",
-    "@shieldingMaterialAluminium": {},
-    "shieldingMaterialWater": "Víz",
-    "@shieldingMaterialWater": {},
-    "csvUnshieldedNote": "árnyékolás nélkül",
-    "@csvUnshieldedNote": {},
-    "csvShieldedSourceNote": "árnyékolt forrás",
-    "@csvShieldedSourceNote": {},
-    "shieldingAddLayer": "Réteg hozzáadása",
-    "@shieldingAddLayer": {},
-    "shieldingLayerLabel": "Réteg",
-    "@shieldingLayerLabel": {},
-    "shieldingRemoveLayer": "Réteg törlése",
-    "@shieldingRemoveLayer": {},
-    "doseRateUnshieldedLabel": "Dózisteljesítmény (árnyékolás nélkül)",
-    "@doseRateUnshieldedLabel": {},
-    "doseRateShieldedLabel": "Dózisteljesítmény az árnyékolás mögött",
-    "@doseRateShieldedLabel": {},
-    "calibrationSectionTitle": "Hitelesítés és kalibrálás",
-    "@calibrationSectionTitle": {},
-    "calibrationKindVerification": "Hitelesítés",
-    "@calibrationKindVerification": {},
-    "calibrationKindCalibration": "Kalibrálás",
-    "@calibrationKindCalibration": {},
-    "calibrationAddButton": "Bejegyzés hozzáadása",
-    "@calibrationAddButton": {},
-    "calibrationDialogTitle": "Hitelesítés / kalibrálás bejegyzés",
-    "@calibrationDialogTitle": {},
-    "calibrationKindLabel": "Típus",
-    "@calibrationKindLabel": {},
-    "calibrationPerformedOnLabel": "Elvégzés dátuma",
-    "@calibrationPerformedOnLabel": {},
-    "calibrationValidUntilLabel": "Érvényes eddig",
-    "@calibrationValidUntilLabel": {},
-    "calibrationCertificateLabel": "Bizonylat száma",
-    "@calibrationCertificateLabel": {},
-    "calibrationPerformedByLabel": "Végezte (labor / hatóság)",
-    "@calibrationPerformedByLabel": {},
-    "calibrationAttachFile": "Bizonylat csatolása",
-    "@calibrationAttachFile": {},
-    "calibrationRemoveFile": "Csatolmány törlése",
-    "@calibrationRemoveFile": {},
-    "calibrationOpenFile": "Bizonylat megnyitása / megosztása",
-    "@calibrationOpenFile": {},
-    "calibrationEmptyList": "Még nincs bejegyzés.",
-    "@calibrationEmptyList": {},
-    "calibrationStatusValid": "Érvényes",
-    "@calibrationStatusValid": {},
-    "calibrationStatusSoon": "Hamarosan lejár",
-    "@calibrationStatusSoon": {},
-    "calibrationStatusExpired": "LEJÁRT",
-    "@calibrationStatusExpired": {},
-    "calibrationStatusUnknown": "Nincs adat",
-    "@calibrationStatusUnknown": {},
-    "calibrationExpiredWarning": "Figyelem: a kiválasztott műszer hitelesítése/kalibrálása lejárt. Érvényes eddig:",
-    "@calibrationExpiredWarning": {},
-    "calibrationSoonWarning": "Figyelem: a kiválasztott műszer hitelesítése/kalibrálása hamarosan lejár. Érvényes eddig:",
-    "@calibrationSoonWarning": {},
-    "calibrationUnknownWarning": "A kiválasztott műszernél nincs hitelesítési/kalibrálási adat.",
-    "@calibrationUnknownWarning": {},
-    "calibrationSaveAnywayTitle": "Lejárt hitelesítés/kalibrálás",
-    "@calibrationSaveAnywayTitle": {},
-    "calibrationSaveAnywayBody": "A mérés lejárt hitelesítésű/kalibrálású műszerrel készült, a jegyzőkönyvben ez jelölve lesz. Mented?",
-    "@calibrationSaveAnywayBody": {},
-    "calibrationSaveAnywayConfirm": "Mentés mégis",
-    "@calibrationSaveAnywayConfirm": {},
-    "calibrationValidUntilBeforeError": "Az érvényesség nem lehet az elvégzés előtt",
-    "@calibrationValidUntilBeforeError": {},
-    "csvHeaderInstrumentCalibration": "Műszer hitelesítése/kalibrálása",
-    "@csvHeaderInstrumentCalibration": {},
-    "personPhoneLabel": "Telefonszám",
-    "@personPhoneLabel": {},
-    "personEmailLabel": "E-mail cím",
-    "@personEmailLabel": {},
-    "personAddEmail": "E-mail cím hozzáadása",
-    "@personAddEmail": {},
-    "personRemoveEmail": "E-mail törlése",
-    "@personRemoveEmail": {},
-    "personEmailInvalidError": "Érvénytelen e-mail cím",
-    "@personEmailInvalidError": {},
-    "personCertificatesTitle": "Bizonyítványok",
-    "@personCertificatesTitle": {},
-    "personCertificateAdd": "Bizonyítvány hozzáadása",
-    "@personCertificateAdd": {},
-    "personCertificateDialogTitle": "Bizonyítvány",
-    "@personCertificateDialogTitle": {},
-    "personCertificateNameLabel": "Megnevezés (pl. sugárvédelmi vizsga)",
-    "@personCertificateNameLabel": {},
-    "personCertificateNumberLabel": "Bizonyítvány száma",
-    "@personCertificateNumberLabel": {},
-    "personCertificateIssuerLabel": "Kiállító",
-    "@personCertificateIssuerLabel": {},
-    "personCertificateIssuedLabel": "Kiállítás dátuma",
-    "@personCertificateIssuedLabel": {},
-    "personCertificateNameRequired": "Add meg a bizonyítvány megnevezését",
-    "@personCertificateNameRequired": {},
-    "personCertificateValidBeforeError": "Az érvényesség nem lehet a kiállítás előtt",
-    "@personCertificateValidBeforeError": {},
-    "personCertificatesEmpty": "Még nincs bizonyítvány.",
-    "@personCertificatesEmpty": {},
-    "sourceCertificateTitle": "Műbizonylat",
-    "@sourceCertificateTitle": {},
-    "sourceCertificateAttach": "Műbizonylat csatolása",
-    "@sourceCertificateAttach": {},
-    "sourceCertificateEmpty": "Nincs csatolt műbizonylat.",
-    "@sourceCertificateEmpty": {},
-    "companyDocumentsTooltip": "Cég dokumentumai és engedélyei",
-    "@companyDocumentsTooltip": {},
-    "companyDocumentNew": "Új dokumentum",
-    "@companyDocumentNew": {},
-    "companyDocumentEdit": "Dokumentum szerkesztése",
-    "@companyDocumentEdit": {},
-    "companyDocumentTitleLabel": "Dokumentum megnevezése",
-    "@companyDocumentTitleLabel": {},
-    "companyDocumentIdentifierLabel": "Azonosító (iktatószám, engedélyszám)",
-    "@companyDocumentIdentifierLabel": {},
-    "companyDocumentIssuerLabel": "Kiadó / hatóság",
-    "@companyDocumentIssuerLabel": {},
-    "companyDocumentIssuedLabel": "Kiadás vagy hatályba lépés dátuma",
-    "@companyDocumentIssuedLabel": {},
-    "companyDocumentValidUntilLabel": "Érvényes / felülvizsgálandó eddig",
-    "@companyDocumentValidUntilLabel": {},
-    "companyDocumentFilesTitle": "Csatolt fájlok",
-    "@companyDocumentFilesTitle": {},
-    "companyDocumentAttach": "Fájl csatolása",
-    "@companyDocumentAttach": {},
-    "companyDocumentsEmpty": "Még nincs dokumentum.",
-    "@companyDocumentsEmpty": {},
-    "companyDocumentDeleteTitle": "Dokumentum törlése",
-    "@companyDocumentDeleteTitle": {},
-    "companyDocumentDeleteConfirm": "Biztosan törlöd ezt a dokumentumot?",
-    "@companyDocumentDeleteConfirm": {},
-    "companyDocSuggestionsLabel": "Gyakori dokumentumok",
-    "@companyDocSuggestionsLabel": {},
-    "companyDocSuggestRadiationPolicy": "Munkahelyi Sugárvédelmi Szabályzat",
-    "@companyDocSuggestRadiationPolicy": {},
-    "companyDocSuggestRadiationDescription": "Sugárvédelmi Leírás",
-    "@companyDocSuggestRadiationDescription": {},
-    "companyDocSuggestPhysicalProtection": "Fizikai Védelmi Terv",
-    "@companyDocSuggestPhysicalProtection": {},
-    "companyDocSuggestEmergencyPlan": "Balesetelhárítási Intézkedési Terv",
-    "@companyDocSuggestEmergencyPlan": {},
-    "nuclideEditButton": "Nuklidok módosítása",
-    "@nuclideEditButton": {},
-    "languageSectionTitle": "Nyelv",
-    "@languageSectionTitle": {},
-    "languageSystemOption": "Telefon nyelve",
-    "@languageSystemOption": {},
-    "settingsTitle": "Beállítások",
-    "@settingsTitle": {},
-    "appearanceSectionTitle": "Megjelenés",
-    "@appearanceSectionTitle": {},
-    "themeLight": "Világos",
-    "@themeLight": {},
-    "themeDark": "Sötét",
-    "@themeDark": {},
-    "themeSystem": "Rendszer",
-    "@themeSystem": {},
-    "alertThresholdExplanation": "Ha egy mérési pont rögzítésekor a mért érték eléri vagy meghaladja az itt megadott küszöböt, az app figyelmeztet (hangjelzés + felugró üzenet). Üresen hagyva nincs riasztás az adott típusnál.",
-    "@alertThresholdExplanation": {},
-    "noThresholdSetHint": "Nincs küszöb beállítva",
-    "@noThresholdSetHint": {},
-    "saveButton": "Mentés",
-    "@saveButton": {},
-    "settingsSavedMessage": "Beállítások mentve.",
-    "@settingsSavedMessage": {},
-    "measurementTypeDoseRate": "Dózisteljesítmény",
-    "@measurementTypeDoseRate": {},
-    "measurementTypeSurfaceContamination": "Felületi szennyezettség",
-    "@measurementTypeSurfaceContamination": {},
-    "measurementTypeCps": "Beütésszám (cps)",
-    "@measurementTypeCps": {},
-    "measurementTypeNeutronCps": "Neutron beütésszám (cps)",
-    "@measurementTypeNeutronCps": {},
-    "measurementTypeSample": "Mintavétel",
-    "@measurementTypeSample": {},
-    "instrumentDeleteTitle": "Műszer törlése",
-    "@instrumentDeleteTitle": {},
-    "instrumentDeleteConfirm": "\"{name}\" törlése? A hozzá tartozó korábbi mérések megmaradnak, csak a műszer-hivatkozás törlődik róluk.",
-    "@instrumentDeleteConfirm": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "deleteButton": "Törlés",
-    "@deleteButton": {},
-    "noInstrumentsYet": "Még nincs felvéve műszer. Adj hozzá egyet a + gombbal.",
-    "@noInstrumentsYet": {},
-    "noCalibrationData": "Nincs kalibrációs adat",
-    "@noCalibrationData": {},
-    "nextCalibrationOn": "Következő kalibráció: {date}",
-    "@nextCalibrationOn": {
-        "placeholders": {
-            "date": {
-                "type": "String"
-            }
-        }
-    },
-    "noSerialNumber": "sorozatszám nélkül",
-    "@noSerialNumber": {},
-    "newInstrumentButton": "Új műszer",
-    "@newInstrumentButton": {},
-    "editInstrumentTitle": "Műszer szerkesztése",
-    "@editInstrumentTitle": {},
-    "instrumentNameLabel": "Műszer neve / típusa",
-    "@instrumentNameLabel": {},
-    "requiredFieldError": "Kötelező",
-    "@requiredFieldError": {},
-    "serialNumberLabel": "Sorozatszám",
-    "@serialNumberLabel": {},
-    "nextCalibrationLabel": "Következő kalibráció dátuma",
-    "@nextCalibrationLabel": {},
-    "notSetLabel": "Nincs megadva",
-    "@notSetLabel": {},
-    "calibrationFactorLabel": "Kalibrációs tényező",
-    "@calibrationFactorLabel": {},
-    "modbusConnectedLabel": "WiFi Modbus/TCP-n elérhető",
-    "@modbusConnectedLabel": {},
-    "modbusHostLabel": "IP cím / host",
-    "@modbusHostLabel": {},
-    "modbusPortLabel": "Port (pl. 502)",
-    "@modbusPortLabel": {},
-    "modbusUnitIdLabel": "Modbus Unit ID (slave cím)",
-    "@modbusUnitIdLabel": {},
-    "modbusRegisterAddressLabel": "Regiszter cím (pl. 294)",
-    "@modbusRegisterAddressLabel": {},
-    "modbusRegisterAddressHelper": "A mért érték (float32) kezdő holding regisztere",
-    "@modbusRegisterAddressHelper": {},
-    "modbusGpsEnabledLabel": "GPS pozíció olvasása Modbuson",
-    "@modbusGpsEnabledLabel": {},
-    "modbusGpsLatAddressLabel": "Szélesség regiszter (float32, alap: 426)",
-    "@modbusGpsLatAddressLabel": {},
-    "modbusGpsLonAddressLabel": "Hosszúság regiszter (float32, alap: 428)",
-    "@modbusGpsLonAddressLabel": {},
-    "pickPositionTitle": "Pozíció kiválasztása",
-    "confirmPositionButton": "Pozíció megerősítése",
-    "@pickPositionTitle": {},
-    "@confirmPositionButton": {},
-    "isotopeCalculatorTitle": "Izotóp kalkulátor",
-    "@isotopeCalculatorTitle": {},
-    "gammaConstantsDisclaimer": "A Γ-állandók tájékoztató referenciaértékek. Hatósági jegyzőkönyvhöz ellenőrizd őket hiteles forrásból, mielőtt dokumentálod az eredményt.",
-    "@gammaConstantsDisclaimer": {},
-    "isotopeLabel": "Izotóp",
-    "@isotopeLabel": {},
-    "modeDoseFromActivity": "Aktivitásból\ndózisteljesítmény",
-    "@modeDoseFromActivity": {},
-    "modeActivityFromDose": "Dózisteljesítményből\naktivitás",
-    "@modeActivityFromDose": {},
-    "distanceFromSourceLabel": "Távolság a forrástól (m)",
-    "@distanceFromSourceLabel": {},
-    "activityLabel": "Aktivitás (MBq)",
-    "@activityLabel": {},
-    "measuredDoseRateLabel": "Mért dózisteljesítmény (µSv/h)",
-    "@measuredDoseRateLabel": {},
-    "calculateButton": "Számítás",
-    "@calculateButton": {},
-    "invalidDistanceError": "Adj meg egy érvényes, pozitív távolságot (m).",
-    "@invalidDistanceError": {},
-    "invalidActivityError": "Adj meg egy érvényes aktivitást (MBq).",
-    "@invalidActivityError": {},
-    "invalidDoseRateError": "Adj meg egy érvényes dózisteljesítményt (µSv/h).",
-    "@invalidDoseRateError": {},
-    "calculationErrorMessage": "Számítási hiba: {error}",
-    "@calculationErrorMessage": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "calculatedDoseRateResult": "Számított dózisteljesítmény: {uSvH} µSv/h\n({nSvH} nSv/h)",
-    "@calculatedDoseRateResult": {
-        "placeholders": {
-            "uSvH": {
-                "type": "String"
-            },
-            "nSvH": {
-                "type": "String"
-            }
-        }
-    },
-    "calculatedActivityResult": "Számított aktivitás: {mbq} MBq\n({gbq} GBq)",
-    "@calculatedActivityResult": {
-        "placeholders": {
-            "mbq": {
-                "type": "String"
-            },
-            "gbq": {
-                "type": "String"
-            }
-        }
-    },
-    "distanceToolTitle": "Távolságmérés",
-    "@distanceToolTitle": {},
-    "locationServiceDisabledError": "A helyszolgáltatás ki van kapcsolva.",
-    "@locationServiceDisabledError": {},
-    "locationPermissionDeniedError": "Helymeghatározási jogosultság megtagadva.",
-    "@locationPermissionDeniedError": {},
-    "gpsErrorMessage": "GPS hiba: {error}",
-    "@gpsErrorMessage": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "selectTargetFirstError": "Előbb válaszd ki a célpontot.",
-    "@selectTargetFirstError": {},
-    "noGpsPositionError": "Nincs GPS pozíció. Frissítsd, vagy válassz kiindulópontot.",
-    "@noGpsPositionError": {},
-    "selectStartPointError": "Válassz kiindulópontot.",
-    "@selectStartPointError": {},
-    "selectTargetPointError": "Válaszd ki a célpontot.",
-    "@selectTargetPointError": {},
-    "startFromCurrentPositionLabel": "Kiindulópont: jelenlegi pozícióm",
-    "@startFromCurrentPositionLabel": {},
-    "noPositionFetchedYet": "Nincs lekérve",
-    "@noPositionFetchedYet": {},
-    "refreshGpsButton": "GPS frissítése",
-    "@refreshGpsButton": {},
-    "startPointLabel": "Kiindulópont",
-    "@startPointLabel": {},
-    "targetPointLabel": "Célpont",
-    "@targetPointLabel": {},
-    "liveTrackingLabel": "Élő követés",
-    "@liveTrackingLabel": {},
-    "liveTrackingSubtitle": "Folyamatosan frissíti a távolságot és az irányt séta közben.",
-    "@liveTrackingSubtitle": {},
-    "calculateDistanceButton": "Kiszámítás",
-    "@calculateDistanceButton": {},
-    "liveTrackingRunningHint": "Élő követés fut — sétálj a nyíl irányába.",
-    "@liveTrackingRunningHint": {},
-    "sourceSearchTitle": "Forráskereső",
-    "@sourceSearchTitle": {},
-    "measurementTypeLabel": "Mérés típusa",
-    "@measurementTypeLabel": {},
-    "pointsRecordedForType": "{count} rögzített pont ehhez a típushoz ezen a felmérésen belül.",
-    "@pointsRecordedForType": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "lowConfidenceWarning": "Kevés pont (< 4) — a becslés bizonytalan, vegyél fel több mérést a keresési terület más-más pontjain.",
-    "@lowConfidenceWarning": {},
-    "gradientEstimateLabel": "Becsült gradiens: {value} {unit}/m",
-    "@gradientEstimateLabel": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            },
-            "unit": {
-                "type": "String"
-            }
-        }
-    },
-    "directionEstimateHint": "Erre nő a mért érték a becslés szerint.",
-    "@directionEstimateHint": {},
-    "sourceSearchDisclaimer": "A javasolt irány egyszerű lineáris gradiens-becslésen alapul a felmérésen belül eddig rögzített pontokból. Zajos terepi adatoknál, kevés pontnál, vagy ha a valódi forrás a mért terület méretéhez képest messze van, pontatlan lehet. Csak tájékoztató jellegű, nem helyettesíti a szakmai megítélést.",
-    "@sourceSearchDisclaimer": {},
-    "newMeasurementButton": "Új mérés felvétele",
-    "@newMeasurementButton": {},
-    "mapTitle": "Térkép",
-    "@mapTitle": {},
-    "noPointsRecordedYet": "Még nincs rögzített mérési pont.",
-    "@noPointsRecordedYet": {},
-    "saveScreenshotTooltip": "Képernyőkép mentése a jegyzőkönyvhöz",
-    "@saveScreenshotTooltip": {},
-    "screenshotSavedMessage": "Térkép elmentve — a jegyzőkönyv exportálásakor csatolva lesz.",
-    "@screenshotSavedMessage": {},
-    "screenshotErrorMessage": "Képernyőkép hiba: {error}",
-    "@screenshotErrorMessage": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "valueLabel": "Érték: {value} {unit}",
-    "@valueLabel": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            },
-            "unit": {
-                "type": "String"
-            }
-        }
-    },
-    "distanceFromSourceValue": "Táv. forrástól: {value} m",
-    "@distanceFromSourceValue": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            }
-        }
-    },
-    "timestampLabel": "Időpont: {value}",
-    "@timestampLabel": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            }
-        }
-    },
-    "sourcePositionLabel": "Forrás pozíció",
-    "@sourcePositionLabel": {},
-    "editButton": "Szerkesztés",
-    "@editButton": {},
-    "closeSurveyTitle": "Felmérés lezárása",
-    "@closeSurveyTitle": {},
-    "closeSurveyConfirm": "Lezárás után a jegyzőkönyv a mai dátumot fogja mutatni befejezési időpontként. A pontokat ez nem zárolja, később is szerkesztheted őket.",
-    "@closeSurveyConfirm": {},
-    "closeSurveyButton": "Lezárás",
-    "@closeSurveyButton": {},
-    "surveyClosedMessage": "Felmérés lezárva.",
-    "@surveyClosedMessage": {},
-    "listScreenshotSavedMessage": "Lista képernyőkép elmentve — a jegyzőkönyv exportálásakor csatolva lesz.",
-    "@listScreenshotSavedMessage": {},
-    "exportErrorMessage": "Export hiba: {error}",
-    "@exportErrorMessage": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "importErrorMessage": "Import hiba: {error}",
-    "@importErrorMessage": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "protocolShareSubject": "Jegyzőkönyv – {title}",
-    "@protocolShareSubject": {
-        "placeholders": {
-            "title": {
-                "type": "String"
-            }
-        }
-    },
-    "dataExportSubject": "Mérési pontok (adat) – {title}",
-    "@dataExportSubject": {
-        "placeholders": {
-            "title": {
-                "type": "String"
-            }
-        }
-    },
-    "csvExportSubject": "Mérési pontok (CSV) – {title}",
-    "@csvExportSubject": {
-        "placeholders": {
-            "title": {
-                "type": "String"
-            }
-        }
-    },
-    "importDoneTitle": "Importálás kész",
-    "@importDoneTitle": {},
-    "importedPointsMessage": "{points} pont importálva.\n{instruments} új műszer létrehozva.\n{sources} új sugárforrás létrehozva.",
-    "@importedPointsMessage": {
-        "placeholders": {
-            "points": {
-                "type": "int"
-            },
-            "instruments": {
-                "type": "int"
-            },
-            "sources": {
-                "type": "int"
-            }
-        }
-    },
-    "okButton": "Rendben",
-    "@okButton": {},
-    "toolsTooltip": "Eszközök",
-    "@toolsTooltip": {},
-    "autoLogMenuItem": "Automatikus mérés",
-    "@autoLogMenuItem": {},
-    "captureListScreenshotMenuItem": "Lista képernyőkép mentése",
-    "@captureListScreenshotMenuItem": {},
-    "exportProtocolMenuItem": "Jegyzőkönyv exportálása",
-    "@exportProtocolMenuItem": {},
-    "exportJsonMenuItem": "Pontok exportálása (adat, JSON)",
-    "@exportJsonMenuItem": {},
-    "exportCsvMenuItem": "Pontok exportálása (táblázat, CSV)",
-    "@exportCsvMenuItem": {},
-    "importJsonMenuItem": "Pontok importálása (JSON)",
-    "@importJsonMenuItem": {},
-    "newPointButton": "Új pont",
-    "@newPointButton": {},
-    "sampleTakenListLabel": "Mintavétel · {date}",
-    "@sampleTakenListLabel": {
-        "placeholders": {
-            "date": {
-                "type": "String"
-            }
-        }
-    },
-    "unknownModbusError": "Ismeretlen Modbus hiba.",
-    "@unknownModbusError": {},
-    "@noValidPositionError": {},
-    "noValidPositionError": "Nincs érvényes pozíció megadva.",
-    "@thresholdExceededTitle": {},
-    "thresholdExceededTitle": "Riasztási küszöb túllépve",
-    "thresholdExceededMessage": "A mért érték ({value} {unit}) eléri vagy meghaladja a(z) {type} típushoz beállított küszöböt ({threshold} {unit}).",
-    "@thresholdExceededMessage": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            },
-            "unit": {
-                "type": "String"
-            },
-            "type": {
-                "type": "String"
-            },
-            "threshold": {
-                "type": "String"
-            }
-        }
-    },
-    "newPointTitle": "Új mérési pont",
-    "@newPointTitle": {},
-    "editPointTitle": "Pont szerkesztése",
-    "@editPointTitle": {},
-    "locationLabelFieldLabel": "Helyszín megnevezése",
-    "@locationLabelFieldLabel": {},
-    "measuredValueLabel": "Mért érték",
-    "@measuredValueLabel": {},
-    "numberRequiredError": "Számot adj meg",
-    "@numberRequiredError": {},
-    "unitLabel": "Egység",
-    "@unitLabel": {},
-    "instrumentLabel": "Műszer",
-    "@instrumentLabel": {},
-    "addInstrumentTooltip": "Új műszer felvétele",
-    "@addInstrumentTooltip": {},
-    "queryingLabel": "Lekérdezés...",
-    "@queryingLabel": {},
-    "modbusQueryButton": "Modbus lekérdezés ({name})",
-    "@modbusQueryButton": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "sourcePositionSwitchLabel": "Ez a forrás pozíció (max. érték)",
-    "@sourcePositionSwitchLabel": {},
-    "sampleTakenSwitchLabel": "Fizikai mintavétel történt itt",
-    "@sampleTakenSwitchLabel": {},
-    "sampleContainerLabel": "Edény azonosító",
-    "@sampleContainerLabel": {},
-    "sampleAmountLabel": "Mennyiség",
-    "@sampleAmountLabel": {},
-    "sampleMethodLabel": "Mintavétel módja",
-    "@sampleMethodLabel": {},
-    "notesLabel": "Megjegyzés",
-    "@notesLabel": {},
-    "takePhotoLabel": "Fotó készítése",
-    "@takePhotoLabel": {},
-    "retakePhotoLabel": "Fotó cseréje",
-    "@retakePhotoLabel": {},
-    "chooseFromGalleryLabel": "Kiválasztás a galériából",
-    "@chooseFromGalleryLabel": {},
-    "positionLabel": "Pozíció",
-    "@positionLabel": {},
-    "latitudeLabel": "Szélesség (lat)",
-    "@latitudeLabel": {},
-    "longitudeLabel": "Hosszúság (lon)",
-    "@longitudeLabel": {},
-    "invalidValueError": "Érvénytelen",
-    "@invalidValueError": {},
-    "liveGpsButton": "Élő GPS",
-    "@liveGpsButton": {},
-    "onMapButton": "Térképen",
-    "@onMapButton": {},
-    "autoLogDisclaimer": "A rögzítés csak addig fut, amíg ez a képernyő nyitva van. Ha a telefon kikapcsol vagy másik appra váltasz, a mérés szünetel — visszatéréskor újra kell indítani.",
-    "@autoLogDisclaimer": {},
-    "noModbusInstrumentMessage": "Nincs Modbus/TCP-n elérhető műszer beállítva. Vegyél fel egyet a Műszerek listában (WiFi Modbus/TCP kapcsoló be, IP, Unit ID és regiszter cím kitöltve).",
-    "@noModbusInstrumentMessage": {},
-    "triggerModeTime": "Idő alapú",
-    "@triggerModeTime": {},
-    "triggerModeDistance": "Táv alapú",
-    "@triggerModeDistance": {},
-    "intervalSecondsLabel": "Időköz (másodperc)",
-    "@intervalSecondsLabel": {},
-    "distanceIntervalLabel": "Távolságköz (méter)",
-    "@distanceIntervalLabel": {},
-    "connectingLabel": "Kapcsolódás...",
-    "@connectingLabel": {},
-    "stopButton": "Leállítás",
-    "@stopButton": {},
-    "loggingRunningLabel": "Rögzítés fut...",
-    "@loggingRunningLabel": {},
-    "loggingStoppedLabel": "Rögzítés leállítva",
-    "@loggingStoppedLabel": {},
-    "capturedPointsLabel": "Rögzített pontok: {count}",
-    "@capturedPointsLabel": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "lastValueLabel": "Utolsó érték: {value} {unit}",
-    "@lastValueLabel": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            },
-            "unit": {
-                "type": "String"
-            }
-        }
-    },
-    "failedReadingsLabel": "Sikertelen olvasások: {count}",
-    "@failedReadingsLabel": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "lastErrorSuffix": " (utolsó hiba: {error})",
-    "@lastErrorSuffix": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "intervalMinError": "Az időköznek legalább 1 másodpercnek kell lennie.",
-    "@intervalMinError": {},
-    "distanceMinError": "A távolságnak legalább 1 méternek kell lennie.",
-    "@distanceMinError": {},
-    "modbusConnectErrorMessage": "Modbus kapcsolódási hiba: {error}",
-    "@modbusConnectErrorMessage": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "csvHeaderSerialNumber": "Sorszám",
-    "@csvHeaderSerialNumber": {},
-    "csvHeaderLocation": "Helyszín",
-    "@csvHeaderLocation": {},
-    "csvHeaderType": "Típus",
-    "@csvHeaderType": {},
-    "csvHeaderValue": "Érték",
-    "@csvHeaderValue": {},
-    "csvHeaderUnit": "Egység",
-    "@csvHeaderUnit": {},
-    "csvHeaderDistanceFromSource": "Táv. forrástól",
-    "@csvHeaderDistanceFromSource": {},
-    "csvHeaderInstrument": "Műszer",
-    "@csvHeaderInstrument": {},
-    "csvHeaderGpsLatitude": "GPS szélesség",
-    "@csvHeaderGpsLatitude": {},
-    "csvHeaderGpsLongitude": "GPS hosszúság",
-    "@csvHeaderGpsLongitude": {},
-    "csvHeaderGpsAccuracy": "GPS pontosság",
-    "@csvHeaderGpsAccuracy": {},
-    "csvHeaderTimestamp": "Időpont",
-    "@csvHeaderTimestamp": {},
-    "csvHeaderSample": "Mintavétel",
-    "@csvHeaderSample": {},
-    "csvHeaderNotes": "Megjegyzés",
-    "@csvHeaderNotes": {},
-    "csvHeaderEstimatedActivity": "Becsült aktivitás (mérésből)",
-    "@csvHeaderEstimatedActivity": {},
-    "csvHeaderAttachedSources": "Hozzárendelt forrás(ok)",
-    "@csvHeaderAttachedSources": {},
-    "csvHeaderCalculatedDoseRate": "Számított dózisteljesítmény",
-    "@csvHeaderCalculatedDoseRate": {},
-    "csvHeaderDoseRateDifference": "Eltérés",
-    "@csvHeaderDoseRateDifference": {},
-    "csvYes": "igen",
-    "@csvYes": {},
-    "csvNo": "nem",
-    "@csvNo": {},
-    "importUnknownTypeWarning": "Ismeretlen mérés-típus kihagyva egy ponton.",
-    "@importUnknownTypeWarning": {},
-    "importMissingGpsWarning": "Hiányzó GPS-koordináta miatt kihagyva egy pont.",
-    "@importMissingGpsWarning": {},
-    "manageSourcesLabel": "Radioaktív forrás(ok) kezelése",
-    "@manageSourcesLabel": {},
-    "sourcesCountLabel": "{count} forrás",
-    "@sourcesCountLabel": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "radiationSourcesTitle": "Források",
-    "@radiationSourcesTitle": {},
-    "newSourceButton": "Forrás hozzáadása",
-    "@newSourceButton": {},
-    "newSourceTitle": "Új forrás",
-    "@newSourceTitle": {},
-    "editSourceTitle": "Forrás szerkesztése",
-    "@editSourceTitle": {},
-    "noSourcesRecordedYet": "Ehhez a ponthoz még nincs forrás hozzárendelve.",
-    "@noSourcesRecordedYet": {},
-    "sourcesTooltip": "Források",
-    "@sourcesTooltip": {},
-    "pointSourcesTitle": "Forrás(ok) a ponton",
-    "@pointSourcesTitle": {},
-    "attachSourceButton": "Forrás hozzárendelése",
-    "@attachSourceButton": {},
-    "pickSourceTitle": "Forrás kiválasztása",
-    "@pickSourceTitle": {},
-    "noSourcesToAttach": "Nincs még felvehető forrás — vedd fel előbb a főoldali Források listában.",
-    "@noSourcesToAttach": {},
-    "noSourcesYet": "Még nincs felvéve forrás. Adj hozzá egyet a + gombbal.",
-    "@noSourcesYet": {},
-    "enterDistanceDialogTitle": "Távolság megadása",
-    "@enterDistanceDialogTitle": {},
-    "detachSourceConfirmTitle": "Forrás leválasztása",
-    "@detachSourceConfirmTitle": {},
-    "detachSourceConfirmMessage": "Leválasztod a \"{identifier}\" forrást erről a pontról? A forrás a nyilvántartásban megmarad, csak ez a hozzárendelés törlődik.",
-    "@detachSourceConfirmMessage": {
-        "placeholders": {
-            "identifier": {
-                "type": "String"
-            }
-        }
-    },
-    "detachButton": "Leválasztás",
-    "@detachButton": {},
-    "totalCalculatedDoseRateLabel": "Források összesített, számított dózisteljesítménye",
-    "@totalCalculatedDoseRateLabel": {},
-    "sourcesUnknownNuclideSkippedNote": "{count} forrás nuklidja ismeretlen — nem szerepel az összegben.",
-    "@sourcesUnknownNuclideSkippedNote": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "sourceIdentifierLabel": "Egyedi azonosító",
-    "@sourceIdentifierLabel": {},
-    "nuclideLabel": "Nuklid",
-    "@nuclideLabel": {},
-    "customNuclideOption": "Egyéb (kézi megadás)",
-    "@customNuclideOption": {},
-    "customNuclideNameLabel": "Nuklid neve",
-    "@customNuclideNameLabel": {},
-    "activityAtManufactureLabel": "Aktivitás gyártáskor (MBq)",
-    "@activityAtManufactureLabel": {},
-    "activityErrorPercentLabel": "Aktivitás hibája (±%)",
-    "@activityErrorPercentLabel": {},
-    "manufactureDateLabel": "Gyártás dátuma",
-    "@manufactureDateLabel": {},
-    "serviceLifeExpiryDateLabel": "Szolgálati idő lejárata",
-    "@serviceLifeExpiryDateLabel": {},
-    "nextInspectionDateLabel": "Következő ellenőrzés dátuma",
-    "@nextInspectionDateLabel": {},
-    "sourceDistanceLabel": "Távolság a mérési ponttól (m)",
-    "@sourceDistanceLabel": {},
-    "asOfDateLabel": "Aktivitás dátuma (számításhoz)",
-    "@asOfDateLabel": {},
-    "currentActivityResultLabel": "Aktuális aktivitás",
-    "@currentActivityResultLabel": {},
-    "calculatedDoseRateResultLabel": "Számított dózisteljesítmény",
-    "@calculatedDoseRateResultLabel": {},
-    "measuredDoseRateResultLabel": "Mért dózisteljesítmény (a ponton)",
-    "@measuredDoseRateResultLabel": {},
-    "doseRateDifferenceResultLabel": "Eltérés (mért − számított)",
-    "@doseRateDifferenceResultLabel": {},
-    "unknownNuclideDecayWarning": "Ismeretlen nuklid: nincs tárolt felezési idő és gamma-állandó, ezért az aktuális aktivitás és a számított dózisteljesítmény nem határozható meg. A forrás adatai elmenthetők, de az összehasonlítás kimarad.",
-    "@unknownNuclideDecayWarning": {},
-    "noMeasuredValueForComparisonNote": "A ponthoz nincs rögzített mért érték — az összehasonlítás nem végezhető el.",
-    "@noMeasuredValueForComparisonNote": {},
-    "unrecognizedUnitForComparisonNote": "A mérési egység ({unit}) nem alakítható át automatikusan — az összehasonlítás nem végezhető el.",
-    "@unrecognizedUnitForComparisonNote": {
-        "placeholders": {
-            "unit": {
-                "type": "String"
-            }
-        }
-    },
-    "sourceExpiredWarning": "A forrás szolgálati ideje lejárt.",
-    "@sourceExpiredWarning": {},
-    "deleteSourceConfirmTitle": "Forrás törlése",
-    "@deleteSourceConfirmTitle": {},
-    "deleteSourceConfirmMessage": "Biztosan törlöd a \"{identifier}\" azonosítójú forrást a nyilvántartásból? Minden ponthoz rendelt hozzárendelése is törlődik vele. A művelet nem vonható vissza.",
-    "@deleteSourceConfirmMessage": {
-        "placeholders": {
-            "identifier": {
-                "type": "String"
-            }
-        }
-    },
-    "sourceCalculationDisclaimer": "A számított értékek tájékoztató jellegűek, referencia gamma-állandók és felezési idők alapján. Hatósági jegyzőkönyvhöz ellenőrizd hiteles forrásból.",
-    "@sourceCalculationDisclaimer": {},
-    "estimatedActivityFromMeasurementLabel": "Becsült aktivitás (a mért értékből)",
-    "@estimatedActivityFromMeasurementLabel": {},
-    "personsTooltip": "Személyek",
-    "@personsTooltip": {},
-    "personsTitle": "Személyek",
-    "@personsTitle": {},
-    "newPersonButton": "Személy hozzáadása",
-    "@newPersonButton": {},
-    "newPersonTitle": "Új személy",
-    "@newPersonTitle": {},
-    "editPersonTitle": "Személy szerkesztése",
-    "@editPersonTitle": {},
-    "noPersonsYet": "Még nincs felvéve személy. Adj hozzá egyet a + gombbal.",
-    "@noPersonsYet": {},
-    "personNameLabel": "Név",
-    "@personNameLabel": {},
-    "medicalExamExpiryDateLabel": "Orvosi vizsgálat érvényessége",
-    "@medicalExamExpiryDateLabel": {},
-    "trainingExpiryDateLabel": "Oktatás érvényessége",
-    "@trainingExpiryDateLabel": {},
-    "deletePersonConfirmTitle": "Személy törlése",
-    "@deletePersonConfirmTitle": {},
-    "deletePersonConfirmMessage": "Biztosan törlöd \"{name}\" nevű személyt a nyilvántartásból? Minden felméréshez rendelt hozzárendelése is törlődik vele. A művelet nem vonható vissza.",
-    "@deletePersonConfirmMessage": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "sessionPersonsTitle": "Felmérésen résztvevő személyek",
-    "@sessionPersonsTitle": {},
-    "noPersonsAttachedYet": "Ehhez a felméréshez még nincs személy hozzárendelve.",
-    "@noPersonsAttachedYet": {},
-    "attachPersonButton": "Személy hozzárendelése",
-    "@attachPersonButton": {},
-    "pickPersonTitle": "Személy kiválasztása",
-    "@pickPersonTitle": {},
-    "noPersonsToAttach": "Nincs még felvehető személy — vedd fel előbb a főoldali Személyek listában.",
-    "@noPersonsToAttach": {},
-    "detachPersonConfirmTitle": "Személy leválasztása",
-    "@detachPersonConfirmTitle": {},
-    "detachPersonConfirmMessage": "Leválasztod \"{name}\" nevű személyt erről a felmérésről? A személy a nyilvántartásban megmarad, csak ez a hozzárendelés törlődik.",
-    "@detachPersonConfirmMessage": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "expiryNotificationsSectionTitle": "Lejárati értesítések",
-    "@expiryNotificationsSectionTitle": {},
-    "expiryNotificationsSwitchTitle": "Értesítés a lejáratokról",
-    "@expiryNotificationsSwitchTitle": {},
-    "expiryNotificationsSwitchSubtitle": "A források (szolgálati idő, ellenőrzés) és a személyek (orvosi vizsgálat, oktatás) jövőbeli lejárati dátumairól, reggel 8 órakor.",
-    "@expiryNotificationsSwitchSubtitle": {},
-    "expiryLeadTimeLabel": "Mennyivel előbb jöjjön az értesítés",
-    "@expiryLeadTimeLabel": {},
-    "expiryLeadSameDay": "Aznap",
-    "@expiryLeadSameDay": {},
-    "expiryLeadOneDay": "1 nappal előtte",
-    "@expiryLeadOneDay": {},
-    "expiryLeadTwoDays": "2 nappal előtte",
-    "@expiryLeadTwoDays": {},
-    "expiryLeadOneWeek": "1 héttel előtte",
-    "@expiryLeadOneWeek": {},
-    "expiryNotificationsPermissionDenied": "Az értesítések le vannak tiltva a telefon beállításaiban, engedélyezd ott a RadRecon értesítéseit.",
-    "@expiryNotificationsPermissionDenied": {},
-    "expiryNotificationTitleToday": "Ma lejár",
-    "@expiryNotificationTitleToday": {},
-    "expiryNotificationTitleUpcoming": "Hamarosan lejár",
-    "@expiryNotificationTitleUpcoming": {},
-    "expiryNotificationChannelName": "Lejárati értesítések",
-    "@expiryNotificationChannelName": {},
-    "expiryNotificationChannelDescription": "Források és személyek közelgő lejárati dátumai",
-    "@expiryNotificationChannelDescription": {},
-    "importRegistryCsv": "CSV importálása",
-    "@importRegistryCsv": {},
-    "exportRegistryCsv": "CSV exportálása",
-    "@exportRegistryCsv": {},
-    "registryCsvExportSubject": "RadRecon nyilvántartás (CSV)",
-    "@registryCsvExportSubject": {},
-    "duplicatePolicyTitle": "Ha már létezik ilyen rekord",
-    "@duplicatePolicyTitle": {},
-    "duplicateReplace": "Meglévő rekord cseréje",
-    "@duplicateReplace": {},
-    "duplicateSkip": "Az egyező rekord kihagyása",
-    "@duplicateSkip": {},
-    "duplicateKeep": "Importálás duplikátumként",
-    "@duplicateKeep": {},
-    "registryImportSummary": "Importálva: {imported}, cserélve: {replaced}, kihagyva: {skipped}",
-    "@registryImportSummary": {
-        "placeholders": {
-            "imported": {
-                "type": "int"
-            },
-            "replaced": {
-                "type": "int"
-            },
-            "skipped": {
-                "type": "int"
-            }
-        }
-    },
-    "modbusTestConnectionButton": "Kapcsolat tesztelése",
-    "@modbusTestConnectionButton": {},
-    "modbusTestingLabel": "Tesztelés...",
-    "@modbusTestingLabel": {},
-    "modbusTestSuccessTitle": "Kapcsolat sikeres",
-    "@modbusTestSuccessTitle": {},
-    "modbusTestFailureTitle": "Kapcsolat meghiúsult",
-    "@modbusTestFailureTitle": {},
-    "modbusTestValue": "Érték: {value}",
-    "@modbusTestValue": {
-        "placeholders": {
-            "value": {
-                "type": "String"
-            }
-        }
-    },
-    "modbusTestPosition": "Szél: {lat}, Hossz: {lon}",
-    "@modbusTestPosition": {
-        "placeholders": {
-            "lat": {
-                "type": "String"
-            },
-            "lon": {
-                "type": "String"
-            }
-        }
-    },
-    "missingFieldMessage": "Kérjük töltse ki: {field}",
-    "@missingFieldMessage": {
-        "placeholders": {
-            "field": {
-                "type": "String"
-            }
-        }
-    },
-    "errorTitle": "Hiba",
-    "@errorTitle": {},
-    "modbusReadErrorWithCode": "Modbus hiba a kiolvasás során: {code}",
-    "@modbusReadErrorWithCode": {
-        "placeholders": {
-            "code": {
-                "type": "String"
-            }
-        }
-    },
-    "instrumentDidNotSendValidValue": "A műszer nem küldött érvényes értéket.",
-    "@instrumentDidNotSendValidValue": {},
-    "gpsPositionReadFailed": "A GPS pozíció kiolvasása a műszerből sikertelen.",
-    "@gpsPositionReadFailed": {},
-    "instrumentIPAddressNotSet": "Nincs megadva a műszer IP-címe.",
-    "@instrumentIPAddressNotSet": {},
-    "modbusUnitIdNotSet": "Nincs megadva a Modbus Unit ID.",
-    "@modbusUnitIdNotSet": {},
-    "registerAddressNotSet": "Nincs megadva a regiszter cím.",
-    "@registerAddressNotSet": {},
-    "failedToConnectToInstrument": "Nem sikerült kapcsolódni a műszerhez.",
-    "@failedToConnectToInstrument": {},
-    "connectionErrorWithDetails": "Kapcsolódási hiba: {error}",
-    "@connectionErrorWithDetails": {
-        "placeholders": {
-            "error": {
-                "type": "String"
-            }
-        }
-    },
-    "modbusAccessIncomplete": "A műszerhez nincs teljesen kitöltve a Modbus elérhetőség (IP, Unit ID, regiszter cím).",
-    "@modbusAccessIncomplete": {},
-    "noDisplayableContentForScreenshot": "Nincs megjeleníthető tartalom a képernyőképhez.",
-    "@noDisplayableContentForScreenshot": {},
-    "failedToConvertScreenshotToPng": "Nem sikerült PNG-vé alakítani a képernyőképet.",
-    "@failedToConvertScreenshotToPng": {},
-    "doseSourceOnline": "Online (detektorból)",
-    "@doseSourceOnline": {},
-    "doseSourceManual": "Manuális",
-    "@doseSourceManual": {},
-    "doseSourcePassive": "Passzív dozimetria",
-    "@doseSourcePassive": {},
-    "annualDoseLabel": "{year}. évi dózis",
-    "@annualDoseLabel": {
-        "placeholders": {
-            "year": {
-                "type": "int"
-            }
-        }
-    },
-    "doseYearLabel": "Év",
-    "@doseYearLabel": {},
-    "doseBreakdownLabel": "online {online} · manuális {manual} · passzív {passive}",
-    "@doseBreakdownLabel": {
-        "placeholders": {
-            "online": {
-                "type": "String"
-            },
-            "manual": {
-                "type": "String"
-            },
-            "passive": {
-                "type": "String"
-            }
-        }
-    },
-    "personDosesTitle": "Dózisok – {name}",
-    "@personDosesTitle": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "personDosesTooltip": "Dózisok kezelése",
-    "@personDosesTooltip": {},
-    "noDosesYet": "Ebben az évben még nincs dózis-bejegyzés.",
-    "@noDosesYet": {},
-    "addPassiveDoseButton": "Passzív dozimetria rögzítése",
-    "@addPassiveDoseButton": {},
-    "newPassiveDoseTitle": "Új passzív dozimetria",
-    "@newPassiveDoseTitle": {},
-    "editDoseTitle": "Dózis szerkesztése",
-    "@editDoseTitle": {},
-    "doseValueLabel": "Dózis",
-    "@doseValueLabel": {},
-    "dosePeriodStartLabel": "Kiértékelési időszak kezdete",
-    "@dosePeriodStartLabel": {},
-    "dosePeriodEndLabel": "Kiértékelési időszak vége",
-    "@dosePeriodEndLabel": {},
-    "dosePeriodEndBeforeStartError": "A vég nem lehet a kezdet előtt.",
-    "@dosePeriodEndBeforeStartError": {},
-    "doseTotalLabel": "Összesen",
-    "@doseTotalLabel": {},
-    "doseDeleteConfirmTitle": "Dózis-bejegyzés törlése",
-    "@doseDeleteConfirmTitle": {},
-    "doseDeleteConfirmMessage": "Biztosan törlöd ezt a dózis-bejegyzést? A művelet nem vonható vissza.",
-    "@doseDeleteConfirmMessage": {},
-    "sessionDoseDialogTitle": "{name} dózisa",
-    "@sessionDoseDialogTitle": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "onlineDoseLabel": "Online dózis",
-    "@onlineDoseLabel": {},
-    "manualDoseLabel": "Manuális dózis",
-    "@manualDoseLabel": {},
-    "closeSurveyDosesTitle": "Dózisok ellenőrzése",
-    "@closeSurveyDosesTitle": {},
-    "closeSurveyDosesHint": "Lezárás előtt ellenőrizheted vagy korrigálhatod a résztvevők dózisát.",
-    "@closeSurveyDosesHint": {},
-    "autoLogDoseSaved": "Dózis rögzítve {count} személynek: {dose}",
-    "@autoLogDoseSaved": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            },
-            "dose": {
-                "type": "String"
-            }
-        }
-    },
-    "autoLogDoseNoPersons": "A mért dózis ({dose}) nem lett elmentve, mert a felméréshez nincs személy rendelve.",
-    "@autoLogDoseNoPersons": {
-        "placeholders": {
-            "dose": {
-                "type": "String"
-            }
-        }
-    },
-    "autoLogDoseLabel": "Integrált dózis: {dose}",
-    "@autoLogDoseLabel": {
-        "placeholders": {
-            "dose": {
-                "type": "String"
-            }
-        }
-    },
-    "autoLogDoseGaps": "{count} hosszabb adatkiesés a mérésben",
-    "@autoLogDoseGaps": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
-    "autoLogDoseOnlyDoseRate": "A dózis csak dózisteljesítmény típusú mérésből számolható és menthető.",
-    "@autoLogDoseOnlyDoseRate": {},
-    "importPersonDosesCsv": "Dózisok importálása (CSV)",
-    "@importPersonDosesCsv": {},
-    "exportPersonDosesCsv": "Dózisok exportálása (CSV)",
-    "@exportPersonDosesCsv": {},
-    "dataManagementSectionTitle": "Adatkezelés",
-    "@dataManagementSectionTitle": {},
-    "saveDatabaseButton": "Adatbázis mentése fájlba",
-    "@saveDatabaseButton": {},
-    "loadDatabaseButton": "Adatbázis betöltése fájlból",
-    "@loadDatabaseButton": {},
-    "clearDatabaseButton": "Adatbázis törlése",
-    "@clearDatabaseButton": {},
-    "companySwitchButton": "Cégváltás",
-    "@companySwitchButton": {},
-    "dataManagementHint": "A mentésfájl tartalmazza az összes adatot a fotókkal együtt, így új telefonra költözéshez vagy több cég adatainak külön kezeléséhez is használható.",
-    "@dataManagementHint": {},
-    "saveDatabaseSubject": "RadRecon adatbázis mentés",
-    "@saveDatabaseSubject": {},
-    "databaseSavedMessage": "Adatbázis elmentve: {path}",
-    "@databaseSavedMessage": {
-        "placeholders": {
-            "path": {
-                "type": "String"
-            }
-        }
-    },
-    "loadDatabaseConfirmTitle": "Adatbázis betöltése",
-    "@loadDatabaseConfirmTitle": {},
-    "loadDatabaseConfirmBody": "A betöltés felülírja az eszközön lévő összes jelenlegi adatot. Ha szükség van rájuk, előbb mentsd el őket. Folytatod?",
-    "@loadDatabaseConfirmBody": {},
-    "loadButton": "Betöltés",
-    "@loadButton": {},
-    "databaseLoadedMessage": "Betöltve: {name}",
-    "@databaseLoadedMessage": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "clearDatabaseConfirmTitle": "Adatbázis törlése",
-    "@clearDatabaseConfirmTitle": {},
-    "clearDatabaseConfirmBody": "Az összes felmérés, mérési pont, műszer, forrás, személy és fotó véglegesen törlődik az eszközről. Ez nem vonható vissza — előbb készíts mentést!",
-    "@clearDatabaseConfirmBody": {},
-    "databaseClearedMessage": "Az adatbázis törölve.",
-    "@databaseClearedMessage": {},
-    "companySwitchTitle": "Cégváltás",
-    "@companySwitchTitle": {},
-    "activeCompanyLabel": "Aktív cég",
-    "@activeCompanyLabel": {},
-    "companiesFolderLabel": "Cégek mappája",
-    "@companiesFolderLabel": {},
-    "chooseFolderButton": "Mappa kiválasztása",
-    "@chooseFolderButton": {},
-    "resetFolderButton": "Vissza az alapértelmezett mappához",
-    "@resetFolderButton": {},
-    "noCompaniesYet": "Ebben a mappában még nincs mentett cég. Az aktív cég az első váltáskor automatikusan elmentődik, vagy hozz létre újat / adj hozzá mentésfájlt a felső gombokkal.",
-    "@noCompaniesYet": {},
-    "companyBackupInfo": "Mentve: {date}",
-    "@companyBackupInfo": {
-        "placeholders": {
-            "date": {
-                "type": "String"
-            }
-        }
-    },
-    "newCompanyButton": "Új cég",
-    "@newCompanyButton": {},
-    "newCompanyDialogTitle": "Új cég létrehozása",
-    "@newCompanyDialogTitle": {},
-    "companyNameLabel": "Cég neve",
-    "@companyNameLabel": {},
-    "companyNameExistsMessage": "Ilyen nevű cég már létezik.",
-    "@companyNameExistsMessage": {},
-    "createButton": "Létrehozás",
-    "@createButton": {},
-    "addCompanyFromFileButton": "Cég hozzáadása mentésfájlból",
-    "@addCompanyFromFileButton": {},
-    "companySwitchConfirmTitle": "Cégváltás",
-    "@companySwitchConfirmTitle": {},
-    "companySwitchConfirmBody": "Átváltasz erre: {company}? A jelenlegi adatok automatikusan elmentődnek a(z) {active} cég alatt.",
-    "@companySwitchConfirmBody": {
-        "placeholders": {
-            "company": {
-                "type": "String"
-            },
-            "active": {
-                "type": "String"
-            }
-        }
-    },
-    "companySwitchAction": "Váltás",
-    "@companySwitchAction": {},
-    "companySwitchedMessage": "Aktív cég: {name}",
-    "@companySwitchedMessage": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "deleteCompanyBackupTitle": "Mentés törlése",
-    "@deleteCompanyBackupTitle": {},
-    "deleteCompanyBackupBody": "Törlöd a(z) {name} cég mentését a mappából? Az éppen betöltött adatot ez nem érinti.",
-    "@deleteCompanyBackupBody": {
-        "placeholders": {
-            "name": {
-                "type": "String"
-            }
-        }
-    },
-    "importPersonCsv": "Személyek importálása (CSV)",
-    "@importPersonCsv": {},
-    "exportPersonCsv": "Személyek exportálása (CSV)",
-    "@exportPersonCsv": {},
-    "privateFolderHint": "Az app jelenleg a saját, más appból nem elérhető mappáját használja. Válassz egy mappát (pl. Letöltések vagy Google Drive), hogy a mentéseket a fájlkezelőből is elérd.",
-    "@privateFolderHint": {},
-    "contributorsTitle": "Közreműködők",
-    "@contributorsTitle": {},
-    "contributorsThanks": "Köszönet mindenkinek, aki segít a RadRecon tesztelésében, fejlesztésében, fordításában és szakmai átnézésében. A RadRecon nonprofit civil kezdeményezés, önkéntesek munkájából épül.",
-    "@contributorsThanks": {},
-    "contributorsOrganizationsTitle": "Szervezetek és cégek",
-    "@contributorsOrganizationsTitle": {},
-    "contributorsPeopleTitle": "Személyek",
-    "@contributorsPeopleTitle": {},
-    "contributorsEmpty": "A lista még üres. Légy te az első!",
-    "@contributorsEmpty": {},
-    "contributorsLoadError": "A lista nem tölthető be.",
-    "@contributorsLoadError": {},
-    "contributorsJoinHint": "Szeretnél felkerülni a listára? Jelentkezz önkéntesnek, és írd meg, hogyan szeretnél megjelenni:",
-    "@contributorsJoinHint": {},
-    "contributorsCopyLink": "Link másolása",
-    "@contributorsCopyLink": {},
-    "contributorsLinkCopied": "Link másolva.",
-    "@contributorsLinkCopied": {},
-    "contributorRoleTesting": "Tesztelés",
-    "@contributorRoleTesting": {},
-    "contributorRoleDevelopment": "Fejlesztés",
-    "@contributorRoleDevelopment": {},
-    "contributorRoleReview": "Szakmai átnézés",
-    "@contributorRoleReview": {},
-    "contributorRoleTranslation": "Fordítás",
-    "@contributorRoleTranslation": {},
-    "contributorRoleOther": "Egyéb",
-    "@contributorRoleOther": {},
-    "regulatoryProfileLabel": "Szabályozási profil",
-    "@regulatoryProfileLabel": {},
-    "regulatoryProfileInternational": "Nemzetközi (IAEA)",
-    "@regulatoryProfileInternational": {},
-    "regulatoryProfileHungary": "Magyarország (OAH)",
-    "@regulatoryProfileHungary": {},
-    "classificationTitle": "Besorolás (D, R, mentesség)",
-    "@classificationTitle": {},
-    "classificationDisclaimer": "Tájékoztató számítás a nuklidtáblák és az aktuális (bomlással korrigált) aktivitás alapján. A hatósági besorolás a hatályos jogszabály és a hatóság döntése szerint érvényes. Az MSZ 62-7 szerinti laborosztály az aktivitásból számolt tájékoztató érték.",
-    "@classificationDisclaimer": {},
-    "classificationUnsealedWork": "Nyitott sugárforrással végzett rendszeres munka",
-    "@classificationUnsealedWork": {},
-    "classificationOutsideWorkplace": "Alkalmazás sugárveszélyes munkahelyen kívül",
-    "@classificationOutsideWorkplace": {},
-    "classificationTotal": "Összesített (kijelölt források)",
-    "@classificationTotal": {},
-    "classificationPhysCat": "Fizikai védelmi kategória",
-    "@classificationPhysCat": {},
-    "classificationProtCat": "Sugárvédelmi kategória",
-    "@classificationProtCat": {},
-    "classificationUnknownCount": "R nélküli források (ismeretlen nuklid)",
-    "@classificationUnknownCount": {},
-    "classificationActivity": "Aktivitás",
-    "@classificationActivity": {},
-    "classificationNotDecayCorrected": "bomlás nélkül",
-    "@classificationNotDecayCorrected": {},
-    "classificationDInfinite": "D = ∞ (nem járul hozzá az R-hez)",
-    "@classificationDInfinite": {},
-    "classificationDUnknown": "Ehhez a nuklidhoz nincs D érték, R nem számolható",
-    "@classificationDUnknown": {},
-    "classificationExemptUnknown": "Nincs mentességi érték ehhez a nuklidhoz",
-    "@classificationExemptUnknown": {},
-    "classificationExemptActivity": "Mentességi aktivitás",
-    "@classificationExemptActivity": {},
-    "classificationSpecificConc": "Specifikus mentességi koncentráció",
-    "@classificationSpecificConc": {},
-    "classificationGeneralConc": "általános",
-    "@classificationGeneralConc": {},
-    "classificationBelowExempt": "Az aktivitás a mentességi aktivitás alatt van",
-    "@classificationBelowExempt": {},
-    "classificationAboveExempt": "Az aktivitás a mentességi aktivitás felett van",
-    "@classificationAboveExempt": {},
-    "classificationProtLevel": "Fizikai védelmi szint",
-    "@classificationProtLevel": {},
-    "classificationAdrConsignmentLimit": "mentes küldemény határa",
-    "@classificationAdrConsignmentLimit": {},
-    "classificationAdrBelow": "az aktivitás alatta van (nem 7. osztály)",
-    "@classificationAdrBelow": {},
-    "classificationAdrAbove": "az aktivitás felette van (a koncentráció is számít)",
-    "@classificationAdrAbove": {},
-    "classificationLabIndustrial": "Ipari labor",
-    "@classificationLabIndustrial": {},
-    "classificationLabMedical": "Orvosi labor",
-    "@classificationLabMedical": {},
-    "classificationLabAboveIII": "> III.",
-    "@classificationLabAboveIII": {},
-    "classificationLabOps": "Végezhető művelettípusok",
-    "@classificationLabOps": {},
-    "classificationLabUnknown": "MSZ 62-7: nincs AM érték ehhez a nuklidhoz",
-    "@classificationLabUnknown": {},
-    "autoLogChartTitle": "Mért érték az idő függvényében",
-    "@autoLogChartTitle": {},
-    "gpsAverageButton": "Átlagolt GPS",
-    "@gpsAverageButton": {},
-    "gpsAverageTitle": "Pozíció átlagolása",
-    "@gpsAverageTitle": {},
-    "gpsAverageHint": "Állj meg egy helyen, és ne mozdulj a mérés alatt. Minél hosszabb az átlagolás, annál megbízhatóbb az eredmény; nyílt ég alatt a legjobb. A telefon a pontosság szerint súlyozza a mintákat, és elhagyja a kiugró pozíciókat.",
-    "@gpsAverageHint": {},
-    "gpsAverageStart": "Indítás",
-    "@gpsAverageStart": {},
-    "gpsAverageUse": "Használ",
-    "@gpsAverageUse": {},
-    "gpsAverageSamples": "Minták",
-    "@gpsAverageSamples": {},
-    "gpsAverageCurrent": "Aktuális pontosság",
-    "@gpsAverageCurrent": {},
-    "gpsAverageResult": "Becsült pontosság az átlagból",
-    "@gpsAverageResult": {},
-    "modbusAverageButton": "Átlagoló mérés",
-    "@modbusAverageButton": {},
-    "modbusAverageRunning": "Átlagolás",
-    "@modbusAverageRunning": {},
-    "modbusAverageDone": "Kész",
-    "@modbusAverageDone": {},
-    "modbusAverageTooFew": "A hiba számításához legalább 2 érvényes minta kell, csak az érték került be.",
-    "@modbusAverageTooFew": {},
-    "measurementErrorLabel": "Hiba (±)",
-    "@measurementErrorLabel": {},
-    "measurementErrorHelper": "Átlagolt mérésnél az átlag standard hibája (1σ), kézzel feltöltött értéknél kézzel is megadható. A jegyzőkönyvre kerül.",
-    "@measurementErrorHelper": {},
-    "measurementAveragedLabel": "Átlagolt mérés",
-    "@measurementAveragedLabel": {},
-    "csvHeaderValueError": "Hiba (±)",
-    "@csvHeaderValueError": {},
-    "csvHeaderAveraging": "Átlagolás (minta; mp)",
-    "@csvHeaderAveraging": {},
-    "helpManualTitle": "Súgó (használati útmutató)",
-    "@helpManualTitle": {},
-    "helpManualOpenError": "Az útmutató nem nyitható meg.",
-    "@helpManualOpenError": {},
-    "appVersionLabel": "Verzió",
-    "@appVersionLabel": {}
+  "@@locale": "hu",
+  "appTitle": "RadRecon",
+  "@appTitle": {},
+  "instrumentsTooltip": "Műszerek",
+  "@instrumentsTooltip": {},
+  "searchHint": "Keresés",
+  "@searchHint": {},
+  "searchNoResults": "Nincs találat",
+  "@searchNoResults": {},
+  "alertThresholdsTooltip": "Riasztási küszöbök",
+  "@alertThresholdsTooltip": {},
+  "noSurveysYet": "Még nincs felmérés. Indíts egyet a + gombbal.",
+  "@noSurveysYet": {},
+  "newSurveyButton": "Új felmérés",
+  "@newSurveyButton": {},
+  "newSurveyDialogTitle": "Új felmérés",
+  "@newSurveyDialogTitle": {},
+  "surveyNameLabel": "Megnevezés",
+  "@surveyNameLabel": {},
+  "surveyLocationLabel": "Helyszín (opcionális)",
+  "@surveyLocationLabel": {},
+  "editSurveyDetailsTooltip": "Megnevezés és helyszín szerkesztése",
+  "@editSurveyDetailsTooltip": {},
+  "editSurveyDetailsTitle": "Felmérés adatainak szerkesztése",
+  "@editSurveyDetailsTitle": {},
+  "cancelButton": "Mégse",
+  "deletePointTooltip": "Mérési pont törlése",
+  "@deletePointTooltip": {},
+  "deletePointTitle": "Mérési pont törlése",
+  "@deletePointTitle": {},
+  "deletePointBody": "Biztosan törlöd ezt a mérési pontot? A hozzá tartozó forrás-hozzárendelések és a módosítási napló is törlődik. Ez nem visszavonható.",
+  "@deletePointBody": {},
+  "@cancelButton": {},
+  "startButton": "Indítás",
+  "@startButton": {},
+  "surveyDefaultTitle": "Felmérés – {date}",
+  "@surveyDefaultTitle": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noLocationPlaceholder": "—",
+  "@noLocationPlaceholder": {},
+  "doseUnitSectionTitle": "Dózisteljesítmény alapegysége",
+  "@doseUnitSectionTitle": {},
+  "doseUnitSectionHint": "Új mérésnél ezek az egységek vannak előre kiválasztva. Rögzítéskor legördülő listából lehet másikat választani, beírni nem kell, és egységváltáskor a beírt szám automatikusan átváltódik. A dózisteljesítmény riasztási küszöbe is átváltódik.",
+  "@doseUnitSectionHint": {},
+  "unitsSectionTitle": "Mértékegységek",
+  "@unitsSectionTitle": {},
+  "activityUnitLabel": "Aktivitás alapegysége",
+  "@activityUnitLabel": {},
+  "distanceUnitLabel": "Távolság alapegysége",
+  "@distanceUnitLabel": {},
+  "activityPlainLabel": "Aktivitás",
+  "@activityPlainLabel": {},
+  "measuredDoseRatePlainLabel": "Mért dózisteljesítmény",
+  "@measuredDoseRatePlainLabel": {},
+  "distanceFromSourcePlainLabel": "Távolság a forrástól",
+  "@distanceFromSourcePlainLabel": {},
+  "sourceDistancePlainLabel": "Távolság a mérési ponttól",
+  "@sourceDistancePlainLabel": {},
+  "activityAtManufacturePlainLabel": "Aktivitás gyártáskor",
+  "@activityAtManufacturePlainLabel": {},
+  "invalidDistancePlainError": "Adj meg egy érvényes, pozitív távolságot.",
+  "@invalidDistancePlainError": {},
+  "invalidActivityPlainError": "Adj meg egy érvényes aktivitást.",
+  "@invalidActivityPlainError": {},
+  "invalidDoseRatePlainError": "Adj meg egy érvényes dózisteljesítményt.",
+  "@invalidDoseRatePlainError": {},
+  "distanceFromSourceShortLabel": "Táv. forrástól",
+  "@distanceFromSourceShortLabel": {},
+  "calculatedActivityResultLabel": "Számított aktivitás",
+  "@calculatedActivityResultLabel": {},
+  "distanceIntervalPlainLabel": "Távolságköz",
+  "@distanceIntervalPlainLabel": {},
+  "modbusQuantityLabel": "Mit ad vissza a regiszter",
+  "@modbusQuantityLabel": {},
+  "modbusRegisterUnitLabel": "A regiszter mértékegysége",
+  "@modbusRegisterUnitLabel": {},
+  "modbusQuantityHelper": "Rögzítéskor az app a kiolvasott értéket a Beállításokban választott alapegységre váltja.",
+  "@modbusQuantityHelper": {},
+  "autoLogTypeFromInstrument": "Az automata naplózás a műszerhez beállított mennyiséget rögzíti.",
+  "@autoLogTypeFromInstrument": {},
+  "nuclideIdSectionTitle": "Nuklid-azonosítás",
+  "@nuclideIdSectionTitle": {},
+  "nuclideStatusNone": "Nincs megadva",
+  "@nuclideStatusNone": {},
+  "nuclideStatusIdentified": "Azonosított nuklid(ok)",
+  "@nuclideStatusIdentified": {},
+  "nuclideStatusUnknown": "Ismeretlen",
+  "@nuclideStatusUnknown": {},
+  "nuclideStatusOther": "Egyéb (nem szerepel a listában)",
+  "@nuclideStatusOther": {},
+  "nuclideStatusMixture": "Feltételezhetően több forrás (keverék)",
+  "@nuclideStatusMixture": {},
+  "nuclideKnownListLabel": "Nuklidok a listából",
+  "@nuclideKnownListLabel": {},
+  "nuclideCustomLabel": "Egyéb nuklid neve",
+  "@nuclideCustomLabel": {},
+  "nuclideAddButton": "Hozzáadás",
+  "@nuclideAddButton": {},
+  "nuclideRequiredError": "Adj meg legalább egy nuklidot, vagy válaszd az Ismeretlen lehetőséget.",
+  "@nuclideRequiredError": {},
+  "csvHeaderNuclides": "Nuklid-azonosítás",
+  "@csvHeaderNuclides": {},
+  "nuclideDoneButton": "Kész",
+  "@nuclideDoneButton": {},
+  "unshieldedActivityLabel": "Aktivitás (árnyékolás nélkül)",
+  "@unshieldedActivityLabel": {},
+  "shieldingSectionTitle": "Árnyékolás (opcionális)",
+  "@shieldingSectionTitle": {},
+  "shieldingHint": "Ha a forrás árnyékolás mögött van, add meg az anyagát és a vastagságát — a program az árnyékolt forrás tényleges aktivitását is megbecsüli.",
+  "@shieldingHint": {},
+  "shieldingMaterialLabel": "Árnyékoló anyag",
+  "@shieldingMaterialLabel": {},
+  "shieldingNoneOption": "Nincs árnyékolás",
+  "@shieldingNoneOption": {},
+  "shieldingThicknessLabel": "Árnyékolás vastagsága",
+  "@shieldingThicknessLabel": {},
+  "shieldingThicknessError": "Adj meg pozitív vastagságot",
+  "@shieldingThicknessError": {},
+  "shieldedActivityLabel": "Árnyékolt forrás becsült aktivitása",
+  "@shieldedActivityLabel": {},
+  "shieldingDisclaimer": "Közelítő becslés: a gyengítést félértékréteg-modell írja le (a vastagság minden HVL-nyi egységén felezi a dózisteljesítményt), tájékoztató HVL-értékekkel. A szórt sugárzás (buildup), a forrás geometriája és a sugárzási spektrum egyszerűsítve szerepel, ezért az eredmény inkább felülbecsli az aktivitást. Hatósági jegyzőkönyvhöz ellenőrizd hiteles forrásból.",
+  "@shieldingDisclaimer": {},
+  "shieldingMaterialLead": "Ólom",
+  "@shieldingMaterialLead": {},
+  "shieldingMaterialSteel": "Acél (vas)",
+  "@shieldingMaterialSteel": {},
+  "shieldingMaterialConcrete": "Beton",
+  "@shieldingMaterialConcrete": {},
+  "shieldingMaterialTungsten": "Wolfram",
+  "@shieldingMaterialTungsten": {},
+  "shieldingMaterialAluminium": "Alumínium",
+  "@shieldingMaterialAluminium": {},
+  "shieldingMaterialWater": "Víz",
+  "@shieldingMaterialWater": {},
+  "csvUnshieldedNote": "árnyékolás nélkül",
+  "@csvUnshieldedNote": {},
+  "csvShieldedSourceNote": "árnyékolt forrás",
+  "@csvShieldedSourceNote": {},
+  "shieldingAddLayer": "Réteg hozzáadása",
+  "@shieldingAddLayer": {},
+  "shieldingLayerLabel": "Réteg",
+  "@shieldingLayerLabel": {},
+  "shieldingRemoveLayer": "Réteg törlése",
+  "@shieldingRemoveLayer": {},
+  "doseRateUnshieldedLabel": "Dózisteljesítmény (árnyékolás nélkül)",
+  "@doseRateUnshieldedLabel": {},
+  "doseRateShieldedLabel": "Dózisteljesítmény az árnyékolás mögött",
+  "@doseRateShieldedLabel": {},
+  "calibrationSectionTitle": "Hitelesítés és kalibrálás",
+  "@calibrationSectionTitle": {},
+  "calibrationKindVerification": "Hitelesítés",
+  "@calibrationKindVerification": {},
+  "calibrationKindCalibration": "Kalibrálás",
+  "@calibrationKindCalibration": {},
+  "calibrationAddButton": "Bejegyzés hozzáadása",
+  "@calibrationAddButton": {},
+  "calibrationDialogTitle": "Hitelesítés / kalibrálás bejegyzés",
+  "@calibrationDialogTitle": {},
+  "calibrationKindLabel": "Típus",
+  "@calibrationKindLabel": {},
+  "calibrationPerformedOnLabel": "Elvégzés dátuma",
+  "@calibrationPerformedOnLabel": {},
+  "calibrationValidUntilLabel": "Érvényes eddig",
+  "@calibrationValidUntilLabel": {},
+  "calibrationCertificateLabel": "Bizonylat száma",
+  "@calibrationCertificateLabel": {},
+  "calibrationPerformedByLabel": "Végezte (labor / hatóság)",
+  "@calibrationPerformedByLabel": {},
+  "calibrationAttachFile": "Bizonylat csatolása",
+  "@calibrationAttachFile": {},
+  "calibrationRemoveFile": "Csatolmány törlése",
+  "@calibrationRemoveFile": {},
+  "calibrationOpenFile": "Bizonylat megnyitása / megosztása",
+  "@calibrationOpenFile": {},
+  "calibrationEmptyList": "Még nincs bejegyzés.",
+  "@calibrationEmptyList": {},
+  "calibrationStatusValid": "Érvényes",
+  "@calibrationStatusValid": {},
+  "calibrationStatusSoon": "Hamarosan lejár",
+  "@calibrationStatusSoon": {},
+  "calibrationStatusExpired": "LEJÁRT",
+  "@calibrationStatusExpired": {},
+  "calibrationStatusUnknown": "Nincs adat",
+  "@calibrationStatusUnknown": {},
+  "calibrationExpiredWarning": "Figyelem: a kiválasztott műszer hitelesítése/kalibrálása lejárt. Érvényes eddig:",
+  "@calibrationExpiredWarning": {},
+  "calibrationSoonWarning": "Figyelem: a kiválasztott műszer hitelesítése/kalibrálása hamarosan lejár. Érvényes eddig:",
+  "@calibrationSoonWarning": {},
+  "calibrationUnknownWarning": "A kiválasztott műszernél nincs hitelesítési/kalibrálási adat.",
+  "@calibrationUnknownWarning": {},
+  "calibrationSaveAnywayTitle": "Lejárt hitelesítés/kalibrálás",
+  "@calibrationSaveAnywayTitle": {},
+  "calibrationSaveAnywayBody": "A mérés lejárt hitelesítésű/kalibrálású műszerrel készült, a jegyzőkönyvben ez jelölve lesz. Mented?",
+  "@calibrationSaveAnywayBody": {},
+  "calibrationSaveAnywayConfirm": "Mentés mégis",
+  "@calibrationSaveAnywayConfirm": {},
+  "calibrationValidUntilBeforeError": "Az érvényesség nem lehet az elvégzés előtt",
+  "@calibrationValidUntilBeforeError": {},
+  "csvHeaderInstrumentCalibration": "Műszer hitelesítése/kalibrálása",
+  "@csvHeaderInstrumentCalibration": {},
+  "personPhoneLabel": "Telefonszám",
+  "@personPhoneLabel": {},
+  "personEmailLabel": "E-mail cím",
+  "@personEmailLabel": {},
+  "personAddEmail": "E-mail cím hozzáadása",
+  "@personAddEmail": {},
+  "personRemoveEmail": "E-mail törlése",
+  "@personRemoveEmail": {},
+  "personEmailInvalidError": "Érvénytelen e-mail cím",
+  "@personEmailInvalidError": {},
+  "personCertificatesTitle": "Bizonyítványok",
+  "@personCertificatesTitle": {},
+  "personCertificateAdd": "Bizonyítvány hozzáadása",
+  "@personCertificateAdd": {},
+  "personCertificateDialogTitle": "Bizonyítvány",
+  "@personCertificateDialogTitle": {},
+  "personCertificateNameLabel": "Megnevezés (pl. sugárvédelmi vizsga)",
+  "@personCertificateNameLabel": {},
+  "personCertificateNumberLabel": "Bizonyítvány száma",
+  "@personCertificateNumberLabel": {},
+  "personCertificateIssuerLabel": "Kiállító",
+  "@personCertificateIssuerLabel": {},
+  "personCertificateIssuedLabel": "Kiállítás dátuma",
+  "@personCertificateIssuedLabel": {},
+  "personCertificateNameRequired": "Add meg a bizonyítvány megnevezését",
+  "@personCertificateNameRequired": {},
+  "personCertificateValidBeforeError": "Az érvényesség nem lehet a kiállítás előtt",
+  "@personCertificateValidBeforeError": {},
+  "personCertificatesEmpty": "Még nincs bizonyítvány.",
+  "@personCertificatesEmpty": {},
+  "sourceCertificateTitle": "Műbizonylat",
+  "@sourceCertificateTitle": {},
+  "sourceCertificateAttach": "Műbizonylat csatolása",
+  "@sourceCertificateAttach": {},
+  "sourceCertificateEmpty": "Nincs csatolt műbizonylat.",
+  "@sourceCertificateEmpty": {},
+  "companyDocumentsTooltip": "Cég dokumentumai és engedélyei",
+  "@companyDocumentsTooltip": {},
+  "companyDocumentNew": "Új dokumentum",
+  "@companyDocumentNew": {},
+  "companyDocumentEdit": "Dokumentum szerkesztése",
+  "@companyDocumentEdit": {},
+  "companyDocumentTitleLabel": "Dokumentum megnevezése",
+  "@companyDocumentTitleLabel": {},
+  "companyDocumentIdentifierLabel": "Azonosító (iktatószám, engedélyszám)",
+  "@companyDocumentIdentifierLabel": {},
+  "companyDocumentIssuerLabel": "Kiadó / hatóság",
+  "@companyDocumentIssuerLabel": {},
+  "companyDocumentIssuedLabel": "Kiadás vagy hatályba lépés dátuma",
+  "@companyDocumentIssuedLabel": {},
+  "companyDocumentValidUntilLabel": "Érvényes / felülvizsgálandó eddig",
+  "@companyDocumentValidUntilLabel": {},
+  "companyDocumentFilesTitle": "Csatolt fájlok",
+  "@companyDocumentFilesTitle": {},
+  "companyDocumentAttach": "Fájl csatolása",
+  "@companyDocumentAttach": {},
+  "companyDocumentsEmpty": "Még nincs dokumentum.",
+  "@companyDocumentsEmpty": {},
+  "companyDocumentDeleteTitle": "Dokumentum törlése",
+  "@companyDocumentDeleteTitle": {},
+  "companyDocumentDeleteConfirm": "Biztosan törlöd ezt a dokumentumot?",
+  "@companyDocumentDeleteConfirm": {},
+  "companyDocSuggestionsLabel": "Gyakori dokumentumok",
+  "@companyDocSuggestionsLabel": {},
+  "companyDocSuggestRadiationPolicy": "Munkahelyi Sugárvédelmi Szabályzat",
+  "@companyDocSuggestRadiationPolicy": {},
+  "companyDocSuggestRadiationDescription": "Sugárvédelmi Leírás",
+  "@companyDocSuggestRadiationDescription": {},
+  "companyDocSuggestPhysicalProtection": "Fizikai Védelmi Terv",
+  "@companyDocSuggestPhysicalProtection": {},
+  "companyDocSuggestEmergencyPlan": "Balesetelhárítási Intézkedési Terv",
+  "companyDocSuggestOfficialLicense": "Hatósági engedély",
+  "@companyDocSuggestOfficialLicense": {},
+  "@companyDocSuggestEmergencyPlan": {},
+  "nuclideEditButton": "Nuklidok módosítása",
+  "@nuclideEditButton": {},
+  "languageSectionTitle": "Nyelv",
+  "@languageSectionTitle": {},
+  "languageSystemOption": "Telefon nyelve",
+  "@languageSystemOption": {},
+  "settingsTitle": "Beállítások",
+  "@settingsTitle": {},
+  "appearanceSectionTitle": "Megjelenés",
+  "@appearanceSectionTitle": {},
+  "themeLight": "Világos",
+  "@themeLight": {},
+  "themeDark": "Sötét",
+  "@themeDark": {},
+  "themeSystem": "Rendszer",
+  "@themeSystem": {},
+  "alertThresholdExplanation": "Ha egy mérési pont rögzítésekor a mért érték eléri vagy meghaladja az itt megadott küszöböt, az app figyelmeztet (hangjelzés + felugró üzenet). Üresen hagyva nincs riasztás az adott típusnál.",
+  "@alertThresholdExplanation": {},
+  "noThresholdSetHint": "Nincs küszöb beállítva",
+  "@noThresholdSetHint": {},
+  "saveButton": "Mentés",
+  "@saveButton": {},
+  "settingsSavedMessage": "Beállítások mentve.",
+  "@settingsSavedMessage": {},
+  "measurementTypeDoseRate": "Dózisteljesítmény",
+  "@measurementTypeDoseRate": {},
+  "measurementTypeSurfaceContamination": "Felületi szennyezettség",
+  "@measurementTypeSurfaceContamination": {},
+  "measurementTypeCps": "Beütésszám (cps)",
+  "@measurementTypeCps": {},
+  "measurementTypeNeutronCps": "Neutron beütésszám (cps)",
+  "@measurementTypeNeutronCps": {},
+  "measurementTypeSample": "Mintavétel",
+  "@measurementTypeSample": {},
+  "instrumentDeleteTitle": "Műszer törlése",
+  "@instrumentDeleteTitle": {},
+  "instrumentDeleteConfirm": "\"{name}\" törlése? A hozzá tartozó korábbi mérések megmaradnak, csak a műszer-hivatkozás törlődik róluk.",
+  "@instrumentDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteButton": "Törlés",
+  "@deleteButton": {},
+  "noInstrumentsYet": "Még nincs felvéve műszer. Adj hozzá egyet a + gombbal.",
+  "@noInstrumentsYet": {},
+  "noCalibrationData": "Nincs kalibrációs adat",
+  "@noCalibrationData": {},
+  "nextCalibrationOn": "Következő kalibráció: {date}",
+  "@nextCalibrationOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noSerialNumber": "sorozatszám nélkül",
+  "@noSerialNumber": {},
+  "newInstrumentButton": "Új műszer",
+  "@newInstrumentButton": {},
+  "editInstrumentTitle": "Műszer szerkesztése",
+  "@editInstrumentTitle": {},
+  "instrumentNameLabel": "Műszer neve / típusa",
+  "@instrumentNameLabel": {},
+  "requiredFieldError": "Kötelező",
+  "@requiredFieldError": {},
+  "serialNumberLabel": "Sorozatszám",
+  "@serialNumberLabel": {},
+  "nextCalibrationLabel": "Következő kalibráció dátuma",
+  "@nextCalibrationLabel": {},
+  "notSetLabel": "Nincs megadva",
+  "@notSetLabel": {},
+  "calibrationFactorLabel": "Kalibrációs tényező",
+  "@calibrationFactorLabel": {},
+  "modbusConnectedLabel": "WiFi Modbus/TCP-n elérhető",
+  "@modbusConnectedLabel": {},
+  "modbusHostLabel": "IP cím / host",
+  "@modbusHostLabel": {},
+  "modbusPortLabel": "Port (pl. 502)",
+  "@modbusPortLabel": {},
+  "modbusUnitIdLabel": "Modbus Unit ID (slave cím)",
+  "@modbusUnitIdLabel": {},
+  "modbusRegisterAddressLabel": "Regiszter cím (pl. 294)",
+  "@modbusRegisterAddressLabel": {},
+  "modbusRegisterAddressHelper": "A mért érték (float32) kezdő holding regisztere",
+  "@modbusRegisterAddressHelper": {},
+  "modbusGpsEnabledLabel": "GPS pozíció olvasása Modbuson",
+  "@modbusGpsEnabledLabel": {},
+  "modbusGpsLatAddressLabel": "Szélesség regiszter (float32, alap: 426)",
+  "@modbusGpsLatAddressLabel": {},
+  "modbusGpsLonAddressLabel": "Hosszúság regiszter (float32, alap: 428)",
+  "@modbusGpsLonAddressLabel": {},
+  "pickPositionTitle": "Pozíció kiválasztása",
+  "confirmPositionButton": "Pozíció megerősítése",
+  "@pickPositionTitle": {},
+  "@confirmPositionButton": {},
+  "isotopeCalculatorTitle": "Izotóp kalkulátor",
+  "@isotopeCalculatorTitle": {},
+  "gammaConstantsDisclaimer": "A Γ-állandók tájékoztató referenciaértékek. Hatósági jegyzőkönyvhöz ellenőrizd őket hiteles forrásból, mielőtt dokumentálod az eredményt.",
+  "@gammaConstantsDisclaimer": {},
+  "isotopeLabel": "Izotóp",
+  "@isotopeLabel": {},
+  "modeDoseFromActivity": "Aktivitásból\ndózisteljesítmény",
+  "@modeDoseFromActivity": {},
+  "modeActivityFromDose": "Dózisteljesítményből\naktivitás",
+  "@modeActivityFromDose": {},
+  "distanceFromSourceLabel": "Távolság a forrástól (m)",
+  "@distanceFromSourceLabel": {},
+  "activityLabel": "Aktivitás (MBq)",
+  "@activityLabel": {},
+  "measuredDoseRateLabel": "Mért dózisteljesítmény (µSv/h)",
+  "@measuredDoseRateLabel": {},
+  "calculateButton": "Számítás",
+  "@calculateButton": {},
+  "invalidDistanceError": "Adj meg egy érvényes, pozitív távolságot (m).",
+  "@invalidDistanceError": {},
+  "invalidActivityError": "Adj meg egy érvényes aktivitást (MBq).",
+  "@invalidActivityError": {},
+  "invalidDoseRateError": "Adj meg egy érvényes dózisteljesítményt (µSv/h).",
+  "@invalidDoseRateError": {},
+  "calculationErrorMessage": "Számítási hiba: {error}",
+  "@calculationErrorMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "calculatedDoseRateResult": "Számított dózisteljesítmény: {uSvH} µSv/h\n({nSvH} nSv/h)",
+  "@calculatedDoseRateResult": {
+    "placeholders": {
+      "uSvH": {
+        "type": "String"
+      },
+      "nSvH": {
+        "type": "String"
+      }
+    }
+  },
+  "calculatedActivityResult": "Számított aktivitás: {mbq} MBq\n({gbq} GBq)",
+  "@calculatedActivityResult": {
+    "placeholders": {
+      "mbq": {
+        "type": "String"
+      },
+      "gbq": {
+        "type": "String"
+      }
+    }
+  },
+  "distanceToolTitle": "Távolságmérés",
+  "@distanceToolTitle": {},
+  "locationServiceDisabledError": "A helyszolgáltatás ki van kapcsolva.",
+  "@locationServiceDisabledError": {},
+  "locationPermissionDeniedError": "Helymeghatározási jogosultság megtagadva.",
+  "@locationPermissionDeniedError": {},
+  "gpsErrorMessage": "GPS hiba: {error}",
+  "@gpsErrorMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "selectTargetFirstError": "Előbb válaszd ki a célpontot.",
+  "@selectTargetFirstError": {},
+  "noGpsPositionError": "Nincs GPS pozíció. Frissítsd, vagy válassz kiindulópontot.",
+  "@noGpsPositionError": {},
+  "selectStartPointError": "Válassz kiindulópontot.",
+  "@selectStartPointError": {},
+  "selectTargetPointError": "Válaszd ki a célpontot.",
+  "@selectTargetPointError": {},
+  "startFromCurrentPositionLabel": "Kiindulópont: jelenlegi pozícióm",
+  "@startFromCurrentPositionLabel": {},
+  "noPositionFetchedYet": "Nincs lekérve",
+  "@noPositionFetchedYet": {},
+  "refreshGpsButton": "GPS frissítése",
+  "@refreshGpsButton": {},
+  "startPointLabel": "Kiindulópont",
+  "@startPointLabel": {},
+  "targetPointLabel": "Célpont",
+  "@targetPointLabel": {},
+  "liveTrackingLabel": "Élő követés",
+  "@liveTrackingLabel": {},
+  "liveTrackingSubtitle": "Folyamatosan frissíti a távolságot és az irányt séta közben.",
+  "@liveTrackingSubtitle": {},
+  "calculateDistanceButton": "Kiszámítás",
+  "@calculateDistanceButton": {},
+  "liveTrackingRunningHint": "Élő követés fut — sétálj a nyíl irányába.",
+  "@liveTrackingRunningHint": {},
+  "sourceSearchTitle": "Forráskereső",
+  "@sourceSearchTitle": {},
+  "measurementTypeLabel": "Mérés típusa",
+  "@measurementTypeLabel": {},
+  "pointsRecordedForType": "{count} rögzített pont ehhez a típushoz ezen a felmérésen belül.",
+  "@pointsRecordedForType": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lowConfidenceWarning": "Kevés pont (< 4) — a becslés bizonytalan, vegyél fel több mérést a keresési terület más-más pontjain.",
+  "@lowConfidenceWarning": {},
+  "gradientEstimateLabel": "Becsült gradiens: {value} {unit}/m",
+  "@gradientEstimateLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "directionEstimateHint": "Erre nő a mért érték a becslés szerint.",
+  "@directionEstimateHint": {},
+  "sourceSearchDisclaimer": "A javasolt irány egyszerű lineáris gradiens-becslésen alapul a felmérésen belül eddig rögzített pontokból. Zajos terepi adatoknál, kevés pontnál, vagy ha a valódi forrás a mért terület méretéhez képest messze van, pontatlan lehet. Csak tájékoztató jellegű, nem helyettesíti a szakmai megítélést.",
+  "@sourceSearchDisclaimer": {},
+  "newMeasurementButton": "Új mérés felvétele",
+  "@newMeasurementButton": {},
+  "mapTitle": "Térkép",
+  "@mapTitle": {},
+  "noPointsRecordedYet": "Még nincs rögzített mérési pont.",
+  "@noPointsRecordedYet": {},
+  "saveScreenshotTooltip": "Képernyőkép mentése a jegyzőkönyvhöz",
+  "@saveScreenshotTooltip": {},
+  "screenshotSavedMessage": "Térkép elmentve — a jegyzőkönyv exportálásakor csatolva lesz.",
+  "@screenshotSavedMessage": {},
+  "screenshotErrorMessage": "Képernyőkép hiba: {error}",
+  "@screenshotErrorMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "valueLabel": "Érték: {value} {unit}",
+  "@valueLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "distanceFromSourceValue": "Táv. forrástól: {value} m",
+  "@distanceFromSourceValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "timestampLabel": "Időpont: {value}",
+  "@timestampLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcePositionLabel": "Forrás pozíció",
+  "@sourcePositionLabel": {},
+  "editButton": "Szerkesztés",
+  "@editButton": {},
+  "closeSurveyTitle": "Felmérés lezárása",
+  "@closeSurveyTitle": {},
+  "closeSurveyConfirm": "Lezárás után a jegyzőkönyv a mai dátumot fogja mutatni befejezési időpontként. A pontokat ez nem zárolja, később is szerkesztheted őket.",
+  "@closeSurveyConfirm": {},
+  "closeSurveyButton": "Lezárás",
+  "@closeSurveyButton": {},
+  "surveyClosedMessage": "Felmérés lezárva.",
+  "@surveyClosedMessage": {},
+  "listScreenshotSavedMessage": "Lista képernyőkép elmentve — a jegyzőkönyv exportálásakor csatolva lesz.",
+  "@listScreenshotSavedMessage": {},
+  "exportErrorMessage": "Export hiba: {error}",
+  "@exportErrorMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "importErrorMessage": "Import hiba: {error}",
+  "@importErrorMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "protocolShareSubject": "Jegyzőkönyv – {title}",
+  "@protocolShareSubject": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "dataExportSubject": "Mérési pontok (adat) – {title}",
+  "@dataExportSubject": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "csvExportSubject": "Mérési pontok (CSV) – {title}",
+  "@csvExportSubject": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "importDoneTitle": "Importálás kész",
+  "@importDoneTitle": {},
+  "importedPointsMessage": "{points} pont importálva.\n{instruments} új műszer létrehozva.\n{sources} új sugárforrás létrehozva.",
+  "@importedPointsMessage": {
+    "placeholders": {
+      "points": {
+        "type": "int"
+      },
+      "instruments": {
+        "type": "int"
+      },
+      "sources": {
+        "type": "int"
+      }
+    }
+  },
+  "okButton": "Rendben",
+  "@okButton": {},
+  "toolsTooltip": "Eszközök",
+  "@toolsTooltip": {},
+  "autoLogMenuItem": "Automatikus mérés",
+  "@autoLogMenuItem": {},
+  "captureListScreenshotMenuItem": "Lista képernyőkép mentése",
+  "@captureListScreenshotMenuItem": {},
+  "protocolFormatTitle": "Jegyzőkönyv formátuma",
+  "protocolFormatWord": "Word (ZIP: .docx + fotók)",
+  "protocolFormatPdf": "PDF (fotókkal)",
+  "sessionDoseLabel": "Felmérési dózis",
+  "dosimeterDoseLabel": "Doziméter",
+  "dosimeterValueLabel": "Kiértékelt dózis",
+  "includeInAnnualLabel": "Beszámít az éves dózisba",
+  "notCountedInAnnualLabel": "nem számít az éves dózisba",
+  "calcDoseFromPointsButton": "Számítás a pontokból",
+  "calcDoseNeedTwoPoints": "Legalább 2 dózisteljesítmény-pont kell a számításhoz.",
+  "calcDoseResultInfo": "{count} pontból számítva (lineáris interpoláció)",
+  "@calcDoseResultInfo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dosimetersButton": "Doziméterek",
+  "addDosimeterButton": "Doziméter hozzáadása",
+  "dosimeterKindEpdGamma": "EPD gamma (elektronikus)",
+  "dosimeterKindEpdNeutron": "EPD neutron (elektronikus)",
+  "dosimeterKindTlOfficial": "TL/OSL passzív (hivatalos)",
+  "dosimeterKindTlWorkplace": "TL/OSL passzív (munkahelyi)",
+  "dosimeterTypeLabel": "Típus",
+  "dosimeterIdentifierLabel": "Azonosító",
+  "dosimeterPersonLabel": "Viselője",
+  "dosimeterNobody": "Nincs hozzárendelve",
+  "dosimeterStartLabel": "Kezdő állás",
+  "dosimeterEndLabel": "Záró állás",
+  "dosimeterEndBeforeStartError": "A záró állás nem lehet kisebb a kezdőnél.",
+  "noDosimetersYet": "Még nincs doziméter ennél a felmérésnél.",
+  "dosimeterEditTitle": "Doziméter",
+  "dosimeterNoReading": "nincs adat",
+  "dosimeterDeleteTitle": "Doziméter törlése",
+  "dosimeterDeleteMessage": "Biztosan törlöd ezt a doziméter-bejegyzést?",
+  "exportProtocolMenuItem": "Jegyzőkönyv exportálása",
+  "@exportProtocolMenuItem": {},
+  "exportJsonMenuItem": "Pontok exportálása (adat, JSON)",
+  "@exportJsonMenuItem": {},
+  "exportCsvMenuItem": "Pontok exportálása (táblázat, CSV)",
+  "@exportCsvMenuItem": {},
+  "importJsonMenuItem": "Pontok importálása (JSON)",
+  "@importJsonMenuItem": {},
+  "newPointButton": "Új pont",
+  "@newPointButton": {},
+  "sampleTakenListLabel": "Mintavétel · {date}",
+  "@sampleTakenListLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "unknownModbusError": "Ismeretlen Modbus hiba.",
+  "@unknownModbusError": {},
+  "@noValidPositionError": {},
+  "noValidPositionError": "Nincs érvényes pozíció megadva.",
+  "@thresholdExceededTitle": {},
+  "thresholdExceededTitle": "Riasztási küszöb túllépve",
+  "thresholdExceededMessage": "A mért érték ({value} {unit}) eléri vagy meghaladja a(z) {type} típushoz beállított küszöböt ({threshold} {unit}).",
+  "@thresholdExceededMessage": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      },
+      "threshold": {
+        "type": "String"
+      }
+    }
+  },
+  "newPointTitle": "Új mérési pont",
+  "@newPointTitle": {},
+  "editPointTitle": "Pont szerkesztése",
+  "@editPointTitle": {},
+  "locationLabelFieldLabel": "Helyszín megnevezése",
+  "@locationLabelFieldLabel": {},
+  "measuredValueLabel": "Mért érték",
+  "@measuredValueLabel": {},
+  "numberRequiredError": "Számot adj meg",
+  "@numberRequiredError": {},
+  "unitLabel": "Egység",
+  "@unitLabel": {},
+  "instrumentLabel": "Műszer",
+  "@instrumentLabel": {},
+  "addInstrumentTooltip": "Új műszer felvétele",
+  "@addInstrumentTooltip": {},
+  "queryingLabel": "Lekérdezés...",
+  "@queryingLabel": {},
+  "modbusQueryButton": "Modbus lekérdezés ({name})",
+  "@modbusQueryButton": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcePositionSwitchLabel": "Ez a forrás pozíció (max. érték)",
+  "@sourcePositionSwitchLabel": {},
+  "sampleTakenSwitchLabel": "Fizikai mintavétel történt itt",
+  "@sampleTakenSwitchLabel": {},
+  "sampleContainerLabel": "Edény azonosító",
+  "@sampleContainerLabel": {},
+  "sampleAmountLabel": "Mennyiség",
+  "sampleUnitLabel": "Egység",
+  "@sampleUnitLabel": {},
+  "sampleUnitOther": "Egyéb",
+  "@sampleUnitOther": {},
+  "sampleUnitCustomLabel": "Egység megnevezése",
+  "@sampleUnitCustomLabel": {},
+  "sampleAmountInvalid": "Számot adj meg (pl. 2,5 vagy 2.5)",
+  "@sampleAmountInvalid": {},
+  "@sampleAmountLabel": {},
+  "sampleMethodLabel": "Mintavétel módja",
+  "@sampleMethodLabel": {},
+  "notesLabel": "Megjegyzés",
+  "@notesLabel": {},
+  "takePhotoLabel": "Fotó készítése",
+  "@takePhotoLabel": {},
+  "retakePhotoLabel": "Fotó cseréje",
+  "@retakePhotoLabel": {},
+  "chooseFromGalleryLabel": "Kiválasztás a galériából",
+  "@chooseFromGalleryLabel": {},
+  "positionLabel": "Pozíció",
+  "@positionLabel": {},
+  "latitudeLabel": "Szélesség (lat)",
+  "@latitudeLabel": {},
+  "longitudeLabel": "Hosszúság (lon)",
+  "@longitudeLabel": {},
+  "invalidValueError": "Érvénytelen",
+  "@invalidValueError": {},
+  "liveGpsButton": "Élő GPS",
+  "@liveGpsButton": {},
+  "onMapButton": "Térképen",
+  "@onMapButton": {},
+  "autoLogDisclaimer": "A rögzítés csak addig fut, amíg ez a képernyő nyitva van. Ha a telefon kikapcsol vagy másik appra váltasz, a mérés szünetel — visszatéréskor újra kell indítani.",
+  "@autoLogDisclaimer": {},
+  "noModbusInstrumentMessage": "Nincs Modbus/TCP-n elérhető műszer beállítva. Vegyél fel egyet a Műszerek listában (WiFi Modbus/TCP kapcsoló be, IP, Unit ID és regiszter cím kitöltve).",
+  "@noModbusInstrumentMessage": {},
+  "triggerModeTime": "Idő alapú",
+  "@triggerModeTime": {},
+  "triggerModeDistance": "Táv alapú",
+  "@triggerModeDistance": {},
+  "intervalSecondsLabel": "Időköz (másodperc)",
+  "@intervalSecondsLabel": {},
+  "distanceIntervalLabel": "Távolságköz (méter)",
+  "@distanceIntervalLabel": {},
+  "connectingLabel": "Kapcsolódás...",
+  "@connectingLabel": {},
+  "stopButton": "Leállítás",
+  "@stopButton": {},
+  "loggingRunningLabel": "Rögzítés fut...",
+  "@loggingRunningLabel": {},
+  "loggingStoppedLabel": "Rögzítés leállítva",
+  "@loggingStoppedLabel": {},
+  "capturedPointsLabel": "Rögzített pontok: {count}",
+  "@capturedPointsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lastValueLabel": "Utolsó érték: {value} {unit}",
+  "@lastValueLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "failedReadingsLabel": "Sikertelen olvasások: {count}",
+  "@failedReadingsLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lastErrorSuffix": " (utolsó hiba: {error})",
+  "@lastErrorSuffix": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "intervalMinError": "Az időköznek legalább 1 másodpercnek kell lennie.",
+  "@intervalMinError": {},
+  "distanceMinError": "A távolságnak legalább 1 méternek kell lennie.",
+  "@distanceMinError": {},
+  "modbusConnectErrorMessage": "Modbus kapcsolódási hiba: {error}",
+  "@modbusConnectErrorMessage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "csvHeaderSerialNumber": "Sorszám",
+  "@csvHeaderSerialNumber": {},
+  "csvHeaderLocation": "Helyszín",
+  "@csvHeaderLocation": {},
+  "csvHeaderType": "Típus",
+  "@csvHeaderType": {},
+  "csvHeaderValue": "Érték",
+  "@csvHeaderValue": {},
+  "csvHeaderUnit": "Egység",
+  "@csvHeaderUnit": {},
+  "csvHeaderDistanceFromSource": "Táv. forrástól",
+  "@csvHeaderDistanceFromSource": {},
+  "csvHeaderInstrument": "Műszer",
+  "@csvHeaderInstrument": {},
+  "csvHeaderGpsLatitude": "GPS szélesség",
+  "@csvHeaderGpsLatitude": {},
+  "csvHeaderGpsLongitude": "GPS hosszúság",
+  "@csvHeaderGpsLongitude": {},
+  "csvHeaderGpsAccuracy": "GPS pontosság",
+  "@csvHeaderGpsAccuracy": {},
+  "csvHeaderTimestamp": "Időpont",
+  "@csvHeaderTimestamp": {},
+  "csvHeaderSample": "Mintavétel",
+  "@csvHeaderSample": {},
+  "csvHeaderNotes": "Megjegyzés",
+  "@csvHeaderNotes": {},
+  "csvHeaderEstimatedActivity": "Becsült aktivitás (mérésből)",
+  "@csvHeaderEstimatedActivity": {},
+  "csvHeaderAttachedSources": "Hozzárendelt forrás(ok)",
+  "@csvHeaderAttachedSources": {},
+  "csvHeaderCalculatedDoseRate": "Számított dózisteljesítmény",
+  "@csvHeaderCalculatedDoseRate": {},
+  "csvHeaderDoseRateDifference": "Eltérés",
+  "@csvHeaderDoseRateDifference": {},
+  "csvYes": "igen",
+  "@csvYes": {},
+  "csvNo": "nem",
+  "@csvNo": {},
+  "importUnknownTypeWarning": "Ismeretlen mérés-típus kihagyva egy ponton.",
+  "@importUnknownTypeWarning": {},
+  "importMissingGpsWarning": "Hiányzó GPS-koordináta miatt kihagyva egy pont.",
+  "@importMissingGpsWarning": {},
+  "manageSourcesLabel": "Radioaktív forrás(ok) kezelése",
+  "@manageSourcesLabel": {},
+  "sourcesCountLabel": "{count} forrás",
+  "@sourcesCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "radiationSourcesTitle": "Források",
+  "@radiationSourcesTitle": {},
+  "newSourceButton": "Forrás hozzáadása",
+  "@newSourceButton": {},
+  "newSourceTitle": "Új forrás",
+  "@newSourceTitle": {},
+  "editSourceTitle": "Forrás szerkesztése",
+  "@editSourceTitle": {},
+  "noSourcesRecordedYet": "Ehhez a ponthoz még nincs forrás hozzárendelve.",
+  "@noSourcesRecordedYet": {},
+  "sourcesTooltip": "Források",
+  "@sourcesTooltip": {},
+  "pointSourcesTitle": "Forrás(ok) a ponton",
+  "@pointSourcesTitle": {},
+  "attachSourceButton": "Forrás hozzárendelése",
+  "@attachSourceButton": {},
+  "pickSourceTitle": "Forrás kiválasztása",
+  "@pickSourceTitle": {},
+  "noSourcesToAttach": "Nincs még felvehető forrás — vedd fel előbb a főoldali Források listában.",
+  "@noSourcesToAttach": {},
+  "noSourcesYet": "Még nincs felvéve forrás. Adj hozzá egyet a + gombbal.",
+  "@noSourcesYet": {},
+  "enterDistanceDialogTitle": "Távolság megadása",
+  "@enterDistanceDialogTitle": {},
+  "detachSourceConfirmTitle": "Forrás leválasztása",
+  "@detachSourceConfirmTitle": {},
+  "detachSourceConfirmMessage": "Leválasztod a \"{identifier}\" forrást erről a pontról? A forrás a nyilvántartásban megmarad, csak ez a hozzárendelés törlődik.",
+  "@detachSourceConfirmMessage": {
+    "placeholders": {
+      "identifier": {
+        "type": "String"
+      }
+    }
+  },
+  "detachButton": "Leválasztás",
+  "@detachButton": {},
+  "totalCalculatedDoseRateLabel": "Források összesített, számított dózisteljesítménye",
+  "@totalCalculatedDoseRateLabel": {},
+  "sourcesUnknownNuclideSkippedNote": "{count} forrás nuklidja ismeretlen — nem szerepel az összegben.",
+  "@sourcesUnknownNuclideSkippedNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sourceIdentifierLabel": "Egyedi azonosító",
+  "@sourceIdentifierLabel": {},
+  "nuclideLabel": "Nuklid",
+  "@nuclideLabel": {},
+  "customNuclideOption": "Egyéb (kézi megadás)",
+  "@customNuclideOption": {},
+  "customNuclideNameLabel": "Nuklid neve",
+  "@customNuclideNameLabel": {},
+  "activityAtManufactureLabel": "Aktivitás gyártáskor (MBq)",
+  "@activityAtManufactureLabel": {},
+  "activityErrorPercentLabel": "Aktivitás hibája (±%)",
+  "@activityErrorPercentLabel": {},
+  "manufactureDateLabel": "Gyártás dátuma",
+  "@manufactureDateLabel": {},
+  "serviceLifeExpiryDateLabel": "Szolgálati idő lejárata",
+  "@serviceLifeExpiryDateLabel": {},
+  "nextInspectionDateLabel": "Következő ellenőrzés dátuma",
+  "@nextInspectionDateLabel": {},
+  "sourceDistanceLabel": "Távolság a mérési ponttól (m)",
+  "@sourceDistanceLabel": {},
+  "asOfDateLabel": "Aktivitás dátuma (számításhoz)",
+  "@asOfDateLabel": {},
+  "currentActivityResultLabel": "Aktuális aktivitás",
+  "@currentActivityResultLabel": {},
+  "calculatedDoseRateResultLabel": "Számított dózisteljesítmény",
+  "@calculatedDoseRateResultLabel": {},
+  "measuredDoseRateResultLabel": "Mért dózisteljesítmény (a ponton)",
+  "@measuredDoseRateResultLabel": {},
+  "doseRateDifferenceResultLabel": "Eltérés (mért − számított)",
+  "@doseRateDifferenceResultLabel": {},
+  "unknownNuclideDecayWarning": "Ismeretlen nuklid: nincs tárolt felezési idő és gamma-állandó, ezért az aktuális aktivitás és a számított dózisteljesítmény nem határozható meg. A forrás adatai elmenthetők, de az összehasonlítás kimarad.",
+  "@unknownNuclideDecayWarning": {},
+  "noMeasuredValueForComparisonNote": "A ponthoz nincs rögzített mért érték — az összehasonlítás nem végezhető el.",
+  "@noMeasuredValueForComparisonNote": {},
+  "unrecognizedUnitForComparisonNote": "A mérési egység ({unit}) nem alakítható át automatikusan — az összehasonlítás nem végezhető el.",
+  "@unrecognizedUnitForComparisonNote": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceExpiredWarning": "A forrás szolgálati ideje lejárt.",
+  "@sourceExpiredWarning": {},
+  "deleteSourceConfirmTitle": "Forrás törlése",
+  "@deleteSourceConfirmTitle": {},
+  "deleteSourceConfirmMessage": "Biztosan törlöd a \"{identifier}\" azonosítójú forrást a nyilvántartásból? Minden ponthoz rendelt hozzárendelése is törlődik vele. A művelet nem vonható vissza.",
+  "@deleteSourceConfirmMessage": {
+    "placeholders": {
+      "identifier": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceCalculationDisclaimer": "A számított értékek tájékoztató jellegűek, referencia gamma-állandók és felezési idők alapján. Hatósági jegyzőkönyvhöz ellenőrizd hiteles forrásból.",
+  "@sourceCalculationDisclaimer": {},
+  "estimatedActivityFromMeasurementLabel": "Becsült aktivitás (a mért értékből)",
+  "@estimatedActivityFromMeasurementLabel": {},
+  "personsTooltip": "Személyek",
+  "@personsTooltip": {},
+  "personsTitle": "Személyek",
+  "@personsTitle": {},
+  "newPersonButton": "Személy hozzáadása",
+  "@newPersonButton": {},
+  "newPersonTitle": "Új személy",
+  "@newPersonTitle": {},
+  "editPersonTitle": "Személy szerkesztése",
+  "@editPersonTitle": {},
+  "noPersonsYet": "Még nincs felvéve személy. Adj hozzá egyet a + gombbal.",
+  "@noPersonsYet": {},
+  "personNameLabel": "Név",
+  "@personNameLabel": {},
+  "medicalExamExpiryDateLabel": "Orvosi vizsgálat érvényessége",
+  "@medicalExamExpiryDateLabel": {},
+  "trainingExpiryDateLabel": "Oktatás érvényessége",
+  "@trainingExpiryDateLabel": {},
+  "deletePersonConfirmTitle": "Személy törlése",
+  "@deletePersonConfirmTitle": {},
+  "deletePersonConfirmMessage": "Biztosan törlöd \"{name}\" nevű személyt a nyilvántartásból? Minden felméréshez rendelt hozzárendelése is törlődik vele. A művelet nem vonható vissza.",
+  "@deletePersonConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionPersonsTitle": "Felmérésen résztvevő személyek",
+  "@sessionPersonsTitle": {},
+  "noPersonsAttachedYet": "Ehhez a felméréshez még nincs személy hozzárendelve.",
+  "@noPersonsAttachedYet": {},
+  "attachPersonButton": "Személy hozzárendelése",
+  "@attachPersonButton": {},
+  "pickPersonTitle": "Személy kiválasztása",
+  "@pickPersonTitle": {},
+  "noPersonsToAttach": "Nincs még felvehető személy — vedd fel előbb a főoldali Személyek listában.",
+  "@noPersonsToAttach": {},
+  "detachPersonConfirmTitle": "Személy leválasztása",
+  "@detachPersonConfirmTitle": {},
+  "detachPersonConfirmMessage": "Leválasztod \"{name}\" nevű személyt erről a felmérésről? A személy a nyilvántartásban megmarad, csak ez a hozzárendelés törlődik.",
+  "@detachPersonConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "expiryNotificationsSectionTitle": "Lejárati értesítések",
+  "@expiryNotificationsSectionTitle": {},
+  "expiryNotificationsSwitchTitle": "Értesítés a lejáratokról",
+  "@expiryNotificationsSwitchTitle": {},
+  "expiryNotificationsSwitchSubtitle": "A források (szolgálati idő, ellenőrzés) és a személyek (orvosi vizsgálat, oktatás) jövőbeli lejárati dátumairól, reggel 8 órakor.",
+  "@expiryNotificationsSwitchSubtitle": {},
+  "expiryLeadTimeLabel": "Mennyivel előbb jöjjön az értesítés",
+  "@expiryLeadTimeLabel": {},
+  "expiryLeadSameDay": "Aznap",
+  "@expiryLeadSameDay": {},
+  "expiryLeadOneDay": "1 nappal előtte",
+  "@expiryLeadOneDay": {},
+  "expiryLeadTwoDays": "2 nappal előtte",
+  "@expiryLeadTwoDays": {},
+  "expiryLeadOneWeek": "1 héttel előtte",
+  "expiryLeadTwoWeeks": "2 héttel előtte",
+  "@expiryLeadTwoWeeks": {},
+  "expiryLeadMonths": "{count} hónappal előtte",
+  "@expiryLeadMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@expiryLeadOneWeek": {},
+  "expiryNotificationsPermissionDenied": "Az értesítések le vannak tiltva a telefon beállításaiban, engedélyezd ott a RadRecon értesítéseit.",
+  "@expiryNotificationsPermissionDenied": {},
+  "expiryNotificationTitleToday": "Ma lejár",
+  "@expiryNotificationTitleToday": {},
+  "expiryNotificationTitleUpcoming": "Hamarosan lejár",
+  "@expiryNotificationTitleUpcoming": {},
+  "expiryNotificationChannelName": "Lejárati értesítések",
+  "@expiryNotificationChannelName": {},
+  "expiryNotificationChannelDescription": "Források és személyek közelgő lejárati dátumai",
+  "@expiryNotificationChannelDescription": {},
+  "importRegistryCsv": "CSV importálása",
+  "@importRegistryCsv": {},
+  "exportRegistryCsv": "CSV exportálása",
+  "@exportRegistryCsv": {},
+  "registryCsvExportSubject": "RadRecon nyilvántartás (CSV)",
+  "@registryCsvExportSubject": {},
+  "duplicatePolicyTitle": "Ha már létezik ilyen rekord",
+  "@duplicatePolicyTitle": {},
+  "duplicateReplace": "Meglévő rekord cseréje",
+  "@duplicateReplace": {},
+  "duplicateSkip": "Az egyező rekord kihagyása",
+  "@duplicateSkip": {},
+  "duplicateKeep": "Importálás duplikátumként",
+  "@duplicateKeep": {},
+  "registryImportSummary": "Importálva: {imported}, cserélve: {replaced}, kihagyva: {skipped}",
+  "@registryImportSummary": {
+    "placeholders": {
+      "imported": {
+        "type": "int"
+      },
+      "replaced": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "modbusTestConnectionButton": "Kapcsolat tesztelése",
+  "@modbusTestConnectionButton": {},
+  "modbusTestingLabel": "Tesztelés...",
+  "@modbusTestingLabel": {},
+  "modbusTestSuccessTitle": "Kapcsolat sikeres",
+  "@modbusTestSuccessTitle": {},
+  "modbusTestFailureTitle": "Kapcsolat meghiúsult",
+  "@modbusTestFailureTitle": {},
+  "modbusTestValue": "Érték: {value}",
+  "@modbusTestValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "modbusTestPosition": "Szél: {lat}, Hossz: {lon}",
+  "@modbusTestPosition": {
+    "placeholders": {
+      "lat": {
+        "type": "String"
+      },
+      "lon": {
+        "type": "String"
+      }
+    }
+  },
+  "missingFieldMessage": "Kérjük töltse ki: {field}",
+  "@missingFieldMessage": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "errorTitle": "Hiba",
+  "@errorTitle": {},
+  "modbusReadErrorWithCode": "Modbus hiba a kiolvasás során: {code}",
+  "@modbusReadErrorWithCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "instrumentDidNotSendValidValue": "A műszer nem küldött érvényes értéket.",
+  "@instrumentDidNotSendValidValue": {},
+  "gpsPositionReadFailed": "A GPS pozíció kiolvasása a műszerből sikertelen.",
+  "@gpsPositionReadFailed": {},
+  "instrumentIPAddressNotSet": "Nincs megadva a műszer IP-címe.",
+  "@instrumentIPAddressNotSet": {},
+  "modbusUnitIdNotSet": "Nincs megadva a Modbus Unit ID.",
+  "@modbusUnitIdNotSet": {},
+  "registerAddressNotSet": "Nincs megadva a regiszter cím.",
+  "@registerAddressNotSet": {},
+  "failedToConnectToInstrument": "Nem sikerült kapcsolódni a műszerhez.",
+  "@failedToConnectToInstrument": {},
+  "connectionErrorWithDetails": "Kapcsolódási hiba: {error}",
+  "@connectionErrorWithDetails": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "modbusAccessIncomplete": "A műszerhez nincs teljesen kitöltve a Modbus elérhetőség (IP, Unit ID, regiszter cím).",
+  "@modbusAccessIncomplete": {},
+  "noDisplayableContentForScreenshot": "Nincs megjeleníthető tartalom a képernyőképhez.",
+  "@noDisplayableContentForScreenshot": {},
+  "failedToConvertScreenshotToPng": "Nem sikerült PNG-vé alakítani a képernyőképet.",
+  "@failedToConvertScreenshotToPng": {},
+  "doseSourceOnline": "Online (detektorból)",
+  "@doseSourceOnline": {},
+  "doseSourceManual": "Manuális",
+  "@doseSourceManual": {},
+  "doseSourcePassive": "Passzív dozimetria",
+  "@doseSourcePassive": {},
+  "annualDoseLabel": "{year}. évi dózis",
+  "@annualDoseLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "doseYearLabel": "Év",
+  "@doseYearLabel": {},
+  "doseBreakdownLabel": "online {online} · manuális {manual} · passzív {passive}",
+  "@doseBreakdownLabel": {
+    "placeholders": {
+      "online": {
+        "type": "String"
+      },
+      "manual": {
+        "type": "String"
+      },
+      "passive": {
+        "type": "String"
+      }
+    }
+  },
+  "personDosesTitle": "Dózisok – {name}",
+  "@personDosesTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "personDosesTooltip": "Dózisok kezelése",
+  "@personDosesTooltip": {},
+  "noDosesYet": "Ebben az évben még nincs dózis-bejegyzés.",
+  "@noDosesYet": {},
+  "addPassiveDoseButton": "Passzív dozimetria rögzítése",
+  "@addPassiveDoseButton": {},
+  "newPassiveDoseTitle": "Új passzív dozimetria",
+  "@newPassiveDoseTitle": {},
+  "editDoseTitle": "Dózis szerkesztése",
+  "@editDoseTitle": {},
+  "doseValueLabel": "Dózis",
+  "@doseValueLabel": {},
+  "dosePeriodStartLabel": "Kiértékelési időszak kezdete",
+  "@dosePeriodStartLabel": {},
+  "dosePeriodEndLabel": "Kiértékelési időszak vége",
+  "@dosePeriodEndLabel": {},
+  "dosePeriodEndBeforeStartError": "A vég nem lehet a kezdet előtt.",
+  "@dosePeriodEndBeforeStartError": {},
+  "doseTotalLabel": "Összesen",
+  "@doseTotalLabel": {},
+  "doseDeleteConfirmTitle": "Dózis-bejegyzés törlése",
+  "@doseDeleteConfirmTitle": {},
+  "doseDeleteConfirmMessage": "Biztosan törlöd ezt a dózis-bejegyzést? A művelet nem vonható vissza.",
+  "@doseDeleteConfirmMessage": {},
+  "sessionDoseDialogTitle": "{name} dózisa",
+  "@sessionDoseDialogTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineDoseLabel": "Online dózis",
+  "@onlineDoseLabel": {},
+  "manualDoseLabel": "Manuális dózis",
+  "@manualDoseLabel": {},
+  "closeSurveyDosesTitle": "Dózisok ellenőrzése",
+  "@closeSurveyDosesTitle": {},
+  "closeSurveyDosesHint": "Lezárás előtt ellenőrizheted vagy korrigálhatod a résztvevők dózisát.",
+  "@closeSurveyDosesHint": {},
+  "autoLogDoseSaved": "Dózis rögzítve {count} személynek: {dose}",
+  "@autoLogDoseSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "dose": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDoseNoPersons": "A mért dózis ({dose}) nem lett elmentve, mert a felméréshez nincs személy rendelve.",
+  "@autoLogDoseNoPersons": {
+    "placeholders": {
+      "dose": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDoseLabel": "Integrált dózis: {dose}",
+  "@autoLogDoseLabel": {
+    "placeholders": {
+      "dose": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDoseGaps": "{count} hosszabb adatkiesés a mérésben",
+  "@autoLogDoseGaps": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "autoLogDoseOnlyDoseRate": "A dózis csak dózisteljesítmény típusú mérésből számolható és menthető.",
+  "@autoLogDoseOnlyDoseRate": {},
+  "importPersonDosesCsv": "Dózisok importálása (CSV)",
+  "@importPersonDosesCsv": {},
+  "exportPersonDosesCsv": "Dózisok exportálása (CSV)",
+  "@exportPersonDosesCsv": {},
+  "dataManagementSectionTitle": "Adatkezelés",
+  "@dataManagementSectionTitle": {},
+  "saveDatabaseButton": "Adatbázis mentése fájlba",
+  "@saveDatabaseButton": {},
+  "loadDatabaseButton": "Adatbázis betöltése fájlból",
+  "@loadDatabaseButton": {},
+  "clearDatabaseButton": "Adatbázis törlése",
+  "@clearDatabaseButton": {},
+  "companySwitchButton": "Cégváltás",
+  "@companySwitchButton": {},
+  "dataManagementHint": "A mentésfájl tartalmazza az összes adatot a fotókkal együtt, így új telefonra költözéshez vagy több cég adatainak külön kezeléséhez is használható.",
+  "@dataManagementHint": {},
+  "saveDatabaseSubject": "RadRecon adatbázis mentés",
+  "@saveDatabaseSubject": {},
+  "databaseSavedMessage": "Adatbázis elmentve: {path}",
+  "@databaseSavedMessage": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "loadDatabaseConfirmTitle": "Adatbázis betöltése",
+  "@loadDatabaseConfirmTitle": {},
+  "loadDatabaseConfirmBody": "A betöltés felülírja az eszközön lévő összes jelenlegi adatot. Ha szükség van rájuk, előbb mentsd el őket. Folytatod?",
+  "@loadDatabaseConfirmBody": {},
+  "loadButton": "Betöltés",
+  "@loadButton": {},
+  "databaseLoadedMessage": "Betöltve: {name}",
+  "@databaseLoadedMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "clearDatabaseConfirmTitle": "Adatbázis törlése",
+  "@clearDatabaseConfirmTitle": {},
+  "clearDatabaseConfirmBody": "Az összes felmérés, mérési pont, műszer, forrás, személy és fotó véglegesen törlődik az eszközről. Ez nem vonható vissza — előbb készíts mentést!",
+  "@clearDatabaseConfirmBody": {},
+  "databaseClearedMessage": "Az adatbázis törölve.",
+  "@databaseClearedMessage": {},
+  "companySwitchTitle": "Cégváltás",
+  "@companySwitchTitle": {},
+  "activeCompanyLabel": "Aktív cég",
+  "@activeCompanyLabel": {},
+  "companiesFolderLabel": "Cégek mappája",
+  "@companiesFolderLabel": {},
+  "chooseFolderButton": "Mappa kiválasztása",
+  "@chooseFolderButton": {},
+  "resetFolderButton": "Vissza az alapértelmezett mappához",
+  "@resetFolderButton": {},
+  "noCompaniesYet": "Ebben a mappában még nincs mentett cég. Az aktív cég az első váltáskor automatikusan elmentődik, vagy hozz létre újat / adj hozzá mentésfájlt a felső gombokkal.",
+  "@noCompaniesYet": {},
+  "companyBackupInfo": "Mentve: {date}",
+  "@companyBackupInfo": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "newCompanyButton": "Új cég",
+  "@newCompanyButton": {},
+  "newCompanyDialogTitle": "Új cég létrehozása",
+  "@newCompanyDialogTitle": {},
+  "companyNameLabel": "Cég neve",
+  "@companyNameLabel": {},
+  "companyNameExistsMessage": "Ilyen nevű cég már létezik.",
+  "@companyNameExistsMessage": {},
+  "createButton": "Létrehozás",
+  "@createButton": {},
+  "addCompanyFromFileButton": "Cég hozzáadása mentésfájlból",
+  "@addCompanyFromFileButton": {},
+  "companySwitchConfirmTitle": "Cégváltás",
+  "@companySwitchConfirmTitle": {},
+  "companySwitchConfirmBody": "Átváltasz erre: {company}? A jelenlegi adatok automatikusan elmentődnek a(z) {active} cég alatt.",
+  "@companySwitchConfirmBody": {
+    "placeholders": {
+      "company": {
+        "type": "String"
+      },
+      "active": {
+        "type": "String"
+      }
+    }
+  },
+  "companySwitchAction": "Váltás",
+  "@companySwitchAction": {},
+  "companySwitchedMessage": "Aktív cég: {name}",
+  "@companySwitchedMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteCompanyBackupTitle": "Mentés törlése",
+  "@deleteCompanyBackupTitle": {},
+  "deleteCompanyBackupBody": "Törlöd a(z) {name} cég mentését a mappából? Az éppen betöltött adatot ez nem érinti.",
+  "@deleteCompanyBackupBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "importPersonCsv": "Személyek importálása (CSV)",
+  "@importPersonCsv": {},
+  "exportPersonCsv": "Személyek exportálása (CSV)",
+  "@exportPersonCsv": {},
+  "privateFolderHint": "Az app jelenleg a saját, más appból nem elérhető mappáját használja. Válassz egy mappát (pl. Letöltések vagy Google Drive), hogy a mentéseket a fájlkezelőből is elérd.",
+  "@privateFolderHint": {},
+  "contributorsTitle": "Közreműködők",
+  "@contributorsTitle": {},
+  "contributorsThanks": "Köszönet mindenkinek, aki segít a RadRecon tesztelésében, fejlesztésében, fordításában és szakmai átnézésében. A RadRecon nonprofit civil kezdeményezés, önkéntesek munkájából épül.",
+  "@contributorsThanks": {},
+  "contributorsOrganizationsTitle": "Szervezetek és cégek",
+  "@contributorsOrganizationsTitle": {},
+  "contributorsPeopleTitle": "Személyek",
+  "@contributorsPeopleTitle": {},
+  "contributorsEmpty": "A lista még üres. Légy te az első!",
+  "@contributorsEmpty": {},
+  "contributorsLoadError": "A lista nem tölthető be.",
+  "@contributorsLoadError": {},
+  "contributorsJoinHint": "Szeretnél felkerülni a listára? Jelentkezz önkéntesnek, és írd meg, hogyan szeretnél megjelenni:",
+  "@contributorsJoinHint": {},
+  "contributorsCopyLink": "Link másolása",
+  "@contributorsCopyLink": {},
+  "contributorsLinkCopied": "Link másolva.",
+  "@contributorsLinkCopied": {},
+  "contributorRoleTesting": "Tesztelés",
+  "@contributorRoleTesting": {},
+  "contributorRoleDevelopment": "Fejlesztés",
+  "@contributorRoleDevelopment": {},
+  "contributorRoleReview": "Szakmai átnézés",
+  "@contributorRoleReview": {},
+  "contributorRoleTranslation": "Fordítás",
+  "@contributorRoleTranslation": {},
+  "contributorRoleOther": "Egyéb",
+  "@contributorRoleOther": {},
+  "regulatoryProfileLabel": "Szabályozási profil",
+  "@regulatoryProfileLabel": {},
+  "regulatoryProfileInternational": "Nemzetközi (IAEA)",
+  "@regulatoryProfileInternational": {},
+  "regulatoryProfileHungary": "Magyarország (OAH)",
+  "@regulatoryProfileHungary": {},
+  "classificationTitle": "Besorolás (D, R, mentesség)",
+  "@classificationTitle": {},
+  "classificationDisclaimer": "Tájékoztató számítás a nuklidtáblák és az aktuális (bomlással korrigált) aktivitás alapján. A hatósági besorolás a hatályos jogszabály és a hatóság döntése szerint érvényes. Az MSZ 62-7 szerinti laborosztály az aktivitásból számolt tájékoztató érték.",
+  "@classificationDisclaimer": {},
+  "classificationUnsealedWork": "Nyitott sugárforrással végzett rendszeres munka",
+  "@classificationUnsealedWork": {},
+  "classificationOutsideWorkplace": "Alkalmazás sugárveszélyes munkahelyen kívül",
+  "@classificationOutsideWorkplace": {},
+  "classificationTotal": "Összesített (kijelölt források)",
+  "@classificationTotal": {},
+  "classificationPhysCat": "Fizikai védelmi kategória",
+  "@classificationPhysCat": {},
+  "classificationProtCat": "Sugárvédelmi kategória",
+  "@classificationProtCat": {},
+  "classificationUnknownCount": "R nélküli források (ismeretlen nuklid)",
+  "@classificationUnknownCount": {},
+  "classificationActivity": "Aktivitás",
+  "@classificationActivity": {},
+  "classificationNotDecayCorrected": "bomlás nélkül",
+  "@classificationNotDecayCorrected": {},
+  "classificationDInfinite": "D = ∞ (nem járul hozzá az R-hez)",
+  "@classificationDInfinite": {},
+  "classificationDUnknown": "Ehhez a nuklidhoz nincs D érték, R nem számolható",
+  "@classificationDUnknown": {},
+  "classificationExemptUnknown": "Nincs mentességi érték ehhez a nuklidhoz",
+  "@classificationExemptUnknown": {},
+  "classificationExemptActivity": "Mentességi aktivitás",
+  "@classificationExemptActivity": {},
+  "classificationSpecificConc": "Specifikus mentességi koncentráció",
+  "@classificationSpecificConc": {},
+  "classificationGeneralConc": "általános",
+  "@classificationGeneralConc": {},
+  "classificationBelowExempt": "Az aktivitás a mentességi aktivitás alatt van",
+  "@classificationBelowExempt": {},
+  "classificationAboveExempt": "Az aktivitás a mentességi aktivitás felett van",
+  "@classificationAboveExempt": {},
+  "classificationProtLevel": "Fizikai védelmi szint",
+  "@classificationProtLevel": {},
+  "classificationAdrConsignmentLimit": "mentes küldemény határa",
+  "@classificationAdrConsignmentLimit": {},
+  "classificationAdrBelow": "az aktivitás alatta van (nem 7. osztály)",
+  "@classificationAdrBelow": {},
+  "classificationAdrAbove": "az aktivitás felette van (a koncentráció is számít)",
+  "@classificationAdrAbove": {},
+  "classificationLabIndustrial": "Ipari labor",
+  "@classificationLabIndustrial": {},
+  "classificationLabMedical": "Orvosi labor",
+  "@classificationLabMedical": {},
+  "classificationLabAboveIII": "> III.",
+  "@classificationLabAboveIII": {},
+  "classificationLabOps": "Végezhető művelettípusok",
+  "@classificationLabOps": {},
+  "classificationLabUnknown": "MSZ 62-7: nincs AM érték ehhez a nuklidhoz",
+  "@classificationLabUnknown": {},
+  "autoLogChartTitle": "Mért érték az idő függvényében",
+  "@autoLogChartTitle": {},
+  "gpsAverageButton": "Átlagolt GPS",
+  "@gpsAverageButton": {},
+  "gpsAverageTitle": "Pozíció átlagolása",
+  "@gpsAverageTitle": {},
+  "gpsAverageHint": "Állj meg egy helyen, és ne mozdulj a mérés alatt. Minél hosszabb az átlagolás, annál megbízhatóbb az eredmény; nyílt ég alatt a legjobb. A telefon a pontosság szerint súlyozza a mintákat, és elhagyja a kiugró pozíciókat.",
+  "@gpsAverageHint": {},
+  "gpsAverageStart": "Indítás",
+  "@gpsAverageStart": {},
+  "gpsAverageUse": "Használ",
+  "@gpsAverageUse": {},
+  "gpsAverageSamples": "Minták",
+  "@gpsAverageSamples": {},
+  "gpsAverageCurrent": "Aktuális pontosság",
+  "@gpsAverageCurrent": {},
+  "gpsAverageResult": "Becsült pontosság az átlagból",
+  "@gpsAverageResult": {},
+  "modbusAverageButton": "Átlagoló mérés",
+  "@modbusAverageButton": {},
+  "modbusAverageRunning": "Átlagolás",
+  "@modbusAverageRunning": {},
+  "modbusAverageDone": "Kész",
+  "@modbusAverageDone": {},
+  "modbusAverageTooFew": "A hiba számításához legalább 2 érvényes minta kell, csak az érték került be.",
+  "@modbusAverageTooFew": {},
+  "measurementErrorLabel": "Hiba (±)",
+  "@measurementErrorLabel": {},
+  "measurementErrorHelper": "Átlagolt mérésnél az átlag standard hibája (1σ), kézzel feltöltött értéknél kézzel is megadható. A jegyzőkönyvre kerül.",
+  "@measurementErrorHelper": {},
+  "measurementAveragedLabel": "Átlagolt mérés",
+  "@measurementAveragedLabel": {},
+  "csvHeaderValueError": "Hiba (±)",
+  "@csvHeaderValueError": {},
+  "csvHeaderAveraging": "Átlagolás (minta; mp)",
+  "@csvHeaderAveraging": {},
+  "helpManualTitle": "Súgó (használati útmutató)",
+  "@helpManualTitle": {},
+  "helpManualOpenError": "Az útmutató nem nyitható meg.",
+  "@helpManualOpenError": {},
+  "appVersionLabel": "Verzió",
+  "@appVersionLabel": {},
+  "appUpdateTitle": "Új verzió érhető el",
+  "@appUpdateTitle": {},
+  "appUpdateAvailableMessage": "A {version} verzió elérhető. Frissítsd az alkalmazást a legújabb javításokért és funkciókért.",
+  "@appUpdateAvailableMessage": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "appUpdateRequiredMessage": "Az alkalmazás ezen verziója már nem támogatott. Frissítsd a {version} verzióra a folytatáshoz.",
+  "@appUpdateRequiredMessage": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "appUpdateLater": "Később",
+  "@appUpdateLater": {},
+  "appUpdateNow": "Frissítés",
+  "@appUpdateNow": {},
+  "rrRoleSurveyor": "Felmérő",
+  "@rrRoleSurveyor": {},
+  "rrRoleVictim": "Érintett / áldozat",
+  "@rrRoleVictim": {},
+  "rrTriageNone": "Nincs besorolva",
+  "@rrTriageNone": {},
+  "rrTriageRed": "Piros – azonnali ellátás",
+  "@rrTriageRed": {},
+  "rrTriageYellow": "Sárga – halasztható ellátás",
+  "@rrTriageYellow": {},
+  "rrTriageGreen": "Zöld – könnyű sérülés",
+  "@rrTriageGreen": {},
+  "rrTriageBlack": "Fekete – elhunyt / nincs ellátás",
+  "@rrTriageBlack": {},
+  "rrConditionInjury": "Sérülés",
+  "@rrConditionInjury": {},
+  "rrConditionIllness": "Betegség",
+  "@rrConditionIllness": {},
+  "rrAffectedPrefix": "Érintett",
+  "@rrAffectedPrefix": {},
+  "rrEditStatusTooltip": "Szerep, triázs, sérülések",
+  "@rrEditStatusTooltip": {},
+  "rrRoleLabel": "Szerep",
+  "@rrRoleLabel": {},
+  "rrTriageCategoryLabel": "Triázs-besorolás",
+  "@rrTriageCategoryLabel": {},
+  "rrInjuriesAndIllnesses": "Sérülések és betegségek",
+  "@rrInjuriesAndIllnesses": {},
+  "rrDescriptionHint": "Leírás",
+  "@rrDescriptionHint": {},
+  "rrAddItem": "Tétel hozzáadása",
+  "@rrAddItem": {},
+  "rrDeleteTooltip": "Törlés",
+  "@rrDeleteTooltip": {},
+  "rrMeteoSection": "Meteorológia (opcionális)",
+  "@rrMeteoSection": {},
+  "rrMetTemp": "Levegő-hőmérséklet (°C)",
+  "@rrMetTemp": {},
+  "rrMetHumidity": "Relatív páratartalom (%)",
+  "@rrMetHumidity": {},
+  "rrMetPressure": "Légnyomás (hPa)",
+  "@rrMetPressure": {},
+  "rrMetWind": "Szélsebesség (m/s)",
+  "@rrMetWind": {},
+  "rrMetWindDir": "Szélirány (°)",
+  "@rrMetWindDir": {},
+  "rrMetGust": "Széllökés (m/s)",
+  "@rrMetGust": {},
+  "rrMetPrecipIntensity": "Csapadékintenzitás (mm/h)",
+  "@rrMetPrecipIntensity": {},
+  "rrMetSolar": "Napsugárzás (W/m²)",
+  "@rrMetSolar": {},
+  "rrMetCloud": "Felhőzet (okta, 0–8)",
+  "@rrMetCloud": {},
+  "rrMetVisibility": "Látástávolság (m)",
+  "@rrMetVisibility": {},
+  "rrMetSoil": "Talajnedvesség (%)",
+  "@rrMetSoil": {},
+  "rrMetAerosol": "Aeroszolkoncentráció (µg/m³)",
+  "@rrMetAerosol": {},
+  "rrPrecipState": "Csapadékállapot",
+  "@rrPrecipState": {},
+  "rrPrecipNone": "Nincs csapadék",
+  "@rrPrecipNone": {},
+  "rrPrecipDrizzle": "Szitálás",
+  "@rrPrecipDrizzle": {},
+  "rrPrecipRain": "Eső",
+  "@rrPrecipRain": {},
+  "rrPrecipSnow": "Hó",
+  "@rrPrecipSnow": {},
+  "rrPrecipSleet": "Ónos eső",
+  "@rrPrecipSleet": {},
+  "rrPrecipHail": "Jégeső",
+  "@rrPrecipHail": {},
+  "rrMetOther": "Egyéb megfigyelés",
+  "@rrMetOther": {},
+  "rrGasSection": "Gázmérés",
+  "@rrGasSection": {},
+  "rrAddGas": "Gáz hozzáadása",
+  "@rrAddGas": {},
+  "rrGasSpecies": "Vegyület",
+  "@rrGasSpecies": {},
+  "rrGasOther": "Egyéb",
+  "@rrGasOther": {},
+  "rrGasOtherName": "Vegyület neve",
+  "@rrGasOtherName": {},
+  "rrFormulaLabel": "Képlet",
+  "@rrFormulaLabel": {},
+  "rrGasConcentration": "Koncentráció",
+  "@rrGasConcentration": {},
+  "rrGasUnit": "Egység",
+  "@rrGasUnit": {},
+  "rrInvalidValue": "Hibás érték",
+  "@rrInvalidValue": {},
+  "rrGasAmmonia": "Ammónia",
+  "@rrGasAmmonia": {},
+  "rrGasBenzene": "Benzol",
+  "@rrGasBenzene": {},
+  "rrGasPhosphine": "Foszfin",
+  "@rrGasPhosphine": {},
+  "rrGasPhosgene": "Foszgén",
+  "@rrGasPhosgene": {},
+  "rrGasHydrogen": "Hidrogén",
+  "@rrGasHydrogen": {},
+  "rrGasHydrogenCyanide": "Hidrogén-cianid",
+  "@rrGasHydrogenCyanide": {},
+  "rrGasVoc": "Illékony szerves vegyületek",
+  "@rrGasVoc": {},
+  "rrGasSulfurDioxide": "Kén-dioxid",
+  "@rrGasSulfurDioxide": {},
+  "rrGasSulfurHexafluoride": "Kén-hexafluorid",
+  "@rrGasSulfurHexafluoride": {},
+  "rrGasHydrogenSulfide": "Kén-hidrogén",
+  "@rrGasHydrogenSulfide": {},
+  "rrGasChlorine": "Klór",
+  "@rrGasChlorine": {},
+  "rrGasMethane": "Metán",
+  "@rrGasMethane": {},
+  "rrGasMethanol": "Metanol",
+  "@rrGasMethanol": {},
+  "rrGasMethylSalicylate": "Metil-szalicilát",
+  "@rrGasMethylSalicylate": {},
+  "rrGasNitricOxide": "Nitrogén-monoxid",
+  "@rrGasNitricOxide": {},
+  "rrGasNitrogenDioxide": "Nitrogén-dioxid",
+  "@rrGasNitrogenDioxide": {},
+  "rrGasNitrogenOxides": "Nitrogén-oxidok",
+  "@rrGasNitrogenOxides": {},
+  "rrGasOxygen": "Oxigén",
+  "@rrGasOxygen": {},
+  "rrGasOzone": "Ózon",
+  "@rrGasOzone": {},
+  "rrGasPropane": "Propán",
+  "@rrGasPropane": {},
+  "rrGasCarbonDioxide": "Szén-dioxid",
+  "@rrGasCarbonDioxide": {},
+  "rrGasCarbonMonoxide": "Szén-monoxid",
+  "@rrGasCarbonMonoxide": {},
+  "rrGasToluene": "Toluol",
+  "@rrGasToluene": {},
+  "rrGasTributylPhosphate": "Tributil-foszfát",
+  "@rrGasTributylPhosphate": {},
+  "measurementTypeMeteorology": "Meteorológia",
+  "@measurementTypeMeteorology": {},
+  "measurementTypeGasMeasurement": "Gázmérés",
+  "@measurementTypeGasMeasurement": {},
+  "mapAreaButtonTooltip": "Terület jelölése",
+  "@mapAreaButtonTooltip": {},
+  "mapAreaListTooltip": "Jelölt területek",
+  "@mapAreaListTooltip": {},
+  "mapAreaNewTitle": "Új terület",
+  "@mapAreaNewTitle": {},
+  "mapAreaNameLabel": "Név (pl. Felmért terület)",
+  "@mapAreaNameLabel": {},
+  "mapAreaNameRequired": "Adja meg a terület nevét.",
+  "@mapAreaNameRequired": {},
+  "mapAreaShapeLabel": "Alakzat",
+  "@mapAreaShapeLabel": {},
+  "mapAreaPolygon": "Poligon",
+  "@mapAreaPolygon": {},
+  "mapAreaCircle": "Kör",
+  "@mapAreaCircle": {},
+  "mapAreaColorLabel": "Szín",
+  "@mapAreaColorLabel": {},
+  "mapAreaStartDrawing": "Rajzolás",
+  "@mapAreaStartDrawing": {},
+  "mapAreaHintPolygon": "Koppintással jelölje a sarokpontokat, majd nyomja meg a Kész gombot.",
+  "@mapAreaHintPolygon": {},
+  "mapAreaHintCircle": "Koppintással jelölje a középpontot, majd egy pontot a sugár megadásához.",
+  "@mapAreaHintCircle": {},
+  "mapAreaMinPointsError": "Legalább 3 sarokpont kell.",
+  "@mapAreaMinPointsError": {},
+  "mapAreaCircleIncomplete": "Jelölje meg a középpontot és a sugarat is.",
+  "@mapAreaCircleIncomplete": {},
+  "mapAreaUndo": "Visszavonás",
+  "@mapAreaUndo": {},
+  "mapAreaDone": "Kész",
+  "@mapAreaDone": {},
+  "mapAreaNoAreas": "Nincs jelölt terület.",
+  "@mapAreaNoAreas": {},
+  "mapAreaDeleteConfirm": "Törli a kijelölt területet?",
+  "@mapAreaDeleteConfirm": {},
+  "mapAreaDeleteTooltip": "Terület törlése",
+  "@mapAreaDeleteTooltip": {},
+  "unitConverterTitle": "Mértékegység-váltó",
+  "@unitConverterTitle": {},
+  "unitConverterCategoryLabel": "Mennyiség",
+  "@unitConverterCategoryLabel": {},
+  "unitConverterValueLabel": "Érték",
+  "@unitConverterValueLabel": {},
+  "unitConverterFromLabel": "Kiindulási egység",
+  "@unitConverterFromLabel": {},
+  "unitConverterMolarMassLabel": "Moláris tömeg (g/mol)",
+  "@unitConverterMolarMassLabel": {},
+  "unitConverterMolarMassHint": "Tömeg- és térfogat-koncentráció között a gáz moláris tömege kell, pl. CO: 28,01. Számítás 25 °C-on, 1 atm nyomáson.",
+  "@unitConverterMolarMassHint": {},
+  "unitConverterNeedsMolarMass": "Adja meg a moláris tömeget a tömeg- és térfogat-egységek közötti számításhoz.",
+  "@unitConverterNeedsMolarMass": {},
+  "unitConverterEnterValue": "Adjon meg egy értéket.",
+  "@unitConverterEnterValue": {},
+  "unitConverterTapHint": "Koppintson egy sorra: az érték átíródik arra az egységre, és az lesz a kiindulási egység.",
+  "@unitConverterTapHint": {},
+  "unitConverterGasNote": "A gázkoncentráció %LEL egysége nem váltható át, mert a gáz határértékétől függ.",
+  "@unitConverterGasNote": {},
+  "unitCatDose": "Dózis",
+  "@unitCatDose": {},
+  "unitCatDoseRate": "Dózisteljesítmény",
+  "@unitCatDoseRate": {},
+  "unitCatActivity": "Aktivitás",
+  "@unitCatActivity": {},
+  "unitCatActivityConcentration": "Aktivitáskoncentráció",
+  "@unitCatActivityConcentration": {},
+  "unitCatSurfaceContamination": "Felületi szennyezettség",
+  "@unitCatSurfaceContamination": {},
+  "unitCatCountRate": "Beütésszám",
+  "@unitCatCountRate": {},
+  "unitCatLength": "Hosszúság",
+  "@unitCatLength": {},
+  "unitCatArea": "Terület",
+  "@unitCatArea": {},
+  "unitCatVolume": "Térfogat",
+  "@unitCatVolume": {},
+  "unitCatMass": "Tömeg",
+  "@unitCatMass": {},
+  "unitCatTemperature": "Hőmérséklet",
+  "@unitCatTemperature": {},
+  "unitCatPressure": "Nyomás",
+  "@unitCatPressure": {},
+  "unitCatSpeed": "Sebesség",
+  "@unitCatSpeed": {},
+  "unitCatTime": "Idő",
+  "@unitCatTime": {},
+  "unitCatIrradiance": "Sugárzási teljesítmény",
+  "@unitCatIrradiance": {},
+  "unitCatRainRate": "Csapadék-intenzitás",
+  "@unitCatRainRate": {},
+  "unitCatMassConcentration": "Tömegkoncentráció (aeroszol)",
+  "@unitCatMassConcentration": {},
+  "unitCatGasConcentration": "Gázkoncentráció",
+  "@unitCatGasConcentration": {},
+  "unitConverterGasPick": "Gáz kiválasztása (kitölti a moláris tömeget)",
+  "@unitConverterGasPick": {},
+  "decayCalcTitle": "Bomlás-számító",
+  "@decayCalcTitle": {},
+  "decayCalcIsotope": "Izotóp",
+  "@decayCalcIsotope": {},
+  "decayCalcCustom": "Egyéb (kézi felezési idő)",
+  "@decayCalcCustom": {},
+  "decayCalcHalfLife": "Felezési idő",
+  "@decayCalcHalfLife": {},
+  "decayCalcInitialActivity": "Kezdeti aktivitás",
+  "@decayCalcInitialActivity": {},
+  "decayCalcElapsed": "Eltelt idő",
+  "@decayCalcElapsed": {},
+  "decayCalcTargetActivity": "Célaktivitás",
+  "@decayCalcTargetActivity": {},
+  "decayCalcModeForward": "Aktivitás t idő után",
+  "@decayCalcModeForward": {},
+  "decayCalcModeBackward": "Idő a célaktivitásig",
+  "@decayCalcModeBackward": {},
+  "decayCalcDistance": "Távolság (m, opcionális)",
+  "@decayCalcDistance": {},
+  "decayCalcResultActivity": "Aktivitás",
+  "@decayCalcResultActivity": {},
+  "decayCalcResultRemaining": "Megmaradt hányad",
+  "@decayCalcResultRemaining": {},
+  "decayCalcResultHalfLives": "Felezési idők száma",
+  "@decayCalcResultHalfLives": {},
+  "decayCalcResultDoseRate": "Dózisteljesítmény a távolságban",
+  "@decayCalcResultDoseRate": {},
+  "decayCalcResultTime": "Szükséges idő",
+  "@decayCalcResultTime": {},
+  "decayCalcErrorTarget": "A célaktivitásnak pozitívnak és kisebbnek kell lennie a kezdeti aktivitásnál.",
+  "@decayCalcErrorTarget": {},
+  "decayCalcNeedsInput": "Adja meg a számokat.",
+  "@decayCalcNeedsInput": {},
+  "decayCalcNoHalfLife": "Adja meg a felezési időt.",
+  "@decayCalcNoHalfLife": {},
+  "decayCalcNote": "Tiszta exponenciális bomlás; a leánynuklidokat és a többi sugárzást nem veszi figyelembe.",
+  "@decayCalcNote": {},
+  "doseLimitTitle": "Éves dózis-keret",
+  "@doseLimitTitle": {},
+  "doseLimitCategoryOccupational": "Foglalkozásszerű",
+  "@doseLimitCategoryOccupational": {},
+  "doseLimitCategoryPublic": "Lakosság",
+  "@doseLimitCategoryPublic": {},
+  "doseLimitSourceOah": "OAH 2/2022 (IV. 29.) rendelet",
+  "@doseLimitSourceOah": {},
+  "doseLimitSourceIaea": "IAEA GSR Part 3",
+  "@doseLimitSourceIaea": {},
+  "doseLimitUsedLabel": "kihasználtság",
+  "@doseLimitUsedLabel": {},
+  "doseLimitStatusOk": "keret rendben",
+  "@doseLimitStatusOk": {},
+  "doseLimitStatusWarning": "figyelmeztetési szint elérve",
+  "@doseLimitStatusWarning": {},
+  "doseLimitStatusExceeded": "keret túllépve",
+  "@doseLimitStatusExceeded": {},
+  "doseLimitNote": "Egyéves összeg vizsgálata; az IAEA 5 éves átlagolása nincs figyelembe véve.",
+  "@doseLimitNote": {},
+  "displayUnitsHint": "A megjelenítés és a jegyzőkönyv ezt használja. Az adatexport (CSV, JSON) és a mentés mindig az eredeti, tárolt egységben marad.",
+  "@displayUnitsHint": {},
+  "displayDoseUnitLabel": "Személyes dózis egysége",
+  "@displayDoseUnitLabel": {},
+  "displayDoseAutoOption": "Automatikus (µSv, 1 mSv felett mSv)",
+  "@displayDoseAutoOption": {},
+  "displaySurfaceUnitLabel": "Felületi szennyezettség egysége",
+  "@displaySurfaceUnitLabel": {},
+  "displayTemperatureUnitLabel": "Hőmérséklet egysége",
+  "@displayTemperatureUnitLabel": {},
+  "displayPressureUnitLabel": "Nyomás egysége",
+  "@displayPressureUnitLabel": {},
+  "displayWindUnitLabel": "Szélsebesség egysége",
+  "@displayWindUnitLabel": {}
 }

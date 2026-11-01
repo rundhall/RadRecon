@@ -821,70 +821,70 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
                         hintText: loc.searchHint,
                         prefixIcon: const Icon(Icons.search),
                         border: const OutlineInputBorder(),
+                        suffixText: '${points.length} / ${all.length}',
                         isDense: true,
                       ),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Wrap(
-                      spacing: 16,
-                      runSpacing: 4,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        FilterChip(
-                          label: Text(loc.measurementFilterSourceOnly),
-                          selected: _sourceOnly,
-                          onSelected: (v) => setState(() => _sourceOnly = v),
-                        ),
-                        DropdownButton<MeasurementType?>(
-                          value: _kind,
-                          items: [
-                            DropdownMenuItem<MeasurementType?>(
-                              value: null,
-                              child: Text(loc.measurementFilterAllKinds),
-                            ),
-                            for (final t in MeasurementType.values)
-                              DropdownMenuItem<MeasurementType?>(
-                                value: t,
-                                child: Text(t.label(context)),
-                              ),
-                          ],
-                          onChanged: (v) => setState(() => _kind = v),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    child: Wrap(
-                      spacing: 16,
-                      runSpacing: 4,
-                      crossAxisAlignment: WrapCrossAlignment.center,
+                    child: Row(
                       children: [
-                        DropdownButton<SurveyTimeFilter>(
-                          value: _time,
-                          items: [
-                            for (final f in SurveyTimeFilter.values)
-                              DropdownMenuItem(
-                                value: f,
-                                child: Text(_timeLabel(loc, f)),
+                        Expanded(
+                          child: DropdownButton<Object>(
+                            isExpanded: true,
+                            value: _sourceOnly ? #sourceOnly : (_kind ?? #allKinds),
+                            items: [
+                              DropdownMenuItem<Object>(
+                                value: #allKinds,
+                                child: Text(loc.measurementFilterAllKinds),
                               ),
-                          ],
-                          onChanged: _onTimeChanged,
-                        ),
-                        DropdownButton<MeasurementSort>(
-                          value: _sort,
-                          items: [
-                            for (final f in MeasurementSort.values)
-                              DropdownMenuItem(
-                                value: f,
-                                child: Text(_sortLabel(loc, f)),
+                              DropdownMenuItem<Object>(
+                                value: #sourceOnly,
+                                child: Text(loc.measurementFilterSourceOnly),
                               ),
-                          ],
-                          onChanged: (v) => setState(() => _sort = v ?? _sort),
+                              for (final t in MeasurementType.values)
+                                DropdownMenuItem<Object>(
+                                  value: t,
+                                  child: Text(t.label(context)),
+                                ),
+                            ],
+                            onChanged: (v) => setState(() {
+                              _sourceOnly = v == #sourceOnly;
+                              _kind = v is MeasurementType ? v : null;
+                            }),
+                          ),
                         ),
-                        Text('${loc.measurementCountShown}: ${points.length} / ${all.length}'),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: DropdownButton<SurveyTimeFilter>(
+                            isExpanded: true,
+                            value: _time,
+                            items: [
+                              for (final f in SurveyTimeFilter.values)
+                                DropdownMenuItem(
+                                  value: f,
+                                  child: Text(_timeLabel(loc, f)),
+                                ),
+                            ],
+                            onChanged: _onTimeChanged,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: DropdownButton<MeasurementSort>(
+                            isExpanded: true,
+                            value: _sort,
+                            items: [
+                              for (final f in MeasurementSort.values)
+                                DropdownMenuItem(
+                                  value: f,
+                                  child: Text(_sortLabel(loc, f)),
+                                ),
+                            ],
+                            onChanged: (v) => setState(() => _sort = v ?? _sort),
+                          ),
+                        ),
                       ],
                     ),
                   ),

@@ -3548,6 +3548,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get surveyArchiveAction => 'Archiver';
 
   @override
+  String get surveyArchiveConfirmTitle => 'Archiver cette enquête ?';
+
+  @override
+  String get surveyArchiveConfirmMessage => 'Une enquête archivée ne figure plus dans la liste par défaut. Les données restent inchangées. Elle peut être désarchivée à tout moment.';
+
+  @override
   String get surveyUnarchiveAction => 'Désarchiver';
 
   @override

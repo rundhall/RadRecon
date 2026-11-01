@@ -3547,6 +3547,12 @@ class AppLocalizationsIt extends AppLocalizations {
   String get surveyArchiveAction => 'Archivia';
 
   @override
+  String get surveyArchiveConfirmTitle => 'Archiviare questo rilevamento?';
+
+  @override
+  String get surveyArchiveConfirmMessage => 'Un rilevamento archiviato non compare più nella lista predefinita. I dati restano invariati e si può annullare in qualsiasi momento.';
+
+  @override
   String get surveyUnarchiveAction => 'Ripristina dall\'archivio';
 
   @override

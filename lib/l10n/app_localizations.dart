@@ -6463,6 +6463,18 @@ abstract class AppLocalizations {
   /// **'Archiválás'**
   String get surveyArchiveAction;
 
+  /// No description provided for @surveyArchiveConfirmTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Archiválod a felmérést?'**
+  String get surveyArchiveConfirmTitle;
+
+  /// No description provided for @surveyArchiveConfirmMessage.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az archivált felmérés kikerül az alapértelmezett listából. Az adatai nem változnak, az archiválás bármikor visszavonható.'**
+  String get surveyArchiveConfirmMessage;
+
   /// No description provided for @surveyUnarchiveAction.
   ///
   /// In hu, this message translates to:

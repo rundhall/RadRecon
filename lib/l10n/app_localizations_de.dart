@@ -3543,6 +3543,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get surveyArchiveAction => 'Archivieren';
 
   @override
+  String get surveyArchiveConfirmTitle => 'Umfrage archivieren?';
+
+  @override
+  String get surveyArchiveConfirmMessage => 'Eine archivierte Umfrage erscheint nicht mehr in der Standardliste. Die Daten bleiben unverändert, und die Archivierung kann jederzeit rückgängig gemacht werden.';
+
+  @override
   String get surveyUnarchiveAction => 'Aus dem Archiv holen';
 
   @override

@@ -3517,6 +3517,12 @@ class AppLocalizationsHu extends AppLocalizations {
   String get surveyArchiveAction => 'Archiválás';
 
   @override
+  String get surveyArchiveConfirmTitle => 'Archiválod a felmérést?';
+
+  @override
+  String get surveyArchiveConfirmMessage => 'Az archivált felmérés kikerül az alapértelmezett listából. Az adatai nem változnak, az archiválás bármikor visszavonható.';
+
+  @override
   String get surveyUnarchiveAction => 'Archiválás visszavonása';
 
   @override

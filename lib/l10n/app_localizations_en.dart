@@ -3506,6 +3506,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get surveyArchiveAction => 'Archive';
 
   @override
+  String get surveyArchiveConfirmTitle => 'Archive this survey?';
+
+  @override
+  String get surveyArchiveConfirmMessage => 'An archived survey no longer appears in the default list. Its data stays unchanged, and archiving can be undone at any time.';
+
+  @override
   String get surveyUnarchiveAction => 'Restore from archive';
 
   @override

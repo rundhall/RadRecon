@@ -394,7 +394,29 @@ class _SurveySessionScreenState extends State<SurveySessionScreen> {
   }
 
   /// Archiválás, illetve az archiválás visszavonása. Az adatok nem változnak.
+  /// Az archiválás megerősítést kér, hogy véletlenül ne kerüljön ki a lista.
   Future<void> _toggleArchive(SurveySession s) async {
+    if (!s.isArchived) {
+      final loc = AppLocalizations.of(context)!;
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(loc.surveyArchiveConfirmTitle),
+          content: Text(loc.surveyArchiveConfirmMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(loc.cancelButton),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(loc.surveyArchiveAction),
+            ),
+          ],
+        ),
+      );
+      if (ok != true || !mounted) return;
+    }
     await DatabaseHelper.instance.setSurveySessionArchived(
       s.id!,
       s.isArchived ? null : DateTime.now(),
@@ -491,48 +513,52 @@ class _SurveySessionScreenState extends State<SurveySessionScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  children: [
-                    for (final f in SurveyStatusFilter.values)
-                      ChoiceChip(
-                        label: Text(_statusLabel(loc, f)),
-                        selected: _status == f,
-                        onSelected: (_) => setState(() => _status = f),
-                      ),
-                  ],
-                ),
-              ),
-              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                child: Wrap(
-                  spacing: 16,
-                  runSpacing: 4,
-                  crossAxisAlignment: WrapCrossAlignment.center,
+                child: Row(
                   children: [
-                    DropdownButton<SurveyTimeFilter>(
-                      value: _time,
-                      items: [
-                        for (final f in SurveyTimeFilter.values)
-                          DropdownMenuItem(
-                            value: f,
-                            child: Text(_timeLabel(loc, f)),
-                          ),
-                      ],
-                      onChanged: _onTimeChanged,
+                    Expanded(
+                      child: DropdownButton<SurveyStatusFilter>(
+                        isExpanded: true,
+                        value: _status,
+                        items: [
+                          for (final f in SurveyStatusFilter.values)
+                            DropdownMenuItem(
+                              value: f,
+                              child: Text(_statusLabel(loc, f)),
+                            ),
+                        ],
+                        onChanged: (v) => setState(() => _status = v ?? _status),
+                      ),
                     ),
-                    DropdownButton<SurveySort>(
-                      value: _sort,
-                      items: [
-                        for (final f in SurveySort.values)
-                          DropdownMenuItem(
-                            value: f,
-                            child: Text(_sortLabel(loc, f)),
-                          ),
-                      ],
-                      onChanged: (v) => setState(() => _sort = v ?? _sort),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: DropdownButton<SurveyTimeFilter>(
+                        isExpanded: true,
+                        value: _time,
+                        items: [
+                          for (final f in SurveyTimeFilter.values)
+                            DropdownMenuItem(
+                              value: f,
+                              child: Text(_timeLabel(loc, f)),
+                            ),
+                        ],
+                        onChanged: _onTimeChanged,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: DropdownButton<SurveySort>(
+                        isExpanded: true,
+                        value: _sort,
+                        items: [
+                          for (final f in SurveySort.values)
+                            DropdownMenuItem(
+                              value: f,
+                              child: Text(_sortLabel(loc, f)),
+                            ),
+                        ],
+                        onChanged: (v) => setState(() => _sort = v ?? _sort),
+                      ),
                     ),
                   ],
                 ),

@@ -66,6 +66,15 @@ class SettingsService {
   static const _expiryNotifEnabledKey = 'expiry_notifications_enabled';
   static const _expiryNotifLeadKey = 'expiry_notifications_lead';
 
+  /// Régi küszöbkulcs átvétele: a cps-küszöb a beütésszám típusé lesz. A
+  /// neutron-beütésszám küszöbe nem kerül át (neutronnál nincs riasztás).
+  Future<void> migrateLegacyCountRateThreshold() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey('${_prefix}count_rate')) return;
+    final legacy = prefs.getDouble('${_prefix}cps');
+    if (legacy != null) await prefs.setDouble('${_prefix}count_rate', legacy);
+  }
+
   Future<Map<MeasurementType, double?>> getAllThresholds() async {
     final prefs = await SharedPreferences.getInstance();
     return {

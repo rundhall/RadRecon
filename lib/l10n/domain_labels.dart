@@ -1,3 +1,10 @@
+import '../models/dose_quantity.dart';
+import '../models/radiation_kind.dart';
+import '../services/dose_unit_controller.dart';
+import '../services/unit_format.dart';
+import '../models/activity_concentration.dart';
+import '../models/measurement_point.dart';
+import '../models/spectrum.dart';
 import 'app_localizations.dart';
 import '../models/measurement_type.dart';
 import '../models/meteorology.dart';
@@ -46,11 +53,14 @@ extension MeasurementTypeText on MeasurementType {
         MeasurementType.doseRate => loc.measurementTypeDoseRate,
         MeasurementType.surfaceContamination =>
           loc.measurementTypeSurfaceContamination,
-        MeasurementType.cps => loc.measurementTypeCps,
-        MeasurementType.neutronCps => loc.measurementTypeNeutronCps,
+        MeasurementType.countRate => loc.measurementTypeCountRate,
         MeasurementType.sample => loc.measurementTypeSample,
         MeasurementType.meteorology => loc.measurementTypeMeteorology,
         MeasurementType.gasMeasurement => loc.measurementTypeGasMeasurement,
+        MeasurementType.activity => loc.measurementTypeActivity,
+        MeasurementType.activityConcentration =>
+          loc.measurementTypeActivityConcentration,
+        MeasurementType.spectrum => loc.measurementTypeSpectrum,
       };
 }
 
@@ -93,4 +103,84 @@ String localizedGasName(AppLocalizations loc, String storedName) {
     'Tributil-foszfát' => loc.rrGasTributylPhosphate,
     _ => storedName,
   };
+}
+
+extension SpectrumKindText on SpectrumKind {
+  String localized(AppLocalizations loc) => switch (this) {
+        SpectrumKind.alpha => loc.spectrumKindAlpha,
+        SpectrumKind.beta => loc.spectrumKindBeta,
+        SpectrumKind.gamma => loc.spectrumKindGamma,
+        SpectrumKind.neutron => loc.spectrumKindNeutron,
+      };
+}
+
+extension BasisKindText on BasisKind {
+  String localized(AppLocalizations loc) => switch (this) {
+        BasisKind.mass => loc.basisMass,
+        BasisKind.volume => loc.basisVolume,
+        BasisKind.area => loc.basisArea,
+      };
+}
+
+/// Spektrum-összegzés egy mentett ponthoz (lista, jegyzőkönyv), a nuklid-
+/// aktivitásokkal együtt.
+String spectrumSummaryLine(AppLocalizations loc, MeasurementPoint p) {
+  if (p.spectrumChannels == null) return loc.spectrumNoFileLabel;
+  final live = p.spectrumLiveSeconds == null
+      ? '—'
+      : '${p.spectrumLiveSeconds!.toStringAsFixed(1)} s';
+  final base = loc.spectrumSummaryText(
+    SpectrumKind.fromDbValue(p.spectrumKind).localized(loc),
+    '${p.spectrumChannels}',
+    live,
+    '${p.spectrumTotalCounts ?? '—'}',
+  );
+  final acts = NuclideActivity.listFromJson(p.spectrumActivityJson);
+  if (acts.isEmpty) return base;
+  return '$base · ${acts.map(nuclideActivityText).join(', ')}';
+}
+
+/// Egy nuklid aktivitása a megjelenítési egységben: "Cs-137: 169.107 ± 14.714 MBq".
+String nuclideActivityText(NuclideActivity a) {
+  final unit = ActivityUnitController.current.symbol;
+  final value = formatActivityNumberMBq(a.mbq);
+  final err = a.uncertaintyMbq == null
+      ? ''
+      : ' ± ${formatActivityNumberMBq(a.uncertaintyMbq!)}';
+  return '${a.nuclide}: $value$err $unit';
+}
+
+/// X-tengely felirata: csatorna, vagy energia (a fájl egységével, ha van).
+String spectrumAxisLabel(AppLocalizations loc, Spectrum s) {
+  if (s.energyCoefficients == null) return loc.spectrumChannelAxis;
+  final unit = s.energyUnit;
+  return (unit == null || unit.isEmpty)
+      ? loc.spectrumEnergyAxis
+      : '${loc.spectrumEnergyAxis} ($unit)';
+}
+
+extension BasisKindSettingText on BasisKind {
+  String settingLabel(AppLocalizations loc) => switch (this) {
+        BasisKind.mass => loc.basisMassSettingLabel,
+        BasisKind.volume => loc.basisVolumeSettingLabel,
+        BasisKind.area => loc.basisAreaSettingLabel,
+      };
+}
+
+extension RadiationKindText on RadiationKind {
+  String localized(AppLocalizations loc) => switch (this) {
+        RadiationKind.alpha => loc.radiationAlpha,
+        RadiationKind.beta => loc.radiationBeta,
+        RadiationKind.gamma => loc.radiationGamma,
+        RadiationKind.neutron => loc.radiationNeutron,
+      };
+}
+
+extension DoseQuantityLabelText on DoseQuantity {
+  String localized(AppLocalizations loc) => switch (this) {
+        DoseQuantity.h10 => loc.doseQuantityH10,
+        DoseQuantity.hp => loc.doseQuantityHp,
+        DoseQuantity.hprime => loc.doseQuantityHprime,
+        DoseQuantity.kerma => loc.doseQuantityKerma,
+      };
 }

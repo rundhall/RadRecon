@@ -1,7 +1,14 @@
+import '../models/radiation_kind.dart';
+import '../models/dose_quantity.dart';
+import '../models/count_rate_unit.dart';
+import '../services/last_measurement_type.dart';
+import '../services/basis_unit_controller.dart';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
+import 'package:file_picker/file_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart' as ll;
@@ -36,6 +43,11 @@ import '../services/unit_format.dart';
 import '../services/settings_service.dart';
 import '../services/value_averager.dart';
 import '../widgets/position_averaging_dialog.dart';
+import '../widgets/spectrum_chart.dart';
+import '../services/spectrum_service.dart';
+import '../models/spectrum.dart';
+import '../models/activity_unit.dart';
+import '../models/activity_concentration.dart';
 import '../widgets/disclaimer_info_icon.dart';
 import '../widgets/nuclide_id_section.dart';
 import '../widgets/quantity_field.dart';
@@ -83,6 +95,27 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   final _sampleMethodCtrl = TextEditingController();
   final _sampleUnitCtrl = TextEditingController();
   SampleUnit? _sampleUnit;
+
+  // Aktivitás és aktivitáskoncentráció.
+  ActivityUnit _concActivityUnit = ActivityUnitController.current;
+  BasisUnit _basisUnit = BasisUnitController.of(BasisKind.mass);
+  final _basisAmountCtrl = TextEditingController();
+  final _calcActivityCtrl = TextEditingController();
+  ActivityUnit _calcActivityUnit = ActivityUnitController.current;
+  String? _valueTypedText;
+
+  // Spektrum: az app-mappában tárolt N42 másolat és a beolvasott adatok.
+  String? _spectrumPath;
+  String? _spectrumFileName;
+  SpectrumKind _spectrumKind = SpectrumKind.gamma;
+  Spectrum? _spectrum;
+  bool _spectrumLog = false;
+  List<NuclideActivity> _spectrumNuclideActivities = const [];
+
+  // Sugárzás típusa (dózisteljesítmény és beütésszám), mennyiség és mélység.
+  RadiationKind _radiation = RadiationKind.gamma;
+  DoseQuantity _doseQuantity = DoseQuantity.h10;
+  double? _doseDepthMm;
 
   // Meteorológia (opcionális, bármelyik mező üres maradhat).
   static const _metKeys = [
@@ -154,6 +187,11 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   void initState() {
     super.initState();
     _editingPoint = widget.existingPoint;
+    if (_editingPoint == null) {
+      // Új pont: az utoljára használt mérési típussal indul.
+      _type = LastMeasurementTypeController.current;
+      _isSample = _type == MeasurementType.sample;
+    }
     _unitCtrl.text = _displayUnitFor(_type);
     _loadInstruments();
     _loadSessionState();
@@ -230,6 +268,32 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     _sampleUnit = SampleUnit.matchStored(p.sampleUnit);
     if (_sampleUnit == SampleUnit.other) _sampleUnitCtrl.text = p.sampleUnit ?? '';
     _sampleMethodCtrl.text = p.sampleMethod ?? '';
+    if (p.type == MeasurementType.activityConcentration) {
+      final parts = p.unit.split('/');
+      if (parts.length == 2) {
+        _concActivityUnit = ActivityUnit.values.firstWhere(
+          (u) => u.symbol == parts[0],
+          orElse: () => ActivityUnitController.current,
+        );
+      }
+    }
+    _basisUnit = BasisUnit.fromSymbol(p.basisUnit) ?? _basisUnit;
+    _basisAmountCtrl.text = p.basisAmount == null
+        ? ''
+        : QuantityField.formatNumber(p.basisAmount!);
+    _spectrumPath = p.spectrumPath;
+    _spectrumFileName = p.spectrumFileName;
+    _spectrumKind = SpectrumKind.fromDbValue(p.spectrumKind);
+    _spectrumNuclideActivities = NuclideActivity.listFromJson(p.spectrumActivityJson);
+    _radiation = RadiationKind.fromDbValue(p.radiationKind);
+    _doseQuantity = DoseQuantity.fromDbValue(p.doseQuantity);
+    _doseDepthMm = p.doseDepthMm;
+    final spectrumPath = p.spectrumPath;
+    if (spectrumPath != null) {
+      SpectrumService.load(spectrumPath).then((s) {
+        if (mounted) setState(() => _spectrum = s);
+      });
+    }
     _latCtrl.text = _fmt(p.latitude, 6);
     _lonCtrl.text = _fmt(p.longitude, 6);
     _gpsAccuracy = p.gpsAccuracyMeters;
@@ -363,7 +427,543 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   /// gamma-állandója alapján visszafelé számolt aktivitás — nem tartozik
   /// mentett forráshoz, csak gyors becslés. Null, ha a bemenetek nem
   /// elégségesek, vagy a mértékegység nem alakítható µSv/h-ra.
+  /// Sugárzás választó (dózisteljesítmény és beütésszám). Beütésszámnál a
+  /// neutron-sugárzás az "n" előtagos egységet (ncps…) adja.
+  List<Widget> _buildRadiationSelector(AppLocalizations loc) {
+    return [
+      DropdownButtonFormField<RadiationKind>(
+        key: ValueKey('radiation-${_radiation.name}'),
+        initialValue: _radiation,
+        isExpanded: true,
+        decoration: InputDecoration(labelText: loc.radiationKindLabel),
+        items: [
+          for (final r in RadiationKind.values)
+            DropdownMenuItem<RadiationKind>(
+              value: r,
+              child: Text(r.localized(loc)),
+            ),
+        ],
+        onChanged: (r) {
+          if (r == null) return;
+          setState(() {
+            _radiation = r;
+            if (_type == MeasurementType.countRate) {
+              final base = CountRateOption.fromSymbol(_unitCtrl.text)?.unit ??
+                  CountRateUnit.perSecond;
+              _unitCtrl.text =
+                  CountRateOption(base, r == RadiationKind.neutron).symbol;
+            }
+          });
+        },
+      ),
+      const SizedBox(height: 12),
+    ];
+  }
+
+  /// Dózisteljesítmény mennyisége és (Hp(d), H'(d,Ω) esetén) mélysége.
+  List<Widget> _buildDoseQuantitySelectors(AppLocalizations loc) {
+    final depths = _doseQuantity.depthOptionsMm;
+    return [
+      DropdownButtonFormField<DoseQuantity>(
+        key: ValueKey('dose-quantity-${_doseQuantity.dbValue}'),
+        initialValue: _doseQuantity,
+        isExpanded: true,
+        decoration: InputDecoration(labelText: loc.doseQuantityLabel),
+        items: [
+          for (final q in DoseQuantity.values)
+            DropdownMenuItem<DoseQuantity>(
+              value: q,
+              child: Text(q.localized(loc)),
+            ),
+        ],
+        onChanged: (q) {
+          if (q != null) _changeDoseQuantity(q);
+        },
+      ),
+      const SizedBox(height: 12),
+      if (depths.isNotEmpty) ...[
+        DropdownButtonFormField<double>(
+          key: ValueKey(
+              'dose-depth-${_doseQuantity.dbValue}-${_doseDepthMm ?? 0}'),
+          initialValue: depths.contains(_doseDepthMm) ? _doseDepthMm : depths.first,
+          isExpanded: true,
+          decoration: InputDecoration(labelText: loc.doseDepthLabel),
+          items: [
+            for (final d in depths)
+              DropdownMenuItem<double>(value: d, child: Text(_depthText(d))),
+          ],
+          onChanged: (d) => setState(() => _doseDepthMm = d),
+        ),
+        const SizedBox(height: 12),
+      ],
+    ];
+  }
+
+  String _depthText(double d) => d == d.roundToDouble()
+      ? '${d.toStringAsFixed(0)} mm'
+      : '${d.toString().replaceAll('.', ',')} mm';
+
+  /// Mennyiségváltás. A H és a K között nincs átszámítás: ilyenkor az érték
+  /// és az egység is törlődik, hogy ne lehessen csendben átcímkézni.
+  void _changeDoseQuantity(DoseQuantity q) {
+    final wasKerma = _doseQuantity == DoseQuantity.kerma;
+    final isKerma = q == DoseQuantity.kerma;
+    setState(() {
+      _doseQuantity = q;
+      _doseDepthMm = q.depthOptionsMm.isEmpty
+          ? null
+          : (q.defaultDepthMm ?? q.depthOptionsMm.first);
+      if (wasKerma != isKerma) {
+        _unitCtrl.text = isKerma
+            ? KermaRateUnit.defaultUnit.symbol
+            : DoseUnitController.current.symbol;
+        _valueCtrl.clear();
+      }
+    });
+  }
+
+  /// Légkerma (K): saját Gy/h-család egységekkel.
+  Widget _buildKermaValueField(AppLocalizations loc) {
+    return QuantityField<KermaRateUnit>(
+      controller: _valueCtrl,
+      label: loc.measuredValueLabel,
+      units: KermaRateUnit.values,
+      unit: KermaRateUnit.fromSymbol(_unitCtrl.text),
+      onUnitChanged: (u) => setState(() => _unitCtrl.text = u.symbol),
+      onChanged: () => setState(() {}),
+      validator: _numberValidator(loc),
+    );
+  }
+
+  /// Beütésszám: a sugárzás szerinti egységlista (neutronnál ncps…).
+  Widget _buildCountRateValueField(AppLocalizations loc) {
+    final neutron = _radiation == RadiationKind.neutron;
+    final units = CountRateOption.forRadiation(neutron: neutron);
+    final base = CountRateOption.fromSymbol(_unitCtrl.text)?.unit ??
+        CountRateUnit.perSecond;
+    return QuantityField<CountRateOption>(
+      controller: _valueCtrl,
+      label: loc.measuredValueLabel,
+      units: units,
+      unit: units.firstWhere((o) => o.unit == base),
+      onUnitChanged: (u) => setState(() => _unitCtrl.text = u.symbol),
+      onChanged: () => setState(() {}),
+      validator: _numberValidator(loc),
+    );
+  }
+
+  bool get _isActivityKind =>
+      _type == MeasurementType.activity ||
+      _type == MeasurementType.activityConcentration;
+
+  ActivityUnit _activityUnitFromCtrl() => ActivityUnit.values.firstWhere(
+        (u) => u.symbol == _unitCtrl.text.trim(),
+        orElse: () => ActivityUnitController.current,
+      );
+
+  String? Function(String?) _numberValidator(AppLocalizations loc) => (v) {
+        if (v == null || v.trim().isEmpty) return loc.requiredFieldError;
+        if (parseDecimal(v) == null) return loc.numberRequiredError;
+        return null;
+      };
+
+  /// Aktivitás: szám + egység (zárt lista), egységváltáskor átszámol.
+  Widget _buildActivityValueField(AppLocalizations loc) {
+    return QuantityField<ActivityUnit>(
+      controller: _valueCtrl,
+      label: loc.measuredValueLabel,
+      units: ActivityUnit.values,
+      unit: _activityUnitFromCtrl(),
+      onUnitChanged: (u) => setState(() {
+        final old = _activityUnitFromCtrl();
+        final err = parseDecimal(_errorCtrl.text);
+        final typedError =
+            _errorTypedText != null && _errorCtrl.text == _errorTypedText;
+        if (err != null && !typedError) {
+          _errorCtrl.text = QuantityField.formatNumber(old.convertTo(u, err));
+        }
+        _unitCtrl.text = u.symbol;
+      }),
+      onChanged: () => setState(() {}),
+      validator: _numberValidator(loc),
+    );
+  }
+
+  /// Egységváltás az aktivitáskoncentrációnál: a kézzel beírt szám marad,
+  /// a programmal kitöltött érték átszámolódik.
+  void _changeConcentrationUnits({ActivityUnit? activity, BasisUnit? basis}) {
+    final newActivity = activity ?? _concActivityUnit;
+    final newBasis = basis ?? _basisUnit;
+    final factor = concentrationConversionFactor(
+      fromActivity: _concActivityUnit,
+      fromBasis: _basisUnit,
+      toActivity: newActivity,
+      toBasis: newBasis,
+    );
+    setState(() {
+      final typed =
+          _valueTypedText != null && _valueCtrl.text == _valueTypedText;
+      _valueCtrl.text = unitChangeText(
+        text: _valueCtrl.text,
+        typedByUser: typed,
+        fromBase: factor,
+        toBase: 1,
+      );
+      _concActivityUnit = newActivity;
+      _basisUnit = newBasis;
+    });
+  }
+
+  /// Aktivitáskoncentráció: aktivitás-egység, minta alapja (tömeg/térfogat/
+  /// felület) és mennyiségi egység külön választható; a mennyiség a mezőben
+  /// van, a koncentrációt a számláló szekcióból lehet kiszámolni.
+  Widget _buildConcentrationValueField(AppLocalizations loc) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: DropdownButtonFormField<ActivityUnit>(
+                key: ValueKey('conc-act-${_concActivityUnit.symbol}'),
+                initialValue: _concActivityUnit,
+                isExpanded: true,
+                decoration: InputDecoration(labelText: loc.activityPlainLabel),
+                items: [
+                  for (final u in ActivityUnit.values)
+                    DropdownMenuItem<ActivityUnit>(
+                      value: u,
+                      child: Text(u.symbol),
+                    ),
+                ],
+                onChanged: (u) {
+                  if (u != null) _changeConcentrationUnits(activity: u);
+                },
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: DropdownButtonFormField<BasisKind>(
+                key: ValueKey('conc-kind-${_basisUnit.kind.name}'),
+                initialValue: _basisUnit.kind,
+                isExpanded: true,
+                decoration: InputDecoration(labelText: loc.basisKindLabel),
+                items: [
+                  for (final k in BasisKind.values)
+                    DropdownMenuItem<BasisKind>(
+                      value: k,
+                      child: Text(k.localized(loc)),
+                    ),
+                ],
+                onChanged: (k) {
+                  if (k != null) {
+                    _changeConcentrationUnits(basis: BasisUnitController.of(k));
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: DropdownButtonFormField<BasisUnit>(
+                key: ValueKey('conc-basis-${_basisUnit.symbol}'),
+                initialValue: _basisUnit,
+                isExpanded: true,
+                decoration: InputDecoration(labelText: loc.unitLabel),
+                items: [
+                  for (final u in BasisUnit.ofKind(_basisUnit.kind))
+                    DropdownMenuItem<BasisUnit>(
+                      value: u,
+                      child: Text(u.symbol),
+                    ),
+                ],
+                onChanged: (u) {
+                  if (u != null) _changeConcentrationUnits(basis: u);
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: _valueCtrl,
+          decoration: InputDecoration(
+            labelText: loc.measuredValueLabel,
+            suffixText: concentrationSymbol(_concActivityUnit, _basisUnit),
+          ),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          validator: _numberValidator(loc),
+          onChanged: (v) {
+            _valueTypedText = v;
+            setState(() {});
+          },
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: _basisAmountCtrl,
+          decoration: InputDecoration(
+            labelText: '${loc.basisAmountLabel} (${_basisUnit.symbol})',
+          ),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          validator: (v) {
+            final t = v?.trim() ?? '';
+            if (t.isEmpty) return null;
+            final n = parseDecimal(t);
+            return (n == null || n <= 0) ? loc.numberRequiredError : null;
+          },
+          onChanged: (_) => setState(() {}),
+        ),
+        _buildConcentrationCalculator(loc),
+      ],
+    );
+  }
+
+  /// Koncentráció számítása: összes aktivitás ÷ minta mennyisége.
+  Widget _buildConcentrationCalculator(AppLocalizations loc) {
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: const EdgeInsets.only(bottom: 8),
+      title: Text(loc.concentrationCalcTitle),
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: _calcActivityCtrl,
+                decoration: InputDecoration(
+                  labelText: loc.concentrationTotalActivityLabel,
+                ),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+              ),
+            ),
+            const SizedBox(width: 8),
+            SizedBox(
+              width: 118,
+              child: DropdownButtonFormField<ActivityUnit>(
+                key: ValueKey('calc-act-${_calcActivityUnit.symbol}'),
+                initialValue: _calcActivityUnit,
+                isExpanded: true,
+                decoration: InputDecoration(labelText: loc.activityPlainLabel),
+                items: [
+                  for (final u in ActivityUnit.values)
+                    DropdownMenuItem<ActivityUnit>(
+                      value: u,
+                      child: Text(u.symbol),
+                    ),
+                ],
+                onChanged: (u) {
+                  if (u != null) setState(() => _calcActivityUnit = u);
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: _applyConcentrationCalc,
+          icon: const Icon(Icons.calculate_outlined),
+          label: Text(loc.concentrationCalcButton),
+        ),
+      ],
+    );
+  }
+
+  void _applyConcentrationCalc() {
+    final loc = AppLocalizations.of(context)!;
+    final total = parseDecimal(_calcActivityCtrl.text);
+    final amount = parseDecimal(_basisAmountCtrl.text);
+    if (total == null || total < 0 || amount == null || amount <= 0) {
+      _showError(loc.concentrationCalcError);
+      return;
+    }
+    final result = concentrationFrom(
+      totalActivity: total,
+      activityUnit: _calcActivityUnit,
+      amount: amount,
+      basisUnit: _basisUnit,
+      resultActivity: _concActivityUnit,
+      resultBasis: _basisUnit,
+    );
+    setState(() {
+      _valueCtrl.text = QuantityField.formatNumber(result);
+      _valueTypedText = null;
+    });
+  }
+
+  /// Spektrum-fájl kiválasztása, ellenőrzése, másolása az app-mappába.
+  Future<void> _pickSpectrumFile() async {
+    final loc = AppLocalizations.of(context)!;
+    // Az iOS és Android dokumentumválasztó az ismeretlen .n42 kiterjesztést
+    // szürkíti, ezért minden fájl választható; a tartalmat a parser ellenőrzi.
+    final selection = await FilePicker.pickFiles(type: FileType.any);
+    if (selection.isEmpty) return;
+    final file = selection.single;
+    List<int>? bytes;
+    try {
+      bytes = await file.readAsBytes();
+    } catch (_) {
+      bytes = null;
+    }
+    if (bytes == null) {
+      _showError(loc.spectrumParseError);
+      return;
+    }
+    var all = <Spectrum>[];
+    try {
+      all = N42Parser.parseAll(utf8.decode(bytes, allowMalformed: true));
+    } catch (_) {
+      all = <Spectrum>[];
+    }
+    if (all.isEmpty) {
+      _showError(loc.spectrumParseError);
+      return;
+    }
+    final Spectrum? picked =
+        all.length == 1 ? all.first : await _chooseSpectrum(loc, all);
+    if (picked == null) return;
+    // A kiválasztott spektrum egyspektrumos, tömörítetlen N42 másolatként kerül mentésre.
+    final path = await SpectrumService.importFile(
+      bytes: utf8.encode(picked.toN42Xml()),
+      fileName: file.name,
+    );
+    if (!mounted) return;
+    // Az aktivitás a fájlban egység nélkül van: a Beállításokban beállított
+    // aktivitás-egységet használjuk, a tárolás MBq.
+    final activityUnit = ActivityUnitController.current;
+    final activities = [
+      for (final r in picked.nuclideResults)
+        if (r.value != null)
+          NuclideActivity(
+            nuclide: r.nuclide,
+            mbq: r.value! * activityUnit.mbqFactor,
+            uncertaintyMbq: r.uncertainty == null
+                ? null
+                : r.uncertainty! * activityUnit.mbqFactor,
+          ),
+    ];
+    final category = picked.detectorCategory?.toLowerCase();
+    setState(() {
+      _spectrumPath = path;
+      _spectrumFileName = file.name;
+      _spectrum = picked;
+      _spectrumNuclideActivities = activities;
+      // A fájl detektor-kategóriája adja az alapértelmezett típust.
+      if (category == 'neutron') _spectrumKind = SpectrumKind.neutron;
+      if (category == 'gamma') _spectrumKind = SpectrumKind.gamma;
+      // A fájl azonosított nuklidjai a pont nuklid-mezőjébe kerülnek.
+      if (picked.identifiedNuclides.isNotEmpty) {
+        _nuclideStatus = NuclideIdStatus.identified;
+        _nuclides = [...picked.identifiedNuclides];
+      }
+    });
+  }
+
+  /// Több spektrum a fájlban: a felhasználó választ egyet.
+  Future<Spectrum?> _chooseSpectrum(AppLocalizations loc, List<Spectrum> all) {
+    final kind = _spectrumKind.localized(loc);
+    String summary(Spectrum s) => loc.spectrumSummaryText(
+          kind,
+          '${s.channelCount}',
+          s.liveTimeSeconds == null
+              ? '—'
+              : '${s.liveTimeSeconds!.toStringAsFixed(1)} s',
+          '${s.totalCounts}',
+        );
+    return showDialog<Spectrum>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text(loc.spectrumChooseTitle),
+        children: [
+          for (var i = 0; i < all.length; i++)
+            SimpleDialogOption(
+              onPressed: () => Navigator.of(ctx).pop(all[i]),
+              child: Text('#${i + 1} · ${summary(all[i])}'),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Spektrum-szekció: fájl, típus (alapértelmezés: gamma), összegzés, ábra.
+  List<Widget> _buildSpectrumSection(AppLocalizations loc) {
+    final s = _spectrum;
+    return [
+      OutlinedButton.icon(
+        onPressed: _pickSpectrumFile,
+        icon: const Icon(Icons.upload_file),
+        label: Text(
+          _spectrumPath == null
+              ? loc.spectrumFileButton
+              : loc.spectrumFileChangeButton,
+        ),
+      ),
+      if (_spectrumFileName != null) ...[
+        const SizedBox(height: 4),
+        Text(
+          _spectrumFileName!,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
+      const SizedBox(height: 12),
+      DropdownButtonFormField<SpectrumKind>(
+        initialValue: _spectrumKind,
+        decoration: InputDecoration(labelText: loc.spectrumKindLabel),
+        items: [
+          for (final k in SpectrumKind.values)
+            DropdownMenuItem<SpectrumKind>(
+              value: k,
+              child: Text(k.localized(loc)),
+            ),
+        ],
+        onChanged: (k) {
+          if (k != null) setState(() => _spectrumKind = k);
+        },
+      ),
+      if (s != null) ...[
+        const SizedBox(height: 12),
+        Text(
+          loc.spectrumSummaryText(
+            _spectrumKind.localized(loc),
+            '${s.channelCount}',
+            s.liveTimeSeconds == null
+                ? '—'
+                : '${s.liveTimeSeconds!.toStringAsFixed(1)} s',
+            '${s.totalCounts}',
+          ),
+        ),
+        for (final a in _spectrumNuclideActivities)
+          Text(nuclideActivityText(a)),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(loc.spectrumLogScaleLabel),
+          value: _spectrumLog,
+          onChanged: (v) => setState(() => _spectrumLog = v),
+        ),
+        SpectrumChart(
+          spectrum: s,
+          logScale: _spectrumLog,
+          xLabel: spectrumAxisLabel(loc, s),
+        ),
+      ],
+      const SizedBox(height: 12),
+      NuclideIdSection(
+        status: _nuclideStatus,
+        nuclides: _nuclides,
+        onStatusChanged: (st) => setState(() => _nuclideStatus = st),
+        onNuclidesChanged: (list) => setState(() => _nuclides = list),
+      ),
+    ];
+  }
+
+  /// Aktivitás-becslés a dózisteljesítményes mérésből (csak dózisnál értelmes).
   Widget? _buildActivityFromMeasurementPanel(AppLocalizations loc) {
+    if (_type != MeasurementType.doseRate ||
+        _radiation != RadiationKind.gamma ||
+        _doseQuantity != DoseQuantity.h10) {
+      return null;
+    }
     final measuredValue = parseDecimal(_valueCtrl.text);
     final distance = _distanceMeters();
     if (measuredValue == null || distance == null || distance <= 0) {
@@ -570,6 +1170,9 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
           // A műszer határozza meg, mit mér és milyen egységben adja vissza:
           // a mérés típusát átállítjuk, az értéket pedig az alapegységre váltjuk.
           _type = instrument.modbusMeasurementType;
+          if (_type == MeasurementType.countRate) {
+            _radiation = radiationForInstrument(instrument);
+          }
           _isSample = false;
           _unitCtrl.text = _displayUnitFor(_type);
           _valueCtrl.text = QuantityField.formatNumber(
@@ -643,6 +1246,9 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       _isAveraging = false;
       if (stats == null) return;
       _type = instrument.modbusMeasurementType;
+      if (_type == MeasurementType.countRate) {
+        _radiation = radiationForInstrument(instrument);
+      }
       _isSample = false;
       _unitCtrl.text = _displayUnitFor(_type);
       _valueCtrl.text = QuantityField.formatNumber(_shownValue(_type, stats.mean));
@@ -807,10 +1413,21 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   /// választásnál a felhasználó saját szövege.
   /// A típus bevitelben használt egysége: felületi szennyezettségnél a
   /// beállított megjelenítési egység, egyébként az alapegység.
-  String _displayUnitFor(MeasurementType t) =>
-      t == MeasurementType.surfaceContamination
-          ? DisplayUnits.surface.value
-          : t.defaultUnit;
+  String _displayUnitFor(MeasurementType t) {
+    if (t == MeasurementType.surfaceContamination) {
+      return DisplayUnits.surface.value;
+    }
+    if (t == MeasurementType.countRate) {
+      return CountRateOption(CountRateUnit.perSecond,
+              _radiation == RadiationKind.neutron)
+          .symbol;
+    }
+    if (t == MeasurementType.doseRate &&
+        _doseQuantity == DoseQuantity.kerma) {
+      return KermaRateUnit.defaultUnit.symbol;
+    }
+    return t.defaultUnit;
+  }
 
   /// Tárolt (kanonikus) értékből a bevitelben megjelenő érték.
   double _shownValue(MeasurementType t, double v) =>
@@ -825,9 +1442,13 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
           : DisplayUnits.surfaceToCanonical(v);
 
   /// A mentett egység: felületi szennyezettségnél mindig a tárolt Bq/cm².
-  String _storedUnit() => _type == MeasurementType.surfaceContamination
-      ? kSurfaceCanonicalUnit
-      : _unitCtrl.text.trim();
+  String _storedUnit() => switch (_type) {
+        MeasurementType.surfaceContamination => kSurfaceCanonicalUnit,
+        MeasurementType.activityConcentration =>
+          concentrationSymbol(_concActivityUnit, _basisUnit),
+        MeasurementType.spectrum => '',
+        _ => _unitCtrl.text.trim(),
+      };
 
   /// A meteorológiai címke a beállított egységgel (ha az egység váltható).
   String _metLabel(AppLocalizations loc, String key) {
@@ -1059,12 +1680,19 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       unit: _storedUnit(),
       distanceFromSourceMeters:
           _distanceCtrl.text.trim().isEmpty ? null : _distanceMeters(),
-      activityCalcNuclide: _isSample || !_type.hasValue ? null : _estimationNuclide,
+      activityCalcNuclide:
+          _isSample || !_type.hasValue || _isActivityKind ? null : _estimationNuclide,
       instrumentId: _instrumentId,
       nuclideStatus:
-          _isSample || !_type.hasValue ? NuclideIdStatus.notSpecified : _nuclideStatus,
-      nuclides: _type.hasValue && !_isSample && _nuclideStatus.hasNuclideList ? _nuclides : const [],
-      shieldingLayers: _isSample || _estimationNuclide == null
+          _isSample || (!_type.hasValue && _type != MeasurementType.spectrum)
+              ? NuclideIdStatus.notSpecified
+              : _nuclideStatus,
+      nuclides: (_type.hasValue || _type == MeasurementType.spectrum) &&
+              !_isSample &&
+              _nuclideStatus.hasNuclideList
+          ? _nuclides
+          : const [],
+      shieldingLayers: _isSample || _isActivityKind || _estimationNuclide == null
           ? const []
           : _validLayers(),
       isSourcePosition: _isSourcePosition,
@@ -1077,6 +1705,41 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
           ? parseDecimal(_sampleAmountCtrl.text)
           : null,
       sampleUnit: _isSample ? _sampleUnitStored() : null,
+      basisAmount: _type == MeasurementType.activityConcentration &&
+              _basisAmountCtrl.text.trim().isNotEmpty
+          ? parseDecimal(_basisAmountCtrl.text)
+          : null,
+      basisUnit: _type == MeasurementType.activityConcentration
+          ? _basisUnit.symbol
+          : null,
+      spectrumKind:
+          _type == MeasurementType.spectrum ? _spectrumKind.dbValue : null,
+      spectrumFileName:
+          _type == MeasurementType.spectrum ? _spectrumFileName : null,
+      spectrumPath: _type == MeasurementType.spectrum ? _spectrumPath : null,
+      spectrumChannels: _type == MeasurementType.spectrum
+          ? (_spectrum?.channelCount ?? _editingPoint?.spectrumChannels)
+          : null,
+      spectrumLiveSeconds: _type == MeasurementType.spectrum
+          ? (_spectrum?.liveTimeSeconds ?? _editingPoint?.spectrumLiveSeconds)
+          : null,
+      radiationKind: _type == MeasurementType.doseRate ||
+              _type == MeasurementType.countRate
+          ? _radiation.dbValue
+          : null,
+      doseQuantity:
+          _type == MeasurementType.doseRate ? _doseQuantity.dbValue : null,
+      doseDepthMm: _type == MeasurementType.doseRate &&
+              _doseQuantity.depthOptionsMm.isNotEmpty
+          ? (_doseDepthMm ?? _doseQuantity.defaultDepthMm)
+          : null,
+      spectrumActivityJson: _type == MeasurementType.spectrum &&
+              _spectrumNuclideActivities.isNotEmpty
+          ? NuclideActivity.listToJson(_spectrumNuclideActivities)
+          : null,
+      spectrumTotalCounts: _type == MeasurementType.spectrum
+          ? (_spectrum?.totalCounts ?? _editingPoint?.spectrumTotalCounts)
+          : null,
       meteorology: _type == MeasurementType.meteorology ? _meteorologyValue() : null,
       gases: _type == MeasurementType.gasMeasurement ? _gasValues() : const [],
       sampleMethod: _isSample && _sampleMethodCtrl.text.trim().isNotEmpty
@@ -1121,6 +1784,11 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     final longitude = parseDecimal(_lonCtrl.text);
     if (latitude == null || longitude == null) {
       _showError(AppLocalizations.of(context)!.noValidPositionError);
+      return;
+    }
+
+    if (_type == MeasurementType.spectrum && _spectrumPath == null) {
+      _showError(AppLocalizations.of(context)!.spectrumFileRequiredError);
       return;
     }
 
@@ -1185,6 +1853,13 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   /// A mentés előtt figyelmeztet, ha a mért érték eléri/túllépi a
   /// beállított riasztási küszöböt. Nem blokkolja a mentést — csak jelez.
   Future<void> _checkThresholdAndWarn(MeasurementPoint point) async {
+    // A légkerma (K) nem dózisegyenérték: a küszöböt nem hasonlítjuk hozzá.
+    if (point.doseQuantity == DoseQuantity.kerma.dbValue) return;
+    // A küszöb gamma/általános beütésszámra vonatkozik; neutronnál nincs riasztás.
+    if (point.type == MeasurementType.countRate &&
+        point.radiationKind == RadiationKind.neutron.dbValue) {
+      return;
+    }
     if (point.value == null) return;
     final threshold = await SettingsService().getThreshold(point.type);
     if (threshold == null) return;
@@ -1250,6 +1925,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     _sampleAmountCtrl.dispose();
     _sampleMethodCtrl.dispose();
     _sampleUnitCtrl.dispose();
+    _basisAmountCtrl.dispose();
+    _calcActivityCtrl.dispose();
     _metOtherCtrl.dispose();
     for (final c in _metCtrls.values) {
       c.dispose();
@@ -1307,6 +1984,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                   _unitCtrl.text = _displayUnitFor(t);
                   _isSample = t == MeasurementType.sample;
                 });
+                LastMeasurementTypeController.remember(t);
               },
             ),
             const SizedBox(height: 12),
@@ -1318,7 +1996,16 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
             ),
             const SizedBox(height: 12),
             if (_type.hasValue) ...[
-              if (_type == MeasurementType.doseRate &&
+              if (_type == MeasurementType.activity)
+                _buildActivityValueField(loc)
+              else if (_type == MeasurementType.activityConcentration)
+                _buildConcentrationValueField(loc)
+              else if (_type == MeasurementType.countRate)
+                _buildCountRateValueField(loc)
+              else if (_type == MeasurementType.doseRate &&
+                  _doseQuantity == DoseQuantity.kerma)
+                _buildKermaValueField(loc)
+              else if (_type == MeasurementType.doseRate &&
                   DoseRateUnit.fromSymbol(_unitCtrl.text) != null)
                 // Zárt listából választható egység (nem lehet elgépelni);
                 // váltáskor a beírt szám automatikusan átváltódik.
@@ -1385,6 +2072,11 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                 ],
               ),
               const SizedBox(height: 12),
+              if (_type == MeasurementType.doseRate ||
+                  _type == MeasurementType.countRate)
+                ..._buildRadiationSelector(loc),
+              if (_type == MeasurementType.doseRate)
+                ..._buildDoseQuantitySelectors(loc),
               _buildErrorField(loc),
               const SizedBox(height: 12),
               QuantityField<DistanceUnit>(
@@ -1537,6 +2229,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
               ),
               const SizedBox(height: 12),
             ],
+            if (_type == MeasurementType.spectrum) ..._buildSpectrumSection(loc),
             if (_type == MeasurementType.meteorology) ...[
                 for (final key in _metKeys) ...[
                   TextFormField(

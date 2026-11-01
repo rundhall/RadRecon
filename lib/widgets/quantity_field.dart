@@ -54,8 +54,11 @@ class QuantityField<U extends QuantityUnit> extends StatefulWidget {
   final double unitWidth;
 
   /// Szám szöveggé alakítása: ne maradjanak lebegőpontos farkak.
-  static String formatNumber(double v) =>
-      double.parse(v.toStringAsPrecision(8)).toString();
+  static String formatNumber(double v) {
+    final s = double.parse(v.toStringAsPrecision(8)).toString();
+    if (s == '-0.0') return '0';
+    return s.endsWith('.0') ? s.substring(0, s.length - 2) : s;
+  }
 
   @override
   State<QuantityField<U>> createState() => _QuantityFieldState<U>();

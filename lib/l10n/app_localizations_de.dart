@@ -2852,4 +2852,166 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get mapMeasureDeleteSelected => 'Auswahl löschen';
+
+  @override
+  String get measurementTypeActivity => 'Aktivität';
+
+  @override
+  String get measurementTypeActivityConcentration => 'Aktivitätskonzentration';
+
+  @override
+  String get measurementTypeSpectrum => 'Spektrum';
+
+  @override
+  String get spectrumKindLabel => 'Spektrumtyp';
+
+  @override
+  String get spectrumKindAlpha => 'Alpha';
+
+  @override
+  String get spectrumKindBeta => 'Beta';
+
+  @override
+  String get spectrumKindGamma => 'Gamma';
+
+  @override
+  String get spectrumFileButton => 'Spektrumdatei (N42) auswählen';
+
+  @override
+  String get spectrumFileChangeButton => 'Spektrumdatei ersetzen';
+
+  @override
+  String get spectrumFileRequiredError => 'Wähle eine Spektrumdatei (N42) aus.';
+
+  @override
+  String get spectrumParseError =>
+      'Die Datei kann nicht als N42-Spektrum gelesen werden (komprimiert oder fehlerhaft).';
+
+  @override
+  String get spectrumLogScaleLabel => 'Logarithmische Skala';
+
+  @override
+  String get spectrumChannelAxis => 'Kanal';
+
+  @override
+  String get spectrumEnergyAxis => 'Energie';
+
+  @override
+  String spectrumSummaryText(
+    String kind,
+    String channels,
+    String liveTime,
+    String counts,
+  ) {
+    return '$kind · $channels Kanäle · Live-Zeit $liveTime · $counts Zählungen';
+  }
+
+  @override
+  String get spectrumNoFileLabel => 'Keine Spektrumdatei';
+
+  @override
+  String get basisKindLabel => 'Probenbezug';
+
+  @override
+  String get basisMass => 'Masse';
+
+  @override
+  String get basisVolume => 'Volumen';
+
+  @override
+  String get basisArea => 'Fläche';
+
+  @override
+  String get basisAmountLabel => 'Probenmenge';
+
+  @override
+  String get concentrationCalcTitle =>
+      'Konzentration aus Gesamtaktivität berechnen';
+
+  @override
+  String get concentrationTotalActivityLabel => 'Gesamtaktivität';
+
+  @override
+  String get concentrationCalcButton => 'In Feld übernehmen';
+
+  @override
+  String get concentrationCalcError =>
+      'Gib eine gültige Gesamtaktivität und eine positive Probenmenge ein.';
+
+  @override
+  String protoSpectrumCaption(String idx, String kind, String location) {
+    return 'Spektrum Nr. $idx ($kind): $location';
+  }
+
+  @override
+  String protoSpectrumFile(String name) {
+    return 'Spektrumdatei: $name';
+  }
+
+  @override
+  String get spectrumKindNeutron => 'Neutron';
+
+  @override
+  String get basisMassSettingLabel => 'Standard-Masseneinheit (Konzentration)';
+
+  @override
+  String get basisVolumeSettingLabel =>
+      'Standard-Volumeneinheit (Konzentration)';
+
+  @override
+  String get basisAreaSettingLabel => 'Standard-Flächeneinheit (Konzentration)';
+
+  @override
+  String get spectrumChooseTitle =>
+      'Die Datei enthält mehrere Spektren – wähle eines aus';
+
+  @override
+  String get csvHeaderBasis => 'Probe (Menge und Einheit)';
+
+  @override
+  String get csvHeaderSpectrum =>
+      'Spektrum (Typ; Kanäle; Live-Zeit; Zählungen)';
+
+  @override
+  String get measurementTypeCountRate => 'Zählrate';
+
+  @override
+  String get radiationAlpha => 'Alpha';
+
+  @override
+  String get radiationBeta => 'Beta';
+
+  @override
+  String get radiationGamma => 'Gamma';
+
+  @override
+  String get radiationNeutron => 'Neutron';
+
+  @override
+  String get radiationKindLabel => 'Strahlungsart';
+
+  @override
+  String get doseQuantityLabel => 'Größe';
+
+  @override
+  String get doseQuantityH10 => 'Umgebungs-Äquivalentdosisleistung (H*(10))';
+
+  @override
+  String get doseQuantityHp => 'Persönliche Äquivalentdosisleistung (Hp(d))';
+
+  @override
+  String get doseQuantityHprime =>
+      'Gerichtete Äquivalentdosisleistung (H\'(d,Ω))';
+
+  @override
+  String get doseQuantityKerma => 'Luftkermaleistung (K)';
+
+  @override
+  String get doseDepthLabel => 'Tiefe (d, mm)';
+
+  @override
+  String get csvHeaderRadiation => 'Strahlung';
+
+  @override
+  String get csvHeaderQuantity => 'Größe (Dosis)';
 }

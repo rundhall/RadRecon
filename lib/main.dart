@@ -1,3 +1,7 @@
+import 'services/settings_service.dart';
+import 'services/last_measurement_type.dart';
+import 'services/spectrum_service.dart';
+import 'services/basis_unit_controller.dart';
 import 'package:flutter/material.dart';
 
 import 'l10n/app_localizations.dart';
@@ -65,6 +69,10 @@ void main() async {
   try {
     await DoseUnitController.load().timeout(const Duration(seconds: 5));
     await DisplayUnits.load();
+    await BasisUnitController.load();
+    await LastMeasurementTypeController.load();
+    await SettingsService().migrateLegacyCountRateThreshold();
+    SpectrumService.sweepOrphans();
     await RegulatoryProfileController.load()
         .timeout(const Duration(seconds: 5));
   } catch (e, st) {

@@ -17,18 +17,18 @@ void main() {
   test('a mért mennyiség és az egység megmarad mentés után', () {
     const i = Instrument(
       name: 'x',
-      modbusMeasurementType: MeasurementType.neutronCps,
+      modbusMeasurementType: MeasurementType.countRate,
       modbusUnit: 'cps',
     );
     final back = Instrument.fromMap(i.toMap());
-    expect(back.modbusMeasurementType, MeasurementType.neutronCps);
+    expect(back.modbusMeasurementType, MeasurementType.countRate);
     expect(back.modbusUnit, 'cps');
   });
 
   test('nem dózisteljesítménynél nincs átváltás', () {
     const i = Instrument(
       name: 'x',
-      modbusMeasurementType: MeasurementType.cps,
+      modbusMeasurementType: MeasurementType.countRate,
       modbusUnit: 'cps',
     );
     expect(instrumentReadingInAppUnit(i, 123), 123);
@@ -36,7 +36,7 @@ void main() {
 
   test('regiszter-egységek', () {
     expect(modbusUnitsFor(MeasurementType.surfaceContamination), ['Bq/cm²']);
-    expect(modbusUnitsFor(MeasurementType.cps), ['cps']);
+    expect(modbusUnitsFor(MeasurementType.countRate), contains('cps'));
     expect(modbusUnitsFor(MeasurementType.doseRate), contains('µR/h'));
     expect(defaultModbusUnitFor(MeasurementType.doseRate), 'nSv/h');
   });

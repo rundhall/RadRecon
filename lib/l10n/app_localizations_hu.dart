@@ -2824,4 +2824,169 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get mapMeasureDeleteSelected => 'Kijelölt törlése';
+
+  @override
+  String get measurementTypeActivity => 'Aktivitás';
+
+  @override
+  String get measurementTypeActivityConcentration => 'Aktivitáskoncentráció';
+
+  @override
+  String get measurementTypeSpectrum => 'Spektrum';
+
+  @override
+  String get spectrumKindLabel => 'Spektrum típusa';
+
+  @override
+  String get spectrumKindAlpha => 'Alfa';
+
+  @override
+  String get spectrumKindBeta => 'Béta';
+
+  @override
+  String get spectrumKindGamma => 'Gamma';
+
+  @override
+  String get spectrumFileButton => 'Spektrumfájl (N42) kiválasztása';
+
+  @override
+  String get spectrumFileChangeButton => 'Spektrumfájl cseréje';
+
+  @override
+  String get spectrumFileRequiredError => 'Válassz spektrumfájlt (N42).';
+
+  @override
+  String get spectrumParseError =>
+      'A fájl nem olvasható N42 spektrumként (tömörített vagy hibás formátum).';
+
+  @override
+  String get spectrumLogScaleLabel => 'Logaritmikus skála';
+
+  @override
+  String get spectrumChannelAxis => 'Csatorna';
+
+  @override
+  String get spectrumEnergyAxis => 'Energia';
+
+  @override
+  String spectrumSummaryText(
+    String kind,
+    String channels,
+    String liveTime,
+    String counts,
+  ) {
+    return '$kind · $channels csatorna · élő idő $liveTime · $counts beütés';
+  }
+
+  @override
+  String get spectrumNoFileLabel => 'Nincs spektrumfájl';
+
+  @override
+  String get basisKindLabel => 'Minta alapja';
+
+  @override
+  String get basisMass => 'Tömeg';
+
+  @override
+  String get basisVolume => 'Térfogat';
+
+  @override
+  String get basisArea => 'Felület';
+
+  @override
+  String get basisAmountLabel => 'Minta mennyisége';
+
+  @override
+  String get concentrationCalcTitle =>
+      'Koncentráció számítása összes aktivitásból';
+
+  @override
+  String get concentrationTotalActivityLabel => 'Összes aktivitás';
+
+  @override
+  String get concentrationCalcButton => 'Számítás a mezőbe';
+
+  @override
+  String get concentrationCalcError =>
+      'Adj meg érvényes összes aktivitást és pozitív minta mennyiséget.';
+
+  @override
+  String protoSpectrumCaption(String idx, String kind, String location) {
+    return 'Spektrum #$idx ($kind): $location';
+  }
+
+  @override
+  String protoSpectrumFile(String name) {
+    return 'Spektrumfájl: $name';
+  }
+
+  @override
+  String get spectrumKindNeutron => 'Neutron';
+
+  @override
+  String get basisMassSettingLabel =>
+      'Alapértelmezett tömegegység (koncentráció)';
+
+  @override
+  String get basisVolumeSettingLabel =>
+      'Alapértelmezett térfogategység (koncentráció)';
+
+  @override
+  String get basisAreaSettingLabel =>
+      'Alapértelmezett felületegység (koncentráció)';
+
+  @override
+  String get spectrumChooseTitle =>
+      'Több spektrum van a fájlban – válassz egyet';
+
+  @override
+  String get csvHeaderBasis => 'Minta (mennyiség és egység)';
+
+  @override
+  String get csvHeaderSpectrum =>
+      'Spektrum (típus; csatornák; élő idő; beütés)';
+
+  @override
+  String get measurementTypeCountRate => 'Beütésszám';
+
+  @override
+  String get radiationAlpha => 'Alfa';
+
+  @override
+  String get radiationBeta => 'Béta';
+
+  @override
+  String get radiationGamma => 'Gamma';
+
+  @override
+  String get radiationNeutron => 'Neutron';
+
+  @override
+  String get radiationKindLabel => 'Sugárzás típusa';
+
+  @override
+  String get doseQuantityLabel => 'Mennyiség';
+
+  @override
+  String get doseQuantityH10 =>
+      'Környezeti dózisegyenérték-teljesítmény (H*(10))';
+
+  @override
+  String get doseQuantityHp => 'Személyi dózisegyenérték-teljesítmény (Hp(d))';
+
+  @override
+  String get doseQuantityHprime =>
+      'Irányított dózisegyenérték-teljesítmény (H\'(d,Ω))';
+
+  @override
+  String get doseQuantityKerma => 'Levegőben közölt dózisteljesítmény (K)';
+
+  @override
+  String get doseDepthLabel => 'Mélység (d, mm)';
+
+  @override
+  String get csvHeaderRadiation => 'Sugárzás';
+
+  @override
+  String get csvHeaderQuantity => 'Mennyiség (dózis)';
 }

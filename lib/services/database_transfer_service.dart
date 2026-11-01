@@ -142,6 +142,9 @@ class DatabaseTransferService {
   static const _screenshotsDirName = 'rad_recon_screenshots';
   static const _restoredPhotosDirName = 'rad_recon_photos';
   static const _photoPathMarker = 'photos/';
+  static const _spectraPrefix = 'spectra/';
+  static const _spectrumPathMarker = 'spectra/';
+  static const _restoredSpectraDirName = 'rad_recon_spectra';
   static const _attachmentsPrefix = 'attachments/';
   static const _attachmentMarker = 'attachments/';
   static const _restoredAttachmentsDirName = 'rad_recon_attachments';
@@ -327,6 +330,7 @@ class DatabaseTransferService {
     // A munkapéldányban a fotó-útvonalakat zip-relatív jelölőre cseréljük.
     final photoEntries = <String, File>{};
     final attachmentEntries = <String, File>{};
+    final spectraEntries = <String, File>{};
     final copyDb = await openDatabase(workCopy.path);
     try {
       final rows = await copyDb.query(
@@ -348,6 +352,25 @@ class DatabaseTransferService {
           whereArgs: [row['id']],
         );
       }
+      final spectrumRows = await copyDb.query(
+        'measurement_points',
+        columns: ['id', 'spectrum_path'],
+        where: 'spectrum_path IS NOT NULL',
+      );
+      for (final row in spectrumRows) {
+        final path = row['spectrum_path'] as String?;
+        if (path == null || path.isEmpty) continue;
+        final file = File(path);
+        if (!await file.exists()) continue;
+        final entryName = '${row['id']}_${p.basename(path)}';
+        spectraEntries[entryName] = file;
+        await copyDb.update(
+          'measurement_points',
+          {'spectrum_path': '$_spectrumPathMarker$entryName'},
+          where: 'id = ?',
+          whereArgs: [row['id']],
+        );
+      }
       await _collectAttachments(copyDb, attachmentEntries);
     } finally {
       await copyDb.close();
@@ -360,6 +383,13 @@ class DatabaseTransferService {
       final bytes = await e.value.readAsBytes();
       archive.addFile(
         ArchiveFile('$_photosPrefix${e.key}', bytes.length, bytes),
+      );
+    }
+
+    for (final e in spectraEntries.entries) {
+      final bytes = await e.value.readAsBytes();
+      archive.addFile(
+        ArchiveFile('$_spectraPrefix${e.key}', bytes.length, bytes),
       );
     }
 
@@ -392,6 +422,7 @@ class DatabaseTransferService {
       'schemaVersion': await _readUserVersion(workCopy.path),
       'photoCount': photoEntries.length,
       'attachmentCount': attachmentEntries.length,
+      'spectrumCount': spectraEntries.length,
     }));
     archive.addFile(ArchiveFile(_manifestName, manifest.length, manifest));
 
@@ -642,6 +673,15 @@ class DatabaseTransferService {
       await File(p.join(photosDir.path, name))
           .writeAsBytes(entry.content as List<int>);
     }
+    // Spektrumfájlok: külön mappába, az útvonalak átírása lent.
+    final spectraDir = Directory(p.join(docs.path, _restoredSpectraDirName));
+    if (await spectraDir.exists()) await spectraDir.delete(recursive: true);
+    await spectraDir.create(recursive: true);
+    for (final entry in archive.files) {
+      if (!entry.isFile || !entry.name.startsWith(_spectraPrefix)) continue;
+      await File(p.join(spectraDir.path, p.basename(entry.name)))
+          .writeAsBytes(entry.content as List<int>);
+    }
     // Csatolmányok (műbizonylatok, hitelesítési bizonylatok, bizonyítványok).
     final attachmentsDir =
         Directory(p.join(docs.path, _restoredAttachmentsDirName));
@@ -657,6 +697,22 @@ class DatabaseTransferService {
     final db = await openDatabase(dbPath);
     try {
       await _restoreAttachments(db, attachmentsDir.path);
+      final spectrumRows = await db.query(
+        'measurement_points',
+        columns: ['id', 'spectrum_path'],
+        where: 'spectrum_path IS NOT NULL',
+      );
+      for (final row in spectrumRows) {
+        final path = row['spectrum_path'] as String?;
+        if (path == null || !path.startsWith(_spectrumPathMarker)) continue;
+        final restored = p.join(spectraDir.path, p.basename(path));
+        await db.update(
+          'measurement_points',
+          {'spectrum_path': await File(restored).exists() ? restored : null},
+          where: 'id = ?',
+          whereArgs: [row['id']],
+        );
+      }
       final rows = await db.query(
         'measurement_points',
         columns: ['id', 'photo_path'],
@@ -705,7 +761,7 @@ class DatabaseTransferService {
     await _deleteDbFiles(dbPath);
 
     final docs = await getApplicationDocumentsDirectory();
-    for (final name in [_restoredPhotosDirName, _screenshotsDirName]) {
+    for (final name in [_restoredPhotosDirName, _restoredSpectraDirName, _screenshotsDirName]) {
       final dir = Directory(p.join(docs.path, name));
       if (await dir.exists()) await dir.delete(recursive: true);
     }

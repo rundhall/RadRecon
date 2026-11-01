@@ -9,8 +9,10 @@ IconData measurementKindIcon({required bool isSample, required MeasurementType t
   return switch (kind) {
     MeasurementType.doseRate => Icons.place,
     MeasurementType.surfaceContamination => Icons.texture,
-    MeasurementType.cps => Icons.flash_on,
-    MeasurementType.neutronCps => Icons.blur_circular,
+    MeasurementType.activity => Icons.radio_button_checked,
+    MeasurementType.activityConcentration => Icons.water_drop_outlined,
+    MeasurementType.countRate => Icons.flash_on,
+    MeasurementType.spectrum => Icons.show_chart,
     MeasurementType.sample => Icons.science_outlined,
     MeasurementType.meteorology => Icons.thermostat_outlined,
     MeasurementType.gasMeasurement => Icons.air_outlined,

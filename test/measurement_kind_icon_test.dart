@@ -12,11 +12,8 @@ void main() {
   test('dózisteljesítmény és egyéb típusok saját ikont kapnak', () {
     expect(measurementKindIcon(isSample: false, type: MeasurementType.doseRate),
         Icons.place);
-    expect(measurementKindIcon(isSample: false, type: MeasurementType.cps),
+    expect(measurementKindIcon(isSample: false, type: MeasurementType.countRate),
         Icons.flash_on);
-    expect(
-        measurementKindIcon(isSample: false, type: MeasurementType.neutronCps),
-        Icons.blur_circular);
     expect(
         measurementKindIcon(isSample: false, type: MeasurementType.surfaceContamination),
         Icons.texture);

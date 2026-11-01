@@ -56,6 +56,26 @@ class MeasurementPoint {
   final Meteorology? meteorology; // opcionális meteorológiai megfigyelés
   final List<GasReading> gases; // gázmérési eredmények
 
+  // Aktivitáskoncentráció: a minta mennyisége és egysége (pl. 2,5 kg → "kg").
+  final double? basisAmount;
+  final String? basisUnit;
+
+  // Spektrum: típus, eredeti fájlnév, az app-mappában tárolt másolat és összegzés.
+  final String? spectrumKind; // 'alpha' | 'beta' | 'gamma'
+  final String? spectrumFileName;
+  final String? spectrumPath;
+  final int? spectrumChannels;
+  final double? spectrumLiveSeconds;
+  final int? spectrumTotalCounts;
+  /// Azonosított nuklidok aktivitása MBq-ban (JSON, a spektrum fájljából).
+  final String? spectrumActivityJson;
+  /// Sugárzás típusa (dózisteljesítmény és beütésszám): alpha|beta|gamma|neutron.
+  final String? radiationKind;
+  /// Dózisteljesítmény mennyisége: h10|hp|hprime|kerma.
+  final String? doseQuantity;
+  /// Mélység mm-ben (Hp(d), H'(d,Ω)).
+  final double? doseDepthMm;
+
   // Média és megjegyzés
   final String? photoPath;
   final String? notes;
@@ -91,6 +111,18 @@ class MeasurementPoint {
     this.sampleUnit,
     this.meteorology,
     this.gases = const [],
+    this.basisAmount,
+    this.basisUnit,
+    this.spectrumKind,
+    this.spectrumFileName,
+    this.spectrumPath,
+    this.spectrumChannels,
+    this.spectrumLiveSeconds,
+    this.spectrumTotalCounts,
+    this.spectrumActivityJson,
+    this.radiationKind,
+    this.doseQuantity,
+    this.doseDepthMm,
     this.photoPath,
     this.notes,
     required this.timestamp,
@@ -126,6 +158,18 @@ class MeasurementPoint {
     String? sampleUnit,
     Meteorology? meteorology,
     List<GasReading>? gases,
+    double? basisAmount,
+    String? basisUnit,
+    String? spectrumKind,
+    String? spectrumFileName,
+    String? spectrumPath,
+    int? spectrumChannels,
+    double? spectrumLiveSeconds,
+    int? spectrumTotalCounts,
+    String? spectrumActivityJson,
+    String? radiationKind,
+    String? doseQuantity,
+    double? doseDepthMm,
     String? photoPath,
     String? notes,
     DateTime? timestamp,
@@ -162,6 +206,18 @@ class MeasurementPoint {
       sampleUnit: sampleUnit ?? this.sampleUnit,
       meteorology: meteorology ?? this.meteorology,
       gases: gases ?? this.gases,
+      basisAmount: basisAmount ?? this.basisAmount,
+      basisUnit: basisUnit ?? this.basisUnit,
+      spectrumKind: spectrumKind ?? this.spectrumKind,
+      spectrumFileName: spectrumFileName ?? this.spectrumFileName,
+      spectrumPath: spectrumPath ?? this.spectrumPath,
+      spectrumChannels: spectrumChannels ?? this.spectrumChannels,
+      spectrumLiveSeconds: spectrumLiveSeconds ?? this.spectrumLiveSeconds,
+      spectrumTotalCounts: spectrumTotalCounts ?? this.spectrumTotalCounts,
+      spectrumActivityJson: spectrumActivityJson ?? this.spectrumActivityJson,
+      radiationKind: radiationKind ?? this.radiationKind,
+      doseQuantity: doseQuantity ?? this.doseQuantity,
+      doseDepthMm: doseDepthMm ?? this.doseDepthMm,
       photoPath: photoPath ?? this.photoPath,
       notes: notes ?? this.notes,
       timestamp: timestamp ?? this.timestamp,
@@ -210,6 +266,18 @@ class MeasurementPoint {
       'sample_unit': sampleUnit,
       'meteo_json': meteoJson,
       'gas_json': gasJson,
+      'basis_amount': basisAmount,
+      'basis_unit': basisUnit,
+      'spectrum_kind': spectrumKind,
+      'spectrum_file_name': spectrumFileName,
+      'spectrum_path': spectrumPath,
+      'spectrum_channels': spectrumChannels,
+      'spectrum_live_seconds': spectrumLiveSeconds,
+      'spectrum_total_counts': spectrumTotalCounts,
+      'spectrum_activity_json': spectrumActivityJson,
+      'radiation_kind': radiationKind,
+      'dose_quantity': doseQuantity,
+      'dose_depth_mm': doseDepthMm,
       'photo_path': photoPath,
       'notes': notes,
       'timestamp': timestamp.toIso8601String(),
@@ -247,6 +315,18 @@ class MeasurementPoint {
       sampleUnit: map['sample_unit'] as String?,
       meteorology: Meteorology.fromJsonString(map['meteo_json'] as String?),
       gases: GasReading.listFromJsonString(map['gas_json'] as String?),
+      basisAmount: (map['basis_amount'] as num?)?.toDouble(),
+      basisUnit: map['basis_unit'] as String?,
+      spectrumKind: map['spectrum_kind'] as String?,
+      spectrumFileName: map['spectrum_file_name'] as String?,
+      spectrumPath: map['spectrum_path'] as String?,
+      spectrumChannels: (map['spectrum_channels'] as num?)?.toInt(),
+      spectrumLiveSeconds: (map['spectrum_live_seconds'] as num?)?.toDouble(),
+      spectrumTotalCounts: (map['spectrum_total_counts'] as num?)?.toInt(),
+      spectrumActivityJson: map['spectrum_activity_json'] as String?,
+      radiationKind: map['radiation_kind'] as String?,
+      doseQuantity: map['dose_quantity'] as String?,
+      doseDepthMm: (map['dose_depth_mm'] as num?)?.toDouble(),
       photoPath: map['photo_path'] as String?,
       notes: map['notes'] as String?,
       timestamp: DateTime.parse(map['timestamp'] as String),

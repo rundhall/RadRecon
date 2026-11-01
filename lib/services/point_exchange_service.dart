@@ -1,3 +1,7 @@
+import '../models/radiation_kind.dart';
+import '../models/dose_quantity.dart';
+import '../models/spectrum.dart';
+import 'spectrum_service.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -25,6 +29,10 @@ import 'unit_format.dart';
 /// rétegnek nincs `BuildContext`-je, ezért ezt a hívó (egy widget) állítja
 /// össze az `AppLocalizations`-ból.
 class CsvHeaders {
+  final String radiation;
+  final String quantity;
+  final String basis;
+  final String spectrum;
   final String serialNumber;
   final String location;
   final String type;
@@ -58,6 +66,10 @@ class CsvHeaders {
   final String no;
 
   const CsvHeaders({
+    this.radiation = '',
+    this.quantity = '',
+    this.basis = '',
+    this.spectrum = '',
     required this.serialNumber,
     required this.location,
     required this.type,
@@ -156,6 +168,17 @@ class PointExchangeService {
       }
     }
 
+    // Spektrumfájlok base64-ben: a JSON-ban a mérési pont fájlja is átvihető.
+    final spectrumBase64 = <int?, String>{};
+    for (final pt in points) {
+      final path = pt.spectrumPath;
+      if (path == null) continue;
+      final f = File(path);
+      if (await f.exists()) {
+        spectrumBase64[pt.id] = base64Encode(await f.readAsBytes());
+      }
+    }
+
     final data = {
       'format': _formatId,
       'version': _formatVersion,
@@ -236,6 +259,18 @@ class PointExchangeService {
                 'meteo_json': pt.meteoJson,
                 'gas_json': pt.gasJson,
                 'notes': pt.notes,
+                'basis_amount': pt.basisAmount,
+                'basis_unit': pt.basisUnit,
+                'spectrum_kind': pt.spectrumKind,
+                'spectrum_file_name': pt.spectrumFileName,
+                'spectrum_channels': pt.spectrumChannels,
+                'spectrum_live_seconds': pt.spectrumLiveSeconds,
+                'spectrum_total_counts': pt.spectrumTotalCounts,
+                'spectrum_activity_json': pt.spectrumActivityJson,
+                'radiation_kind': pt.radiationKind,
+                'dose_quantity': pt.doseQuantity,
+                'dose_depth_mm': pt.doseDepthMm,
+                'spectrum_file_base64': spectrumBase64[pt.id],
                 'timestamp': pt.timestamp.toIso8601String(),
               })
           .toList(),
@@ -287,6 +322,10 @@ class PointExchangeService {
       csvHeaders.instrumentCalibration,
       '${csvHeaders.valueError} (${csvHeaders.unit})',
       csvHeaders.averaging,
+      csvHeaders.basis,
+      csvHeaders.spectrum,
+      csvHeaders.radiation,
+      csvHeaders.quantity,
     ].join(sep));
 
     final calibrationsByInstrument = <int, List<InstrumentCalibration>>{};
@@ -365,6 +404,10 @@ class PointExchangeService {
         pt.averagingSamples == null
             ? ''
             : '${pt.averagingSamples}; ${pt.averagingSeconds ?? ''}',
+        _csvField(_basisCsv(pt)),
+        _csvField(_spectrumCsv(pt)),
+        _csvField(_radiationCsv(pt)),
+        _csvField(_quantityCsv(pt)),
       ].join(sep));
     }
 
@@ -411,6 +454,36 @@ class PointExchangeService {
           '${expiredAt(d) ? ' - ${h.expiredNote}' : ''}');
     }
     return parts.join('; ');
+  }
+
+  String _radiationCsv(MeasurementPoint pt) {
+    if (pt.type != MeasurementType.doseRate && pt.type != MeasurementType.countRate) {
+      return '';
+    }
+    return pt.radiationKind ?? RadiationKind.gamma.dbValue;
+  }
+
+  String _quantityCsv(MeasurementPoint pt) {
+    if (pt.type != MeasurementType.doseRate) return '';
+    final q = DoseQuantity.fromDbValue(pt.doseQuantity);
+    final depth = pt.doseDepthMm == null ? '' : ' d=${pt.doseDepthMm} mm';
+    return '${q.symbol}$depth';
+  }
+
+  String _basisCsv(MeasurementPoint pt) {
+    if (pt.basisUnit == null) return '';
+    final amount = pt.basisAmount == null ? '' : '${pt.basisAmount} ';
+    return '$amount${pt.basisUnit}';
+  }
+
+  String _spectrumCsv(MeasurementPoint pt) {
+    if (pt.spectrumChannels == null) return '';
+    final live = pt.spectrumLiveSeconds == null ? '' : '; ${pt.spectrumLiveSeconds} s';
+    final acts = NuclideActivity.listFromJson(pt.spectrumActivityJson);
+    final actText = acts.isEmpty
+        ? ''
+        : '; ${acts.map((a) => '${a.nuclide} ${formatActivityNumberMBq(a.mbq)} ${ActivityUnitController.current.symbol}').join(', ')}';
+    return '${pt.spectrumKind ?? ''}; ${pt.spectrumChannels} csatorna$live; ${pt.spectrumTotalCounts ?? ''}$actText';
   }
 
   String _csvField(String value) {
@@ -618,6 +691,15 @@ class PointExchangeService {
       final instrumentId =
           instrumentName == null ? null : instrumentIdByName[instrumentName];
 
+      String? spectrumPath;
+      final spectrumB64 = entry['spectrum_file_base64'] as String?;
+      if (spectrumB64 != null && spectrumB64.isNotEmpty) {
+        spectrumPath = await SpectrumService.importFile(
+          bytes: base64Decode(spectrumB64),
+          fileName: entry['spectrum_file_name'] as String? ?? 'spectrum.n42',
+        );
+      }
+
       final now = DateTime.now();
       final point = MeasurementPoint(
         surveySessionId: targetSurveySessionId,
@@ -647,6 +729,20 @@ class PointExchangeService {
         sampleUnit: entry['sample_unit'] as String?,
         meteorology: Meteorology.fromJsonString(entry['meteo_json'] as String?),
         gases: GasReading.listFromJsonString(entry['gas_json'] as String?),
+        basisAmount: (entry['basis_amount'] as num?)?.toDouble(),
+        basisUnit: entry['basis_unit'] as String?,
+        spectrumKind: entry['spectrum_kind'] as String?,
+        spectrumFileName: entry['spectrum_file_name'] as String?,
+        spectrumPath: spectrumPath,
+        spectrumChannels: (entry['spectrum_channels'] as num?)?.toInt(),
+        spectrumLiveSeconds: (entry['spectrum_live_seconds'] as num?)?.toDouble(),
+        spectrumTotalCounts: (entry['spectrum_total_counts'] as num?)?.toInt(),
+        spectrumActivityJson: entry['spectrum_activity_json'] as String?,
+        radiationKind: entry['radiation_kind'] as String? ??
+            MeasurementTypeX.legacyRadiationKind(entry['measurement_type'] as String)
+                ?.dbValue,
+        doseQuantity: entry['dose_quantity'] as String?,
+        doseDepthMm: (entry['dose_depth_mm'] as num?)?.toDouble(),
         notes: entry['notes'] as String?,
         timestamp: entry['timestamp'] == null
             ? now

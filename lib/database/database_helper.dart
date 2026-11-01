@@ -60,7 +60,7 @@ class DatabaseHelper {
   // v22: doziméterek (session_dosimeters), felmérési dózis (online+manuális
   // összevonva), és `include_annual` jelölő a dózis-bejegyzéseken.
   // v26: térképi mérővonalak (`survey_map_lines`).
-  static const _dbVersion = 26;
+  static const _dbVersion = 29;
 
   /// A jelenlegi séma-verzió (a mentésfájlok kompatibilitás-ellenőrzéséhez).
   static const schemaVersion = _dbVersion;
@@ -395,6 +395,61 @@ class DatabaseHelper {
 
     // v26: térképi mérővonalak.
     await _createSurveyMapLinesTable(db);
+
+    // v27: aktivitáskoncentráció (minta mennyisége/egysége) és spektrum.
+    final v27ExistingColumns =
+        (await db.rawQuery('PRAGMA table_info(measurement_points)'))
+            .map((c) => c['name'] as String)
+            .toSet();
+    const v27Columns = {
+      'basis_amount': 'REAL',
+      'basis_unit': 'TEXT',
+      'spectrum_kind': 'TEXT',
+      'spectrum_file_name': 'TEXT',
+      'spectrum_path': 'TEXT',
+      'spectrum_channels': 'INTEGER',
+      'spectrum_live_seconds': 'REAL',
+      'spectrum_total_counts': 'INTEGER',
+    };
+    for (final entry in v27Columns.entries) {
+      if (!v27ExistingColumns.contains(entry.key)) {
+        await db.execute(
+          'ALTER TABLE measurement_points ADD COLUMN ${entry.key} ${entry.value}',
+        );
+      }
+    }
+
+    // v28: a spektrum fájljából származó nuklid-aktivitások (JSON).
+    final v28Columns =
+        (await db.rawQuery('PRAGMA table_info(measurement_points)'))
+            .map((c) => c['name'] as String)
+            .toSet();
+    if (!v28Columns.contains('spectrum_activity_json')) {
+      await db.execute(
+        'ALTER TABLE measurement_points ADD COLUMN spectrum_activity_json TEXT',
+      );
+    }
+
+    // v29: beütésszám típus (a cps és a neutron_cps egyesítése), a sugárzás
+    // típusa, a dózisteljesítmény mennyisége és mélysége, és index a pontokhoz.
+    final v29Columns =
+        (await db.rawQuery('PRAGMA table_info(measurement_points)'))
+            .map((c) => c['name'] as String)
+            .toSet();
+    if (!v29Columns.contains('radiation_kind')) {
+      await db.execute("ALTER TABLE measurement_points ADD COLUMN radiation_kind TEXT NOT NULL DEFAULT 'gamma'");
+    }
+    if (!v29Columns.contains('dose_quantity')) {
+      await db.execute("ALTER TABLE measurement_points ADD COLUMN dose_quantity TEXT NOT NULL DEFAULT 'h10'");
+    }
+    if (!v29Columns.contains('dose_depth_mm')) {
+      await db.execute('ALTER TABLE measurement_points ADD COLUMN dose_depth_mm REAL');
+    }
+    await db.execute("UPDATE measurement_points SET measurement_type = 'count_rate', radiation_kind = 'neutron' WHERE measurement_type = 'neutron_cps'");
+    await db.execute("UPDATE measurement_points SET measurement_type = 'count_rate' WHERE measurement_type = 'cps'");
+    await db.execute("UPDATE instruments SET modbus_measurement_type = 'count_rate', modbus_unit = 'ncps' WHERE modbus_measurement_type = 'neutron_cps'");
+    await db.execute("UPDATE instruments SET modbus_measurement_type = 'count_rate' WHERE modbus_measurement_type = 'cps'");
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_measurement_session ON measurement_points (survey_session_id)');
   }
 
   Future<void> _createPersonDosesTable(Database db) async {
@@ -666,6 +721,18 @@ class DatabaseHelper {
         sample_unit TEXT,
         meteo_json TEXT,
         gas_json TEXT,
+        basis_amount REAL,
+        basis_unit TEXT,
+        spectrum_kind TEXT,
+        spectrum_file_name TEXT,
+        spectrum_path TEXT,
+        spectrum_channels INTEGER,
+        spectrum_live_seconds REAL,
+        spectrum_total_counts INTEGER,
+        spectrum_activity_json TEXT,
+        radiation_kind TEXT NOT NULL DEFAULT 'gamma',
+        dose_quantity TEXT NOT NULL DEFAULT 'h10',
+        dose_depth_mm REAL,
         photo_path TEXT,
         notes TEXT,
         timestamp TEXT NOT NULL,
@@ -677,6 +744,10 @@ class DatabaseHelper {
           ON DELETE SET NULL
       )
     ''');
+
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_measurement_session ON measurement_points (survey_session_id)',
+    );
 
     await db.execute('''
       CREATE TABLE measurement_audit (
@@ -1090,7 +1161,34 @@ class DatabaseHelper {
 
   /// Mérési pont törlése. Csak nyitott (még nem lezárt) felmérésben engedélyezett.
   /// A forrás-hozzárendelések és az auditsorok a cascade miatt vele együtt törlődnek.
+  /// Spektrum-fájlok, amelyekre mérési pont hivatkozik (árva-takarításhoz).
+  Future<List<String>> spectrumPathsInUse() async {
+    final db = await database;
+    final rows = await db.query(
+      'measurement_points',
+      columns: ['spectrum_path'],
+      where: 'spectrum_path IS NOT NULL',
+    );
+    return [for (final r in rows) r['spectrum_path'] as String];
+  }
+
+  /// Mérési pont törlésekor a hozzá tartozó spektrumfájl másolatát is törli.
+  Future<void> _deleteSpectrumFileOf(int id) async {
+    final db = await database;
+    final rows = await db.query(
+      'measurement_points',
+      columns: ['spectrum_path'],
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    final path = rows.isEmpty ? null : rows.first['spectrum_path'] as String?;
+    if (path == null) return;
+    final file = File(path);
+    if (await file.exists()) await file.delete();
+  }
+
   Future<void> deleteMeasurementPoint(int id) async {
+    await _deleteSpectrumFileOf(id);
     final db = await database;
     await db.transaction((txn) async {
       final rows = await txn.rawQuery(

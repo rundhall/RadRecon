@@ -76,11 +76,13 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
   /// A nem dózisteljesítmény mérések egyszínű ikonjai (ikon, szín).
   static const _kindStyle = <MeasurementType, (IconData, Color)>{
     MeasurementType.surfaceContamination: (Icons.texture, Colors.purple),
-    MeasurementType.cps: (Icons.flash_on, Colors.orange),
-    MeasurementType.neutronCps: (Icons.blur_circular, Colors.teal),
+    MeasurementType.countRate: (Icons.flash_on, Colors.orange),
     MeasurementType.sample: (Icons.science, Colors.blueGrey),
     MeasurementType.meteorology: (Icons.thermostat, Colors.indigo),
     MeasurementType.gasMeasurement: (Icons.air, Colors.brown),
+    MeasurementType.activity: (Icons.radio_button_checked, Colors.deepOrange),
+    MeasurementType.activityConcentration: (Icons.water_drop, Colors.lightBlue),
+    MeasurementType.spectrum: (Icons.show_chart, Colors.pinkAccent),
   };
 
   MeasurementType _kindOf(MeasurementPoint p) =>
@@ -119,6 +121,8 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
     for (final p in _points) {
       if (p.value == null || p.isSample) continue;
       if (p.type != MeasurementType.doseRate) continue;
+      // A légkerma (K) nem dózisegyenérték: nem kerül a dózis-skálába.
+      if (p.doseQuantity == 'kerma') continue;
       byType.putIfAbsent(p.type, () => []).add(p);
     }
     return byType;

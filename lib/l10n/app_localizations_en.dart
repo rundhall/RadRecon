@@ -2820,4 +2820,165 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapMeasureDeleteSelected => 'Delete selected';
+
+  @override
+  String get measurementTypeActivity => 'Activity';
+
+  @override
+  String get measurementTypeActivityConcentration => 'Activity concentration';
+
+  @override
+  String get measurementTypeSpectrum => 'Spectrum';
+
+  @override
+  String get spectrumKindLabel => 'Spectrum type';
+
+  @override
+  String get spectrumKindAlpha => 'Alpha';
+
+  @override
+  String get spectrumKindBeta => 'Beta';
+
+  @override
+  String get spectrumKindGamma => 'Gamma';
+
+  @override
+  String get spectrumFileButton => 'Select spectrum file (N42)';
+
+  @override
+  String get spectrumFileChangeButton => 'Replace spectrum file';
+
+  @override
+  String get spectrumFileRequiredError => 'Select a spectrum file (N42).';
+
+  @override
+  String get spectrumParseError =>
+      'The file cannot be read as an N42 spectrum (compressed or malformed).';
+
+  @override
+  String get spectrumLogScaleLabel => 'Logarithmic scale';
+
+  @override
+  String get spectrumChannelAxis => 'Channel';
+
+  @override
+  String get spectrumEnergyAxis => 'Energy';
+
+  @override
+  String spectrumSummaryText(
+    String kind,
+    String channels,
+    String liveTime,
+    String counts,
+  ) {
+    return '$kind · $channels channels · live time $liveTime · $counts counts';
+  }
+
+  @override
+  String get spectrumNoFileLabel => 'No spectrum file';
+
+  @override
+  String get basisKindLabel => 'Sample basis';
+
+  @override
+  String get basisMass => 'Mass';
+
+  @override
+  String get basisVolume => 'Volume';
+
+  @override
+  String get basisArea => 'Area';
+
+  @override
+  String get basisAmountLabel => 'Sample quantity';
+
+  @override
+  String get concentrationCalcTitle =>
+      'Calculate concentration from total activity';
+
+  @override
+  String get concentrationTotalActivityLabel => 'Total activity';
+
+  @override
+  String get concentrationCalcButton => 'Calculate into field';
+
+  @override
+  String get concentrationCalcError =>
+      'Enter a valid total activity and a positive sample quantity.';
+
+  @override
+  String protoSpectrumCaption(String idx, String kind, String location) {
+    return 'Spectrum #$idx ($kind): $location';
+  }
+
+  @override
+  String protoSpectrumFile(String name) {
+    return 'Spectrum file: $name';
+  }
+
+  @override
+  String get spectrumKindNeutron => 'Neutron';
+
+  @override
+  String get basisMassSettingLabel => 'Default mass unit (concentration)';
+
+  @override
+  String get basisVolumeSettingLabel => 'Default volume unit (concentration)';
+
+  @override
+  String get basisAreaSettingLabel => 'Default area unit (concentration)';
+
+  @override
+  String get spectrumChooseTitle =>
+      'The file contains several spectra – choose one';
+
+  @override
+  String get csvHeaderBasis => 'Sample (quantity and unit)';
+
+  @override
+  String get csvHeaderSpectrum =>
+      'Spectrum (type; channels; live time; counts)';
+
+  @override
+  String get measurementTypeCountRate => 'Count rate';
+
+  @override
+  String get radiationAlpha => 'Alpha';
+
+  @override
+  String get radiationBeta => 'Beta';
+
+  @override
+  String get radiationGamma => 'Gamma';
+
+  @override
+  String get radiationNeutron => 'Neutron';
+
+  @override
+  String get radiationKindLabel => 'Radiation type';
+
+  @override
+  String get doseQuantityLabel => 'Quantity';
+
+  @override
+  String get doseQuantityH10 => 'Ambient dose equivalent rate (H*(10))';
+
+  @override
+  String get doseQuantityHp => 'Personal dose equivalent rate (Hp(d))';
+
+  @override
+  String get doseQuantityHprime =>
+      'Directional dose equivalent rate (H\'(d,Ω))';
+
+  @override
+  String get doseQuantityKerma => 'Air kerma rate (K)';
+
+  @override
+  String get doseDepthLabel => 'Depth (d, mm)';
+
+  @override
+  String get csvHeaderRadiation => 'Radiation';
+
+  @override
+  String get csvHeaderQuantity => 'Quantity (dose)';
 }

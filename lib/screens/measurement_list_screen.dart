@@ -1,3 +1,5 @@
+import '../l10n/domain_labels.dart';
+import '../models/measurement_type.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -415,6 +417,10 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
           typeLabel: (t) => t.name,
         csvHeaders: CsvHeaders(
           serialNumber: loc.csvHeaderSerialNumber,
+          basis: loc.csvHeaderBasis,
+          radiation: loc.csvHeaderRadiation,
+          quantity: loc.csvHeaderQuantity,
+          spectrum: loc.csvHeaderSpectrum,
           location: loc.csvHeaderLocation,
           type: loc.csvHeaderType,
           value: loc.csvHeaderValue,
@@ -701,7 +707,7 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
                     subtitle: Text(
                       p.isSample
                           ? loc.sampleTakenListLabel(_dateFormat.format(p.timestamp))
-                          : '${displayValueText(p)} · ${_dateFormat.format(p.timestamp)}',
+                          : '${p.type == MeasurementType.spectrum ? spectrumSummaryLine(loc, p) : displayValueText(p)} · ${_dateFormat.format(p.timestamp)}',
                     ),
                     trailing: p.gpsAccuracyMeters != null
                         ? Text('±${formatDistanceMeters(p.gpsAccuracyMeters!)}')

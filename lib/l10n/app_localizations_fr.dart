@@ -2854,4 +2854,169 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get mapMeasureDeleteSelected => 'Supprimer la sélection';
+
+  @override
+  String get measurementTypeActivity => 'Activité';
+
+  @override
+  String get measurementTypeActivityConcentration =>
+      'Concentration d\'activité';
+
+  @override
+  String get measurementTypeSpectrum => 'Spectre';
+
+  @override
+  String get spectrumKindLabel => 'Type de spectre';
+
+  @override
+  String get spectrumKindAlpha => 'Alpha';
+
+  @override
+  String get spectrumKindBeta => 'Bêta';
+
+  @override
+  String get spectrumKindGamma => 'Gamma';
+
+  @override
+  String get spectrumFileButton => 'Choisir le fichier de spectre (N42)';
+
+  @override
+  String get spectrumFileChangeButton => 'Remplacer le fichier de spectre';
+
+  @override
+  String get spectrumFileRequiredError =>
+      'Sélectionnez un fichier de spectre (N42).';
+
+  @override
+  String get spectrumParseError =>
+      'Le fichier ne peut pas être lu comme spectre N42 (compressé ou mal formé).';
+
+  @override
+  String get spectrumLogScaleLabel => 'Échelle logarithmique';
+
+  @override
+  String get spectrumChannelAxis => 'Canal';
+
+  @override
+  String get spectrumEnergyAxis => 'Énergie';
+
+  @override
+  String spectrumSummaryText(
+    String kind,
+    String channels,
+    String liveTime,
+    String counts,
+  ) {
+    return '$kind · $channels canaux · temps vif $liveTime · $counts coups';
+  }
+
+  @override
+  String get spectrumNoFileLabel => 'Aucun fichier de spectre';
+
+  @override
+  String get basisKindLabel => 'Base de l\'échantillon';
+
+  @override
+  String get basisMass => 'Masse';
+
+  @override
+  String get basisVolume => 'Volume';
+
+  @override
+  String get basisArea => 'Surface';
+
+  @override
+  String get basisAmountLabel => 'Quantité d\'échantillon';
+
+  @override
+  String get concentrationCalcTitle =>
+      'Calculer la concentration à partir de l\'activité totale';
+
+  @override
+  String get concentrationTotalActivityLabel => 'Activité totale';
+
+  @override
+  String get concentrationCalcButton => 'Calculer dans le champ';
+
+  @override
+  String get concentrationCalcError =>
+      'Saisissez une activité totale valide et une quantité d\'échantillon positive.';
+
+  @override
+  String protoSpectrumCaption(String idx, String kind, String location) {
+    return 'Spectre n° $idx ($kind) : $location';
+  }
+
+  @override
+  String protoSpectrumFile(String name) {
+    return 'Fichier de spectre : $name';
+  }
+
+  @override
+  String get spectrumKindNeutron => 'Neutron';
+
+  @override
+  String get basisMassSettingLabel =>
+      'Unité de masse par défaut (concentration)';
+
+  @override
+  String get basisVolumeSettingLabel =>
+      'Unité de volume par défaut (concentration)';
+
+  @override
+  String get basisAreaSettingLabel =>
+      'Unité de surface par défaut (concentration)';
+
+  @override
+  String get spectrumChooseTitle =>
+      'Le fichier contient plusieurs spectres – choisissez-en un';
+
+  @override
+  String get csvHeaderBasis => 'Échantillon (quantité et unité)';
+
+  @override
+  String get csvHeaderSpectrum => 'Spectre (type ; canaux ; temps vif ; coups)';
+
+  @override
+  String get measurementTypeCountRate => 'Taux de comptage';
+
+  @override
+  String get radiationAlpha => 'Alpha';
+
+  @override
+  String get radiationBeta => 'Bêta';
+
+  @override
+  String get radiationGamma => 'Gamma';
+
+  @override
+  String get radiationNeutron => 'Neutron';
+
+  @override
+  String get radiationKindLabel => 'Type de rayonnement';
+
+  @override
+  String get doseQuantityLabel => 'Grandeur';
+
+  @override
+  String get doseQuantityH10 => 'Débit d\'équivalent de dose ambiant (H*(10))';
+
+  @override
+  String get doseQuantityHp => 'Débit d\'équivalent de dose individuel (Hp(d))';
+
+  @override
+  String get doseQuantityHprime =>
+      'Débit d\'équivalent de dose directionnel (H\'(d,Ω))';
+
+  @override
+  String get doseQuantityKerma => 'Débit de kerma dans l\'air (K)';
+
+  @override
+  String get doseDepthLabel => 'Profondeur (d, mm)';
+
+  @override
+  String get csvHeaderRadiation => 'Rayonnement';
+
+  @override
+  String get csvHeaderQuantity => 'Grandeur (dose)';
 }

@@ -9,10 +9,8 @@ void main() {
   });
 
   test('egyéb mérés a saját típusát tartja meg', () {
-    expect(mapKindOf(isSample: false, type: MeasurementType.cps),
-        MeasurementType.cps);
-    expect(mapKindOf(isSample: false, type: MeasurementType.neutronCps),
-        MeasurementType.neutronCps);
+    expect(mapKindOf(isSample: false, type: MeasurementType.countRate),
+        MeasurementType.countRate);
   });
 
   test('dózisteljesítmény marad dózisteljesítmény (színskála)', () {

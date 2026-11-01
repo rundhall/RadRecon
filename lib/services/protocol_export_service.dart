@@ -1,3 +1,5 @@
+import '../models/dose_quantity.dart';
+import '../models/radiation_kind.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
@@ -21,6 +23,7 @@ import '../models/session_dosimeter.dart';
 import '../models/session_person_link.dart';
 import '../models/map_area.dart';
 import '../models/measurement_point.dart';
+import '../models/measurement_type.dart';
 import '../models/nuclide_id.dart';
 import '../models/point_source_link.dart';
 import '../models/shielding.dart';
@@ -32,6 +35,8 @@ import 'dose_unit_controller.dart';
 import 'dose_unit_converter.dart';
 import 'unit_format.dart';
 import 'display_units.dart';
+import 'spectrum_service.dart';
+import '../models/spectrum.dart';
 import 'database_transfer_service.dart';
 import 'screenshot_service.dart';
 import 'protocol_pdf_builder.dart';
@@ -103,6 +108,18 @@ class ProtocolExportService {
       if (!await source.exists()) continue;
       final destName = _photoFileName(point);
       await source.copy(p.join(photosDir.path, destName));
+    }
+
+    // Spektrumok: az eredeti N42 fájl és az ábra (PNG) a "spektrumok" mappába.
+    final spectrumDir = Directory(p.join(outputDir.path, 'spektrumok'));
+    for (final point in points) {
+      final source = point.spectrumPath;
+      if (source == null || !await File(source).exists()) continue;
+      await spectrumDir.create(recursive: true);
+      await File(source).copy(
+        p.join(spectrumDir.path, '${point.id ?? 0}_${p.basename(source)}'),
+      );
+      await _renderSpectrumPng(point, spectrumDir.path);
     }
 
     final screenshots = await ScreenshotService.listScreenshots(surveySessionId);
@@ -488,6 +505,45 @@ class ProtocolExportService {
     };
   }
 
+  /// A típus-cella: dózisteljesítménynél a mennyiség és a sugárzás, beütésszámnál
+  /// a sugárzás (pl. "Beütésszám (neutron)").
+  String _typeCell(MeasurementPoint point) {
+    final base = point.type.localized(_l);
+    final radiation = RadiationKind.fromDbValue(point.radiationKind).localized(_l);
+    if (point.type == MeasurementType.doseRate) {
+      final q = DoseQuantity.fromDbValue(point.doseQuantity);
+      final depth = point.doseDepthMm == null ? '' : ' d=${point.doseDepthMm} mm';
+      return '$base (${q.symbol}$depth; $radiation)';
+    }
+    if (point.type == MeasurementType.countRate) {
+      return '$base ($radiation)';
+    }
+    return base;
+  }
+
+  /// A spektrum-fájl neve a megjegyzés végén (jegyzőkönyv).
+  String _withSpectrumFileNote(String notes, MeasurementPoint point) {
+    final name = point.spectrumFileName;
+    if (point.type != MeasurementType.spectrum || name == null) return notes;
+    final line = _l.protoSpectrumFile(name);
+    return (notes.isEmpty || notes == '—') ? line : '$notes\n$line';
+  }
+
+  /// Spektrum-ábra PNG-ben a megadott mappába; null, ha a fájl nem olvasható.
+  Future<String?> _renderSpectrumPng(MeasurementPoint point, String dir) async {
+    final path = point.spectrumPath;
+    if (path == null) return null;
+    final spectrum = await SpectrumService.load(path);
+    if (spectrum == null) return null;
+    final target = p.join(dir, 'spektrum_${point.id ?? 0}.png');
+    await SpectrumService.renderPng(
+      spectrum: spectrum,
+      targetPath: target,
+      xLabel: spectrumAxisLabel(_l, spectrum),
+    );
+    return target;
+  }
+
   /// A mérési pont sorának cellaszövegei (kulcs = a sablon placeholder neve).
   /// A Word- és a PDF-jegyzőkönyv ugyanezt használja.
   Map<String, String> _pointRowValues(
@@ -500,8 +556,10 @@ class ProtocolExportService {
     return {
       'idx': '${index + 1}',
       'location': point.locationLabel ?? '—',
-      'type': point.type.localized(_l),
-      'value': displayValueOf(point).value == null
+      'type': _typeCell(point),
+      'value': point.type == MeasurementType.spectrum
+          ? spectrumSummaryLine(_l, point)
+          : displayValueOf(point).value == null
           ? '—'
           : formatValueWithError(displayValueOf(point).value!, displayValueOf(point).error) +
               (point.averagingSamples == null
@@ -531,7 +589,7 @@ class ProtocolExportService {
               .toStringAsFixed(1),
       'timestamp': _dateFormat.format(point.timestamp),
       'photo': point.photoPath == null ? '—' : _photoFileName(point),
-      'notes': _notesWithNuclides(point),
+      'notes': _withSpectrumFileNote(_notesWithNuclides(point), point),
     };
   }
 
@@ -617,6 +675,23 @@ class ProtocolExportService {
       final sourceValues = _sourceRowValues(i, point, attached);
       if (sourceValues != null) {
         sourceRows.add([for (final k in sourceKeys) sourceValues[k] ?? '—']);
+      }
+
+      if (point.type == MeasurementType.spectrum) {
+        final chart = await _renderSpectrumPng(
+          point,
+          (await getTemporaryDirectory()).path,
+        );
+        if (chart != null) {
+          photos.add(ProtocolPhoto(
+            caption: _l.protoSpectrumCaption(
+              '${i + 1}',
+              SpectrumKind.fromDbValue(point.spectrumKind).localized(_l),
+              point.locationLabel ?? '—',
+            ),
+            path: chart,
+          ));
+        }
       }
 
       final photoPath = point.photoPath;
@@ -776,6 +851,39 @@ class ProtocolExportService {
 
   String _safeFileName(String input) =>
       input.replaceAll(RegExp(r'[^\w\-]'), '_');
+
+  /// Egy spektrum-ábra a Word-dokumentumban: kép (inline) és felirat.
+  String _spectrumFigureXml(String rId, int id, String caption) {
+    const cx = 5760000; // 16 cm
+    const cy = 2880000; // 8 cm
+    final fig = '<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:drawing>'
+        '<wp:inline distT="0" distB="0" distL="0" distR="0" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">'
+        '<wp:extent cx="$cx" cy="$cy"/><wp:effectExtent l="0" t="0" r="0" b="0"/>'
+        '<wp:docPr id="$id" name="Spektrum $id"/>'
+        '<wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>'
+        '<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
+        '<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+        '<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+        '<pic:nvPicPr><pic:cNvPr id="$id" name="spektrum_$id.png"/><pic:cNvPicPr/></pic:nvPicPr>'
+        '<pic:blipFill><a:blip xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:embed="$rId"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>'
+        '<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="$cx" cy="$cy"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>'
+        '</pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>';
+    final cap = '<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:t xml:space="preserve">${_xmlEscape(caption)}</w:t></w:r></w:p>';
+    return fig + cap;
+  }
+
+  String _withImageRels(String rels, List<({String rId, String target})> figs) {
+    final add = StringBuffer();
+    for (final f in figs) {
+      add.write('<Relationship Id="${f.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="${f.target}"/>');
+    }
+    return rels.replaceFirst('</Relationships>', '$add</Relationships>');
+  }
+
+  String _withPngContentType(String types) {
+    if (types.contains('Extension="png"')) return types;
+    return types.replaceFirst('</Types>', '<Default Extension="png" ContentType="image/png"/></Types>');
+  }
 
   String _xmlEscape(String s) => s
       .replaceAll('&', '&amp;')
@@ -1129,6 +1237,37 @@ class ProtocolExportService {
       xml = xml.replaceAll('\${${entry.key}}', _xmlEscape(entry.value));
     }
 
+    // Spektrum-ábrák a jegyzőkönyv végén: a PNG a docx médiatárába kerül,
+    // a kapcsolatok és a tartalomtípusok ehhez igazodnak.
+    final figures = <({String rId, String target, List<int> bytes, String caption, int id})>[];
+    for (final point in points) {
+      if (point.type != MeasurementType.spectrum) continue;
+      final tmp = await getTemporaryDirectory();
+      final png = await _renderSpectrumPng(point, tmp.path);
+      if (png == null) continue;
+      final n = figures.length + 1;
+      figures.add((
+        rId: 'rIdSpectrum$n',
+        target: 'media/spectrum_$n.png',
+        bytes: await File(png).readAsBytes(),
+        caption: _l.protoSpectrumCaption(
+          '${points.indexOf(point) + 1}',
+          SpectrumKind.fromDbValue(point.spectrumKind).localized(_l),
+          point.locationLabel ?? '—',
+        ),
+        id: 9000 + n,
+      ));
+    }
+    if (figures.isNotEmpty) {
+      final figuresXml = StringBuffer();
+      for (final f in figures) {
+        figuresXml.write(_spectrumFigureXml(f.rId, f.id, f.caption));
+      }
+      final sectAt = xml.lastIndexOf('<w:sectPr');
+      final insertAt = sectAt >= 0 ? sectAt : xml.lastIndexOf('</w:body>');
+      xml = xml.substring(0, insertAt) + figuresXml.toString() + xml.substring(insertAt);
+    }
+
     final newDocumentBytes = utf8.encode(xml);
     final outputArchive = Archive();
     for (final file in templateArchive.files) {
@@ -1139,10 +1278,24 @@ class ProtocolExportService {
           newDocumentBytes.length,
           newDocumentBytes,
         ));
+      } else if (figures.isNotEmpty && file.name == 'word/_rels/document.xml.rels') {
+        final rels = _withImageRels(
+          utf8.decode(file.content as List<int>),
+          [for (final f in figures) (rId: f.rId, target: f.target)],
+        );
+        final bytes = utf8.encode(rels);
+        outputArchive.addFile(ArchiveFile(file.name, bytes.length, bytes));
+      } else if (figures.isNotEmpty && file.name == '[Content_Types].xml') {
+        final types = _withPngContentType(utf8.decode(file.content as List<int>));
+        final bytes = utf8.encode(types);
+        outputArchive.addFile(ArchiveFile(file.name, bytes.length, bytes));
       } else {
         final content = file.content as List<int>;
         outputArchive.addFile(ArchiveFile(file.name, content.length, content));
       }
+    }
+    for (final f in figures) {
+      outputArchive.addFile(ArchiveFile('word/${f.target}', f.bytes.length, f.bytes));
     }
 
     final encoded = ZipEncoder().encode(outputArchive);

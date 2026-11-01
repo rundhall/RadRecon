@@ -22,7 +22,10 @@ class SessionDoseCalculator {
 
   static PointDoseCalculation? fromPoints(List<MeasurementPoint> points) {
     final doseRatePoints = points
-        .where((p) => p.type == MeasurementType.doseRate && p.value != null)
+        .where((p) =>
+            p.type == MeasurementType.doseRate &&
+            p.value != null &&
+            p.doseQuantity != 'kerma')
         .toList()
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 

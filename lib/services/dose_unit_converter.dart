@@ -1,3 +1,5 @@
+import '../models/radiation_kind.dart';
+import '../models/count_rate_unit.dart';
 import '../models/dose_rate_unit.dart';
 import '../models/instrument.dart';
 import '../models/measurement_point.dart';
@@ -39,8 +41,19 @@ MeasurementPoint withCurrentDoseUnit(MeasurementPoint p) {
 /// (pl. nSv/h) a Beállításokban választott alapegységre; a többi típusnál
 /// (Bq/cm², cps) nincs átváltás.
 double instrumentReadingInAppUnit(Instrument instrument, double raw) {
+  if (instrument.modbusMeasurementType == MeasurementType.countRate) {
+    // Beütésszám: a műszer egysége (pl. kcps) beütés/s-ra váltva (cps/ncps).
+    final from = CountRateOption.fromSymbol(instrument.modbusUnit);
+    return from == null ? raw : raw * from.baseFactor;
+  }
   if (instrument.modbusMeasurementType != MeasurementType.doseRate) return raw;
   final from = DoseRateUnit.fromSymbol(instrument.modbusUnit) ??
       DoseRateUnit.instrumentNative;
   return from.convertTo(DoseUnitController.current, raw);
 }
+
+/// A műszer beütésszám-egységéből a sugárzás: ncps… esetén neutron.
+RadiationKind radiationForInstrument(Instrument instrument) =>
+    CountRateOption.fromSymbol(instrument.modbusUnit)?.neutron == true
+        ? RadiationKind.neutron
+        : RadiationKind.gamma;

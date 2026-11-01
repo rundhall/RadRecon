@@ -5191,6 +5191,291 @@ abstract class AppLocalizations {
   /// In hu, this message translates to:
   /// **'Kijelölt törlése'**
   String get mapMeasureDeleteSelected;
+
+  /// No description provided for @measurementTypeActivity.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktivitás'**
+  String get measurementTypeActivity;
+
+  /// No description provided for @measurementTypeActivityConcentration.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktivitáskoncentráció'**
+  String get measurementTypeActivityConcentration;
+
+  /// No description provided for @measurementTypeSpectrum.
+  ///
+  /// In hu, this message translates to:
+  /// **'Spektrum'**
+  String get measurementTypeSpectrum;
+
+  /// No description provided for @spectrumKindLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Spektrum típusa'**
+  String get spectrumKindLabel;
+
+  /// No description provided for @spectrumKindAlpha.
+  ///
+  /// In hu, this message translates to:
+  /// **'Alfa'**
+  String get spectrumKindAlpha;
+
+  /// No description provided for @spectrumKindBeta.
+  ///
+  /// In hu, this message translates to:
+  /// **'Béta'**
+  String get spectrumKindBeta;
+
+  /// No description provided for @spectrumKindGamma.
+  ///
+  /// In hu, this message translates to:
+  /// **'Gamma'**
+  String get spectrumKindGamma;
+
+  /// No description provided for @spectrumFileButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Spektrumfájl (N42) kiválasztása'**
+  String get spectrumFileButton;
+
+  /// No description provided for @spectrumFileChangeButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Spektrumfájl cseréje'**
+  String get spectrumFileChangeButton;
+
+  /// No description provided for @spectrumFileRequiredError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Válassz spektrumfájlt (N42).'**
+  String get spectrumFileRequiredError;
+
+  /// No description provided for @spectrumParseError.
+  ///
+  /// In hu, this message translates to:
+  /// **'A fájl nem olvasható N42 spektrumként (tömörített vagy hibás formátum).'**
+  String get spectrumParseError;
+
+  /// No description provided for @spectrumLogScaleLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Logaritmikus skála'**
+  String get spectrumLogScaleLabel;
+
+  /// No description provided for @spectrumChannelAxis.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csatorna'**
+  String get spectrumChannelAxis;
+
+  /// No description provided for @spectrumEnergyAxis.
+  ///
+  /// In hu, this message translates to:
+  /// **'Energia'**
+  String get spectrumEnergyAxis;
+
+  /// No description provided for @spectrumSummaryText.
+  ///
+  /// In hu, this message translates to:
+  /// **'{kind} · {channels} csatorna · élő idő {liveTime} · {counts} beütés'**
+  String spectrumSummaryText(
+    String kind,
+    String channels,
+    String liveTime,
+    String counts,
+  );
+
+  /// No description provided for @spectrumNoFileLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs spektrumfájl'**
+  String get spectrumNoFileLabel;
+
+  /// No description provided for @basisKindLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Minta alapja'**
+  String get basisKindLabel;
+
+  /// No description provided for @basisMass.
+  ///
+  /// In hu, this message translates to:
+  /// **'Tömeg'**
+  String get basisMass;
+
+  /// No description provided for @basisVolume.
+  ///
+  /// In hu, this message translates to:
+  /// **'Térfogat'**
+  String get basisVolume;
+
+  /// No description provided for @basisArea.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felület'**
+  String get basisArea;
+
+  /// No description provided for @basisAmountLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Minta mennyisége'**
+  String get basisAmountLabel;
+
+  /// No description provided for @concentrationCalcTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Koncentráció számítása összes aktivitásból'**
+  String get concentrationCalcTitle;
+
+  /// No description provided for @concentrationTotalActivityLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Összes aktivitás'**
+  String get concentrationTotalActivityLabel;
+
+  /// No description provided for @concentrationCalcButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Számítás a mezőbe'**
+  String get concentrationCalcButton;
+
+  /// No description provided for @concentrationCalcError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Adj meg érvényes összes aktivitást és pozitív minta mennyiséget.'**
+  String get concentrationCalcError;
+
+  /// No description provided for @protoSpectrumCaption.
+  ///
+  /// In hu, this message translates to:
+  /// **'Spektrum #{idx} ({kind}): {location}'**
+  String protoSpectrumCaption(String idx, String kind, String location);
+
+  /// No description provided for @protoSpectrumFile.
+  ///
+  /// In hu, this message translates to:
+  /// **'Spektrumfájl: {name}'**
+  String protoSpectrumFile(String name);
+
+  /// No description provided for @spectrumKindNeutron.
+  ///
+  /// In hu, this message translates to:
+  /// **'Neutron'**
+  String get spectrumKindNeutron;
+
+  /// No description provided for @basisMassSettingLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Alapértelmezett tömegegység (koncentráció)'**
+  String get basisMassSettingLabel;
+
+  /// No description provided for @basisVolumeSettingLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Alapértelmezett térfogategység (koncentráció)'**
+  String get basisVolumeSettingLabel;
+
+  /// No description provided for @basisAreaSettingLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Alapértelmezett felületegység (koncentráció)'**
+  String get basisAreaSettingLabel;
+
+  /// No description provided for @spectrumChooseTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Több spektrum van a fájlban – válassz egyet'**
+  String get spectrumChooseTitle;
+
+  /// No description provided for @csvHeaderBasis.
+  ///
+  /// In hu, this message translates to:
+  /// **'Minta (mennyiség és egység)'**
+  String get csvHeaderBasis;
+
+  /// No description provided for @csvHeaderSpectrum.
+  ///
+  /// In hu, this message translates to:
+  /// **'Spektrum (típus; csatornák; élő idő; beütés)'**
+  String get csvHeaderSpectrum;
+
+  /// No description provided for @measurementTypeCountRate.
+  ///
+  /// In hu, this message translates to:
+  /// **'Beütésszám'**
+  String get measurementTypeCountRate;
+
+  /// No description provided for @radiationAlpha.
+  ///
+  /// In hu, this message translates to:
+  /// **'Alfa'**
+  String get radiationAlpha;
+
+  /// No description provided for @radiationBeta.
+  ///
+  /// In hu, this message translates to:
+  /// **'Béta'**
+  String get radiationBeta;
+
+  /// No description provided for @radiationGamma.
+  ///
+  /// In hu, this message translates to:
+  /// **'Gamma'**
+  String get radiationGamma;
+
+  /// No description provided for @radiationNeutron.
+  ///
+  /// In hu, this message translates to:
+  /// **'Neutron'**
+  String get radiationNeutron;
+
+  /// No description provided for @radiationKindLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sugárzás típusa'**
+  String get radiationKindLabel;
+
+  /// No description provided for @doseQuantityLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mennyiség'**
+  String get doseQuantityLabel;
+
+  /// No description provided for @doseQuantityH10.
+  ///
+  /// In hu, this message translates to:
+  /// **'Környezeti dózisegyenérték-teljesítmény (H*(10))'**
+  String get doseQuantityH10;
+
+  /// No description provided for @doseQuantityHp.
+  ///
+  /// In hu, this message translates to:
+  /// **'Személyi dózisegyenérték-teljesítmény (Hp(d))'**
+  String get doseQuantityHp;
+
+  /// No description provided for @doseQuantityHprime.
+  ///
+  /// In hu, this message translates to:
+  /// **'Irányított dózisegyenérték-teljesítmény (H\'(d,Ω))'**
+  String get doseQuantityHprime;
+
+  /// No description provided for @doseQuantityKerma.
+  ///
+  /// In hu, this message translates to:
+  /// **'Levegőben közölt dózisteljesítmény (K)'**
+  String get doseQuantityKerma;
+
+  /// No description provided for @doseDepthLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mélység (d, mm)'**
+  String get doseDepthLabel;
+
+  String get csvHeaderRadiation;
+
+  String get csvHeaderQuantity;
 }
 
 class _AppLocalizationsDelegate

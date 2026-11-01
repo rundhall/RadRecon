@@ -1,3 +1,6 @@
+import '../services/basis_unit_controller.dart';
+import '../models/activity_concentration.dart';
+import '../l10n/domain_labels.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart' as fs;
 import 'package:flutter/material.dart';
@@ -371,6 +374,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 const SizedBox(height: 12),
+                for (final k in BasisKind.values) ...[
+                  ValueListenableBuilder<BasisUnit>(
+                    valueListenable: BasisUnitController.notifierOf(k),
+                    builder: (context, current, _) {
+                      return DropdownButtonFormField<BasisUnit>(
+                        key: ValueKey('basis-${k.name}-${current.symbol}'),
+                        initialValue: current,
+                        isExpanded: true,
+                        decoration: InputDecoration(labelText: k.settingLabel(loc)),
+                        items: [
+                          for (final u in BasisUnit.ofKind(k))
+                            DropdownMenuItem(value: u, child: Text(u.symbol)),
+                        ],
+                        onChanged: (u) {
+                          if (u != null) BasisUnitController.setUnit(u);
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 ValueListenableBuilder<DistanceUnit>(
                   valueListenable: DistanceUnitController.unit,
                   builder: (context, current, _) {

@@ -3019,4 +3019,288 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get csvHeaderQuantity => 'Grandeur (dose)';
+
+  @override
+  String get surveyPurposeLabel => 'Objectif du relevé';
+
+  @override
+  String get surveyPurposeGeneral => 'Général (sans objectif)';
+
+  @override
+  String get purposeWaste => 'Relevé de déchets';
+
+  @override
+  String get purposeEnvironmental => 'Mesure environnementale';
+
+  @override
+  String get purposeAccident => 'Constat sur site d\'accident';
+
+  @override
+  String get purposeSampling => 'Prélèvement d\'échantillons';
+
+  @override
+  String get protocolFieldsTooltip => 'Champs du procès-verbal';
+
+  @override
+  String get protocolFieldsTitle => 'Champs du procès-verbal';
+
+  @override
+  String get protocolFieldsWasteSection => 'Données du colis de déchets';
+
+  @override
+  String get protocolFieldsCustomSection => 'Champs personnalisés';
+
+  @override
+  String get addCustomFieldButton => 'Ajouter un champ';
+
+  @override
+  String get customFieldNameLabel => 'Nom du champ';
+
+  @override
+  String get customFieldValueLabel => 'Valeur';
+
+  @override
+  String get removeFieldTooltip => 'Supprimer le champ';
+
+  @override
+  String get protocolFieldPackageId => 'Identifiant du colis';
+
+  @override
+  String get protocolFieldMassKg => 'Masse (kg)';
+
+  @override
+  String get protocolFieldOrigin => 'Origine (bâtiment, local)';
+
+  @override
+  String get protocolFieldHalfLife => 'Catégorie de période';
+
+  @override
+  String get protocolFieldContainer => 'Emballage';
+
+  @override
+  String get protocolFieldStorage => 'Lieu de stockage';
+
+  @override
+  String get protocolFieldBetaWork => 'Travail avec isotopes bêta';
+
+  @override
+  String get protocolFieldWipeResult => 'Résultat du frottis';
+
+  @override
+  String get protocolFieldWasteCategory => 'Classement (VLLW / LLW / ILW)';
+
+  @override
+  String get protocolFieldMeasuredBy => 'Mesuré par';
+
+  @override
+  String get halfLifeVeryShort => 'Très courte (< 65 jours)';
+
+  @override
+  String get halfLifeShortMedium => 'Courte–moyenne (≤ 30 ans)';
+
+  @override
+  String get halfLifeLong => 'Longue (> 30 ans)';
+
+  @override
+  String get answerYes => 'Oui';
+
+  @override
+  String get answerNo => 'Non';
+
+  @override
+  String get protoFieldsHeading => 'Données complémentaires';
+
+  @override
+  String get protoFieldsColField => 'Champ';
+
+  @override
+  String get protoFieldsColValue => 'Valeur';
+
+  @override
+  String get wasteLimitLabel => 'Limite de kerma dans l\'air (10 cm, 10 mGy/h)';
+
+  @override
+  String get wasteLimitNoKerma =>
+      'Aucune mesure de kerma dans l\'air (K), limite non vérifiable';
+
+  @override
+  String get wasteLimitNoValidPoint =>
+      'Aucun point de kerma mesuré à 10 cm ou moins';
+
+  @override
+  String get wasteLimitMaxPrefix => 'maximum';
+
+  @override
+  String get wasteLimitOk => 'conforme';
+
+  @override
+  String get wasteLimitExceeded => 'non conforme';
+
+  @override
+  String get wasteLimitOtherNote => 'les points H*(10)/Hp ne sont pas comparés';
+
+  @override
+  String get wasteIsotopesLabel => 'Nucléides';
+
+  @override
+  String get wasteNoIsotopes => 'Aucun nucléide saisi';
+
+  @override
+  String get wasteIsotopeRowLabel => 'Nucléide';
+
+  @override
+  String get wasteHalfLifeLe30 => 'T½ ≤ 30 ans';
+
+  @override
+  String get wasteHalfLifeGt30 => 'T½ > 30 ans';
+
+  @override
+  String get wasteSLabel => 'Valeur S (Σ AK_i / SMEAK_i)';
+
+  @override
+  String get wasteSNotComputable =>
+      'non calculable (masse, activité ou valeur SMEAK manquante)';
+
+  @override
+  String get wasteCategoryLabel => 'Classement (indicatif)';
+
+  @override
+  String get isotopesSectionTitle => 'Nucléides et activité';
+
+  @override
+  String get isotopeNameLabel => 'Nucléide (ex. Co-60)';
+
+  @override
+  String get isotopeActivityLabel => 'Activité (Bq)';
+
+  @override
+  String get isotopeHalfLifeLabel => 'Période';
+
+  @override
+  String get addIsotopeButton => 'Ajouter un nucléide';
+
+  @override
+  String get removeIsotopeTooltip => 'Supprimer le nucléide';
+
+  @override
+  String get purposeDecommissioning => 'Déclassement (fin de la surveillance)';
+
+  @override
+  String get protocolFieldsDecomSection => 'Données du déclassement';
+
+  @override
+  String get decomLimitLabel =>
+      'Limite d\'équivalent de dose ambiant (10 cm, 1 µSv/h)';
+
+  @override
+  String get decomLimitNoH10 => 'Aucune mesure H*(10), limite non vérifiable';
+
+  @override
+  String get decomLimitNoValidPoint =>
+      'Aucun point H*(10) mesuré à 10 cm ou moins';
+
+  @override
+  String get decomLimitOtherNote =>
+      'les points d\'autres grandeurs ne sont pas comparés';
+
+  @override
+  String get decomSurfaceLabel => 'Contamination surfacique (3.1–3.3)';
+
+  @override
+  String get decomSurfaceMaxPrefix => 'valeur maximale mesurée';
+
+  @override
+  String get decomSurfaceReview =>
+      'évaluation requise (limites selon contamination fixée/non fixée et type de rayonnement)';
+
+  @override
+  String get decomSurfaceNone =>
+      'aucune contamination surfacique mesurée (Bq/cm²)';
+
+  @override
+  String get decomWorkplaceName => 'Nom du poste de travail';
+
+  @override
+  String get decomWorkplaceAddress => 'Adresse du poste de travail';
+
+  @override
+  String get decomUsePermit =>
+      'Numéro d\'autorisation d\'utilisation de matière radioactive';
+
+  @override
+  String get decomDeconPermit =>
+      'Numéro et titulaire de l\'autorisation de décontamination/démantèlement';
+
+  @override
+  String get decomUseEndDate =>
+      'Date de fin d\'utilisation de la matière radioactive';
+
+  @override
+  String get decomWorkplaceDescription =>
+      'Description du poste (aménagement, qualité des surfaces, hottes, collecteurs d\'eaux usées)';
+
+  @override
+  String get decomDeconMethod =>
+      'Méthode de décontamination et contamination surfacique initiale';
+
+  @override
+  String get decomDismantledEquipment =>
+      'Équipements démontés : nom et quantité';
+
+  @override
+  String get decomWasteRemoved =>
+      'Déchets radioactifs : nature, activité, quantité, copie du procès-verbal de réception';
+
+  @override
+  String get decomReleasedMaterials =>
+      'Matières libérées : nature, activité, quantité, numéro d\'autorisation ou de notification de libération, copie du procès-verbal de réception';
+
+  @override
+  String get decomTransferredMaterials =>
+      'Matières radioactives cédées à un autre titulaire : nature, activité, quantité, copie du procès-verbal de cession';
+
+  @override
+  String get decomSurfaceMethod =>
+      'Méthode de mesure de la contamination surfacique';
+
+  @override
+  String get decomSurfaceInstruments =>
+      'Instruments de contamination surfacique : type, sensibilité, numéro d\'étalonnage et validité';
+
+  @override
+  String get decomDoseInstruments =>
+      'Instruments de débit d\'équivalent de dose : type, numéro d\'étalonnage et validité';
+
+  @override
+  String get decomSoilMethod =>
+      'Matériaux de structure, murs, sol, terrain : méthode de mesure et points de prélèvement';
+
+  @override
+  String get decomMeasuringOrg => 'Nom de l\'organisme effectuant les mesures';
+
+  @override
+  String get decomMeasurers =>
+      'Fonction, qualification professionnelle et en radioprotection des opérateurs et évaluateurs';
+
+  @override
+  String get decomSummary =>
+      'Évaluation synthétique des conditions radiologiques du poste';
+
+  @override
+  String get decomAssessor =>
+      'Qualification professionnelle et en radioprotection de l\'évaluateur, numéro d\'agrément d\'expert';
+
+  @override
+  String get decomNoSources =>
+      'Aucune source radioactive ni déchet présent au poste (3.7)';
+
+  @override
+  String get decomResidualMaterials =>
+      'Concentration d\'activité des matières restant au poste (3.8)';
+
+  @override
+  String get wasteShortLived => 'à courte durée de vie';
+
+  @override
+  String get wasteLongLived => 'à longue durée de vie';
 }

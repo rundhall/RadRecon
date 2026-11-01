@@ -20,6 +20,8 @@ import '../models/session_dosimeter.dart';
 import '../models/point_source_link.dart';
 import '../models/radiation_source.dart';
 import '../models/session_person_link.dart';
+import '../models/protocol_field.dart';
+import '../models/survey_purpose.dart';
 import '../models/survey_session.dart';
 
 /// Egyetlen belépési pont a lokális SQLite adatbázishoz.
@@ -60,7 +62,9 @@ class DatabaseHelper {
   // v22: doziméterek (session_dosimeters), felmérési dózis (online+manuális
   // összevonva), és `include_annual` jelölő a dózis-bejegyzéseken.
   // v26: térképi mérővonalak (`survey_map_lines`).
-  static const _dbVersion = 29;
+  // v30: a felmérés célja (`survey_sessions.purpose`) és a célhoz tartozó
+  // jegyzőkönyv-mezők tábla (`survey_protocol_fields`).
+  static const _dbVersion = 30;
 
   /// A jelenlegi séma-verzió (a mentésfájlok kompatibilitás-ellenőrzéséhez).
   static const schemaVersion = _dbVersion;
@@ -450,6 +454,30 @@ class DatabaseHelper {
     await db.execute("UPDATE instruments SET modbus_measurement_type = 'count_rate', modbus_unit = 'ncps' WHERE modbus_measurement_type = 'neutron_cps'");
     await db.execute("UPDATE instruments SET modbus_measurement_type = 'count_rate' WHERE modbus_measurement_type = 'cps'");
     await db.execute('CREATE INDEX IF NOT EXISTS idx_measurement_session ON measurement_points (survey_session_id)');
+
+    // v30: a felmérés célja és a célhoz tartozó jegyzőkönyv-mezők.
+    final v30Columns =
+        (await db.rawQuery('PRAGMA table_info(survey_sessions)'))
+            .map((c) => c['name'] as String)
+            .toSet();
+    if (!v30Columns.contains('purpose')) {
+      await db.execute('ALTER TABLE survey_sessions ADD COLUMN purpose TEXT');
+    }
+    await _createProtocolFieldsTable(db);
+  }
+
+  Future<void> _createProtocolFieldsTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS survey_protocol_fields (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        survey_session_id INTEGER NOT NULL,
+        field_key TEXT NOT NULL,
+        custom_label TEXT,
+        value TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (survey_session_id) REFERENCES survey_sessions (id) ON DELETE CASCADE
+      )
+    ''');
   }
 
   Future<void> _createPersonDosesTable(Database db) async {
@@ -666,10 +694,12 @@ class DatabaseHelper {
         location TEXT,
         notes TEXT,
         started_at TEXT NOT NULL,
-        closed_at TEXT
+        closed_at TEXT,
+        purpose TEXT
       )
     ''');
 
+    await _createProtocolFieldsTable(db);
     await _createCalibrationTable(db);
 
     await db.execute('''
@@ -814,19 +844,51 @@ class DatabaseHelper {
     );
   }
 
-  /// A felmérés nevét és helyszínét frissíti (pl. utólagos szerkesztéskor).
-  Future<void> updateSurveySessionTitleAndLocation(
+  /// A felmérés nevét, helyszínét és célját frissíti (utólagos szerkesztéskor).
+  Future<void> updateSurveySessionDetails(
     int id,
     String title,
     String? location,
+    SurveyPurpose? purpose,
   ) async {
     final db = await database;
     await db.update(
       'survey_sessions',
-      {'title': title, 'location': location},
+      {'title': title, 'location': location, 'purpose': purpose?.name},
       where: 'id = ?',
       whereArgs: [id],
     );
+  }
+
+  Future<List<ProtocolField>> getProtocolFields(int surveySessionId) async {
+    final db = await database;
+    final rows = await db.query(
+      'survey_protocol_fields',
+      where: 'survey_session_id = ?',
+      whereArgs: [surveySessionId],
+      orderBy: 'sort_order, id',
+    );
+    return rows.map(ProtocolField.fromMap).toList();
+  }
+
+  /// A felmérés jegyzőkönyv-mezőit egy tranzakcióban cseréli le.
+  Future<void> replaceProtocolFields(
+    int surveySessionId,
+    List<ProtocolField> fields,
+  ) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete(
+        'survey_protocol_fields',
+        where: 'survey_session_id = ?',
+        whereArgs: [surveySessionId],
+      );
+      for (final field in fields) {
+        final map = field.toMap()..remove('id');
+        map['survey_session_id'] = surveySessionId;
+        await txn.insert('survey_protocol_fields', map);
+      }
+    });
   }
 
   // ---------------------------------------------------------------------

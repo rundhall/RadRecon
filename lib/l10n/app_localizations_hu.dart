@@ -2989,4 +2989,288 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get csvHeaderQuantity => 'Mennyiség (dózis)';
+
+  @override
+  String get surveyPurposeLabel => 'Felmérés célja';
+
+  @override
+  String get surveyPurposeGeneral => 'Általános (nincs cél)';
+
+  @override
+  String get purposeWaste => 'Hulladék felmérés';
+
+  @override
+  String get purposeEnvironmental => 'Környezeti mérés';
+
+  @override
+  String get purposeAccident => 'Baleseti helyszínelés';
+
+  @override
+  String get purposeSampling => 'Minta begyűjtés';
+
+  @override
+  String get protocolFieldsTooltip => 'Jegyzőkönyv mezői';
+
+  @override
+  String get protocolFieldsTitle => 'Jegyzőkönyv mezői';
+
+  @override
+  String get protocolFieldsWasteSection => 'Hulladékcsomag adatai';
+
+  @override
+  String get protocolFieldsCustomSection => 'Egyedi mezők';
+
+  @override
+  String get addCustomFieldButton => 'Mező hozzáadása';
+
+  @override
+  String get customFieldNameLabel => 'Mező neve';
+
+  @override
+  String get customFieldValueLabel => 'Érték';
+
+  @override
+  String get removeFieldTooltip => 'Mező törlése';
+
+  @override
+  String get protocolFieldPackageId => 'Csomagazonosító';
+
+  @override
+  String get protocolFieldMassKg => 'Tömeg (kg)';
+
+  @override
+  String get protocolFieldOrigin => 'Eredet (épület, helyiség)';
+
+  @override
+  String get protocolFieldHalfLife => 'Felezési idő kategória';
+
+  @override
+  String get protocolFieldContainer => 'Csomagolóeszköz';
+
+  @override
+  String get protocolFieldStorage => 'Tárolási hely';
+
+  @override
+  String get protocolFieldBetaWork => 'Béta-izotópos munka';
+
+  @override
+  String get protocolFieldWipeResult => 'Dörzsminta eredménye';
+
+  @override
+  String get protocolFieldWasteCategory => 'Besorolás (VLLW / LLW / ILW)';
+
+  @override
+  String get protocolFieldMeasuredBy => 'Mérést végezte';
+
+  @override
+  String get halfLifeVeryShort => 'Nagyon rövid (< 65 nap)';
+
+  @override
+  String get halfLifeShortMedium => 'Rövid–közepes (≤ 30 év)';
+
+  @override
+  String get halfLifeLong => 'Hosszú (> 30 év)';
+
+  @override
+  String get answerYes => 'Igen';
+
+  @override
+  String get answerNo => 'Nem';
+
+  @override
+  String get protoFieldsHeading => 'Kiegészítő adatok';
+
+  @override
+  String get protoFieldsColField => 'Mező';
+
+  @override
+  String get protoFieldsColValue => 'Érték';
+
+  @override
+  String get wasteLimitLabel => 'Légkerma-határérték (10 cm, 10 mGy/h)';
+
+  @override
+  String get wasteLimitNoKerma =>
+      'Nincs légkerma (K) mérés, a határérték nem ellenőrizhető';
+
+  @override
+  String get wasteLimitNoValidPoint =>
+      'Nincs 10 cm-nél közelebb mért légkerma-pont';
+
+  @override
+  String get wasteLimitMaxPrefix => 'legnagyobb';
+
+  @override
+  String get wasteLimitOk => 'megfelel';
+
+  @override
+  String get wasteLimitExceeded => 'nem felel meg';
+
+  @override
+  String get wasteLimitOtherNote => 'H*(10)/Hp pontok nem hasonlíthatók össze';
+
+  @override
+  String get wasteIsotopesLabel => 'Nuklidok';
+
+  @override
+  String get wasteNoIsotopes => 'Nincs nuklid megadva';
+
+  @override
+  String get wasteIsotopeRowLabel => 'Nuklid';
+
+  @override
+  String get wasteHalfLifeLe30 => 'T½ ≤ 30 év';
+
+  @override
+  String get wasteHalfLifeGt30 => 'T½ > 30 év';
+
+  @override
+  String get wasteSLabel => 'S-érték (Σ AK_i / SMEAK_i)';
+
+  @override
+  String get wasteSNotComputable =>
+      'nem számítható (hiányzó tömeg, aktivitás vagy SMEAK-érték)';
+
+  @override
+  String get wasteCategoryLabel => 'Besorolás (tájékoztató)';
+
+  @override
+  String get isotopesSectionTitle => 'Nuklidok és aktivitás';
+
+  @override
+  String get isotopeNameLabel => 'Nuklid (pl. Co-60)';
+
+  @override
+  String get isotopeActivityLabel => 'Aktivitás (Bq)';
+
+  @override
+  String get isotopeHalfLifeLabel => 'Felezési idő';
+
+  @override
+  String get addIsotopeButton => 'Nuklid hozzáadása';
+
+  @override
+  String get removeIsotopeTooltip => 'Nuklid törlése';
+
+  @override
+  String get purposeDecommissioning =>
+      'Inaktívvá nyilvánítás (felügyelet megszüntetése)';
+
+  @override
+  String get protocolFieldsDecomSection => 'Inaktívvá nyilvánítás adatai';
+
+  @override
+  String get decomLimitLabel =>
+      'Környezeti dózisegyenérték-határ (10 cm, 1 µSv/h)';
+
+  @override
+  String get decomLimitNoH10 =>
+      'Nincs H*(10) mérés, a határérték nem ellenőrizhető';
+
+  @override
+  String get decomLimitNoValidPoint =>
+      'Nincs 10 cm-nél közelebb mért H*(10) pont';
+
+  @override
+  String get decomLimitOtherNote =>
+      'más mennyiségű pontok nem hasonlíthatók össze';
+
+  @override
+  String get decomSurfaceLabel => 'Felületi szennyezettség (3.1–3.3)';
+
+  @override
+  String get decomSurfaceMaxPrefix => 'legnagyobb mért érték';
+
+  @override
+  String get decomSurfaceReview =>
+      'elbírálás szükséges (a határ fixált/nem fixált szennyezettségre és a sugárzás típusára vonatkozik)';
+
+  @override
+  String get decomSurfaceNone => 'nincs mért felületi szennyezettség (Bq/cm²)';
+
+  @override
+  String get decomWorkplaceName => 'Sugárveszélyes munkahely megnevezése';
+
+  @override
+  String get decomWorkplaceAddress => 'Munkahely természetbeli címe';
+
+  @override
+  String get decomUsePermit =>
+      'Radioaktív anyag alkalmazási engedélyének száma';
+
+  @override
+  String get decomDeconPermit =>
+      'Dekontaminálási, leszerelési engedély száma és birtokosa';
+
+  @override
+  String get decomUseEndDate =>
+      'Radioaktív anyag alkalmazásának megszüntetési dátuma';
+
+  @override
+  String get decomWorkplaceDescription =>
+      'Munkahely leírása (kialakítás, felületek minősége, légelszívók, szennyvízgyűjtők)';
+
+  @override
+  String get decomDeconMethod =>
+      'Dekontamináció módja és a felületi szennyezettség kezdeti értékei';
+
+  @override
+  String get decomDismantledEquipment =>
+      'Elbontott, leszerelt berendezések megnevezése és mennyisége';
+
+  @override
+  String get decomWasteRemoved =>
+      'Radioaktív hulladék: jelleg, aktivitás, mennyiség, átvételi jegyzőkönyv másolata';
+
+  @override
+  String get decomReleasedMaterials =>
+      'Felszabadított anyagok: jelleg, aktivitás, mennyiség, felszabadítási engedély vagy bejelentés száma, átvételi jegyzőkönyv másolata';
+
+  @override
+  String get decomTransferredMaterials =>
+      'Más engedélyesnek átadott radioaktív anyagok: jelleg, aktivitás, mennyiség, átadás-átvételi jegyzőkönyv másolata';
+
+  @override
+  String get decomSurfaceMethod => 'Felületi szennyezettség mérési módszere';
+
+  @override
+  String get decomSurfaceInstruments =>
+      'Felületi szennyezettség mérőműszerei: típus, érzékenység, hitelesítés száma és érvényessége';
+
+  @override
+  String get decomDoseInstruments =>
+      'Dózisegyenérték-teljesítmény mérőműszerei: típus, hitelesítés száma és érvényessége';
+
+  @override
+  String get decomSoilMethod =>
+      'Szerkezeti anyagok, falazat, padló, talaj: mérési módszer és mintavételi helyek';
+
+  @override
+  String get decomMeasuringOrg => 'A méréseket végző szervezet neve';
+
+  @override
+  String get decomMeasurers =>
+      'A méréseket végzők és kiértékelők munkaköre, szakmai és sugárvédelmi képzettsége';
+
+  @override
+  String get decomSummary =>
+      'A munkahely sugárzási viszonyainak összefoglaló értékelése';
+
+  @override
+  String get decomAssessor =>
+      'Értékelő szakmai és sugárvédelmi képzettsége, szakértő esetén nyilvántartási engedély száma';
+
+  @override
+  String get decomNoSources =>
+      'Munkahelyen nincs radioaktív sugárforrás vagy hulladék (3.7)';
+
+  @override
+  String get decomResidualMaterials =>
+      'Munkahelyen maradó anyagok aktivitáskoncentrációja (3.8)';
+
+  @override
+  String get wasteShortLived => 'rövid élettartamú';
+
+  @override
+  String get wasteLongLived => 'hosszú élettartamú';
 }

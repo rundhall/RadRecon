@@ -12,7 +12,10 @@ import '../models/calibration_labels.dart';
 import '../models/shielding_labels.dart';
 import '../widgets/dose_widgets.dart';
 import '../widgets/measurement_kind_icon.dart';
+import '../models/survey_purpose.dart';
 import '../models/survey_session.dart';
+import '../widgets/survey_purpose_dropdown.dart';
+import 'protocol_fields_screen.dart';
 import '../services/point_exchange_service.dart';
 import '../services/protocol_export_service.dart';
 import '../services/screenshot_service.dart';
@@ -30,6 +33,7 @@ import 'survey_map_screen.dart';
 
 enum _ListMenuAction {
   editSurveyDetails,
+  protocolFields,
   sessionPersons,
   autoLog,
   distanceTool,
@@ -94,6 +98,7 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
     if (session == null) return;
     final titleCtrl = TextEditingController(text: session.title);
     final locationCtrl = TextEditingController(text: session.location ?? '');
+    SurveyPurpose? purpose = session.purpose;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -111,6 +116,11 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
             TextField(
               controller: locationCtrl,
               decoration: InputDecoration(labelText: loc.surveyLocationLabel),
+            ),
+            const SizedBox(height: 12),
+            SurveyPurposeDropdown(
+              value: purpose,
+              onChanged: (value) => purpose = value,
             ),
           ],
         ),
@@ -132,10 +142,11 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
     final newLocation =
         locationCtrl.text.trim().isEmpty ? null : locationCtrl.text.trim();
 
-    await DatabaseHelper.instance.updateSurveySessionTitleAndLocation(
+    await DatabaseHelper.instance.updateSurveySessionDetails(
       widget.surveySessionId,
       newTitle,
       newLocation,
+      purpose,
     );
     if (mounted) {
       setState(
@@ -146,6 +157,7 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
           notes: session.notes,
           startedAt: session.startedAt,
           closedAt: session.closedAt,
+          purpose: purpose,
         ),
       );
     }
@@ -241,6 +253,15 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
     switch (action) {
       case _ListMenuAction.editSurveyDetails:
         _editSurveyDetails();
+        break;
+      case _ListMenuAction.protocolFields:
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => ProtocolFieldsScreen(
+              surveySessionId: widget.surveySessionId,
+            ),
+          ),
+        );
         break;
       case _ListMenuAction.sessionPersons:
         Navigator.of(context).push(
@@ -575,6 +596,13 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
                   child: ListTile(
                     leading: const Icon(Icons.edit_outlined),
                     title: Text(loc.editSurveyDetailsTooltip),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: _ListMenuAction.protocolFields,
+                  child: ListTile(
+                    leading: const Icon(Icons.fact_check_outlined),
+                    title: Text(loc.protocolFieldsTooltip),
                   ),
                 ),
         

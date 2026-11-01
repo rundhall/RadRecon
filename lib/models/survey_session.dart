@@ -1,7 +1,10 @@
+import 'survey_purpose.dart';
+
 /// Egy terepi felmérés (egy jegyzőkönyvnek megfelelő egység).
 ///
 /// A hozzá tartozó összes [MeasurementPoint] közösen exportálható a
-/// jegyzőkönyvbe és a térképre.
+/// jegyzőkönyvbe és a térképre. A [purpose] határozza meg, milyen
+/// kiegészítő jegyzőkönyv-mezők tartoznak a felméréshez; `null` = általános.
 class SurveySession {
   final int? id;
   final String title; // pl. "2026-09-26 – Telephely X felmérés"
@@ -9,6 +12,7 @@ class SurveySession {
   final String? notes;
   final DateTime startedAt;
   final DateTime? closedAt; // null amíg a felmérés folyamatban van
+  final SurveyPurpose? purpose;
 
   const SurveySession({
     this.id,
@@ -17,6 +21,7 @@ class SurveySession {
     this.notes,
     required this.startedAt,
     this.closedAt,
+    this.purpose,
   });
 
   bool get isClosed => closedAt != null;
@@ -28,6 +33,7 @@ class SurveySession {
     String? notes,
     DateTime? startedAt,
     DateTime? closedAt,
+    SurveyPurpose? purpose,
   }) {
     return SurveySession(
       id: id ?? this.id,
@@ -36,6 +42,7 @@ class SurveySession {
       notes: notes ?? this.notes,
       startedAt: startedAt ?? this.startedAt,
       closedAt: closedAt ?? this.closedAt,
+      purpose: purpose ?? this.purpose,
     );
   }
 
@@ -47,6 +54,7 @@ class SurveySession {
       'notes': notes,
       'started_at': startedAt.toIso8601String(),
       'closed_at': closedAt?.toIso8601String(),
+      'purpose': purpose?.name,
     };
   }
 
@@ -60,6 +68,7 @@ class SurveySession {
       closedAt: map['closed_at'] == null
           ? null
           : DateTime.parse(map['closed_at'] as String),
+      purpose: SurveyPurpose.fromStorage(map['purpose'] as String?),
     );
   }
 }

@@ -5484,6 +5484,522 @@ abstract class AppLocalizations {
   /// In hu, this message translates to:
   /// **'Mennyiség (dózis)'**
   String get csvHeaderQuantity;
+
+  /// No description provided for @surveyPurposeLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felmérés célja'**
+  String get surveyPurposeLabel;
+
+  /// No description provided for @surveyPurposeGeneral.
+  ///
+  /// In hu, this message translates to:
+  /// **'Általános (nincs cél)'**
+  String get surveyPurposeGeneral;
+
+  /// No description provided for @purposeWaste.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hulladék felmérés'**
+  String get purposeWaste;
+
+  /// No description provided for @purposeEnvironmental.
+  ///
+  /// In hu, this message translates to:
+  /// **'Környezeti mérés'**
+  String get purposeEnvironmental;
+
+  /// No description provided for @purposeAccident.
+  ///
+  /// In hu, this message translates to:
+  /// **'Baleseti helyszínelés'**
+  String get purposeAccident;
+
+  /// No description provided for @purposeSampling.
+  ///
+  /// In hu, this message translates to:
+  /// **'Minta begyűjtés'**
+  String get purposeSampling;
+
+  /// No description provided for @protocolFieldsTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jegyzőkönyv mezői'**
+  String get protocolFieldsTooltip;
+
+  /// No description provided for @protocolFieldsTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jegyzőkönyv mezői'**
+  String get protocolFieldsTitle;
+
+  /// No description provided for @protocolFieldsWasteSection.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hulladékcsomag adatai'**
+  String get protocolFieldsWasteSection;
+
+  /// No description provided for @protocolFieldsCustomSection.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egyedi mezők'**
+  String get protocolFieldsCustomSection;
+
+  /// No description provided for @addCustomFieldButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mező hozzáadása'**
+  String get addCustomFieldButton;
+
+  /// No description provided for @customFieldNameLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mező neve'**
+  String get customFieldNameLabel;
+
+  /// No description provided for @customFieldValueLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érték'**
+  String get customFieldValueLabel;
+
+  /// No description provided for @removeFieldTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mező törlése'**
+  String get removeFieldTooltip;
+
+  /// No description provided for @protocolFieldPackageId.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csomagazonosító'**
+  String get protocolFieldPackageId;
+
+  /// No description provided for @protocolFieldMassKg.
+  ///
+  /// In hu, this message translates to:
+  /// **'Tömeg (kg)'**
+  String get protocolFieldMassKg;
+
+  /// No description provided for @protocolFieldOrigin.
+  ///
+  /// In hu, this message translates to:
+  /// **'Eredet (épület, helyiség)'**
+  String get protocolFieldOrigin;
+
+  /// No description provided for @protocolFieldHalfLife.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felezési idő kategória'**
+  String get protocolFieldHalfLife;
+
+  /// No description provided for @protocolFieldContainer.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csomagolóeszköz'**
+  String get protocolFieldContainer;
+
+  /// No description provided for @protocolFieldStorage.
+  ///
+  /// In hu, this message translates to:
+  /// **'Tárolási hely'**
+  String get protocolFieldStorage;
+
+  /// No description provided for @protocolFieldBetaWork.
+  ///
+  /// In hu, this message translates to:
+  /// **'Béta-izotópos munka'**
+  String get protocolFieldBetaWork;
+
+  /// No description provided for @protocolFieldWipeResult.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dörzsminta eredménye'**
+  String get protocolFieldWipeResult;
+
+  /// No description provided for @protocolFieldWasteCategory.
+  ///
+  /// In hu, this message translates to:
+  /// **'Besorolás (VLLW / LLW / ILW)'**
+  String get protocolFieldWasteCategory;
+
+  /// No description provided for @protocolFieldMeasuredBy.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mérést végezte'**
+  String get protocolFieldMeasuredBy;
+
+  /// No description provided for @halfLifeVeryShort.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nagyon rövid (< 65 nap)'**
+  String get halfLifeVeryShort;
+
+  /// No description provided for @halfLifeShortMedium.
+  ///
+  /// In hu, this message translates to:
+  /// **'Rövid–közepes (≤ 30 év)'**
+  String get halfLifeShortMedium;
+
+  /// No description provided for @halfLifeLong.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hosszú (> 30 év)'**
+  String get halfLifeLong;
+
+  /// No description provided for @answerYes.
+  ///
+  /// In hu, this message translates to:
+  /// **'Igen'**
+  String get answerYes;
+
+  /// No description provided for @answerNo.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nem'**
+  String get answerNo;
+
+  /// No description provided for @protoFieldsHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kiegészítő adatok'**
+  String get protoFieldsHeading;
+
+  /// No description provided for @protoFieldsColField.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mező'**
+  String get protoFieldsColField;
+
+  /// No description provided for @protoFieldsColValue.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érték'**
+  String get protoFieldsColValue;
+
+  /// No description provided for @wasteLimitLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Légkerma-határérték (10 cm, 10 mGy/h)'**
+  String get wasteLimitLabel;
+
+  /// No description provided for @wasteLimitNoKerma.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs légkerma (K) mérés, a határérték nem ellenőrizhető'**
+  String get wasteLimitNoKerma;
+
+  /// No description provided for @wasteLimitNoValidPoint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs 10 cm-nél közelebb mért légkerma-pont'**
+  String get wasteLimitNoValidPoint;
+
+  /// No description provided for @wasteLimitMaxPrefix.
+  ///
+  /// In hu, this message translates to:
+  /// **'legnagyobb'**
+  String get wasteLimitMaxPrefix;
+
+  /// No description provided for @wasteLimitOk.
+  ///
+  /// In hu, this message translates to:
+  /// **'megfelel'**
+  String get wasteLimitOk;
+
+  /// No description provided for @wasteLimitExceeded.
+  ///
+  /// In hu, this message translates to:
+  /// **'nem felel meg'**
+  String get wasteLimitExceeded;
+
+  /// No description provided for @wasteLimitOtherNote.
+  ///
+  /// In hu, this message translates to:
+  /// **'H*(10)/Hp pontok nem hasonlíthatók össze'**
+  String get wasteLimitOtherNote;
+
+  /// No description provided for @wasteIsotopesLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nuklidok'**
+  String get wasteIsotopesLabel;
+
+  /// No description provided for @wasteNoIsotopes.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs nuklid megadva'**
+  String get wasteNoIsotopes;
+
+  /// No description provided for @wasteIsotopeRowLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nuklid'**
+  String get wasteIsotopeRowLabel;
+
+  /// No description provided for @wasteHalfLifeLe30.
+  ///
+  /// In hu, this message translates to:
+  /// **'T½ ≤ 30 év'**
+  String get wasteHalfLifeLe30;
+
+  /// No description provided for @wasteHalfLifeGt30.
+  ///
+  /// In hu, this message translates to:
+  /// **'T½ > 30 év'**
+  String get wasteHalfLifeGt30;
+
+  /// No description provided for @wasteSLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'S-érték (Σ AK_i / SMEAK_i)'**
+  String get wasteSLabel;
+
+  /// No description provided for @wasteSNotComputable.
+  ///
+  /// In hu, this message translates to:
+  /// **'nem számítható (hiányzó tömeg, aktivitás vagy SMEAK-érték)'**
+  String get wasteSNotComputable;
+
+  /// No description provided for @wasteCategoryLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Besorolás (tájékoztató)'**
+  String get wasteCategoryLabel;
+
+  /// No description provided for @isotopesSectionTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nuklidok és aktivitás'**
+  String get isotopesSectionTitle;
+
+  /// No description provided for @isotopeNameLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nuklid (pl. Co-60)'**
+  String get isotopeNameLabel;
+
+  /// No description provided for @isotopeActivityLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktivitás (Bq)'**
+  String get isotopeActivityLabel;
+
+  /// No description provided for @isotopeHalfLifeLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felezési idő'**
+  String get isotopeHalfLifeLabel;
+
+  /// No description provided for @addIsotopeButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nuklid hozzáadása'**
+  String get addIsotopeButton;
+
+  /// No description provided for @removeIsotopeTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nuklid törlése'**
+  String get removeIsotopeTooltip;
+
+  /// No description provided for @purposeDecommissioning.
+  ///
+  /// In hu, this message translates to:
+  /// **'Inaktívvá nyilvánítás (felügyelet megszüntetése)'**
+  String get purposeDecommissioning;
+
+  /// No description provided for @protocolFieldsDecomSection.
+  ///
+  /// In hu, this message translates to:
+  /// **'Inaktívvá nyilvánítás adatai'**
+  String get protocolFieldsDecomSection;
+
+  /// No description provided for @decomLimitLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Környezeti dózisegyenérték-határ (10 cm, 1 µSv/h)'**
+  String get decomLimitLabel;
+
+  /// No description provided for @decomLimitNoH10.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs H*(10) mérés, a határérték nem ellenőrizhető'**
+  String get decomLimitNoH10;
+
+  /// No description provided for @decomLimitNoValidPoint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs 10 cm-nél közelebb mért H*(10) pont'**
+  String get decomLimitNoValidPoint;
+
+  /// No description provided for @decomLimitOtherNote.
+  ///
+  /// In hu, this message translates to:
+  /// **'más mennyiségű pontok nem hasonlíthatók össze'**
+  String get decomLimitOtherNote;
+
+  /// No description provided for @decomSurfaceLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felületi szennyezettség (3.1–3.3)'**
+  String get decomSurfaceLabel;
+
+  /// No description provided for @decomSurfaceMaxPrefix.
+  ///
+  /// In hu, this message translates to:
+  /// **'legnagyobb mért érték'**
+  String get decomSurfaceMaxPrefix;
+
+  /// No description provided for @decomSurfaceReview.
+  ///
+  /// In hu, this message translates to:
+  /// **'elbírálás szükséges (a határ fixált/nem fixált szennyezettségre és a sugárzás típusára vonatkozik)'**
+  String get decomSurfaceReview;
+
+  /// No description provided for @decomSurfaceNone.
+  ///
+  /// In hu, this message translates to:
+  /// **'nincs mért felületi szennyezettség (Bq/cm²)'**
+  String get decomSurfaceNone;
+
+  /// No description provided for @decomWorkplaceName.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sugárveszélyes munkahely megnevezése'**
+  String get decomWorkplaceName;
+
+  /// No description provided for @decomWorkplaceAddress.
+  ///
+  /// In hu, this message translates to:
+  /// **'Munkahely természetbeli címe'**
+  String get decomWorkplaceAddress;
+
+  /// No description provided for @decomUsePermit.
+  ///
+  /// In hu, this message translates to:
+  /// **'Radioaktív anyag alkalmazási engedélyének száma'**
+  String get decomUsePermit;
+
+  /// No description provided for @decomDeconPermit.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dekontaminálási, leszerelési engedély száma és birtokosa'**
+  String get decomDeconPermit;
+
+  /// No description provided for @decomUseEndDate.
+  ///
+  /// In hu, this message translates to:
+  /// **'Radioaktív anyag alkalmazásának megszüntetési dátuma'**
+  String get decomUseEndDate;
+
+  /// No description provided for @decomWorkplaceDescription.
+  ///
+  /// In hu, this message translates to:
+  /// **'Munkahely leírása (kialakítás, felületek minősége, légelszívók, szennyvízgyűjtők)'**
+  String get decomWorkplaceDescription;
+
+  /// No description provided for @decomDeconMethod.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dekontamináció módja és a felületi szennyezettség kezdeti értékei'**
+  String get decomDeconMethod;
+
+  /// No description provided for @decomDismantledEquipment.
+  ///
+  /// In hu, this message translates to:
+  /// **'Elbontott, leszerelt berendezések megnevezése és mennyisége'**
+  String get decomDismantledEquipment;
+
+  /// No description provided for @decomWasteRemoved.
+  ///
+  /// In hu, this message translates to:
+  /// **'Radioaktív hulladék: jelleg, aktivitás, mennyiség, átvételi jegyzőkönyv másolata'**
+  String get decomWasteRemoved;
+
+  /// No description provided for @decomReleasedMaterials.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felszabadított anyagok: jelleg, aktivitás, mennyiség, felszabadítási engedély vagy bejelentés száma, átvételi jegyzőkönyv másolata'**
+  String get decomReleasedMaterials;
+
+  /// No description provided for @decomTransferredMaterials.
+  ///
+  /// In hu, this message translates to:
+  /// **'Más engedélyesnek átadott radioaktív anyagok: jelleg, aktivitás, mennyiség, átadás-átvételi jegyzőkönyv másolata'**
+  String get decomTransferredMaterials;
+
+  /// No description provided for @decomSurfaceMethod.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felületi szennyezettség mérési módszere'**
+  String get decomSurfaceMethod;
+
+  /// No description provided for @decomSurfaceInstruments.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felületi szennyezettség mérőműszerei: típus, érzékenység, hitelesítés száma és érvényessége'**
+  String get decomSurfaceInstruments;
+
+  /// No description provided for @decomDoseInstruments.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dózisegyenérték-teljesítmény mérőműszerei: típus, hitelesítés száma és érvényessége'**
+  String get decomDoseInstruments;
+
+  /// No description provided for @decomSoilMethod.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szerkezeti anyagok, falazat, padló, talaj: mérési módszer és mintavételi helyek'**
+  String get decomSoilMethod;
+
+  /// No description provided for @decomMeasuringOrg.
+  ///
+  /// In hu, this message translates to:
+  /// **'A méréseket végző szervezet neve'**
+  String get decomMeasuringOrg;
+
+  /// No description provided for @decomMeasurers.
+  ///
+  /// In hu, this message translates to:
+  /// **'A méréseket végzők és kiértékelők munkaköre, szakmai és sugárvédelmi képzettsége'**
+  String get decomMeasurers;
+
+  /// No description provided for @decomSummary.
+  ///
+  /// In hu, this message translates to:
+  /// **'A munkahely sugárzási viszonyainak összefoglaló értékelése'**
+  String get decomSummary;
+
+  /// No description provided for @decomAssessor.
+  ///
+  /// In hu, this message translates to:
+  /// **'Értékelő szakmai és sugárvédelmi képzettsége, szakértő esetén nyilvántartási engedély száma'**
+  String get decomAssessor;
+
+  /// No description provided for @decomNoSources.
+  ///
+  /// In hu, this message translates to:
+  /// **'Munkahelyen nincs radioaktív sugárforrás vagy hulladék (3.7)'**
+  String get decomNoSources;
+
+  /// No description provided for @decomResidualMaterials.
+  ///
+  /// In hu, this message translates to:
+  /// **'Munkahelyen maradó anyagok aktivitáskoncentrációja (3.8)'**
+  String get decomResidualMaterials;
+
+  /// No description provided for @wasteShortLived.
+  ///
+  /// In hu, this message translates to:
+  /// **'rövid élettartamú'**
+  String get wasteShortLived;
+
+  /// No description provided for @wasteLongLived.
+  ///
+  /// In hu, this message translates to:
+  /// **'hosszú élettartamú'**
+  String get wasteLongLived;
 }
 
 class _AppLocalizationsDelegate

@@ -3,7 +3,10 @@ import 'package:intl/intl.dart';
 
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/domain_labels.dart';
+import '../models/survey_purpose.dart';
 import '../models/survey_session.dart';
+import '../widgets/survey_purpose_dropdown.dart';
 import 'company_document_list_screen.dart';
 import 'instrument_list_screen.dart';
 import 'measurement_list_screen.dart';
@@ -43,6 +46,7 @@ class _SurveySessionScreenState extends State<SurveySessionScreen> {
       ),
     );
     final locationCtrl = TextEditingController();
+    SurveyPurpose? purpose;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -60,6 +64,11 @@ class _SurveySessionScreenState extends State<SurveySessionScreen> {
             TextField(
               controller: locationCtrl,
               decoration: InputDecoration(labelText: loc.surveyLocationLabel),
+            ),
+            const SizedBox(height: 12),
+            SurveyPurposeDropdown(
+              value: purpose,
+              onChanged: (value) => purpose = value,
             ),
           ],
         ),
@@ -83,6 +92,7 @@ class _SurveySessionScreenState extends State<SurveySessionScreen> {
       location:
           locationCtrl.text.trim().isEmpty ? null : locationCtrl.text.trim(),
       startedAt: DateTime.now(),
+      purpose: purpose,
     );
     final id = await DatabaseHelper.instance.insertSurveySession(session);
     _reload();
@@ -170,8 +180,11 @@ class _SurveySessionScreenState extends State<SurveySessionScreen> {
                 ),
                 title: Text(s.title),
                 subtitle: Text(
-                  '${s.location ?? loc.noLocationPlaceholder} · '
-                  '${_dateFormat.format(s.startedAt)}',
+                  [
+                    if (s.purpose != null) s.purpose!.localized(loc),
+                    s.location ?? loc.noLocationPlaceholder,
+                    _dateFormat.format(s.startedAt),
+                  ].join(' · '),
                 ),
                 onTap: () => _openSession(s.id!, s.title),
               );

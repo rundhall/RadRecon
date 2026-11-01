@@ -29,6 +29,8 @@ import '../models/point_source_link.dart';
 import '../models/shielding.dart';
 import '../models/shielding_labels.dart';
 import 'value_averager.dart';
+import '../models/protocol_field.dart';
+import '../models/survey_purpose.dart';
 import '../models/survey_session.dart';
 import 'activity_estimate.dart';
 import 'dose_unit_controller.dart';
@@ -40,6 +42,9 @@ import '../models/spectrum.dart';
 import 'database_transfer_service.dart';
 import 'screenshot_service.dart';
 import 'protocol_pdf_builder.dart';
+import 'waste_assessment.dart';
+import 'source_classification.dart';
+import 'decommissioning_assessment.dart';
 
 /// A felmérés lezárásakor generálja a Word jegyzőkönyvet a
 /// `assets/templates/jegyzokonyv_template.docx` sablon alapján.
@@ -93,6 +98,7 @@ class ProtocolExportService {
       inputs.dosimeters,
       _victimValueRows(inputs.victims, inputs.conditionsByLink),
       _areaRows(inputs.mapAreas),
+      inputs.protocolFieldPairs,
     );
 
     final outputDir = await _prepareOutputDir(session);
@@ -176,6 +182,7 @@ class ProtocolExportService {
         .toList();
     final conditionsByLink = await db.getPersonConditions(surveySessionId);
     final mapAreas = await db.getMapAreas(surveySessionId);
+    final protocolFields = await db.getProtocolFields(surveySessionId);
     // Résztvevők a felmérésen kapott dózisukkal (csak a beszámítottak).
     final snapshot = await db.getSessionDoseSnapshot(surveySessionId);
     final personsText = surveyors.map((a) {
@@ -203,7 +210,169 @@ class ProtocolExportService {
       victims: victims,
       conditionsByLink: conditionsByLink,
       mapAreas: mapAreas,
+      protocolFieldPairs:
+          _protocolFieldPairs(session.purpose, protocolFields, points),
     );
+  }
+
+  /// A kiegészítő jegyzőkönyv-mezők (címke, érték) párjai. Hulladék-célnál a
+  /// beépített mezők, a légkerma-határérték-ellenőrzés, a nuklidok és az
+  /// S-érték tájékoztató besorolással; minden célnál az egyedi mezők.
+  List<(String, String)> _protocolFieldPairs(
+    SurveyPurpose? purpose,
+    List<ProtocolField> fields,
+    List<MeasurementPoint> points,
+  ) {
+    final builtinByKey = {
+      for (final field in fields)
+        if (!field.isCustom) field.key: field,
+    };
+    final pairs = <(String, String)>[];
+    if (purpose == SurveyPurpose.decommissioning) {
+      for (final key in decommissioningProtocolFieldKeys) {
+        pairs.add((
+          protocolBuiltinLabel(key, _l),
+          _protocolFieldValue(key, builtinByKey[key]?.value),
+        ));
+      }
+      pairs.add((_l.decomLimitLabel, _decomLimitText(checkH10Limit(points))));
+      pairs.add((
+        _l.decomSurfaceLabel,
+        _surfaceText(summarizeSurfaceContamination(points)),
+      ));
+    }
+    if (purpose == SurveyPurpose.waste) {
+      for (final key in wasteProtocolFieldKeys) {
+        pairs.add((
+          protocolBuiltinLabel(key, _l),
+          _protocolFieldValue(key, builtinByKey[key]?.value),
+        ));
+      }
+      pairs.add((_l.wasteLimitLabel, _limitText(checkAirKermaLimit(points))));
+      final isotopes = WasteIsotope.listFromJson(
+        builtinByKey[ProtocolFieldKeys.isotopes]?.value,
+      );
+      if (isotopes.isEmpty) {
+        pairs.add((_l.wasteIsotopesLabel, _l.wasteNoIsotopes));
+      } else {
+        final assessment = assessWasteS(
+          massKg:
+              parseDecimalInput(builtinByKey[ProtocolFieldKeys.massKg]?.value),
+          isotopes: isotopes,
+        );
+        for (final result in assessment.results) {
+          pairs.add((
+            '${_l.wasteIsotopeRowLabel}: '
+                '${normalizeNuclideName(result.isotope.nuclide)}',
+            _isotopeText(result),
+          ));
+        }
+        final total = assessment.total;
+        pairs.add((
+          _l.wasteSLabel,
+          total == null ? _l.wasteSNotComputable : _sigNum(total),
+        ));
+        pairs.add((_l.wasteCategoryLabel, _categoryText(assessment)));
+      }
+    }
+    for (final field in fields.where((f) => f.isCustom)) {
+      final label = (field.customLabel ?? '').trim();
+      final value = (field.value ?? '').trim();
+      if (label.isNotEmpty && value.isNotEmpty) pairs.add((label, value));
+    }
+    return pairs;
+  }
+
+  String _protocolFieldValue(String key, String? raw) {
+    final value = raw?.trim() ?? '';
+    return value.isEmpty ? '—' : protocolFieldValueText(key, value, _l);
+  }
+
+  String _limitText(AirKermaLimitCheck check) {
+    final max = check.maxMicroGyPerH;
+    final verdict = switch (check.status) {
+      KermaLimitStatus.noKermaMeasurement => _l.wasteLimitNoKerma,
+      KermaLimitStatus.noValidPoint => _l.wasteLimitNoValidPoint,
+      KermaLimitStatus.withinLimit =>
+        '${_l.wasteLimitMaxPrefix} ${_sigNum(max! / 1000)} mGy/h — ${_l.wasteLimitOk}',
+      KermaLimitStatus.exceeded =>
+        '${_l.wasteLimitMaxPrefix} ${_sigNum(max! / 1000)} mGy/h — ${_l.wasteLimitExceeded}',
+    };
+    return check.otherDosePoints > 0
+        ? '$verdict (${_l.wasteLimitOtherNote})'
+        : verdict;
+  }
+
+  String _decomLimitText(H10LimitCheck check) {
+    final max = check.maxMicroSvPerH;
+    final verdict = switch (check.status) {
+      DecomLimitStatus.noH10Measurement => _l.decomLimitNoH10,
+      DecomLimitStatus.noValidPoint => _l.decomLimitNoValidPoint,
+      DecomLimitStatus.withinLimit =>
+        '${_l.wasteLimitMaxPrefix} ${_sigNum(max!)} µSv/h — ${_l.wasteLimitOk}',
+      DecomLimitStatus.exceeded =>
+        '${_l.wasteLimitMaxPrefix} ${_sigNum(max!)} µSv/h — ${_l.wasteLimitExceeded}',
+    };
+    return check.otherDosePoints > 0
+        ? '$verdict (${_l.decomLimitOtherNote})'
+        : verdict;
+  }
+
+  String _surfaceText(SurfaceSummary summary) {
+    final max = summary.maxBqPerCm2;
+    if (max == null) return _l.decomSurfaceNone;
+    return '${_l.decomSurfaceMaxPrefix} ${_sigNum(max)} Bq/cm² — '
+        '${_l.decomSurfaceReview}';
+  }
+
+  String _isotopeText(WasteIsotopeResult result) {
+    final activity = result.isotope.activityBq;
+    final ak = result.akBqPerKg;
+    final smeak = result.smeakBqPerKg;
+    final ameak = result.ameakBqPerKg;
+    final si = result.si;
+    String fmt(double? v) => v == null ? '—' : _sigNum(v);
+    return [
+      result.isotope.halfLifeOver30y
+          ? _l.wasteHalfLifeGt30
+          : _l.wasteHalfLifeLe30,
+      'A = ${fmt(activity)} Bq',
+      'AK = ${fmt(ak)} Bq/kg',
+      'SMEAK = ${fmt(smeak)} Bq/kg',
+      if (result.isotope.halfLifeOver30y) 'ÁMEAK = ${fmt(ameak)} Bq/kg',
+      'S_i = ${fmt(si)}',
+    ].join('; ');
+  }
+
+  String _categoryText(WasteSAssessment assessment) {
+    final category = assessment.category;
+    if (category == null) return _l.wasteSNotComputable;
+    final code = switch (category) {
+      WasteCategory.vllw => 'VLLW',
+      WasteCategory.llw => 'LLW',
+      WasteCategory.ilw => 'ILW',
+    };
+    final lifetime = assessment.isShortLived == true
+        ? _l.wasteShortLived
+        : _l.wasteLongLived;
+    return '$code ($lifetime)';
+  }
+
+  /// Három értékes jegyre kerekített szám (a kis S-értékek is látszanak).
+  String _sigNum(double value) {
+    final abs = value.abs();
+    final String text;
+    if (abs == 0) {
+      text = '0';
+    } else if (abs < 0.0001 || abs >= 1e6) {
+      text = value.toStringAsExponential(2);
+    } else {
+      final exponent = int.parse(
+        abs.toStringAsExponential().split('e').last.replaceFirst('+', ''),
+      );
+      text = value.toStringAsFixed(math.max(0, math.min(10, 2 - exponent)));
+    }
+    return text.replaceAll('.', _l.protoDecimalSep);
   }
 
   /// Az érintettek (áldozatok) táblázatának fejléce és kulcsai — a Word-
@@ -243,6 +412,7 @@ class ProtocolExportService {
       ];
   static const _gasColumnWidths = [500, 4500, 3000, 3000, 4398];
   static const _victimColumnWidths = [500, 3000, 2600, 4400, 4898];
+  static const _fieldColumnWidths = [4500, 10898];
 
   List<Map<String, String>> _victimValueRows(
     List<AttachedPerson> victims,
@@ -717,6 +887,7 @@ class ProtocolExportService {
     ];
 
     final data = ProtocolPdfData(
+      protocolFields: inputs.protocolFieldPairs,
       headerFields: [
         (_l.protoCompany, company),
         (_l.protoSurveyName, session.title),
@@ -1020,6 +1191,7 @@ class ProtocolExportService {
     List<SessionDosimeter> dosimeters,
     List<Map<String, String>> victimRows,
     List<List<String>> areaRows,
+    List<(String, String)> protocolFieldPairs,
   ) async {
     final templateData = await rootBundle.load(_templateAssetPath);
     final templateArchive =
@@ -1164,6 +1336,15 @@ class ProtocolExportService {
     }
     final signStart = xml.lastIndexOf('<w:p>', signIdx);
     final extraBlock = StringBuffer();
+    if (protocolFieldPairs.isNotEmpty) {
+      extraBlock
+        ..write(_headingXmlFor(_l.protoFieldsHeading))
+        ..write(_tableXml(
+          [_l.protoFieldsColField, _l.protoFieldsColValue],
+          [for (final (label, value) in protocolFieldPairs) [label, value]],
+          _fieldColumnWidths,
+        ));
+    }
     if (areaRows.isNotEmpty) {
       extraBlock
         ..write(_headingXmlFor(_l.protoAreasHeading))
@@ -1322,6 +1503,7 @@ class _ProtocolInputs {
     required this.victims,
     required this.conditionsByLink,
     required this.mapAreas,
+    required this.protocolFieldPairs,
   });
 
   final SurveySession session;
@@ -1334,4 +1516,5 @@ class _ProtocolInputs {
   final List<AttachedPerson> victims;
   final Map<int, List<PersonCondition>> conditionsByLink;
   final List<MapArea> mapAreas;
+  final List<(String, String)> protocolFieldPairs;
 }

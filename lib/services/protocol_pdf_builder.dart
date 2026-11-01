@@ -38,6 +38,7 @@ class ProtocolPdfData {
     this.areaHeaders = const [],
     this.areaRows = const [],
     this.screenshots = const [],
+    this.protocolFields = const [],
   });
 
   final List<(String, String)> headerFields;
@@ -59,6 +60,7 @@ class ProtocolPdfData {
   final List<String> areaHeaders;
   final List<List<String>> areaRows;
   final List<ProtocolPhoto> screenshots;
+  final List<(String, String)> protocolFields;
 }
 
 /// Jegyzőkönyv PDF-et készít a `pdf` csomaggal.
@@ -110,9 +112,16 @@ class ProtocolPdfBuilder {
           ),
         ),
         build: (context) => [
-          pw.Text(l.protoTitle, style: _style(18)),
+          pw.Text(_safe(l.protoTitle), style: _style(18)),
           pw.SizedBox(height: 10),
           for (final (label, value) in data.headerFields) _field(label, value),
+          if (data.protocolFields.isNotEmpty) ...[
+            pw.SizedBox(height: 14),
+            _heading(l.protoFieldsHeading),
+            pw.SizedBox(height: 6),
+            for (final (label, value) in data.protocolFields)
+              _field(label, value),
+          ],
           pw.SizedBox(height: 14),
           _heading(l.protoPointsHeading),
           pw.SizedBox(height: 6),
@@ -121,12 +130,12 @@ class ProtocolPdfBuilder {
           _heading(l.protoSourceHeading),
           pw.SizedBox(height: 6),
           if (data.sourceRows.isEmpty)
-            pw.Text(l.protoNoSourcePoints, style: _style(8))
+            pw.Text(_safe(l.protoNoSourcePoints), style: _style(8))
           else
             _table(data.sourceHeaders, data.sourceRows),
           pw.SizedBox(height: 4),
           pw.Text(
-            data.sourceNote,
+            _safe(data.sourceNote),
             style: _style(8, color: PdfColors.grey800),
           ),
           pw.SizedBox(height: 14),
@@ -198,11 +207,29 @@ class ProtocolPdfBuilder {
     return doc.save();
   }
 
+  /// A beágyazott Noto Sans betűkészlet nem tartalmazza ezeket a jeleket:
+  /// a PDF-ben négyzet jelenne meg, ezért ASCII-megfelelőre cseréljük őket.
+  static const _glyphFallbacks = <String, String>{
+    '≤': '<=',
+    '≥': '>=',
+    '→': '->',
+    '∞': 'inf',
+    '☐': '[ ]',
+  };
+
+  static String _safe(String text) {
+    var out = text;
+    for (final entry in _glyphFallbacks.entries) {
+      out = out.replaceAll(entry.key, entry.value);
+    }
+    return out;
+  }
+
   static pw.TextStyle _style(double size, {PdfColor? color}) =>
       pw.TextStyle(fontSize: size, color: color);
 
   static pw.Widget _heading(String text) =>
-      pw.Text(text, style: _style(12, color: PdfColors.grey900));
+      pw.Text(_safe(text), style: _style(12, color: PdfColors.grey900));
 
   static pw.Widget _field(String label, String value) => pw.Padding(
         padding: pw.EdgeInsets.only(bottom: 3),
@@ -211,17 +238,20 @@ class ProtocolPdfBuilder {
           children: [
             pw.SizedBox(
               width: 150,
-              child: pw.Text(label, style: _style(9, color: PdfColors.grey800)),
+              child: pw.Text(_safe(label),
+                  style: _style(9, color: PdfColors.grey800)),
             ),
-            pw.Expanded(child: pw.Text(value, style: _style(9))),
+            pw.Expanded(child: pw.Text(_safe(value), style: _style(9))),
           ],
         ),
       );
 
   static pw.Widget _table(List<String> headers, List<List<String>> rows) =>
       pw.TableHelper.fromTextArray(
-        headers: headers,
-        data: rows,
+        headers: [for (final h in headers) _safe(h)],
+        data: [
+          for (final row in rows) [for (final cell in row) _safe(cell)],
+        ],
         headerStyle: _style(7.5),
         cellStyle: _style(7.5),
         headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
@@ -243,7 +273,7 @@ class ProtocolPdfBuilder {
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Text(photo.caption, style: _style(8)),
+            pw.Text(_safe(photo.caption), style: _style(8)),
             pw.SizedBox(height: 3),
             if (image != null)
               pw.SizedBox(
@@ -253,7 +283,7 @@ class ProtocolPdfBuilder {
               )
             else
               pw.Text(
-                l.protoPhotoUnreadable,
+                _safe(l.protoPhotoUnreadable),
                 style: _style(8, color: PdfColors.grey800),
               ),
           ],

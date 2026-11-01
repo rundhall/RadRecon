@@ -2981,4 +2981,285 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get csvHeaderQuantity => 'Quantity (dose)';
+
+  @override
+  String get surveyPurposeLabel => 'Survey purpose';
+
+  @override
+  String get surveyPurposeGeneral => 'General (no purpose)';
+
+  @override
+  String get purposeWaste => 'Waste survey';
+
+  @override
+  String get purposeEnvironmental => 'Environmental measurement';
+
+  @override
+  String get purposeAccident => 'Accident site investigation';
+
+  @override
+  String get purposeSampling => 'Sample collection';
+
+  @override
+  String get protocolFieldsTooltip => 'Protocol fields';
+
+  @override
+  String get protocolFieldsTitle => 'Protocol fields';
+
+  @override
+  String get protocolFieldsWasteSection => 'Waste package data';
+
+  @override
+  String get protocolFieldsCustomSection => 'Custom fields';
+
+  @override
+  String get addCustomFieldButton => 'Add field';
+
+  @override
+  String get customFieldNameLabel => 'Field name';
+
+  @override
+  String get customFieldValueLabel => 'Value';
+
+  @override
+  String get removeFieldTooltip => 'Remove field';
+
+  @override
+  String get protocolFieldPackageId => 'Package ID';
+
+  @override
+  String get protocolFieldMassKg => 'Mass (kg)';
+
+  @override
+  String get protocolFieldOrigin => 'Origin (building, room)';
+
+  @override
+  String get protocolFieldHalfLife => 'Half-life category';
+
+  @override
+  String get protocolFieldContainer => 'Packaging';
+
+  @override
+  String get protocolFieldStorage => 'Storage location';
+
+  @override
+  String get protocolFieldBetaWork => 'Beta-isotope work';
+
+  @override
+  String get protocolFieldWipeResult => 'Wipe sample result';
+
+  @override
+  String get protocolFieldWasteCategory => 'Classification (VLLW / LLW / ILW)';
+
+  @override
+  String get protocolFieldMeasuredBy => 'Measured by';
+
+  @override
+  String get halfLifeVeryShort => 'Very short (< 65 days)';
+
+  @override
+  String get halfLifeShortMedium => 'Short–medium (≤ 30 years)';
+
+  @override
+  String get halfLifeLong => 'Long (> 30 years)';
+
+  @override
+  String get answerYes => 'Yes';
+
+  @override
+  String get answerNo => 'No';
+
+  @override
+  String get protoFieldsHeading => 'Additional data';
+
+  @override
+  String get protoFieldsColField => 'Field';
+
+  @override
+  String get protoFieldsColValue => 'Value';
+
+  @override
+  String get wasteLimitLabel => 'Air kerma limit (10 cm, 10 mGy/h)';
+
+  @override
+  String get wasteLimitNoKerma =>
+      'No air kerma (K) measurement, limit cannot be checked';
+
+  @override
+  String get wasteLimitNoValidPoint =>
+      'No air kerma point measured at 10 cm or closer';
+
+  @override
+  String get wasteLimitMaxPrefix => 'maximum';
+
+  @override
+  String get wasteLimitOk => 'compliant';
+
+  @override
+  String get wasteLimitExceeded => 'not compliant';
+
+  @override
+  String get wasteLimitOtherNote => 'H*(10)/Hp points are not compared';
+
+  @override
+  String get wasteIsotopesLabel => 'Nuclides';
+
+  @override
+  String get wasteNoIsotopes => 'No nuclide entered';
+
+  @override
+  String get wasteIsotopeRowLabel => 'Nuclide';
+
+  @override
+  String get wasteHalfLifeLe30 => 'T½ ≤ 30 years';
+
+  @override
+  String get wasteHalfLifeGt30 => 'T½ > 30 years';
+
+  @override
+  String get wasteSLabel => 'S value (Σ AK_i / SMEAK_i)';
+
+  @override
+  String get wasteSNotComputable =>
+      'not computable (missing mass, activity or SMEAK value)';
+
+  @override
+  String get wasteCategoryLabel => 'Classification (indicative)';
+
+  @override
+  String get isotopesSectionTitle => 'Nuclides and activity';
+
+  @override
+  String get isotopeNameLabel => 'Nuclide (e.g. Co-60)';
+
+  @override
+  String get isotopeActivityLabel => 'Activity (Bq)';
+
+  @override
+  String get isotopeHalfLifeLabel => 'Half-life';
+
+  @override
+  String get addIsotopeButton => 'Add nuclide';
+
+  @override
+  String get removeIsotopeTooltip => 'Remove nuclide';
+
+  @override
+  String get purposeDecommissioning => 'Decommissioning (end of supervision)';
+
+  @override
+  String get protocolFieldsDecomSection => 'Decommissioning data';
+
+  @override
+  String get decomLimitLabel =>
+      'Ambient dose equivalent limit (10 cm, 1 µSv/h)';
+
+  @override
+  String get decomLimitNoH10 =>
+      'No H*(10) measurement, limit cannot be checked';
+
+  @override
+  String get decomLimitNoValidPoint =>
+      'No H*(10) point measured at 10 cm or closer';
+
+  @override
+  String get decomLimitOtherNote =>
+      'points of other quantities are not compared';
+
+  @override
+  String get decomSurfaceLabel => 'Surface contamination (3.1–3.3)';
+
+  @override
+  String get decomSurfaceMaxPrefix => 'maximum measured value';
+
+  @override
+  String get decomSurfaceReview =>
+      'assessment required (limits depend on fixed/non-fixed contamination and radiation type)';
+
+  @override
+  String get decomSurfaceNone => 'no surface contamination measured (Bq/cm²)';
+
+  @override
+  String get decomWorkplaceName => 'Workplace name';
+
+  @override
+  String get decomWorkplaceAddress => 'Workplace address';
+
+  @override
+  String get decomUsePermit => 'Permit number for use of radioactive material';
+
+  @override
+  String get decomDeconPermit =>
+      'Decontamination/dismantling permit number and holder';
+
+  @override
+  String get decomUseEndDate => 'Date of end of use of radioactive material';
+
+  @override
+  String get decomWorkplaceDescription =>
+      'Workplace description (layout, surface quality, extraction hoods, waste water collectors)';
+
+  @override
+  String get decomDeconMethod =>
+      'Decontamination method and initial surface contamination';
+
+  @override
+  String get decomDismantledEquipment =>
+      'Dismantled equipment: name and quantity';
+
+  @override
+  String get decomWasteRemoved =>
+      'Radioactive waste: type, activity, quantity, copy of receipt record';
+
+  @override
+  String get decomReleasedMaterials =>
+      'Released materials: type, activity, quantity, release permit or notification number, copy of receipt record';
+
+  @override
+  String get decomTransferredMaterials =>
+      'Radioactive materials transferred to another licensee: type, activity, quantity, copy of transfer record';
+
+  @override
+  String get decomSurfaceMethod => 'Surface contamination measurement method';
+
+  @override
+  String get decomSurfaceInstruments =>
+      'Surface contamination instruments: type, sensitivity, calibration number and validity';
+
+  @override
+  String get decomDoseInstruments =>
+      'Dose equivalent rate instruments: type, calibration number and validity';
+
+  @override
+  String get decomSoilMethod =>
+      'Structural materials, walls, floor, soil: measurement method and sampling locations';
+
+  @override
+  String get decomMeasuringOrg => 'Name of the measuring organisation';
+
+  @override
+  String get decomMeasurers =>
+      'Job title, professional and radiation protection qualification of measurers and evaluators';
+
+  @override
+  String get decomSummary =>
+      'Summary assessment of the radiation conditions at the workplace';
+
+  @override
+  String get decomAssessor =>
+      'Assessor\'s professional and radiation protection qualification, expert licence number';
+
+  @override
+  String get decomNoSources =>
+      'No radioactive source or waste present at the workplace (3.7)';
+
+  @override
+  String get decomResidualMaterials =>
+      'Activity concentration of materials remaining at the workplace (3.8)';
+
+  @override
+  String get wasteShortLived => 'short-lived';
+
+  @override
+  String get wasteLongLived => 'long-lived';
 }

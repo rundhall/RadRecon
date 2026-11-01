@@ -11,6 +11,8 @@ import '../models/meteorology.dart';
 import '../models/person_condition.dart';
 import '../models/session_dosimeter.dart';
 import '../models/session_person_link.dart';
+import '../models/protocol_field.dart';
+import '../models/survey_purpose.dart';
 
 /// A jegyzőkönyv a magyar `label`-öket használja; a felület az aktuális
 /// nyelv szövegét ezekkel a kiterjesztésekkel kéri le.
@@ -184,3 +186,76 @@ extension DoseQuantityLabelText on DoseQuantity {
         DoseQuantity.kerma => loc.doseQuantityKerma,
       };
 }
+
+extension SurveyPurposeText on SurveyPurpose {
+  String localized(AppLocalizations loc) => switch (this) {
+        SurveyPurpose.waste => loc.purposeWaste,
+        SurveyPurpose.environmental => loc.purposeEnvironmental,
+        SurveyPurpose.accident => loc.purposeAccident,
+        SurveyPurpose.sampling => loc.purposeSampling,
+        SurveyPurpose.decommissioning => loc.purposeDecommissioning,
+      };
+}
+
+/// A beépített jegyzőkönyv-mező címkéje az aktuális nyelven.
+String protocolBuiltinLabel(String key, AppLocalizations loc) =>
+    switch (key) {
+      ProtocolFieldKeys.packageId => loc.protocolFieldPackageId,
+      ProtocolFieldKeys.massKg => loc.protocolFieldMassKg,
+      ProtocolFieldKeys.origin => loc.protocolFieldOrigin,
+      ProtocolFieldKeys.halfLifeClass => loc.protocolFieldHalfLife,
+      ProtocolFieldKeys.containerType => loc.protocolFieldContainer,
+      ProtocolFieldKeys.storageLocation => loc.protocolFieldStorage,
+      ProtocolFieldKeys.betaWork => loc.protocolFieldBetaWork,
+      ProtocolFieldKeys.wipeResult => loc.protocolFieldWipeResult,
+      ProtocolFieldKeys.wasteCategory => loc.protocolFieldWasteCategory,
+      ProtocolFieldKeys.measuredBy => loc.protocolFieldMeasuredBy,
+      ProtocolFieldKeys.decomWorkplaceName => loc.decomWorkplaceName,
+      ProtocolFieldKeys.decomWorkplaceAddress => loc.decomWorkplaceAddress,
+      ProtocolFieldKeys.decomUsePermit => loc.decomUsePermit,
+      ProtocolFieldKeys.decomDeconPermit => loc.decomDeconPermit,
+      ProtocolFieldKeys.decomUseEndDate => loc.decomUseEndDate,
+      ProtocolFieldKeys.decomWorkplaceDescription => loc.decomWorkplaceDescription,
+      ProtocolFieldKeys.decomDeconMethod => loc.decomDeconMethod,
+      ProtocolFieldKeys.decomDismantledEquipment => loc.decomDismantledEquipment,
+      ProtocolFieldKeys.decomWasteRemoved => loc.decomWasteRemoved,
+      ProtocolFieldKeys.decomReleasedMaterials => loc.decomReleasedMaterials,
+      ProtocolFieldKeys.decomTransferredMaterials => loc.decomTransferredMaterials,
+      ProtocolFieldKeys.decomSurfaceMethod => loc.decomSurfaceMethod,
+      ProtocolFieldKeys.decomSurfaceInstruments => loc.decomSurfaceInstruments,
+      ProtocolFieldKeys.decomDoseInstruments => loc.decomDoseInstruments,
+      ProtocolFieldKeys.decomSoilMethod => loc.decomSoilMethod,
+      ProtocolFieldKeys.decomMeasuringOrg => loc.decomMeasuringOrg,
+      ProtocolFieldKeys.decomMeasurers => loc.decomMeasurers,
+      ProtocolFieldKeys.decomSummary => loc.decomSummary,
+      ProtocolFieldKeys.decomAssessor => loc.decomAssessor,
+      ProtocolFieldKeys.decomNoSources => loc.decomNoSources,
+      ProtocolFieldKeys.decomResidualMaterials => loc.decomResidualMaterials,
+      _ => key,
+    };
+
+/// A beépített mező tárolt kódjának olvasható szövege.
+String protocolFieldValueText(
+  String key,
+  String value,
+  AppLocalizations loc,
+) =>
+    switch (key) {
+      ProtocolFieldKeys.halfLifeClass => switch (value) {
+          'very_short' => loc.halfLifeVeryShort,
+          'short_medium' => loc.halfLifeShortMedium,
+          'long' => loc.halfLifeLong,
+          _ => value,
+        },
+      ProtocolFieldKeys.betaWork => switch (value) {
+          'yes' => loc.answerYes,
+          'no' => loc.answerNo,
+          _ => value,
+        },
+      ProtocolFieldKeys.decomNoSources => switch (value) {
+          'yes' => loc.answerYes,
+          'no' => loc.answerNo,
+          _ => value,
+        },
+      _ => value,
+    };

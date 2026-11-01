@@ -148,6 +148,7 @@ class DatabaseTransferService {
   static const _attachmentsPrefix = 'attachments/';
   static const _attachmentMarker = 'attachments/';
   static const _restoredAttachmentsDirName = 'rad_recon_attachments';
+  static const _restoreStageDirName = 'rad_recon_restore_stage';
 
   static const _activeCompanyKey = 'active_company_name';
   static const _folderPathKey = 'companies_folder_path';
@@ -534,11 +535,18 @@ class DatabaseTransferService {
   }
 
   /// Visszatöltéskor a jelölőket a helyreállított fájlok útvonalára cseréli.
-  Future<void> _restoreAttachments(Database db, String dirPath) async {
+  /// [stagedDir]: a kicsomagolt fájlok helye (itt ellenőrzünk); [finalDir]:
+  /// ahová a fájlok véglegesen kerülnek (ez íródik az adatbázisba).
+  Future<void> _restoreAttachments(
+    Database db,
+    String stagedDir,
+    String finalDir,
+  ) async {
     Future<String?> restore(String? path) async {
       if (path == null || !path.startsWith(_attachmentMarker)) return path;
-      final restored = p.join(dirPath, p.basename(path));
-      return await File(restored).exists() ? restored : null;
+      final name = p.basename(path);
+      final present = await File(p.join(stagedDir, name)).exists();
+      return present ? p.join(finalDir, name) : null;
     }
 
     for (final table in const ['instrument_calibrations', 'person_certificates']) {
@@ -689,95 +697,127 @@ class DatabaseTransferService {
 
     final helper = DatabaseHelper.instance;
     final dbPath = await helper.databaseFilePath();
-    await helper.close();
-
-    await _deleteDbFiles(dbPath);
-    await _writeEntry(archive.findFile(_dbEntryName)!, dbPath);
-
     final docs = await getApplicationDocumentsDirectory();
 
-    // Fotók: új, saját mappába, és az útvonalak átírása.
+    // Véglegesen ide kerülnek a fájlok (az adatbázis-útvonalak ezekre mutatnak).
     final photosDir = Directory(p.join(docs.path, _restoredPhotosDirName));
-    if (await photosDir.exists()) await photosDir.delete(recursive: true);
-    await photosDir.create(recursive: true);
-    for (final entry in archive.files) {
-      if (!entry.isFile || !entry.name.startsWith(_photosPrefix)) continue;
-      final name = p.basename(entry.name);
-      await _writeEntry(entry, p.join(photosDir.path, name));
-    }
-    // Spektrumfájlok: külön mappába, az útvonalak átírása lent.
     final spectraDir = Directory(p.join(docs.path, _restoredSpectraDirName));
-    if (await spectraDir.exists()) await spectraDir.delete(recursive: true);
-    await spectraDir.create(recursive: true);
-    for (final entry in archive.files) {
-      if (!entry.isFile || !entry.name.startsWith(_spectraPrefix)) continue;
-      await _writeEntry(entry, p.join(spectraDir.path, p.basename(entry.name)));
-    }
-    // Csatolmányok (műbizonylatok, hitelesítési bizonylatok, bizonyítványok).
     final attachmentsDir =
         Directory(p.join(docs.path, _restoredAttachmentsDirName));
-    if (await attachmentsDir.exists()) {
-      await attachmentsDir.delete(recursive: true);
-    }
-    await attachmentsDir.create(recursive: true);
-    for (final entry in archive.files) {
-      if (!entry.isFile || !entry.name.startsWith(_attachmentsPrefix)) continue;
-      await _writeEntry(entry, p.join(attachmentsDir.path, p.basename(entry.name)));
-    }
-    final db = await openDatabase(dbPath);
-    try {
-      await _restoreAttachments(db, attachmentsDir.path);
-      final spectrumRows = await db.query(
-        'measurement_points',
-        columns: ['id', 'spectrum_path'],
-        where: 'spectrum_path IS NOT NULL',
-      );
-      for (final row in spectrumRows) {
-        final path = row['spectrum_path'] as String?;
-        if (path == null || !path.startsWith(_spectrumPathMarker)) continue;
-        final restored = p.join(spectraDir.path, p.basename(path));
-        await db.update(
-          'measurement_points',
-          {'spectrum_path': await File(restored).exists() ? restored : null},
-          where: 'id = ?',
-          whereArgs: [row['id']],
-        );
-      }
-      final rows = await db.query(
-        'measurement_points',
-        columns: ['id', 'photo_path'],
-        where: 'photo_path IS NOT NULL',
-      );
-      for (final row in rows) {
-        final path = row['photo_path'] as String?;
-        if (path == null || !path.startsWith(_photoPathMarker)) continue;
-        final restored = p.join(photosDir.path, p.basename(path));
-        await db.update(
-          'measurement_points',
-          {'photo_path': await File(restored).exists() ? restored : null},
-          where: 'id = ?',
-          whereArgs: [row['id']],
-        );
-      }
-    } finally {
-      await db.close();
-    }
-
-    // Képernyőképek.
     final screenshotsDir = Directory(p.join(docs.path, _screenshotsDirName));
-    if (await screenshotsDir.exists()) {
-      await screenshotsDir.delete(recursive: true);
-    }
-    for (final entry in archive.files) {
-      if (!entry.isFile || !entry.name.startsWith(_screenshotsPrefix)) continue;
-      final rel = entry.name.substring(_screenshotsPrefix.length);
-      final out = File(p.joinAll([screenshotsDir.path, ...rel.split('/')]));
-      await out.parent.create(recursive: true);
-      await _writeEntry(entry, out.path);
-    }
 
-    await _afterDataReplaced();
-    return info.name;
+    // 1. Kicsomagolás ideiglenes mappába. Az aktív adatbázishoz és a fájlokhoz
+    //    eddig nem nyúlunk: sérült mentésnél az eredeti adatok megmaradnak.
+    final stage = Directory(p.join(docs.path, _restoreStageDirName));
+    if (await stage.exists()) await stage.delete(recursive: true);
+    await stage.create(recursive: true);
+    try {
+      final stagedDb = p.join(stage.path, _dbEntryName);
+      final stagedPhotos = p.join(stage.path, _restoredPhotosDirName);
+      final stagedSpectra = p.join(stage.path, _restoredSpectraDirName);
+      final stagedAttachments =
+          p.join(stage.path, _restoredAttachmentsDirName);
+      final stagedScreenshots = p.join(stage.path, _screenshotsDirName);
+      for (final dir in [
+        stagedPhotos,
+        stagedSpectra,
+        stagedAttachments,
+        stagedScreenshots,
+      ]) {
+        await Directory(dir).create(recursive: true);
+      }
+      await _writeEntry(archive.findFile(_dbEntryName)!, stagedDb);
+      for (final entry in archive.files) {
+        if (!entry.isFile) continue;
+        if (entry.name.startsWith(_photosPrefix)) {
+          await _writeEntry(
+              entry, p.join(stagedPhotos, p.basename(entry.name)));
+        } else if (entry.name.startsWith(_spectraPrefix)) {
+          await _writeEntry(
+              entry, p.join(stagedSpectra, p.basename(entry.name)));
+        } else if (entry.name.startsWith(_attachmentsPrefix)) {
+          await _writeEntry(
+              entry, p.join(stagedAttachments, p.basename(entry.name)));
+        } else if (entry.name.startsWith(_screenshotsPrefix)) {
+          final rel = entry.name.substring(_screenshotsPrefix.length);
+          final out = File(p.joinAll([stagedScreenshots, ...rel.split('/')]));
+          await out.parent.create(recursive: true);
+          await _writeEntry(entry, out.path);
+        }
+      }
+
+      // 2. Az útvonalak átírása a staging-adatbázisban: a végleges helyekre
+      //    mutatnak, a létezést viszont a kicsomagolt fájlokon ellenőrizzük.
+      final db = await openDatabase(stagedDb);
+      try {
+        await _restoreAttachments(db, stagedAttachments, attachmentsDir.path);
+        await _relinkPaths(
+          db,
+          column: 'spectrum_path',
+          marker: _spectrumPathMarker,
+          stagedDir: stagedSpectra,
+          finalDir: spectraDir.path,
+        );
+        await _relinkPaths(
+          db,
+          column: 'photo_path',
+          marker: _photoPathMarker,
+          stagedDir: stagedPhotos,
+          finalDir: photosDir.path,
+        );
+      } finally {
+        await db.close();
+      }
+
+      // 3. Csere. Innentől az eredeti adatok felülíródnak, de a helyükre már
+      //    ellenőrzött, kész állapot kerül.
+      await helper.close();
+      await _deleteDbFiles(dbPath);
+      await File(stagedDb).copy(dbPath);
+      await _swapDir(stagedPhotos, photosDir);
+      await _swapDir(stagedSpectra, spectraDir);
+      await _swapDir(stagedAttachments, attachmentsDir);
+      await _swapDir(stagedScreenshots, screenshotsDir);
+
+      await _afterDataReplaced();
+      return info.name;
+    } finally {
+      if (await stage.exists()) await stage.delete(recursive: true);
+    }
+  }
+
+  /// A `column` útvonalait a végleges helyre írja át. Ha a fájl nincs meg a
+  /// kicsomagolt mappában, az útvonal null lesz (nem marad rossz hivatkozás).
+  Future<void> _relinkPaths(
+    Database db, {
+    required String column,
+    required String marker,
+    required String stagedDir,
+    required String finalDir,
+  }) async {
+    final rows = await db.query(
+      'measurement_points',
+      columns: ['id', column],
+      where: '$column IS NOT NULL',
+    );
+    for (final row in rows) {
+      final path = row[column] as String?;
+      if (path == null || !path.startsWith(marker)) continue;
+      final name = p.basename(path);
+      final present = await File(p.join(stagedDir, name)).exists();
+      await db.update(
+        'measurement_points',
+        {column: present ? p.join(finalDir, name) : null},
+        where: 'id = ?',
+        whereArgs: [row['id']],
+      );
+    }
+  }
+
+  /// A kicsomagolt mappát a végleges helyére teszi; a régi tartalmat előbb törli.
+  Future<void> _swapDir(String stagedPath, Directory target) async {
+    if (await target.exists()) await target.delete(recursive: true);
+    await Directory(stagedPath).rename(target.path);
   }
 
   // ---------------------------------------------------------------- törlés

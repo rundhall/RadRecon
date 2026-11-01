@@ -269,7 +269,7 @@ class _PointSourceLinkScreenState extends State<PointSourceLinkScreen> {
                 subtitle: Text(
                   '${formatDistanceMeters(a.link.distanceMeters)} · '
                   '${loc.manufactureDateLabel}: '
-                  '${_dateFormat.format(a.source.manufactureDate)}',
+                  '${a.source.manufactureDate == null ? '—' : _dateFormat.format(a.source.manufactureDate!)}',
                 ),
                 trailing: IconButton(
                   icon: const Icon(Icons.link_off),

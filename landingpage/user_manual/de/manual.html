@@ -35,7 +35,7 @@
       <div class="container">
 
 <h1>RadRecon Benutzerhandbuch</h1>
-<p>Zuletzt aktualisiert: 23.10.2026</p>
+<p>Zuletzt aktualisiert: 01.11.2026</p>
 <p>Die App ist in sechs Sprachen verfügbar: Ungarisch, Englisch, Deutsch, Spanisch, Französisch und Italienisch. In diesem Handbuch stehen die Bezeichnungen von Schaltflächen und Menüpunkten in fett, so wie sie in der deutschen Fassung der App erscheinen.</p>
 
 <h2>Inhalt</h2>
@@ -54,7 +54,8 @@
 <li><a href="#m12">Werkzeuge</a></li>
 <li><a href="#m13">Abschließen, Export und Import</a></li>
 <li><a href="#m14">Fehlerbehebung</a></li>
-<li><a href="#m15">Wichtiger Hinweis</a></li>
+<li><a href="#m15">Verletzte Personen und Klinikübergabe</a></li>
+<li><a href="#m16">Wichtiger Hinweis</a></li>
 </ol>
 
 <h2 id="m1">1. Einführung</h2>
@@ -124,6 +125,7 @@
 <p>Neben Name, Ablauf der ärztlichen Untersuchung und der Unterweisung hat eine Person eine <strong>Telefonnummer</strong>, mehrere <strong>E-Mail-Adresse</strong>en und beliebig viele <strong>Zertifikate</strong>. Drücken Sie <strong>Zertifikat hinzufügen</strong> und geben Sie die Bezeichnung (zum Beispiel Strahlenschutzprüfung), die Zertifikatsnummer, die ausstellende Stelle, das Ausstellungsdatum und die Gültigkeit ein und hängen Sie die Datei an. An den Ablauf eines Zertifikats kann wie bei den anderen Ablaufdaten erinnert werden. Telefonnummer und E-Mail-Adressen sind in der CSV der Personen enthalten, die Zertifikate nicht.</p>
 
 
+<p>Im Personendatenblatt können Sie neben Name, Telefonnummer und E-Mail-Adressen eine <strong>Kennung</strong> (zum Beispiel eine interne Personalnummer) und eine <strong>Adresse</strong> eintragen. Ist die Person verletzt, können Sie im Abschnitt <strong>Körperdaten</strong> <strong>Geschlecht</strong>, <strong>Alter</strong> (Jahre), <strong>Gewicht</strong> (kg, ungefähr) und <strong>Größe</strong> (cm) angeben. Die Kennung erscheint im Protokoll, die Adresse nicht. Unten im Personendatenblatt zeigt die Liste <strong>Patientenblätter</strong> die Erhebungen, bei denen die Person als verletzt erfasst war; ein Tippen auf einen Eintrag öffnet das jeweilige Blatt der verletzten Person.</p>
 <h2 id="m6">6. Dosen</h2>
 <p>RadRecon kann die Dosis jeder Person führen. Dosen werden in µSv gespeichert. Die Personenliste zeigt die Jahresdosis jeder Person nach Quelle aufgeteilt und hat eine Auswahl <strong>Jahr</strong>.</p>
 <ul>
@@ -155,10 +157,11 @@
 </ol>
 <p>Name und Ort lassen sich später über das Bearbeiten-Symbol ändern; dort ordnen Sie auch die beteiligten Personen zu.</p>
 
+<p>Beim Anlegen einer Erhebung können Sie außerdem den Kartenmodus wählen: <strong>online</strong> (GPS und OpenStreetMap-Karte) oder <strong>Grundriss</strong>. Bei Innenerhebungen im Grundrissmodus laden Sie ein Grundrissbild (oder erzeugen einen leeren Grundriss mit angegebenen Maßen), markieren darauf zwei Punkte und geben den realen Abstand zwischen ihnen an. Danach werden die Punkte ohne GPS mit lokalen Koordinaten erfasst. Beim Zuordnen einer Person ist die Standardrolle die, die sie zuletzt hatte (Erhebende oder verletzte Person).</p>
 <h2 id="m9">9. Messpunkt erfassen</h2>
 <p>Drücken Sie in der Messkampagne <strong>Neuer Punkt</strong>.</p>
 <ul>
-<li><strong>Messtyp:</strong> Dosisleistung, Oberflächenkontamination, Zählrate (cps), Neutronenzählrate (cps) oder Probenahme. Zur Probenahme gehören auch die Typen <strong>Meteorologie</strong> und <strong>Gasmessung</strong>, die keinen Messwert haben: Die Wetterdaten bzw. die Gaskonzentrationen geben Sie zusammen mit dem Punkt ein.</li>
+<li><strong>Messart:</strong> Ortsdosisleistung, Flächenkontamination, Zählrate (cps), Neutronen-Zählrate (cps), Probenahme, Meteorologie, <strong>chemischer Stoff</strong> oder <strong>biologisches Material</strong>. Bei Meteorologie-, Chemie- und Biologiepunkten gibt es keinen Messwert, und der Abschnitt der radioaktiven Quellen wird nicht angezeigt.</li>
 <li><strong>Ortsname, Messwert und Einheit.</strong> Jede Art hat eine Standardeinheit.</li>
 <li><strong>Entfernung von der Quelle</strong> und <strong>Nuklid</strong>, aus denen die App eine schnelle Aktivitätsschätzung aus dem Messwert ableitet.</li>
 <li><strong>Messgerät:</strong> wählen Sie eines aus Ihrer Liste oder legen Sie mit der Plus-Schaltfläche ein neues an. Bei einem Modbus-Gerät lesen Sie den Wert mit <strong>Modbus-Abfrage</strong> direkt ein.</li>
@@ -178,6 +181,10 @@
 <p>Ist die GPS-Genauigkeit schlecht (zum Beispiel ±10 m), bleiben Sie am Punkt stehen und drücken Sie unter der Position <strong>Gemitteltes GPS</strong>. Wählen Sie 30, 60 oder 120 Sekunden. Die App sammelt die Positionen, gewichtet sie nach Genauigkeit, verwirft Ausreißer und trägt die mittlere Position mit geschätzter Genauigkeit ein. Unter freiem Himmel ist das Ergebnis am besten. Eine längere Zeit hilft, aber der GPS-Fehler ist zeitlich korreliert; die Genauigkeit verbessert sich daher nicht mit der Wurzel der Messwertanzahl.</p>
 
 
+<h3>Chemischer Stoff, biologisches Material und Probenanalyse</h3>
+<p><strong>Chemischer Stoff:</strong> An einem Punkt können mehrere Verbindungen aus der Liste oder über den Eintrag <strong>Sonstige</strong> mit eigenem Namen erfasst werden. Zu jeder Verbindung geben Sie den Aggregatzustand (Gas, Flüssigkeit, Feststoff, Aerosol) und die Konzentration an. Die Einheit kann ein Verhältnis (ppm, ppb, vol%, %, %LEL) oder Masse pro Bezug sein, wobei Masse (µg, mg, g, kg, t, oz, lb) und Bezug (Volumen, Masse oder Fläche) getrennt gewählt werden. Beim Wechsel des Aggregatzustands wechselt eine nicht mehr passende Einheit automatisch auf einen passenden Bezug.</p>
+<p><strong>Biologisches Material:</strong> An einem Punkt können mehrere Materialien erfasst werden: Name (Freitext), Typ (Bakterium, Virus, Toxin, Pilz oder sonstiges) und eine Mengenangabe im Freitext. Eine vorgegebene Liste von Krankheitserregern gibt es nicht; die Namen tragen Sie selbst ein.</p>
+<p><strong>Probenanalyse:</strong> Bei einem Probenahme- oder Biologiematerial-Punkt öffnet das Reagenzglas-Symbol die Liste der Analysen. Bei einer neuen Analyse geben Sie die Methode (FT-IR, NIR, Raman, XRF, PCR oder sonstige), das Gerät, Datum und Uhrzeit, die Bedienperson, das Ergebnis und Notizen an; eine Datei können Sie anhängen, etwa einen Spektrumexport. Bei PCR werden Zielgen oder Erreger, das Ergebnis (positiv, negativ oder ungültig) und der Ct-Wert in eigenen Feldern eingetragen. Probenanalysen erscheinen auch im Protokoll.</p>
 <h2 id="m10">10. Quellen an einem Punkt</h2>
 <p>Wählen Sie im Punktbildschirm <strong>Radioaktive Quelle(n) verwalten</strong> und ordnen Sie Quellen aus dem Register zu. Geben Sie für jede den Abstand zum Messpunkt ein. Die App zeigt dann:</p>
 <ul>
@@ -192,6 +199,7 @@
 <h3>Markierte Bereiche</h3>
 <p>Bereiche ermöglichen es, einen Teil des untersuchten Geländes auf der Karte zu markieren, zum Beispiel einen kontrollierten, abgesperrten oder kontaminierten Bereich. Drücken Sie auf der Karte <strong>Gebiet markieren</strong>. Geben Sie unter <strong>Name</strong> eine Bezeichnung ein (zum Beispiel Messbereich), wählen Sie unter <strong>Form</strong> die Form (<strong>Polygon</strong> oder <strong>Kreis</strong>) und unter <strong>Farbe</strong> die Farbe, und drücken Sie dann <strong>Zeichnen</strong>. Bei einem Polygon tippen Sie die Ecken nacheinander an und drücken <strong>Fertig</strong>; mindestens 3 Ecken sind nötig, und <strong>Rückgängig</strong> entfernt die letzte Ecke. Bei einem Kreis tippen Sie zuerst den Mittelpunkt und dann einen Punkt am Rand an, damit der Radius festgelegt wird. Die Bereiche werden in ihrer Farbe halbtransparent gefüllt dargestellt. Die Schaltfläche <strong>Markierte Gebiete</strong> listet die Bereiche der Messkampagne auf; in der Liste können Sie einen Bereich nach Bestätigung löschen. Die Bereiche sind im Word- und PDF-Protokoll enthalten (Name, Form, Geometrie und Fläche in m²) und in der Sicherungsdatei gespeichert.</p>
 
+<p>Auf der Karte können Sie auch Strahlenquellen platzieren: Eine Quelle aus der Liste, die sich über das Quellensymbol öffnet, erscheint mit Kennung und Nukliden auf der Karte. Bei ausreichender Vergrößerung ist die Beschriftung sichtbar, aus größerer Entfernung nur das Symbol. Im Grundrissmodus ersetzt der kalibrierte Grundriss die Karte; die Punkte sind nummeriert, Quellen zeigen ihre Namen.</p>
 <h2 id="m12">12. Werkzeuge</h2>
 <p>Die Werkzeuge finden Sie im Menü der Messkampagne (drei Punkte).</p>
 <ul>
@@ -217,6 +225,7 @@
 <p>Das Protokoll verwendet die in den Einstellungen gewählten Einheiten. CSV- und JSON-Exporte behalten die gespeicherten Einheiten. Das Protokoll zeigt den Wert mit Fehler und der Messwertanzahl einer gemittelten Messung sowie das Messgerät mit seinen Prüf-/Kalibrierdatensätzen. Die CSV hat die zusätzlichen Spalten <strong>Fehler (±)</strong>, <strong>Mittelung (Messwerte; s)</strong> und <strong>Prüfung/Kalibrierung des Messgeräts</strong>; die JSON-Datei enthält dieselben Daten.</p>
 
 
+<p>In der Erhebungsliste können Sie nach Name und Ort suchen, nach offen, abgeschlossen oder archiviert sowie nach Zeitraum filtern, und nach Zeit oder Name sortieren. Eine abgeschlossene Erhebung können Sie archivieren; archivierte Erhebungen erscheinen über einen eigenen Filter, ihre Daten bleiben erhalten. In der Messliste können Sie suchen, nach Messart, Zeit und Wert filtern und sortieren. Das Protokoll entsteht als Word oder PDF; es enthält den Grundriss mit den Markierungen, die Quellen auf der Karte, Meteorologie- und Gastabellen, chemische und biologische Stoffe, Probenanalysen, die Klinikübergabedaten verletzter Personen, Körperkarten-Abbildungen und Personenkennungen. Die Firmen-Sicherungsdatei enthält außerdem die angehängten Grundrisse und Probenanalysedateien.</p>
 <h2 id="m14">14. Fehlerbehebung</h2>
 <ul>
 <li><strong>Keine GPS-Position:</strong> prüfen Sie, ob die Ortungsdienste eingeschaltet sind und RadRecon den Standort nutzen darf, und drücken Sie dann <strong>GPS aktualisieren</strong>. In Gebäuden kann die Genauigkeit schlecht sein; der Genauigkeitsradius wird mit dem Punkt gespeichert.</li>
@@ -227,7 +236,15 @@
 </ul>
 <p>Bleibt ein Problem bestehen, schreiben Sie an <a href="mailto:info@radrecon.hu">info@radrecon.hu</a>.</p>
 
-<h2 id="m15">15. Wichtiger Hinweis</h2>
+<h2 id="m15">15. Verletzte Personen und Klinikübergabe</h2>
+<p>Für Personen mit der Rolle <strong>verletzte Person / Opfer</strong> öffnen Sie das Blatt der verletzten Person mit dem Arzt-Symbol in der Zeile der Person. Das Blatt zeigt an einer Stelle Rolle, Triage-Kategorie, Verletzungen und Erkrankungen, die Personendaten und die Körperkarte.</p>
+<ul>
+<li><strong>Körperkarte:</strong> Tippen Sie auf die Vorder- oder Rückansicht, um eine Markierung hinzuzufügen. Der Markierungstyp ist <strong>Verletzung</strong> (mit Notiz, etwa Verbrennung oder Fraktur) oder <strong>Kontamination</strong>. Tippen Sie auf eine bestehende Markierung, um sie zu bearbeiten oder zu löschen.</li>
+<li><strong>Kontaminanten:</strong> Zu jeder Markierung können Sie optional Isotop (aus dem Katalog), chemischen und biologischen Kontaminanten angeben. Eine Markierung kann alle drei enthalten.</li>
+<li><strong>Personendaten:</strong> Geschlecht, Alter, Gewicht und Größe werden im Personendatenblatt bearbeitet; das Blatt der verletzten Person zeigt sie nur an.</li>
+</ul>
+<p>Die Klinikübergabedaten erscheinen im Protokoll pro verletzter Person: Name, Geschlecht, Alter, Gewicht, Größe, Kontaminanten und Verletzungsorte, zusammen mit der Körperkarten-Abbildung. Mit der Speichern-Schaltfläche im Kopf des Blatts speichern Sie Änderungen jederzeit. Verletzungen, Kontaminationen und Körperdaten sind gesundheitsbezogen; nur berechtigte Personen sollten sie bearbeiten.</p>
+<h2 id="m16">16. Wichtiger Hinweis</h2>
 <p>RadRecon ist ein Hilfsmittel für Dokumentation und Berechnung, kein Messgerät. Berechnete Werte und die Richtung der Quellensuche dienen nur als Anhaltspunkt. Prüfen Sie sie für offizielle Unterlagen anhand einer maßgeblichen Quelle und befolgen Sie die Anweisungen Ihres Strahlenschutzbeauftragten. Siehe <a href="../../terms/de/terms.html">Nutzungsbedingungen</a>.</p>
 
       </div>

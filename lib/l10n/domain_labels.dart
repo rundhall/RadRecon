@@ -1,3 +1,5 @@
+import '../models/bio_agent.dart';
+import '../models/gas_reading.dart';
 import '../models/dose_quantity.dart';
 import '../models/radiation_kind.dart';
 import '../services/dose_unit_controller.dart';
@@ -59,6 +61,7 @@ extension MeasurementTypeText on MeasurementType {
         MeasurementType.sample => loc.measurementTypeSample,
         MeasurementType.meteorology => loc.measurementTypeMeteorology,
         MeasurementType.gasMeasurement => loc.measurementTypeGasMeasurement,
+        MeasurementType.biological => loc.measurementTypeBiological,
         MeasurementType.activity => loc.measurementTypeActivity,
         MeasurementType.activityConcentration =>
           loc.measurementTypeActivityConcentration,
@@ -259,3 +262,22 @@ String protocolFieldValueText(
         },
       _ => value,
     };
+
+extension PhysicalStateText on PhysicalState {
+  String localized(AppLocalizations loc) => switch (this) {
+        PhysicalState.gas => loc.physStateGas,
+        PhysicalState.liquid => loc.physStateLiquid,
+        PhysicalState.solid => loc.physStateSolid,
+        PhysicalState.aerosol => loc.physStateAerosol,
+      };
+}
+
+extension BioKindText on BioKind {
+  String localized(AppLocalizations loc) => switch (this) {
+        BioKind.bacterium => loc.bioKindBacterium,
+        BioKind.virus => loc.bioKindVirus,
+        BioKind.toxin => loc.bioKindToxin,
+        BioKind.fungus => loc.bioKindFungus,
+        BioKind.other => loc.bioKindOther,
+      };
+}

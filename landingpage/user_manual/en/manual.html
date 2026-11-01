@@ -35,7 +35,7 @@
       <div class="container">
 
 <h1>RadRecon User Manual</h1>
-<p>Last updated: 23.10.2026</p>
+<p>Last updated: 01.11.2026</p>
 
 <h2>Contents</h2>
 <ol>
@@ -53,7 +53,8 @@
 <li><a href="#m12">Tools</a></li>
 <li><a href="#m13">Closing, exporting and importing</a></li>
 <li><a href="#m14">Troubleshooting</a></li>
-<li><a href="#m15">Important notice</a></li>
+<li><a href="#m15">Injured persons and hospital handover</a></li>
+<li><a href="#m16">Important notice</a></li>
 </ol>
 
 <h2 id="m1">1. Introduction</h2>
@@ -122,6 +123,7 @@
 <p>Besides the name, the medical exam and the training expiry, a person has a <strong>Phone number</strong>, several <strong>Email address</strong>es and any number of <strong>Certificates</strong>. Press <strong>Add certificate</strong> and enter the name (for example radiation protection exam), the certificate number, the issuer, the issue date, the validity and attach the file. The expiry of a certificate can be reminded like the other expiry dates. The phone number and the email addresses are part of the persons CSV, the certificates are not.</p>
 
 
+<p>On a person's record you can enter an <strong>Identifier</strong> (for example an internal staff number) and an <strong>Address</strong>, in addition to the name, phone number and e-mail addresses. If the person is injured, you can enter <strong>Sex</strong>, <strong>Age</strong> (years), <strong>Weight</strong> (kg, approximate) and <strong>Height</strong> (cm) in the <strong>Physical data</strong> section. The identifier appears in the protocol; the address does not. At the bottom of the person's record, the <strong>Patient sheets</strong> list shows the surveys where the person was recorded as injured; tap an entry to open that injured-person sheet.</p>
 <h2 id="m6">6. Doses</h2>
 <p>RadRecon can keep the dose of each person. Doses are stored in µSv. The persons list shows the annual dose of each person, split by source, and has a <strong>Year</strong> selector.</p>
 <ul>
@@ -153,10 +155,11 @@
 </ol>
 <p>Use the edit icon to change the name and location later, and assign the personnel who take part.</p>
 
+<p>When creating a survey you can also choose the map mode: <strong>online</strong> (GPS and OpenStreetMap map) or <strong>floor plan</strong>. For indoor surveys in floor plan mode, load a floor plan image (or generate a blank one with given dimensions), mark two points on it and enter the real distance between them. Points are then recorded without GPS, with local coordinates. When you assign a person, the default role is the one the person last had (surveyor or injured person).</p>
 <h2 id="m9">9. Recording a measurement point</h2>
 <p>Press <strong>New point</strong> in the survey.</p>
 <ul>
-<li><strong>Measurement type:</strong> dose rate, surface contamination, count rate (cps), neutron count rate (cps) or sampling. Sampling also includes the <strong>Meteorology</strong> and <strong>Gas measurement</strong> types, which have no measured value: the weather data or the gas concentrations are entered with the point.</li>
+<li><strong>Measurement type:</strong> dose rate, surface contamination, count rate (cps), neutron count rate (cps), sampling, meteorology, <strong>chemical substance</strong> or <strong>biological material</strong>. Meteorology, chemical and biological points have no measured value, and the radioactive sources section is not shown for them.</li>
 <li><strong>Location name, measured value and unit.</strong> Each type has a default unit.</li>
 <li><strong>Distance from source</strong> and <strong>nuclide</strong>, which give a quick estimate of the activity from the measured value.</li>
 <li><strong>Instrument:</strong> select one from your list, or add a new one with the plus button. For a Modbus instrument use the <strong>Modbus query</strong> button to read the value directly.</li>
@@ -176,6 +179,10 @@
 <p>If the GPS accuracy is poor (for example ±10 m), stand still at the point and press <strong>Averaged GPS</strong> under the position. Choose 30, 60 or 120 seconds. The App collects the positions, weights them by their accuracy, drops the outliers and enters the mean position with an estimated accuracy. An open sky gives the best result. A longer time helps, but the GPS error is correlated in time, so do not expect the accuracy to improve with the square root of the number of samples.</p>
 
 
+<h3>Chemical substance, biological material and sample analysis</h3>
+<p><strong>Chemical substance:</strong> several compounds can be recorded at one point, chosen from the list or entered as <strong>Other</strong> with your own name. For each compound you enter the physical state (gas, liquid, solid, aerosol) and the concentration. The unit can be a ratio (ppm, ppb, vol%, %, %LEL) or mass per basis, where the mass (µg, mg, g, kg, t, oz, lb) and the basis (volume, mass or area) are chosen separately. When the physical state changes, a unit that no longer applies is switched automatically to a suitable basis.</p>
+<p><strong>Biological material:</strong> several materials can be recorded at one point: name (free text), type (bacterium, virus, toxin, fungus or other) and a free-text quantity. There is no pre-filled list of pathogens; you enter the names.</p>
+<p><strong>Sample analysis:</strong> on a sampling or biological material point, the test-tube icon opens the list of analyses. For a new analysis you enter the method (FT-IR, NIR, Raman, XRF, PCR or other), the instrument, date and time, operator, result and notes, and you can attach a file, for example a spectrum export. For PCR, the target gene or organism, the outcome (positive, negative or invalid) and the Ct value are entered in separate fields. Sample analyses also appear in the protocol.</p>
 <h2 id="m10">10. Sources at a point</h2>
 <p>In the point screen choose <strong>Manage radioactive source(s)</strong> and attach sources from the registry. For each one enter its distance from the measurement point. The App then shows:</p>
 <ul>
@@ -191,6 +198,7 @@
 <h3>Marked areas</h3>
 <p>Areas let you mark a part of the surveyed site on the map, for example a surveyed, restricted or contaminated area. Press <strong>Mark area</strong> on the map. Enter a <strong>Name</strong> (for example Surveyed area), choose the <strong>Shape</strong> (<strong>Polygon</strong> or <strong>Circle</strong>) and a <strong>Colour</strong>, then press <strong>Draw</strong>. For a polygon, tap the corners in turn and press <strong>Done</strong>; at least 3 corners are needed, and <strong>Undo</strong> removes the last corner. For a circle, tap the centre and then a point on the edge to set the radius. Areas are drawn with a semi-transparent fill in their colour. The <strong>Marked areas</strong> button lists the areas of the survey; the list lets you delete an area after confirmation. The areas are included in the Word and PDF protocols (name, shape, geometry and area in m²) and in the backup file.</p>
 
+<p>You can also place radiation sources on the map: a source selected from the list opened by the source icon appears on the map with its identifier and nuclides. At a sufficient zoom level the label is shown, from further away only the icon. In floor plan mode the calibrated floor plan replaces the map, with points numbered and sources shown with their names.</p>
 <h2 id="m12">12. Tools</h2>
 <p>The tools are in the survey menu (three dots).</p>
 <ul>
@@ -216,6 +224,7 @@
 <p>The protocol uses the units selected in the settings. The CSV and JSON exports keep the stored units. The protocol shows the value with its error and the number of samples of an averaged measurement, and the instrument with its verification/calibration records. The CSV has the additional columns <strong>Error (±)</strong>, <strong>Averaging (samples; s)</strong> and <strong>Instrument verification/calibration</strong>; the JSON file carries the same data.</p>
 
 
+<p>You can search the survey list by name and location, filter it by open, closed or archived status and by period, and sort it by time or name. You can archive a closed survey; archived surveys are shown with a separate filter and keep their data. The measurement list can be searched, filtered by measurement type, time and value, and sorted. The protocol is created as Word or PDF; it contains the floor plan with its markers, the map sources, meteorology and gas tables, chemical and biological substances, sample analyses, the hospital handover data of injured persons, body map figures and personal identifiers. The company backup file also contains the attached floor plans and sample analysis files.</p>
 <h2 id="m14">14. Troubleshooting</h2>
 <ul>
 <li><strong>No GPS position:</strong> check that location services are on and that RadRecon may use the location, then press <strong>Refresh GPS</strong>. Indoors the accuracy can be poor; the accuracy radius is stored with the point.</li>
@@ -226,7 +235,15 @@
 </ul>
 <p>If a problem remains, write to <a href="mailto:info@radrecon.hu">info@radrecon.hu</a>.</p>
 
-<h2 id="m15">15. Important notice</h2>
+<h2 id="m15">15. Injured persons and hospital handover</h2>
+<p>For persons with the <strong>Injured person / victim</strong> role, open the injured-person sheet with the medical icon on the person's row. The sheet shows, in one place, the role, the triage category, injuries and illnesses, the personal data and the body map.</p>
+<ul>
+<li><strong>Body map:</strong> tap the front or back figure to add a marker. The marker type is <strong>injury</strong> (with a note, for example burn or fracture) or <strong>contamination</strong>. Tap an existing marker to edit or delete it.</li>
+<li><strong>Contaminants:</strong> for each marker you can optionally enter the isotope (from the catalogue), a chemical and a biological contaminant. One marker can carry all three.</li>
+<li><strong>Personal data:</strong> sex, age, weight and height are edited on the person's record; the injured-person sheet only displays them.</li>
+</ul>
+<p>The hospital handover data appear in the protocol per injured person: name, sex, age, weight, height, contaminants and injury locations, together with the body map figure. Use the save button in the sheet header to save changes at any time. Injuries, contamination and physical data are health-related; only authorised persons should handle them.</p>
+<h2 id="m16">16. Important notice</h2>
 <p>RadRecon is a documentation and calculation aid, not a measuring instrument. Calculated values and the source search direction are for reference only. Verify them against an authoritative source for official records, and follow the instructions of your radiation protection officer. See the <a href="../../terms/en/terms.html">Terms and Conditions</a>.</p>
 
       </div>

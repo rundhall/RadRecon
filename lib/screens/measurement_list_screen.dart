@@ -1,3 +1,4 @@
+import '../models/bio_agent.dart';
 import '../l10n/domain_labels.dart';
 import '../models/measurement_type.dart';
 import 'package:file_picker/file_picker.dart';
@@ -17,6 +18,8 @@ import '../models/survey_session.dart';
 import '../widgets/survey_purpose_dropdown.dart';
 import 'protocol_fields_screen.dart';
 import '../services/point_exchange_service.dart';
+import '../services/measurement_filter.dart';
+import '../services/survey_filter.dart';
 import '../services/protocol_export_service.dart';
 import '../services/screenshot_service.dart';
 import 'auto_log_screen.dart';
@@ -30,6 +33,7 @@ import 'decay_calculator_screen.dart';
 import 'measurement_entry_screen.dart';
 import 'session_person_link_screen.dart';
 import 'survey_map_screen.dart';
+import 'sample_analysis_screen.dart';
 
 enum _ListMenuAction {
   editSurveyDetails,
@@ -65,7 +69,7 @@ class MeasurementListScreen extends StatefulWidget {
 }
 
 class _MeasurementListScreenState extends State<MeasurementListScreen> {
-  late Future<List<MeasurementPoint>> _pointsFuture;
+  late Future<List<SurveyListItem>> _pointsFuture;
   final _dateFormat = DateFormat('MM.dd HH:mm:ss');
   final _exportService = ProtocolExportService();
   final _exchangeService = PointExchangeService();
@@ -73,6 +77,13 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
   bool _isExchanging = false;
   SurveySession? _session;
   final _listBoundaryKey = GlobalKey();
+  String _query = '';
+  MeasurementType? _kind; // null = minden típus
+  bool _sourceOnly = false;
+  SurveyTimeFilter _time = SurveyTimeFilter.all;
+  DateTime? _customFrom;
+  DateTime? _customTo; // a tartomány utáni nap eleje (nyílt vég)
+  MeasurementSort _sort = MeasurementSort.timeNewest;
 
   @override
   void initState() {
@@ -163,10 +174,31 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
     }
   }
 
+  /// Mérési pontok, és a térképen elhelyezett források (térképi pozícióval).
+  Future<List<SurveyListItem>> _loadItems() async {
+    final db = DatabaseHelper.instance;
+    final points = await db.getMeasurementPoints(widget.surveySessionId);
+    final placements = await db.getSurveyPlacements(widget.surveySessionId);
+    final sources = await db.getRadiationSources();
+    final nuclidesBySource = await db.getNuclideNamesBySource();
+    final byId = {for (final src in sources) if (src.id != null) src.id!: src};
+    final items = <SurveyListItem>[for (final p in points) SurveyListItem.point(p)];
+    for (final pl in placements) {
+      if (!pl.hasMapPosition) continue;
+      final src = byId[pl.radiationSourceId];
+      if (src == null) continue;
+      items.add(SurveyListItem.source(
+        pl,
+        src.identifier,
+        nuclidesBySource[src.id] ?? [src.nuclideName],
+      ));
+    }
+    return items;
+  }
+
   void _reload() {
     setState(() {
-      _pointsFuture =
-          DatabaseHelper.instance.getMeasurementPoints(widget.surveySessionId);
+      _pointsFuture = _loadItems();
     });
   }
 
@@ -546,6 +578,49 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
     }
   }
 
+  String _sortLabel(AppLocalizations loc, MeasurementSort f) => switch (f) {
+        MeasurementSort.timeNewest => loc.surveySortTimeNewest,
+        MeasurementSort.timeOldest => loc.surveySortTimeOldest,
+        MeasurementSort.valueHighest => loc.measurementSortValueHighest,
+        MeasurementSort.valueLowest => loc.measurementSortValueLowest,
+        MeasurementSort.nameAsc => loc.surveySortNameAsc,
+        MeasurementSort.nameDesc => loc.surveySortNameDesc,
+      };
+
+  String _timeLabel(AppLocalizations loc, SurveyTimeFilter f) => switch (f) {
+        SurveyTimeFilter.all => loc.surveyTimeAll,
+        SurveyTimeFilter.last7 => loc.surveyTimeLast7,
+        SurveyTimeFilter.last30 => loc.surveyTimeLast30,
+        SurveyTimeFilter.thisYear => loc.surveyTimeThisYear,
+        SurveyTimeFilter.custom => loc.surveyTimeCustom,
+      };
+
+  /// Egyéni időszak kiválasztása. Megszakításnál a korábbi szűrő marad.
+  Future<void> _onTimeChanged(SurveyTimeFilter? value) async {
+    if (value == null) return;
+    if (value != SurveyTimeFilter.custom) {
+      setState(() => _time = value);
+      return;
+    }
+    final range = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (range == null || !mounted) return;
+    setState(() {
+      _customFrom = DateTime(range.start.year, range.start.month, range.start.day);
+      _customTo = DateTime(range.end.year, range.end.month, range.end.day + 1);
+      _time = SurveyTimeFilter.custom;
+    });
+  }
+
+  String _customRangeText() {
+    final f = DateFormat('yyyy.MM.dd');
+    return '${f.format(_customFrom!)} – '
+        '${f.format(_customTo!.subtract(const Duration(days: 1)))}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
@@ -705,44 +780,192 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
             ),
         ],
       ),
-      body: FutureBuilder<List<MeasurementPoint>>(
+      body: FutureBuilder<List<SurveyListItem>>(
         future: _pointsFuture,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-          final points = snapshot.data!;
-          if (points.isEmpty) {
+          final all = snapshot.data!;
+          if (all.isEmpty) {
             return Center(child: Text(loc.noPointsRecordedYet));
           }
+          final now = DateTime.now();
+          final points = sortItems(
+            all
+                .where((p) =>
+                    itemMatchesKind(p, _kind) &&
+                    itemMatchesSourceOnly(p, _sourceOnly) &&
+                    itemMatchesTime(
+                      p,
+                      _time,
+                      now: now,
+                      customFrom: _customFrom,
+                      customTo: _customTo,
+                    ) &&
+                    itemMatchesQuery(p, _query))
+                .toList(),
+            _sort,
+          );
           return RepaintBoundary(
             key: _listBoundaryKey,
             child: Material(
               color: Theme.of(context).scaffoldBackgroundColor,
-              child: ListView.separated(
-                itemCount: points.length,
-                separatorBuilder: (_, _) => const Divider(height: 1),
-                itemBuilder: (context, index) {
-                  final p = points[index];
-                  return ListTile(
-                    leading: p.isSourcePosition
-                        ? const Icon(Icons.warning_amber, color: Colors.deepOrange)
-                        : Icon(measurementKindIcon(isSample: p.isSample, type: p.type)),
-                    title: Text(
-                      p.locationLabel ??
-                          '${p.latitude.toStringAsFixed(5)}, ${p.longitude.toStringAsFixed(5)}',
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                    child: TextField(
+                      onChanged: (v) => setState(() => _query = v),
+                      decoration: InputDecoration(
+                        hintText: loc.searchHint,
+                        prefixIcon: const Icon(Icons.search),
+                        border: const OutlineInputBorder(),
+                        isDense: true,
+                      ),
                     ),
-                    subtitle: Text(
-                      p.isSample
-                          ? loc.sampleTakenListLabel(_dateFormat.format(p.timestamp))
-                          : '${p.type == MeasurementType.spectrum ? spectrumSummaryLine(loc, p) : displayValueText(p)} · ${_dateFormat.format(p.timestamp)}',
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Wrap(
+                      spacing: 16,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        FilterChip(
+                          label: Text(loc.measurementFilterSourceOnly),
+                          selected: _sourceOnly,
+                          onSelected: (v) => setState(() => _sourceOnly = v),
+                        ),
+                        DropdownButton<MeasurementType?>(
+                          value: _kind,
+                          items: [
+                            DropdownMenuItem<MeasurementType?>(
+                              value: null,
+                              child: Text(loc.measurementFilterAllKinds),
+                            ),
+                            for (final t in MeasurementType.values)
+                              DropdownMenuItem<MeasurementType?>(
+                                value: t,
+                                child: Text(t.label(context)),
+                              ),
+                          ],
+                          onChanged: (v) => setState(() => _kind = v),
+                        ),
+                      ],
                     ),
-                    trailing: p.gpsAccuracyMeters != null
-                        ? Text('±${formatDistanceMeters(p.gpsAccuracyMeters!)}')
-                        : null,
-                    onTap: () => _openEntryScreen(existing: p),
-                  );
-                },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    child: Wrap(
+                      spacing: 16,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        DropdownButton<SurveyTimeFilter>(
+                          value: _time,
+                          items: [
+                            for (final f in SurveyTimeFilter.values)
+                              DropdownMenuItem(
+                                value: f,
+                                child: Text(_timeLabel(loc, f)),
+                              ),
+                          ],
+                          onChanged: _onTimeChanged,
+                        ),
+                        DropdownButton<MeasurementSort>(
+                          value: _sort,
+                          items: [
+                            for (final f in MeasurementSort.values)
+                              DropdownMenuItem(
+                                value: f,
+                                child: Text(_sortLabel(loc, f)),
+                              ),
+                          ],
+                          onChanged: (v) => setState(() => _sort = v ?? _sort),
+                        ),
+                        Text('${loc.measurementCountShown}: ${points.length} / ${all.length}'),
+                      ],
+                    ),
+                  ),
+                  if (_time == SurveyTimeFilter.custom && _customFrom != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(_customRangeText()),
+                      ),
+                    ),
+                  const Divider(height: 1),
+                  Expanded(
+                    child: points.isEmpty
+                        ? Center(child: Text(loc.searchNoResults))
+                        : ListView.separated(
+                            itemCount: points.length,
+                            separatorBuilder: (_, _) => const Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              final it = points[index];
+                              if (it.isSourceRow) {
+                                final nuclides = it.nuclides
+                                    .where((n) => n.isNotEmpty)
+                                    .toSet()
+                                    .join(', ');
+                                return ListTile(
+                                  leading: Icon(
+                                    Icons.warning_amber_rounded,
+                                    color: Colors.amber.shade800,
+                                  ),
+                                  title: Text(it.sourceIdentifier),
+                                  subtitle: Text(
+                                    nuclides.isEmpty
+                                        ? loc.sourceOnMapListLabel
+                                        : '${loc.sourceOnMapListLabel} · $nuclides',
+                                  ),
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => SurveyMapScreen(
+                                        surveySessionId: widget.surveySessionId,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                              final p = it.point!;
+                              return ListTile(
+                                leading: p.isSourcePosition
+                                    ? const Icon(Icons.warning_amber, color: Colors.deepOrange)
+                                    : Icon(measurementKindIcon(isSample: p.isSample, type: p.type)),
+                                title: Text(measurementName(p)),
+                                subtitle: Text(
+                                  p.isSample
+                                      ? loc.sampleTakenListLabel(_dateFormat.format(p.timestamp))
+                                      : p.type == MeasurementType.biological
+                                          ? '${bioAgentsSummary(p.bioAgents)} · ${_dateFormat.format(p.timestamp)}'
+                                          : '${p.type == MeasurementType.spectrum ? spectrumSummaryLine(loc, p) : displayValueText(p)} · ${_dateFormat.format(p.timestamp)}',
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (p.isSample || p.type == MeasurementType.biological)
+                                      IconButton(
+                                        icon: const Icon(Icons.biotech),
+                                        tooltip: loc.sampleAnalysisTooltip,
+                                        onPressed: () => Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => SampleAnalysisScreen(point: p),
+                                          ),
+                                        ),
+                                      ),
+                                    if (p.gpsAccuracyMeters != null)
+                                      Text('±${formatDistanceMeters(p.gpsAccuracyMeters!)}'),
+                                  ],
+                                ),
+                                onTap: () => _openEntryScreen(existing: p),
+                              );
+                            },
+                          ),
+                  ),
+                ],
               ),
             ),
           );

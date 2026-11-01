@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'bio_agent.dart';
 import 'gas_reading.dart';
 import 'measurement_type.dart';
 import 'meteorology.dart';
@@ -55,6 +56,7 @@ class MeasurementPoint {
   final String? sampleUnit; // db, ml, cm³, l, g, mg, kg vagy szabad szöveg
   final Meteorology? meteorology; // opcionális meteorológiai megfigyelés
   final List<GasReading> gases; // gázmérési eredmények
+  final List<BioAgentReading> bioAgents; // biológiai anyag-bejegyzések
 
   // Aktivitáskoncentráció: a minta mennyisége és egysége (pl. 2,5 kg → "kg").
   final double? basisAmount;
@@ -111,6 +113,7 @@ class MeasurementPoint {
     this.sampleUnit,
     this.meteorology,
     this.gases = const [],
+    this.bioAgents = const [],
     this.basisAmount,
     this.basisUnit,
     this.spectrumKind,
@@ -158,6 +161,7 @@ class MeasurementPoint {
     String? sampleUnit,
     Meteorology? meteorology,
     List<GasReading>? gases,
+    List<BioAgentReading>? bioAgents,
     double? basisAmount,
     String? basisUnit,
     String? spectrumKind,
@@ -206,6 +210,7 @@ class MeasurementPoint {
       sampleUnit: sampleUnit ?? this.sampleUnit,
       meteorology: meteorology ?? this.meteorology,
       gases: gases ?? this.gases,
+      bioAgents: bioAgents ?? this.bioAgents,
       basisAmount: basisAmount ?? this.basisAmount,
       basisUnit: basisUnit ?? this.basisUnit,
       spectrumKind: spectrumKind ?? this.spectrumKind,
@@ -235,6 +240,9 @@ class MeasurementPoint {
   /// A gázmérések JSON-ja a tároláshoz (nincs gáz: `null`).
   String? get gasJson =>
       gases.isEmpty ? null : GasReading.listToJsonString(gases);
+
+  String? get bioJson =>
+      bioAgents.isEmpty ? null : BioAgentReading.listToJsonString(bioAgents);
 
   Map<String, Object?> toMap() {
     return {
@@ -266,6 +274,7 @@ class MeasurementPoint {
       'sample_unit': sampleUnit,
       'meteo_json': meteoJson,
       'gas_json': gasJson,
+      'bio_json': bioJson,
       'basis_amount': basisAmount,
       'basis_unit': basisUnit,
       'spectrum_kind': spectrumKind,
@@ -275,8 +284,8 @@ class MeasurementPoint {
       'spectrum_live_seconds': spectrumLiveSeconds,
       'spectrum_total_counts': spectrumTotalCounts,
       'spectrum_activity_json': spectrumActivityJson,
-      'radiation_kind': radiationKind,
-      'dose_quantity': doseQuantity,
+      if (radiationKind != null) 'radiation_kind': radiationKind,
+      if (doseQuantity != null) 'dose_quantity': doseQuantity,
       'dose_depth_mm': doseDepthMm,
       'photo_path': photoPath,
       'notes': notes,
@@ -315,6 +324,7 @@ class MeasurementPoint {
       sampleUnit: map['sample_unit'] as String?,
       meteorology: Meteorology.fromJsonString(map['meteo_json'] as String?),
       gases: GasReading.listFromJsonString(map['gas_json'] as String?),
+      bioAgents: BioAgentReading.listFromJsonString(map['bio_json'] as String?),
       basisAmount: (map['basis_amount'] as num?)?.toDouble(),
       basisUnit: map['basis_unit'] as String?,
       spectrumKind: map['spectrum_kind'] as String?,

@@ -26,19 +26,22 @@
   </header>
   <main class="legal-page">
     <div class="container">
-      <h1>Política de privacidad de RadRecon</h1>
-      <p>RadRecon almacena los registros localmente en el dispositivo donde se introducen. No requiere una cuenta y no sube la base local a una nube o backend de RadRecon.</p>
-      <h2>Información guardada en el dispositivo</h2>
-      <p>Los registros pueden incluir sesiones, valores y unidades, fechas, notas, coordenadas y precisión GPS, datos de instrumentos y fuentes, y ajustes. La ubicación solo se usa con permiso y al utilizar una función que la requiere.</p>
+      <h1>Aviso de tratamiento de datos de RadRecon</h1>
+      <p>RadRecon guarda los datos de los levantamientos en el dispositivo en el que los registraste. La aplicación no requiere cuenta y no sube la base de datos local a ninguna nube ni sistema de RadRecon.</p>
+      <h2>Datos guardados en el dispositivo</h2>
+      <p>Los registros pueden incluir sesiones de levantamiento, valores y unidades de medida, marcas de tiempo, notas, coordenadas GPS y precisión, datos de instrumentos y fuentes de radiación, nombres y concentraciones de sustancias químicas y biológicas, resultados de análisis de muestras y ajustes. La aplicación accede a los datos de ubicación solo tras tu permiso y cuando usas una función que los necesita.</p>
+      <p>Los archivos adjuntos a los levantamientos también se quedan en el dispositivo: fotos, capturas de pantalla, archivos de espectro, planos, adjuntos de los análisis de muestras y figuras añadidas al protocolo.</p>
+      <p>El registro de personas puede contener nombre, número de teléfono, correo electrónico, identificador y dirección. Si una persona figura como herida en un levantamiento, también pueden registrarse sexo, edad, peso y altura, y los registros de personas heridas pueden incluir lesiones, enfermedades y contaminaciones marcadas en un mapa corporal (isótopo, sustancia química o biológica). Se trata de datos relativos a la salud, especialmente sensibles. La base jurídica de este registro, la información a las personas afectadas y las condiciones para su transmisión corresponden a la organización que realiza el levantamiento.</p>
       <h2>Almacenamiento y conservación</h2>
-      <p>La aplicación utiliza una base de datos SQLite local. Los datos permanecen en el dispositivo hasta que los elimines o borres los datos de la aplicación. Las copias de seguridad del sistema pueden copiar datos según los ajustes del dispositivo. Las exportaciones y copias pueden permanecer aparte.</p>
+      <p>La aplicación usa una base de datos SQLite local. Los datos permanecen en el dispositivo hasta que los borres o borres los datos de la aplicación. Puedes archivar un levantamiento cerrado; archivarlo no borra datos. Las copias de seguridad del sistema operativo pueden copiar los datos de la aplicación según tus ajustes. Los archivos exportados y las copias de seguridad de empresa son copias separadas; la copia de empresa contiene la base de datos completa y los archivos adjuntos.</p>
+      <p>La aplicación no cifra la base de datos, las copias de seguridad ni las exportaciones. El bloqueo y el cifrado del dispositivo se gestionan con los ajustes del sistema operativo; guarda con seguridad las copias y las exportaciones.</p>
       <h2>Conexiones de red</h2>
-      <p>Al mostrar un mapa, OpenStreetMap puede recibir tu IP, las coordenadas de los mosaicos solicitados e información habitual de la solicitud; esas coordenadas pueden revelar el área vista. Un instrumento Modbus/TCP configurado se comunica con la dirección indicada. Ubicación, notificaciones, selección y uso compartido de archivos utilizan servicios del sistema operativo.</p>
-      <h2>Exportaciones y opciones</h2>
-      <p>La aplicación no incluye SDK de análisis ni publicidad y no envía mediciones al desarrollador. Tú eliges dónde guardar o compartir archivos exportados. Las aplicaciones, destinatarios, mapas, instrumentos y plataformas externas aplican sus propias políticas.</p>
+      <p>Al mostrar un mapa, OpenStreetMap puede recibir tu dirección IP, las coordenadas de las teselas solicitadas y los datos habituales de la petición; a partir de las teselas puede deducirse la zona que consultas. La aplicación consulta radrecon.hu/version.json como máximo una vez al día para comprobar actualizaciones; en ese momento el servidor ve tu dirección IP. El formulario de colaboradores se abre en una página externa (Google Forms). Si hay configurado un instrumento Modbus/TCP, la aplicación se comunica con la dirección indicada. Las funciones de ubicación, notificaciones, selección de archivos y compartir usan los servicios del sistema operativo.</p>
+      <h2>Exportación y opciones</h2>
+      <p>La aplicación no contiene SDK de análisis ni de publicidad, y el desarrollador no recibe los datos de medida. Tú eliges dónde se guardan o comparten los archivos exportados. El protocolo en Word o PDF puede incluir los puntos de medida, los identificadores de quienes realizan el levantamiento y de las personas heridas, sexo, edad, peso, altura, lesiones y contaminaciones de las personas heridas, los resultados de los análisis de muestras y las figuras del mapa corporal. La dirección no se incluye en el protocolo, pero la exportación CSV del registro de personas sí incluye el identificador y la dirección. Entrega el protocolo final y los archivos exportados solo a personas autorizadas para recibirlos. Las aplicaciones externas, los proveedores de mapas, los instrumentos y las plataformas siguen sus propias normas.</p>
       <h2>Derechos y contacto</h2>
-      <p>Puedes consultar, editar, exportar o eliminar datos mediante las funciones disponibles y los ajustes del dispositivo, y revocar el permiso de ubicación. Consultas: info@radrecon.hu.</p>
-      <p><a href="https://operations.osmfoundation.org/policies/tiles/">OpenStreetMap tile usage policy</a></p>
+      <p>Con las funciones disponibles y los ajustes del dispositivo puedes consultar, modificar, exportar o borrar los datos. Gestionas los datos de las personas en su ficha, en la ficha de la persona herida del levantamiento y en la lista de personas. Puedes desactivar o retirar el permiso de ubicación en los ajustes del dispositivo. Preguntas: info@radrecon.hu.</p>
+      <p><a href="https://operations.osmfoundation.org/policies/tiles/">Política de uso de teselas de OpenStreetMap</a></p>
     </div>
   </main>
   <footer>

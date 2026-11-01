@@ -16,5 +16,6 @@ IconData measurementKindIcon({required bool isSample, required MeasurementType t
     MeasurementType.sample => Icons.science_outlined,
     MeasurementType.meteorology => Icons.thermostat_outlined,
     MeasurementType.gasMeasurement => Icons.air_outlined,
+    MeasurementType.biological => Icons.coronavirus_outlined,
   };
 }

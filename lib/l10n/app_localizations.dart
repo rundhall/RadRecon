@@ -5563,6 +5563,144 @@ abstract class AppLocalizations {
   /// **'Érték'**
   String get customFieldValueLabel;
 
+  /// No description provided for @registryClassificationTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nyilvántartás összesítése'**
+  String get registryClassificationTitle;
+
+  /// No description provided for @sourceNotifyLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Lejárati értesítés ehhez a forráshoz'**
+  String get sourceNotifyLabel;
+
+  /// No description provided for @activityUnknownCalcWarning.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az aktivitás vagy a vonatkozási dátum nem ismert, ezért nincs számolt dózisteljesítmény.'**
+  String get activityUnknownCalcWarning;
+
+  /// No description provided for @surveyClassEmpty.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ebben a felmérésben nincs forrás. Rendelj forrást egy mérési ponthoz, vagy vedd fel talált forrásként.'**
+  String get surveyClassEmpty;
+
+  /// No description provided for @surveyClassNoRSum.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs számolható R: nincs bevont forrás, vagy egyiknek sincs ismert aktivitása és nuklidja.'**
+  String get surveyClassNoRSum;
+
+  /// No description provided for @surveyClassLowerBound.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hiányos adat: a kategória csak alsó becslés. A hiányzó források szigorúbb szintet indokolhatnak.'**
+  String get surveyClassLowerBound;
+
+  /// No description provided for @surveyClassIncompleteSource.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hiányos adat: nincs aktivitás vagy nuklid, ezért nem számít bele az összegbe.'**
+  String get surveyClassIncompleteSource;
+
+  /// No description provided for @surveyClassCalcDate.
+  ///
+  /// In hu, this message translates to:
+  /// **'Számítás dátuma'**
+  String get surveyClassCalcDate;
+
+  /// No description provided for @surveyClassCalcDateDefault.
+  ///
+  /// In hu, this message translates to:
+  /// **'Alapértelmezett: a felmérés kezdete'**
+  String get surveyClassCalcDateDefault;
+
+  /// No description provided for @surveyClassIncluded.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bekerül a felmérés besorolásába'**
+  String get surveyClassIncluded;
+
+  /// No description provided for @foundSourceButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Talált forrás felvétele'**
+  String get foundSourceButton;
+
+  /// No description provided for @foundSourceTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Talált forrás'**
+  String get foundSourceTitle;
+
+  /// No description provided for @foundSourceNuclideLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nuklid'**
+  String get foundSourceNuclideLabel;
+
+  /// No description provided for @foundSourceActivityLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktivitás'**
+  String get foundSourceActivityLabel;
+
+  /// No description provided for @foundSourceOriginLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Eredet'**
+  String get foundSourceOriginLabel;
+
+  /// No description provided for @foundSourceAddNuclide.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nuklid hozzáadása'**
+  String get foundSourceAddNuclide;
+
+  /// No description provided for @foundSourceUnknownHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ha az aktivitás vagy az összetétel nem ismert, hagyd üresen. Az ilyen forrás nem számít bele a besorolás összegébe, csak jelzett.'**
+  String get foundSourceUnknownHint;
+
+  /// No description provided for @foundSourceOriginMeasurement.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dózisból becsült'**
+  String get foundSourceOriginMeasurement;
+
+  /// No description provided for @foundSourceOriginShielded.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dózisból, árnyékolással'**
+  String get foundSourceOriginShielded;
+
+  /// No description provided for @foundSourceOriginSpectrum.
+  ///
+  /// In hu, this message translates to:
+  /// **'Spektrumból'**
+  String get foundSourceOriginSpectrum;
+
+  /// No description provided for @foundSourceOriginManual.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kézzel'**
+  String get foundSourceOriginManual;
+
+  /// No description provided for @foundSourceNuclideRequiredError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Add meg a nuklid nevét, vagy töröld a sort.'**
+  String get foundSourceNuclideRequiredError;
+
+  /// No description provided for @foundSourceNoDistanceError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Add meg a távolságot a forrástól.'**
+  String get foundSourceNoDistanceError;
+
   /// No description provided for @removeFieldTooltip.
   ///
   /// In hu, this message translates to:
@@ -6000,6 +6138,894 @@ abstract class AppLocalizations {
   /// In hu, this message translates to:
   /// **'hosszú élettartamú'**
   String get wasteLongLived;
+
+  /// No description provided for @planGpsFailed.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nem sikerült GPS-pozíciót lekérni.'**
+  String get planGpsFailed;
+
+  /// No description provided for @planCoordDialogTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Horgonypont koordinátái'**
+  String get planCoordDialogTitle;
+
+  /// No description provided for @planLatLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szélesség (lat)'**
+  String get planLatLabel;
+
+  /// No description provided for @planLonLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hosszúság (lon)'**
+  String get planLonLabel;
+
+  /// No description provided for @planInvalidValue.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érvénytelen érték.'**
+  String get planInvalidValue;
+
+  /// No description provided for @planDistanceLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Valós távolság A–B (m)'**
+  String get planDistanceLabel;
+
+  /// No description provided for @planCalibrationTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Alaprajz kalibrálása'**
+  String get planCalibrationTitle;
+
+  /// No description provided for @planCalibrationHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'1. Jelöld meg az A pontot (ahol a GPS-t rögzíted), 2. jelöld meg a B pontot, 3. add meg a két pont valós távolságát méterben.'**
+  String get planCalibrationHint;
+
+  /// No description provided for @planPointA.
+  ///
+  /// In hu, this message translates to:
+  /// **'A pont'**
+  String get planPointA;
+
+  /// No description provided for @planPointB.
+  ///
+  /// In hu, this message translates to:
+  /// **'B pont'**
+  String get planPointB;
+
+  /// No description provided for @planGpsAtAButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'GPS az A pontban'**
+  String get planGpsAtAButton;
+
+  /// No description provided for @planManualCoordButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Koordináta kézzel'**
+  String get planManualCoordButton;
+
+  /// No description provided for @planDistanceButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'A–B távolság'**
+  String get planDistanceButton;
+
+  /// No description provided for @planSaveButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kalibrálás mentése'**
+  String get planSaveButton;
+
+  /// No description provided for @surveyMapModeOnline.
+  ///
+  /// In hu, this message translates to:
+  /// **'Online térkép'**
+  String get surveyMapModeOnline;
+
+  /// No description provided for @surveyMapModePlan.
+  ///
+  /// In hu, this message translates to:
+  /// **'Offline alaprajz'**
+  String get surveyMapModePlan;
+
+  /// No description provided for @planImageUnreadable.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az alaprajz nem olvasható.'**
+  String get planImageUnreadable;
+
+  /// No description provided for @planSourceImage.
+  ///
+  /// In hu, this message translates to:
+  /// **'Feltöltött kép'**
+  String get planSourceImage;
+
+  /// No description provided for @planSourceGenerated.
+  ///
+  /// In hu, this message translates to:
+  /// **'Generált háttér'**
+  String get planSourceGenerated;
+
+  /// No description provided for @planBgWidthLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szélesség (m)'**
+  String get planBgWidthLabel;
+
+  /// No description provided for @planBgHeightLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Magasság (m)'**
+  String get planBgHeightLabel;
+
+  /// No description provided for @planBgColorLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Háttér színe'**
+  String get planBgColorLabel;
+
+  /// No description provided for @planColorWhite.
+  ///
+  /// In hu, this message translates to:
+  /// **'Fehér'**
+  String get planColorWhite;
+
+  /// No description provided for @planColorLightGrey.
+  ///
+  /// In hu, this message translates to:
+  /// **'Világosszürke'**
+  String get planColorLightGrey;
+
+  /// No description provided for @planColorCream.
+  ///
+  /// In hu, this message translates to:
+  /// **'Krém'**
+  String get planColorCream;
+
+  /// No description provided for @planColorLightBlue.
+  ///
+  /// In hu, this message translates to:
+  /// **'Világoskék'**
+  String get planColorLightBlue;
+
+  /// No description provided for @planColorLightGreen.
+  ///
+  /// In hu, this message translates to:
+  /// **'Világoszöld'**
+  String get planColorLightGreen;
+
+  /// No description provided for @planCalibrationHintGenerated.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jelöld meg az A pontot az alaprajzon (ahol a GPS-t rögzíted), majd rögzítsd a GPS-koordinátáját.'**
+  String get planCalibrationHintGenerated;
+
+  /// No description provided for @planLocalModeSwitch.
+  ///
+  /// In hu, this message translates to:
+  /// **'GPS nélkül (helyi koordináta)'**
+  String get planLocalModeSwitch;
+
+  /// No description provided for @planLocalModeHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'GPS nélkül: a pontok helyzete az alaprajzon belüli méterben (X/Y) lesz tárolva. A méretarány a távolságból vagy a generált lapból adódik.'**
+  String get planLocalModeHint;
+
+  /// No description provided for @planAccuracyLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Pontosság'**
+  String get planAccuracyLabel;
+
+  /// No description provided for @planLocalCoordLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Helyi koordináta'**
+  String get planLocalCoordLabel;
+
+  /// No description provided for @mapPlaceSourceTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Forrás elhelyezése'**
+  String get mapPlaceSourceTooltip;
+
+  /// No description provided for @mapPlaceSourceCancelTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Elhelyezés megszakítása'**
+  String get mapPlaceSourceCancelTooltip;
+
+  /// No description provided for @mapPlaceSourceTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Válassz forrást'**
+  String get mapPlaceSourceTitle;
+
+  /// No description provided for @mapPlaceSourceHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Koppints a térképen a forrás helyére.'**
+  String get mapPlaceSourceHint;
+
+  /// No description provided for @mapNoSources.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs forrás a központi listában.'**
+  String get mapNoSources;
+
+  /// No description provided for @mapSourceRelocate.
+  ///
+  /// In hu, this message translates to:
+  /// **'Áthelyezés'**
+  String get mapSourceRelocate;
+
+  /// No description provided for @mapSourceClearPosition.
+  ///
+  /// In hu, this message translates to:
+  /// **'Pozíció törlése'**
+  String get mapSourceClearPosition;
+
+  /// No description provided for @mapSourceDialogClose.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bezárás'**
+  String get mapSourceDialogClose;
+
+  /// No description provided for @surveyFilterActive.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aktív'**
+  String get surveyFilterActive;
+
+  /// No description provided for @surveyFilterOpen.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nyitott'**
+  String get surveyFilterOpen;
+
+  /// No description provided for @surveyFilterClosed.
+  ///
+  /// In hu, this message translates to:
+  /// **'Lezárt'**
+  String get surveyFilterClosed;
+
+  /// No description provided for @surveyFilterArchived.
+  ///
+  /// In hu, this message translates to:
+  /// **'Archivált'**
+  String get surveyFilterArchived;
+
+  /// No description provided for @surveyTimeAll.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bármikor'**
+  String get surveyTimeAll;
+
+  /// No description provided for @surveyTimeLast7.
+  ///
+  /// In hu, this message translates to:
+  /// **'Utolsó 7 nap'**
+  String get surveyTimeLast7;
+
+  /// No description provided for @surveyTimeLast30.
+  ///
+  /// In hu, this message translates to:
+  /// **'Utolsó 30 nap'**
+  String get surveyTimeLast30;
+
+  /// No description provided for @surveyTimeThisYear.
+  ///
+  /// In hu, this message translates to:
+  /// **'Idén'**
+  String get surveyTimeThisYear;
+
+  /// No description provided for @surveyTimeCustom.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egyéni időszak…'**
+  String get surveyTimeCustom;
+
+  /// No description provided for @surveySortTimeNewest.
+  ///
+  /// In hu, this message translates to:
+  /// **'Idő: újabb elöl'**
+  String get surveySortTimeNewest;
+
+  /// No description provided for @surveySortTimeOldest.
+  ///
+  /// In hu, this message translates to:
+  /// **'Idő: régebbi elöl'**
+  String get surveySortTimeOldest;
+
+  /// No description provided for @surveySortNameAsc.
+  ///
+  /// In hu, this message translates to:
+  /// **'Név: A–Z'**
+  String get surveySortNameAsc;
+
+  /// No description provided for @surveySortNameDesc.
+  ///
+  /// In hu, this message translates to:
+  /// **'Név: Z–A'**
+  String get surveySortNameDesc;
+
+  /// No description provided for @surveyArchiveAction.
+  ///
+  /// In hu, this message translates to:
+  /// **'Archiválás'**
+  String get surveyArchiveAction;
+
+  /// No description provided for @surveyUnarchiveAction.
+  ///
+  /// In hu, this message translates to:
+  /// **'Archiválás visszavonása'**
+  String get surveyUnarchiveAction;
+
+  /// No description provided for @measurementFilterAllKinds.
+  ///
+  /// In hu, this message translates to:
+  /// **'Minden típus'**
+  String get measurementFilterAllKinds;
+
+  /// No description provided for @measurementFilterSourceOnly.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csak forrás-pozíció'**
+  String get measurementFilterSourceOnly;
+
+  /// No description provided for @measurementSortValueHighest.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érték: nagyobb elöl'**
+  String get measurementSortValueHighest;
+
+  /// No description provided for @measurementSortValueLowest.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érték: kisebb elöl'**
+  String get measurementSortValueLowest;
+
+  /// No description provided for @measurementCountShown.
+  ///
+  /// In hu, this message translates to:
+  /// **'Találat'**
+  String get measurementCountShown;
+
+  /// No description provided for @sourceOnMapListLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Forrás a térképen'**
+  String get sourceOnMapListLabel;
+
+  /// No description provided for @protoPlanHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Alaprajz'**
+  String get protoPlanHeading;
+
+  /// No description provided for @protoPlanCaption.
+  ///
+  /// In hu, this message translates to:
+  /// **'Alaprajz a mérési pontok (sorszám) és a térképen elhelyezett források (azonosító) jelölésével'**
+  String get protoPlanCaption;
+
+  /// No description provided for @protoSourcesOnMapHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Térképen elhelyezett források'**
+  String get protoSourcesOnMapHeading;
+
+  /// No description provided for @protoColPosition.
+  ///
+  /// In hu, this message translates to:
+  /// **'Pozíció'**
+  String get protoColPosition;
+
+  /// No description provided for @measurementTypeChemical.
+  ///
+  /// In hu, this message translates to:
+  /// **'Vegyi anyag'**
+  String get measurementTypeChemical;
+
+  /// No description provided for @rrAddChemical.
+  ///
+  /// In hu, this message translates to:
+  /// **'Vegyi anyag hozzáadása'**
+  String get rrAddChemical;
+
+  /// No description provided for @rrChemicalSpecies.
+  ///
+  /// In hu, this message translates to:
+  /// **'Vegyi anyag'**
+  String get rrChemicalSpecies;
+
+  /// No description provided for @physicalStateLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Halmazállapot'**
+  String get physicalStateLabel;
+
+  /// No description provided for @physStateGas.
+  ///
+  /// In hu, this message translates to:
+  /// **'Gáz'**
+  String get physStateGas;
+
+  /// No description provided for @physStateLiquid.
+  ///
+  /// In hu, this message translates to:
+  /// **'Folyadék'**
+  String get physStateLiquid;
+
+  /// No description provided for @physStateSolid.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szilárd'**
+  String get physStateSolid;
+
+  /// No description provided for @physStateAerosol.
+  ///
+  /// In hu, this message translates to:
+  /// **'Aeroszol'**
+  String get physStateAerosol;
+
+  /// No description provided for @sampleAnalysisTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mintavizsgálatok'**
+  String get sampleAnalysisTitle;
+
+  /// No description provided for @sampleAnalysisAddButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Vizsgálat hozzáadása'**
+  String get sampleAnalysisAddButton;
+
+  /// No description provided for @sampleAnalysisEmpty.
+  ///
+  /// In hu, this message translates to:
+  /// **'Még nincs vizsgálat ezen a mintán.'**
+  String get sampleAnalysisEmpty;
+
+  /// No description provided for @sampleAnalysisTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Vizsgálatok'**
+  String get sampleAnalysisTooltip;
+
+  /// No description provided for @analysisMethodLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Módszer'**
+  String get analysisMethodLabel;
+
+  /// No description provided for @analysisMethodOther.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egyéb'**
+  String get analysisMethodOther;
+
+  /// No description provided for @analysisInstrumentLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Műszer'**
+  String get analysisInstrumentLabel;
+
+  /// No description provided for @analysisPerformedAtLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Vizsgálat ideje'**
+  String get analysisPerformedAtLabel;
+
+  /// No description provided for @analysisOperatorLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kezelő'**
+  String get analysisOperatorLabel;
+
+  /// No description provided for @analysisResultLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Eredmény / azonosítás'**
+  String get analysisResultLabel;
+
+  /// No description provided for @analysisNotesLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Megjegyzés'**
+  String get analysisNotesLabel;
+
+  /// No description provided for @analysisAttachFile.
+  ///
+  /// In hu, this message translates to:
+  /// **'Fájl csatolása'**
+  String get analysisAttachFile;
+
+  /// No description provided for @analysisFileLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csatolt fájl'**
+  String get analysisFileLabel;
+
+  /// No description provided for @analysisDeleteConfirm.
+  ///
+  /// In hu, this message translates to:
+  /// **'Törlöd ezt a vizsgálatot? A csatolt fájl is törlődik.'**
+  String get analysisDeleteConfirm;
+
+  /// No description provided for @rrUnitMode.
+  ///
+  /// In hu, this message translates to:
+  /// **'Típus'**
+  String get rrUnitMode;
+
+  /// No description provided for @rrUnitRatio.
+  ///
+  /// In hu, this message translates to:
+  /// **'Arány'**
+  String get rrUnitRatio;
+
+  /// No description provided for @rrUnitMassPerBasis.
+  ///
+  /// In hu, this message translates to:
+  /// **'Tömeg / alap'**
+  String get rrUnitMassPerBasis;
+
+  /// No description provided for @rrUnitMass.
+  ///
+  /// In hu, this message translates to:
+  /// **'Tömeg'**
+  String get rrUnitMass;
+
+  /// No description provided for @rrUnitBasis.
+  ///
+  /// In hu, this message translates to:
+  /// **'Alap'**
+  String get rrUnitBasis;
+
+  /// No description provided for @measurementTypeBiological.
+  ///
+  /// In hu, this message translates to:
+  /// **'Biológiai anyag'**
+  String get measurementTypeBiological;
+
+  /// No description provided for @rrAddBioAgent.
+  ///
+  /// In hu, this message translates to:
+  /// **'Biológiai anyag hozzáadása'**
+  String get rrAddBioAgent;
+
+  /// No description provided for @rrBioAgentName.
+  ///
+  /// In hu, this message translates to:
+  /// **'Megnevezés'**
+  String get rrBioAgentName;
+
+  /// No description provided for @rrBioKindLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Típus'**
+  String get rrBioKindLabel;
+
+  /// No description provided for @rrBioQuantityLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mennyiség (szabad szöveg)'**
+  String get rrBioQuantityLabel;
+
+  /// No description provided for @bioKindBacterium.
+  ///
+  /// In hu, this message translates to:
+  /// **'Baktérium'**
+  String get bioKindBacterium;
+
+  /// No description provided for @bioKindVirus.
+  ///
+  /// In hu, this message translates to:
+  /// **'Vírus'**
+  String get bioKindVirus;
+
+  /// No description provided for @bioKindToxin.
+  ///
+  /// In hu, this message translates to:
+  /// **'Toxin'**
+  String get bioKindToxin;
+
+  /// No description provided for @bioKindFungus.
+  ///
+  /// In hu, this message translates to:
+  /// **'Gomba'**
+  String get bioKindFungus;
+
+  /// No description provided for @bioKindOther.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egyéb'**
+  String get bioKindOther;
+
+  /// No description provided for @pcrTargetLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Célpont (gén, kórokozó)'**
+  String get pcrTargetLabel;
+
+  /// No description provided for @pcrOutcomeLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'PCR eredmény'**
+  String get pcrOutcomeLabel;
+
+  /// No description provided for @pcrCtLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ct érték'**
+  String get pcrCtLabel;
+
+  /// No description provided for @pcrOutcomePositive.
+  ///
+  /// In hu, this message translates to:
+  /// **'Pozitív'**
+  String get pcrOutcomePositive;
+
+  /// No description provided for @pcrOutcomeNegative.
+  ///
+  /// In hu, this message translates to:
+  /// **'Negatív'**
+  String get pcrOutcomeNegative;
+
+  /// No description provided for @pcrOutcomeInvalid.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érvénytelen'**
+  String get pcrOutcomeInvalid;
+
+  /// No description provided for @protoBioHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Biológiai anyagok'**
+  String get protoBioHeading;
+
+  /// No description provided for @protoSampleAnalysesHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mintavizsgálatok'**
+  String get protoSampleAnalysesHeading;
+
+  /// No description provided for @victimDetailsTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sérült adatai és fantomrajz'**
+  String get victimDetailsTooltip;
+
+  /// No description provided for @victimDetailsTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sérült adatai'**
+  String get victimDetailsTitle;
+
+  /// No description provided for @victimSexLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nem'**
+  String get victimSexLabel;
+
+  /// No description provided for @victimSexFemale.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nő'**
+  String get victimSexFemale;
+
+  /// No description provided for @victimSexMale.
+  ///
+  /// In hu, this message translates to:
+  /// **'Férfi'**
+  String get victimSexMale;
+
+  /// No description provided for @victimSexUnknown.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ismeretlen'**
+  String get victimSexUnknown;
+
+  /// No description provided for @victimAgeLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kor (év)'**
+  String get victimAgeLabel;
+
+  /// No description provided for @victimWeightLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Súly (kg, közelítő)'**
+  String get victimWeightLabel;
+
+  /// No description provided for @victimPhantomFront.
+  ///
+  /// In hu, this message translates to:
+  /// **'Elölnézet'**
+  String get victimPhantomFront;
+
+  /// No description provided for @victimPhantomBack.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hátulnézet'**
+  String get victimPhantomBack;
+
+  /// No description provided for @victimPhantomHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Koppints a rajzra új jelöléshez, a meglévő jelölésre a szerkesztéséhez.'**
+  String get victimPhantomHint;
+
+  /// No description provided for @victimMarkerTitleNew.
+  ///
+  /// In hu, this message translates to:
+  /// **'Új jelölés'**
+  String get victimMarkerTitleNew;
+
+  /// No description provided for @victimMarkerTitleEdit.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jelölés szerkesztése'**
+  String get victimMarkerTitleEdit;
+
+  /// No description provided for @victimMarkerKindLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jelölés típusa'**
+  String get victimMarkerKindLabel;
+
+  /// No description provided for @victimMarkerKindInjury.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sérülés'**
+  String get victimMarkerKindInjury;
+
+  /// No description provided for @victimMarkerKindContamination.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szennyezés'**
+  String get victimMarkerKindContamination;
+
+  /// No description provided for @victimMarkerIsotopeLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Izotóp'**
+  String get victimMarkerIsotopeLabel;
+
+  /// No description provided for @victimMarkerNoteLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Megjegyzés (pl. égés, törés)'**
+  String get victimMarkerNoteLabel;
+
+  /// No description provided for @victimMarkerDelete.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jelölés törlése'**
+  String get victimMarkerDelete;
+
+  /// No description provided for @victimMarkersHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jelölések'**
+  String get victimMarkersHeading;
+
+  /// No description provided for @victimNoMarkers.
+  ///
+  /// In hu, this message translates to:
+  /// **'Még nincs jelölés.'**
+  String get victimNoMarkers;
+
+  /// No description provided for @protoHandoverHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kórházi átadó adatok'**
+  String get protoHandoverHeading;
+
+  /// No description provided for @protoColContamination.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szennyezés (izotóp)'**
+  String get protoColContamination;
+
+  /// No description provided for @protoColInjuryLocations.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sérülés helye'**
+  String get protoColInjuryLocations;
+
+  /// No description provided for @victimMarkerChemicalLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Vegyi szennyező'**
+  String get victimMarkerChemicalLabel;
+
+  /// No description provided for @victimMarkerBioLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Biológiai szennyező'**
+  String get victimMarkerBioLabel;
+
+  /// No description provided for @victimContaminantHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szennyezés (opcionális)'**
+  String get victimContaminantHeading;
+
+  /// No description provided for @victimHeightLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Magasság (cm)'**
+  String get victimHeightLabel;
+
+  /// No description provided for @personPhysicalHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Testi adatok (sérült esetén)'**
+  String get personPhysicalHeading;
+
+  /// No description provided for @victimPersonDataHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Személyes adatok'**
+  String get victimPersonDataHeading;
+
+  /// No description provided for @victimPersonDataHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nem, kor, súly és magasság a személy adatlapján szerkeszthetők.'**
+  String get victimPersonDataHint;
+
+  /// No description provided for @personIdentifierLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Azonosító'**
+  String get personIdentifierLabel;
+
+  /// No description provided for @personAddressLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Cím'**
+  String get personAddressLabel;
+
+  /// No description provided for @lastUsedRoleLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Utoljára'**
+  String get lastUsedRoleLabel;
+
+  /// No description provided for @personPatientSheetsHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Beteglapok'**
+  String get personPatientSheetsHeading;
+
+  /// No description provided for @personPatientSheetsEmpty.
+  ///
+  /// In hu, this message translates to:
+  /// **'Még nincs beteglap.'**
+  String get personPatientSheetsEmpty;
+
+  /// No description provided for @protoIdentityHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Személyek azonosítója'**
+  String get protoIdentityHeading;
+
+  /// No description provided for @protoPhantomHeading.
+  ///
+  /// In hu, this message translates to:
+  /// **'Fantomrajz'**
+  String get protoPhantomHeading;
 }
 
 class _AppLocalizationsDelegate

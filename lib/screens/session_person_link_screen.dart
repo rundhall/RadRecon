@@ -10,7 +10,7 @@ import '../models/session_person_link.dart';
 import '../widgets/dose_widgets.dart';
 import 'person_entry_screen.dart';
 import 'session_dosimeters_screen.dart';
-import 'session_person_status_dialog.dart';
+import 'victim_details_screen.dart';
 
 /// Egy felméréshez hozzárendelt személyek — a globális nyilvántartásból
 /// választva, tetszőleges létszámban.
@@ -97,6 +97,13 @@ class _SessionPersonLinkScreenState extends State<SessionPersonLinkScreen> {
 
     if (!mounted) return;
 
+    final lastRoles = <int, SessionPersonRole>{};
+    for (final p in selectable) {
+      final r = await DatabaseHelper.instance.getLastSessionRoleOf(p.id!);
+      if (r != null) lastRoles[p.id!] = r;
+    }
+    if (!mounted) return;
+
     final result = await showModalBottomSheet<Object>(
       context: context,
       builder: (context) => SafeArea(
@@ -132,6 +139,9 @@ class _SessionPersonLinkScreenState extends State<SessionPersonLinkScreen> {
                     return ListTile(
                       leading: const Icon(Icons.person_outline),
                       title: Text(p.name),
+                      subtitle: lastRoles[p.id] == null
+                          ? null
+                          : Text('${loc.lastUsedRoleLabel}: ${lastRoles[p.id]!.localized(loc)}'),
                       onTap: () => Navigator.of(context).pop(p),
                     );
                   },
@@ -169,19 +179,28 @@ class _SessionPersonLinkScreenState extends State<SessionPersonLinkScreen> {
     }
     if (picked == null) return;
 
+    final lastRole =
+        await DatabaseHelper.instance.getLastSessionRoleOf(picked.id!);
     await DatabaseHelper.instance.insertSessionPerson(
       surveySessionId: widget.surveySessionId,
       personId: picked.id!,
+      role: lastRole ?? SessionPersonRole.surveyor,
+    );
+    _reload();
+  }
+
+  Future<void> _editPerson(Person person) async {
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => PersonEntryScreen(existing: person)),
     );
     _reload();
   }
 
   Future<void> _editStatus(AttachedPerson attached) async {
-    final saved = await showDialog<bool>(
-      context: context,
-      builder: (_) => SessionPersonStatusDialog(attached: attached),
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => VictimDetailsScreen(attached: attached)),
     );
-    if (saved == true) _reload();
+    _reload();
   }
 
   Future<void> _confirmDetach(AttachedPerson attached) async {
@@ -294,6 +313,11 @@ class _SessionPersonLinkScreenState extends State<SessionPersonLinkScreen> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    IconButton(
+                      tooltip: loc.editPersonTitle,
+                      icon: const Icon(Icons.person_outline),
+                      onPressed: () => _editPerson(a.person),
+                    ),
                     IconButton(
                       tooltip: loc.rrEditStatusTooltip,
                       icon: const Icon(Icons.medical_services_outlined),

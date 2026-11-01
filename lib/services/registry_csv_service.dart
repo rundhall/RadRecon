@@ -1,13 +1,17 @@
+import '../models/victim_details.dart';
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../database/database_helper.dart';
+import 'exchange_format.dart';
 import '../models/instrument.dart';
 import '../models/person.dart';
 import '../models/person_dose.dart';
+import '../models/activity_origin.dart';
 import '../models/radiation_source.dart';
+import '../models/source_nuclide.dart';
 
 enum DuplicateImportPolicy { replace, skip, keepDuplicate }
 
@@ -29,7 +33,7 @@ class RegistryCsvService {
   Future<File> exportPersons() async {
     final persons = await DatabaseHelper.instance.getPersons();
     return _writeCsv('persons.csv', [
-      ['name', 'medical_exam_expiry_date', 'training_expiry_date', 'notes', 'created_at', 'updated_at', 'phone', 'emails'],
+      ['name', 'medical_exam_expiry_date', 'training_expiry_date', 'notes', 'created_at', 'updated_at', 'phone', 'emails', 'sex', 'age_years', 'weight_kg', 'height_cm', 'identifier', 'address'],
       ...persons.map((person) => [
             person.name,
             person.medicalExamExpiryDate?.toIso8601String(),
@@ -39,6 +43,12 @@ class RegistryCsvService {
             person.updatedAt.toIso8601String(),
             person.phone,
             person.emails.join('|'),
+            person.sex?.dbValue,
+            person.ageYears,
+            person.weightKg,
+            person.heightCm,
+            person.identifier,
+            person.address,
           ]),
     ]);
   }
@@ -149,27 +159,41 @@ class RegistryCsvService {
   }
 
   Future<File> exportRadiationSources() async {
-    final sources = await DatabaseHelper.instance.getRadiationSources();
-    return _writeCsv('radiation_sources.csv', [
+    final db = DatabaseHelper.instance;
+    final sources = await db.getRadiationSources();
+    final rows = <List<Object?>>[
       [
-        'identifier', 'nuclide_name', 'activity_at_manufacture_mbq',
+        ExchangeFormat.csvVersionColumn, 'identifier', 'nuclide',
+        'activity_mbq', 'reference_date', 'origin',
         'activity_error_percent', 'manufacture_date',
         'service_life_expiry_date', 'next_inspection_date', 'notes',
-        'created_at', 'updated_at',
+        'created_at', 'updated_at', 'source_origin',
       ],
-      ...sources.map((source) => [
-            source.identifier,
-            source.nuclideName,
-            source.activityAtManufactureMBq,
-            source.activityErrorPercent,
-            source.manufactureDate.toIso8601String(),
-            source.serviceLifeExpiryDate?.toIso8601String(),
-            source.nextInspectionDate?.toIso8601String(),
-            source.notes,
-            source.createdAt.toIso8601String(),
-            source.updatedAt.toIso8601String(),
-          ]),
-    ]);
+    ];
+    for (final source in sources) {
+      final nuclides = await db.getSourceNuclides(source.id!);
+      // Nuklid-sor nélküli forrás is egy sorral szerepel, üres nuklidnévvel.
+      final List<SourceNuclide?> lines = nuclides.isEmpty ? [null] : nuclides;
+      for (final n in lines) {
+        rows.add([
+          ExchangeFormat.csvCurrentVersion,
+          source.identifier,
+          n?.nuclide,
+          n?.activityMBq,
+          n?.referenceDate.toIso8601String(),
+          n?.origin.name,
+          source.activityErrorPercent,
+          source.manufactureDate?.toIso8601String(),
+          source.serviceLifeExpiryDate?.toIso8601String(),
+          source.nextInspectionDate?.toIso8601String(),
+          source.notes,
+          source.createdAt.toIso8601String(),
+          source.updatedAt.toIso8601String(),
+          source.origin,
+        ]);
+      }
+    }
+    return _writeCsv('radiation_sources.csv', rows);
   }
 
   Future<File> exportInstruments() async {
@@ -215,6 +239,12 @@ class RegistryCsvService {
             .map((e) => e.trim())
             .where((e) => e.isNotEmpty)
             .toList(),
+        sex: VictimSex.fromDbValue(_optional(row, 'sex')),
+        ageYears: int.tryParse(_optional(row, 'age_years') ?? ''),
+        weightKg: double.tryParse(_optional(row, 'weight_kg') ?? ''),
+        heightCm: double.tryParse(_optional(row, 'height_cm') ?? ''),
+        identifier: _optional(row, 'identifier'),
+        address: _optional(row, 'address'),
         createdAt: _date(row, 'created_at') ?? now,
         updatedAt: _date(row, 'updated_at') ?? now,
       );
@@ -236,6 +266,12 @@ class RegistryCsvService {
           notes: person.notes,
           phone: person.phone,
           emails: person.emails,
+          sex: person.sex,
+          ageYears: person.ageYears,
+          weightKg: person.weightKg,
+          heightCm: person.heightCm,
+          identifier: person.identifier,
+          address: person.address,
           createdAt: match.createdAt,
           updatedAt: DateTime.now(),
         ));
@@ -249,41 +285,91 @@ class RegistryCsvService {
     return RegistryImportResult(imported: imported, replaced: replaced, skipped: skipped);
   }
 
+  static const _csvV1Required = [
+    'identifier', 'nuclide_name', 'activity_at_manufacture_mbq',
+    'activity_error_percent', 'manufacture_date',
+    'service_life_expiry_date', 'next_inspection_date', 'notes',
+    'created_at', 'updated_at',
+  ];
+
+  static const _csvV2Required = [
+    'identifier', 'nuclide', 'activity_mbq', 'reference_date', 'origin',
+    'manufacture_date',
+  ];
+
   Future<RegistryImportResult> importRadiationSources(
     String csv,
     DuplicateImportPolicy policy,
   ) async {
-    final rows = _readRows(csv, const [
-      'identifier', 'nuclide_name', 'activity_at_manufacture_mbq',
-      'activity_error_percent', 'manufacture_date',
-      'service_life_expiry_date', 'next_inspection_date', 'notes',
-      'created_at', 'updated_at',
-    ]);
-    final sources = rows.map((row) {
-      final now = DateTime.now();
-      return RadiationSource(
-        identifier: _required(row, 'identifier'),
-        nuclideName: _required(row, 'nuclide_name'),
-        activityAtManufactureMBq: _number(row, 'activity_at_manufacture_mbq')!,
-        activityErrorPercent: _number(row, 'activity_error_percent'),
-        manufactureDate: _date(row, 'manufacture_date')!,
-        serviceLifeExpiryDate: _date(row, 'service_life_expiry_date'),
-        nextInspectionDate: _date(row, 'next_inspection_date'),
-        notes: _optional(row, 'notes'),
-        createdAt: _date(row, 'created_at') ?? now,
-        updatedAt: _date(row, 'updated_at') ?? now,
+    final records = _parseCsv(csv.replaceFirst('﻿', ''));
+    if (records.isEmpty) throw const FormatException('CSV is empty.');
+    final headers = records.first.map((value) => value.trim()).toList();
+    final isV2 = headers.contains(ExchangeFormat.csvVersionColumn);
+    if (isV2 && records.length > 1) {
+      final versionIndex = headers.indexOf(ExchangeFormat.csvVersionColumn);
+      ExchangeFormat.checkCsvVersion(
+        records[1].length > versionIndex ? records[1][versionIndex] : null,
       );
-    }).toList();
-    final existing = await DatabaseHelper.instance.getRadiationSources();
+    }
+    final rows = _readRows(csv, isV2 ? _csvV2Required : _csvV1Required);
+    // v2: a forrás nuklid-sorai azonos azonosítójú sorok. v1: egy sor = egy forrás.
+    final groups = isV2
+        ? ExchangeFormat.groupRowsByIdentifier(rows).values.toList()
+        : [for (final row in rows) [row]];
+
+    final db = DatabaseHelper.instance;
+    final existing = await db.getRadiationSources();
     var imported = 0;
     var replaced = 0;
     var skipped = 0;
-    for (final source in sources) {
-      final match = _findMatch(existing, source.identifier, (item) => item.identifier);
+    for (final group in groups) {
+      final head = group.first;
+      final now = DateTime.now();
+      final identifier = _required(head, 'identifier');
+      final manufactureDate = _date(head, 'manufacture_date');
+      final nuclides = <SourceNuclide>[];
+      for (final row in group) {
+        final name =
+            isV2 ? _optional(row, 'nuclide') : _required(row, 'nuclide_name');
+        if (name == null) continue;
+        final activity = isV2
+            ? _number(row, 'activity_mbq')
+            : _number(row, 'activity_at_manufacture_mbq');
+        final referenceDate = isV2
+            ? (_date(row, 'reference_date') ?? manufactureDate)
+            : manufactureDate;
+        if (referenceDate == null) {
+          throw FormatException('Missing reference date for "$identifier".');
+        }
+        nuclides.add(SourceNuclide(
+          radiationSourceId: 0,
+          nuclide: name,
+          activityMBq: activity,
+          referenceDate: referenceDate,
+          origin: isV2 ? _origin(row) : ActivityOrigin.manual,
+          createdAt: now,
+        ));
+      }
+      final primary = nuclides.isEmpty ? null : nuclides.first;
+      final source = RadiationSource(
+        identifier: identifier,
+        nuclideName: primary?.nuclide ?? '',
+        activityAtManufactureMBq: primary?.activityMBq,
+        activityErrorPercent: _number(head, 'activity_error_percent'),
+        manufactureDate: manufactureDate,
+        serviceLifeExpiryDate: _date(head, 'service_life_expiry_date'),
+        nextInspectionDate: _date(head, 'next_inspection_date'),
+        notes: _optional(head, 'notes'),
+        origin: _optional(head, 'source_origin') ?? 'own',
+        createdAt: _date(head, 'created_at') ?? now,
+        updatedAt: _date(head, 'updated_at') ?? now,
+      );
+
+      final match = _findMatch(existing, identifier, (item) => item.identifier);
       if (match != null && policy == DuplicateImportPolicy.skip) {
         skipped++;
       } else if (match != null && policy == DuplicateImportPolicy.replace) {
-        await DatabaseHelper.instance.updateRadiationSource(RadiationSource(
+        await db.updateRadiationSource(RadiationSource(
           id: match.id,
           identifier: source.identifier,
           nuclideName: source.nuclideName,
@@ -294,17 +380,28 @@ class RegistryCsvService {
           nextInspectionDate: source.nextInspectionDate,
           notes: source.notes,
           certificateFiles: match.certificateFiles,
+          notifyEnabled: match.notifyEnabled,
           createdAt: match.createdAt,
-          updatedAt: DateTime.now(),
+          updatedAt: now,
         ));
+        await db.replaceSourceNuclides(match.id!, nuclides);
         replaced++;
       } else {
-        await DatabaseHelper.instance.insertRadiationSource(source);
+        await db.insertRadiationSourceWithNuclides(source, nuclides);
         imported++;
         existing.add(source);
       }
     }
     return RegistryImportResult(imported: imported, replaced: replaced, skipped: skipped);
+  }
+
+  ActivityOrigin _origin(Map<String, String> row) {
+    final raw = _optional(row, 'origin') ?? ActivityOrigin.manual.name;
+    try {
+      return ActivityOrigin.values.byName(raw);
+    } catch (_) {
+      throw FormatException('Invalid origin in "origin": $raw');
+    }
   }
 
   Future<RegistryImportResult> importInstruments(

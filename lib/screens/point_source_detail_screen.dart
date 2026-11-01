@@ -123,7 +123,7 @@ class _PointSourceDetailScreenState extends State<PointSourceDetailScreen> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _asOfDate,
-      firstDate: widget.attached.source.manufactureDate,
+      firstDate: widget.attached.source.manufactureDate ?? DateTime(1950),
       lastDate: DateTime(2100),
     );
     if (picked != null) setState(() => _asOfDate = picked);
@@ -170,7 +170,7 @@ class _PointSourceDetailScreenState extends State<PointSourceDetailScreen> {
           DistanceEcho(text: _distanceCtrl.text, unit: _distanceUnit),
           const SizedBox(height: 12),
           Text(
-            '${loc.manufactureDateLabel}: ${_dateFormat.format(source.manufactureDate)}'
+            '${loc.manufactureDateLabel}: ${source.manufactureDate == null ? '—' : _dateFormat.format(source.manufactureDate!)}'
             '${source.serviceLifeExpiryDate != null ? '  ·  ${loc.serviceLifeExpiryDateLabel}: ${_dateFormat.format(source.serviceLifeExpiryDate!)}' : ''}',
             style: Theme.of(context).textTheme.bodySmall,
           ),
@@ -241,7 +241,22 @@ class _PointSourceDetailScreenState extends State<PointSourceDetailScreen> {
       ];
     }
 
-    final decayedActivity = source.decayedActivityMBqAt(_asOfDate)!;
+    final decayedActivity = source.decayedActivityMBqAt(_asOfDate);
+    if (decayedActivity == null) {
+      return [
+        Row(
+          children: [
+            Icon(
+              Icons.info_outline,
+              color: Theme.of(context).colorScheme.error,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Expanded(child: Text(loc.activityUnknownCalcWarning)),
+          ],
+        ),
+      ];
+    }
     final calculatedDoseUSvH = isotope.doseRateAt(
       activityMBq: decayedActivity,
       distanceM: distance,

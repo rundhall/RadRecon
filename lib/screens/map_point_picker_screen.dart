@@ -3,14 +3,23 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' as ll;
 
 import '../l10n/app_localizations.dart';
+import '../models/plan_calibration.dart';
+import '../services/plan_georeference.dart';
+import '../widgets/plan_map_layers.dart';
 
 /// Térképen koppintva választható ki egy pozíció — arra az esetre, ha a
 /// mérés helye nem egyezik a telefon aktuális GPS-fixével (beltér, vagy
 /// utólagos/máshol történő rögzítés).
 class MapPointPickerScreen extends StatefulWidget {
   final ll.LatLng initialCenter;
+  /// Alaprajz mód: ha meg van adva, az alaprajzon kell koordinátát választani.
+  final PlanCalibration? plan;
 
-  const MapPointPickerScreen({super.key, required this.initialCenter});
+  const MapPointPickerScreen({
+    super.key,
+    required this.initialCenter,
+    this.plan,
+  });
 
   @override
   State<MapPointPickerScreen> createState() => _MapPointPickerScreenState();
@@ -37,13 +46,19 @@ class _MapPointPickerScreenState extends State<MapPointPickerScreen> {
             options: MapOptions(
               initialCenter: _picked,
               initialZoom: 17,
+              initialCameraFit: widget.plan == null
+                  ? null
+                  : planCameraFit(PlanGeoref(widget.plan!)),
               onTap: (tapPosition, point) => setState(() => _picked = point),
             ),
             children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.rundhall.rad_recon',
-              ),
+              if (widget.plan != null) planOverlayLayer(widget.plan!),
+              if (widget.plan == null)
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.rundhall.rad_recon',
+                ),
+              if (widget.plan == null)
               Align(
                 alignment: Alignment.topRight,
                 child: IgnorePointer(

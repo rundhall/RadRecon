@@ -6,18 +6,25 @@ import 'isotope.dart';
 /// hasonlóan egyszer felvéve, utána bármelyik mérési ponthoz hozzárendelhető
 /// — lásd [PointSourceLink]).
 ///
-/// A gyártáskori aktivitásból és a nuklid felezési idejéből bármely later
-/// időpontra visszaszámolható az aktuális aktivitás.
+/// A részletes összetétel (nuklidonkénti aktivitás) a `source_nuclides`
+/// táblában van. A `nuclideName` és az `activityAtManufactureMBq` az elsődleges
+/// nuklid kompatibilitási mezői. Talált forrásnál a gyártási mezők üresek.
 class RadiationSource {
   final int? id;
 
   final String identifier; // gyártói/leltári egyedi azonosító
-  final String nuclideName; // pl. "Co-60", vagy kézzel megadott név
 
-  final double activityAtManufactureMBq;
+  /// Elsődleges nuklid neve. Üres, ha nincs nuklid.
+  final String nuclideName;
+
+  /// Elsődleges nuklid gyártáskori aktivitása (MBq). Null, ha ismeretlen.
+  final double? activityAtManufactureMBq;
+
   final double? activityErrorPercent; // a gyártói aktivitás-adat hibája (±%)
 
-  final DateTime manufactureDate;
+  /// Gyártási dátum. Talált forrásnál null.
+  final DateTime? manufactureDate;
+
   final DateTime? serviceLifeExpiryDate;
   final DateTime? nextInspectionDate;
 
@@ -26,6 +33,18 @@ class RadiationSource {
   /// Csatolt műbizonylat(ok) — az app könyvtárába másolt fájlok útvonala.
   final List<String> certificateFiles;
 
+  /// `own` | `found` | `reference` (saját / talált / etalon). Csak a
+  /// létrehozáskor íródik be, a későbbi mentés nem írja felül.
+  final String origin;
+
+  /// Az aktivitás vonatkozási dátuma, ha nincs gyártási dátum (talált forrás:
+  /// az elsődleges nuklid-sor dátuma). Csak betöltéskor íródik ki.
+  final DateTime? activityReferenceDate;
+
+  /// Lejárati értesítés kérése ehhez a forráshoz. A globális kapcsoló
+  /// mellett érvényes: csak akkor értesít, ha mindkettő be van kapcsolva.
+  final bool notifyEnabled;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -33,13 +52,16 @@ class RadiationSource {
     this.id,
     required this.identifier,
     required this.nuclideName,
-    required this.activityAtManufactureMBq,
+    this.activityAtManufactureMBq,
     this.activityErrorPercent,
-    required this.manufactureDate,
+    this.manufactureDate,
     this.serviceLifeExpiryDate,
     this.nextInspectionDate,
     this.notes,
     this.certificateFiles = const [],
+    this.origin = 'own',
+    this.activityReferenceDate,
+    this.notifyEnabled = true,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -52,13 +74,18 @@ class RadiationSource {
       serviceLifeExpiryDate != null && serviceLifeExpiryDate!.isBefore(asOf);
 
   /// Az aktuális aktivitás (MBq) `asOf` időpontban, exponenciális bomlással
-  /// számolva. Null, ha a nuklid felezési ideje nem ismert.
+  /// számolva. Null, ha a nuklid felezési ideje, az aktivitás vagy a
+  /// gyártási dátum nem ismert.
   double? decayedActivityMBqAt(DateTime asOf) {
     final isotope = knownIsotope;
-    if (isotope == null) return null;
-    final elapsedDays = asOf.difference(manufactureDate).inHours / 24.0;
+    final initial = activityAtManufactureMBq;
+    final manufactured = manufactureDate ?? activityReferenceDate;
+    if (isotope == null || initial == null || manufactured == null) {
+      return null;
+    }
+    final elapsedDays = asOf.difference(manufactured).inHours / 24.0;
     return isotope.decayedActivityMBq(
-      initialActivityMBq: activityAtManufactureMBq,
+      initialActivityMBq: initial,
       elapsedDays: elapsedDays,
     );
   }
@@ -74,6 +101,9 @@ class RadiationSource {
     DateTime? nextInspectionDate,
     String? notes,
     List<String>? certificateFiles,
+    String? origin,
+    DateTime? activityReferenceDate,
+    bool? notifyEnabled,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -87,14 +117,18 @@ class RadiationSource {
       manufactureDate: manufactureDate ?? this.manufactureDate,
       serviceLifeExpiryDate:
           serviceLifeExpiryDate ?? this.serviceLifeExpiryDate,
-        nextInspectionDate: nextInspectionDate ?? this.nextInspectionDate,
+      nextInspectionDate: nextInspectionDate ?? this.nextInspectionDate,
       notes: notes ?? this.notes,
       certificateFiles: certificateFiles ?? this.certificateFiles,
+      origin: origin ?? this.origin,
+      activityReferenceDate: activityReferenceDate ?? this.activityReferenceDate,
+      notifyEnabled: notifyEnabled ?? this.notifyEnabled,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
+  /// Az `origin` szándékosan nincs benne: a sor frissítése nem írja felül.
   Map<String, Object?> toMap() {
     return {
       'id': id,
@@ -102,7 +136,7 @@ class RadiationSource {
       'nuclide_name': nuclideName,
       'activity_at_manufacture_mbq': activityAtManufactureMBq,
       'activity_error_percent': activityErrorPercent,
-      'manufacture_date': manufactureDate.toIso8601String(),
+      'manufacture_date': manufactureDate?.toIso8601String(),
       'service_life_expiry_date': serviceLifeExpiryDate?.toIso8601String(),
       'next_inspection_date': nextInspectionDate?.toIso8601String(),
       'notes': notes,
@@ -110,6 +144,7 @@ class RadiationSource {
           certificateFiles.isEmpty ? null : jsonEncode(certificateFiles),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      'notify_enabled': notifyEnabled ? 1 : 0,
     };
   }
 
@@ -117,20 +152,29 @@ class RadiationSource {
     return RadiationSource(
       id: map['id'] as int?,
       identifier: map['identifier'] as String,
-      nuclideName: map['nuclide_name'] as String,
+      nuclideName: (map['nuclide_name'] as String?) ?? '',
       activityAtManufactureMBq:
-          (map['activity_at_manufacture_mbq'] as num).toDouble(),
+          (map['activity_at_manufacture_mbq'] as num?)?.toDouble(),
       activityErrorPercent:
           (map['activity_error_percent'] as num?)?.toDouble(),
-      manufactureDate: DateTime.parse(map['manufacture_date'] as String),
+      manufactureDate: map['manufacture_date'] == null
+          ? null
+          : DateTime.parse(map['manufacture_date'] as String),
       serviceLifeExpiryDate: map['service_life_expiry_date'] == null
           ? null
           : DateTime.parse(map['service_life_expiry_date'] as String),
-        nextInspectionDate: map['next_inspection_date'] == null
+      nextInspectionDate: map['next_inspection_date'] == null
           ? null
           : DateTime.parse(map['next_inspection_date'] as String),
       notes: map['notes'] as String?,
       certificateFiles: _decodeFiles(map['certificate_files']),
+      origin: (map['origin'] as String?) ?? 'own',
+      activityReferenceDate: map['activity_reference_date'] == null
+          ? null
+          : DateTime.parse(map['activity_reference_date'] as String),
+      notifyEnabled: map['notify_enabled'] == null
+          ? true
+          : (map['notify_enabled'] as int) == 1,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );

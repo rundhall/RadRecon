@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:archive/archive_io.dart';
 import 'package:file_selector/file_selector.dart' as fs;
@@ -12,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../database/database_helper.dart';
+import 'export_archive_names.dart';
 import 'expiry_notification_service.dart';
 
 /// Egy mentett adatbázis ("cég") a cégek mappájában.
@@ -148,6 +150,10 @@ class DatabaseTransferService {
   static const _attachmentsPrefix = 'attachments/';
   static const _attachmentMarker = 'attachments/';
   static const _restoredAttachmentsDirName = 'rad_recon_attachments';
+  static const _plansPrefix = 'plans/';
+  static const _planPathMarker = 'plans/';
+  static const _restoredPlansDirName = 'rad_recon_plans';
+  static const _backupShotsTmpDirName = 'rad_recon_backup_shots';
   static const _restoreStageDirName = 'rad_recon_restore_stage';
 
   static const _activeCompanyKey = 'active_company_name';
@@ -326,12 +332,18 @@ class DatabaseTransferService {
     final tmp = await getTemporaryDirectory();
     final workCopy = File(p.join(tmp.path, 'rad_recon_export.db'));
     if (await workCopy.exists()) await workCopy.delete();
-    await File(dbPath).copy(workCopy.path);
+    try {
+      await File(dbPath).copy(workCopy.path);
+    } catch (e) {
+      if (_isDiskFull(e)) throw _noSpaceError();
+      rethrow;
+    }
 
     // A munkapéldányban a fotó-útvonalakat zip-relatív jelölőre cseréljük.
     final photoEntries = <String, File>{};
     final attachmentEntries = <String, File>{};
     final spectraEntries = <String, File>{};
+    final planEntries = <String, File>{};
     final copyDb = await openDatabase(workCopy.path);
     try {
       final rows = await copyDb.query(
@@ -372,14 +384,41 @@ class DatabaseTransferService {
           whereArgs: [row['id']],
         );
       }
+      // Alaprajzok (plan módú felmérések): a fájl a mentésbe kerül, az útvonal jelölőre cserélődik.
+      final planRows = await copyDb.query(
+        'survey_sessions',
+        columns: ['id', 'plan_image_path'],
+        where: 'plan_image_path IS NOT NULL',
+      );
+      for (final row in planRows) {
+        final path = row['plan_image_path'] as String?;
+        if (path == null || path.isEmpty) continue;
+        final file = File(path);
+        if (!await file.exists()) continue;
+        final entryName = '${row['id']}_${p.basename(path)}';
+        planEntries[entryName] = file;
+        await copyDb.update(
+          'survey_sessions',
+          {'plan_image_path': '$_planPathMarker$entryName'},
+          where: 'id = ?',
+          whereArgs: [row['id']],
+        );
+      }
       await _collectAttachments(copyDb, attachmentEntries);
     } finally {
       await copyDb.close();
     }
 
     final docs = await getApplicationDocumentsDirectory();
+    // A mentés az ideiglenes mappába kerül: az OS szükség esetén kiüríti,
+    // és nem halmozódik a tárhelyen. Az előző mentéseket töröljük.
+    await _removeOldExports(tmp.path);
+    if (Platform.isAndroid || Platform.isIOS) {
+      // Mobilon a dokumentum-mappa csak az appé: a régi mentések maradékát is.
+      await _removeOldExports(docs.path);
+    }
     final out = File(p.join(
-      docs.path,
+      tmp.path,
       '${sanitizeName(companyName)}_${_dateStamp()}.zip',
     ));
     if (await out.exists()) await out.delete();
@@ -392,10 +431,15 @@ class DatabaseTransferService {
       'photoCount': photoEntries.length,
       'attachmentCount': attachmentEntries.length,
       'spectrumCount': spectraEntries.length,
+      'planCount': planEntries.length,
     }));
 
     // Fájlba streamelés: a fotók, spektrumok és mellékletek nem kerülnek
     // egyszerre a memóriába (korábban a teljes zip a RAM-ban épült fel).
+    // A képernyőképek mentési másolata felére kicsinyítve készül. A telefonon
+    // az eredeti marad, a jegyzőkönyv az eredetit használja.
+    final shotsTmp = Directory(p.join(tmp.path, _backupShotsTmpDirName));
+    if (await shotsTmp.exists()) await shotsTmp.delete(recursive: true);
     final encoder = ZipFileEncoder()..create(out.path);
     try {
       await encoder.addFile(workCopy, _dbEntryName);
@@ -408,6 +452,9 @@ class DatabaseTransferService {
       for (final e in attachmentEntries.entries) {
         await encoder.addFile(e.value, '$_attachmentsPrefix${e.key}');
       }
+      for (final e in planEntries.entries) {
+        await encoder.addFile(e.value, '$_plansPrefix${e.key}');
+      }
 
       final screenshotsDir = Directory(p.join(docs.path, _screenshotsDirName));
       if (await screenshotsDir.exists()) {
@@ -416,7 +463,8 @@ class DatabaseTransferService {
           final rel = p
               .relative(entity.path, from: screenshotsDir.path)
               .replaceAll(r'\', '/');
-          await encoder.addFile(entity, '$_screenshotsPrefix$rel');
+          final small = await _smallerCopy(entity, shotsTmp, rel);
+          await encoder.addFile(small, '$_screenshotsPrefix$rel');
         }
       }
 
@@ -424,13 +472,15 @@ class DatabaseTransferService {
         ArchiveFile(_manifestName, manifest.length, manifest),
       );
       await encoder.close();
-    } catch (_) {
-      // Hiba esetén ne maradjon félkész zip a dokumentum-mappában.
+    } catch (e) {
+      // Hiba esetén ne maradjon félkész zip.
       await encoder.close().catchError((Object _) {});
       if (await out.exists()) await out.delete();
+      if (_isDiskFull(e)) throw _noSpaceError();
       rethrow;
     } finally {
       if (await workCopy.exists()) await workCopy.delete();
+      if (await shotsTmp.exists()) await shotsTmp.delete(recursive: true);
     }
     return out;
   }
@@ -444,6 +494,62 @@ class DatabaseTransferService {
 
   /// A csatolmányok útvonalát zip-relatív jelölőre cseréli a munkapéldányban,
   /// és összegyűjti a becsomagolandó fájlokat.
+  /// A képernyőkép kicsinyített (felére, PNG) másolata a mentéshez. Hiba
+  /// esetén az eredeti fájl marad.
+  Future<File> _smallerCopy(File src, Directory outDir, String rel) async {
+    try {
+      final bytes = await src.readAsBytes();
+      final probe = await ui.instantiateImageCodec(bytes);
+      final probeFrame = await probe.getNextFrame();
+      final width = (probeFrame.image.width / 2).round();
+      probeFrame.image.dispose();
+      probe.dispose();
+
+      final codec = await ui.instantiateImageCodec(
+        bytes,
+        targetWidth: width < 1 ? 1 : width,
+      );
+      final frame = await codec.getNextFrame();
+      final data = await frame.image.toByteData(format: ui.ImageByteFormat.png);
+      frame.image.dispose();
+      codec.dispose();
+      if (data == null) return src;
+
+      final out = File(p.join(outDir.path, rel));
+      await out.parent.create(recursive: true);
+      await out.writeAsBytes(data.buffer.asUint8List(), flush: true);
+      return out;
+    } catch (_) {
+      return src;
+    }
+  }
+
+  /// Törli a korábbi mentés-zipeket a megadott mappából.
+  Future<void> _removeOldExports(String dirPath) async {
+    final dir = Directory(dirPath);
+    if (!await dir.exists()) return;
+    final victims = <File>[];
+    await for (final entity in dir.list()) {
+      if (entity is File && isExportArchiveName(p.basename(entity.path))) {
+        victims.add(entity);
+      }
+    }
+    for (final file in victims) {
+      await file.delete();
+    }
+  }
+
+  /// Elfogyott a tárhely: ENOSPC (28), Windowson 39 vagy 112.
+  static bool _isDiskFull(Object e) {
+    if (e is! FileSystemException) return false;
+    final code = e.osError?.errorCode;
+    return code == 28 || code == 39 || code == 112;
+  }
+
+  static StateError _noSpaceError() => StateError(
+        'Nincs elég szabad hely a mentéshez. Szabadíts fel helyet, majd próbáld újra.',
+      );
+
   Future<void> _collectAttachments(
     Database db,
     Map<String, File> out,
@@ -459,6 +565,7 @@ class DatabaseTransferService {
     for (final t in const [
       ('instrument_calibrations', 'cal'),
       ('person_certificates', 'person'),
+      ('sample_analyses', 'ana'),
     ]) {
       if (!await _hasTable(db, t.$1)) continue;
       final rows = await db.query(
@@ -549,7 +656,7 @@ class DatabaseTransferService {
       return present ? p.join(finalDir, name) : null;
     }
 
-    for (final table in const ['instrument_calibrations', 'person_certificates']) {
+    for (final table in const ['instrument_calibrations', 'person_certificates', 'sample_analyses']) {
       if (!await _hasTable(db, table)) continue;
       final rows = await db.query(
         table,
@@ -704,6 +811,7 @@ class DatabaseTransferService {
     final spectraDir = Directory(p.join(docs.path, _restoredSpectraDirName));
     final attachmentsDir =
         Directory(p.join(docs.path, _restoredAttachmentsDirName));
+    final plansDir = Directory(p.join(docs.path, _restoredPlansDirName));
     final screenshotsDir = Directory(p.join(docs.path, _screenshotsDirName));
 
     // 1. Kicsomagolás ideiglenes mappába. Az aktív adatbázishoz és a fájlokhoz
@@ -717,11 +825,13 @@ class DatabaseTransferService {
       final stagedSpectra = p.join(stage.path, _restoredSpectraDirName);
       final stagedAttachments =
           p.join(stage.path, _restoredAttachmentsDirName);
+      final stagedPlans = p.join(stage.path, _restoredPlansDirName);
       final stagedScreenshots = p.join(stage.path, _screenshotsDirName);
       for (final dir in [
         stagedPhotos,
         stagedSpectra,
         stagedAttachments,
+        stagedPlans,
         stagedScreenshots,
       ]) {
         await Directory(dir).create(recursive: true);
@@ -738,6 +848,9 @@ class DatabaseTransferService {
         } else if (entry.name.startsWith(_attachmentsPrefix)) {
           await _writeEntry(
               entry, p.join(stagedAttachments, p.basename(entry.name)));
+        } else if (entry.name.startsWith(_plansPrefix)) {
+          await _writeEntry(
+              entry, p.join(stagedPlans, p.basename(entry.name)));
         } else if (entry.name.startsWith(_screenshotsPrefix)) {
           final rel = entry.name.substring(_screenshotsPrefix.length);
           final out = File(p.joinAll([stagedScreenshots, ...rel.split('/')]));
@@ -751,6 +864,14 @@ class DatabaseTransferService {
       final db = await openDatabase(stagedDb);
       try {
         await _restoreAttachments(db, stagedAttachments, attachmentsDir.path);
+        await _relinkPaths(
+          db,
+          table: 'survey_sessions',
+          column: 'plan_image_path',
+          marker: _planPathMarker,
+          stagedDir: stagedPlans,
+          finalDir: plansDir.path,
+        );
         await _relinkPaths(
           db,
           column: 'spectrum_path',
@@ -777,6 +898,7 @@ class DatabaseTransferService {
       await _swapDir(stagedPhotos, photosDir);
       await _swapDir(stagedSpectra, spectraDir);
       await _swapDir(stagedAttachments, attachmentsDir);
+      await _swapDir(stagedPlans, plansDir);
       await _swapDir(stagedScreenshots, screenshotsDir);
 
       await _afterDataReplaced();
@@ -790,13 +912,14 @@ class DatabaseTransferService {
   /// kicsomagolt mappában, az útvonal null lesz (nem marad rossz hivatkozás).
   Future<void> _relinkPaths(
     Database db, {
+    String table = 'measurement_points',
     required String column,
     required String marker,
     required String stagedDir,
     required String finalDir,
   }) async {
     final rows = await db.query(
-      'measurement_points',
+      table,
       columns: ['id', column],
       where: '$column IS NOT NULL',
     );
@@ -806,7 +929,7 @@ class DatabaseTransferService {
       final name = p.basename(path);
       final present = await File(p.join(stagedDir, name)).exists();
       await db.update(
-        'measurement_points',
+        table,
         {column: present ? p.join(finalDir, name) : null},
         where: 'id = ?',
         whereArgs: [row['id']],
@@ -831,7 +954,7 @@ class DatabaseTransferService {
     await _deleteDbFiles(dbPath);
 
     final docs = await getApplicationDocumentsDirectory();
-    for (final name in [_restoredPhotosDirName, _restoredSpectraDirName, _screenshotsDirName]) {
+    for (final name in [_restoredPhotosDirName, _restoredSpectraDirName, _restoredPlansDirName, _screenshotsDirName]) {
       final dir = Directory(p.join(docs.path, name));
       if (await dir.exists()) await dir.delete(recursive: true);
     }

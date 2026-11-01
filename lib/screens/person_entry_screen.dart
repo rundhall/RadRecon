@@ -1,3 +1,6 @@
+import '../models/session_person_link.dart';
+import '../l10n/domain_labels.dart';
+import '../models/victim_details.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
@@ -7,6 +10,7 @@ import '../l10n/app_localizations.dart';
 import '../models/person.dart';
 import '../models/person_certificate.dart';
 import '../widgets/person_certificate_dialog.dart';
+import 'victim_details_screen.dart';
 
 /// Egy személy felvétele/szerkesztése a globális nyilvántartásban.
 ///
@@ -35,6 +39,13 @@ class _PersonEntryScreenState extends State<PersonEntryScreen> {
 
   DateTime? _medicalExamExpiryDate;
   DateTime? _trainingExpiryDate;
+  VictimSex? _sex;
+  List<({SessionPersonLink link, String surveyTitle, DateTime startedAt})> _sheets = [];
+  final _identifierCtrl = TextEditingController();
+  final _addressCtrl = TextEditingController();
+  final _ageCtrl = TextEditingController();
+  final _weightCtrl = TextEditingController();
+  final _heightCtrl = TextEditingController();
 
   @override
   void initState() {
@@ -50,14 +61,63 @@ class _PersonEntryScreenState extends State<PersonEntryScreen> {
       }
       _medicalExamExpiryDate = e.medicalExamExpiryDate;
       _trainingExpiryDate = e.trainingExpiryDate;
+      _sex = e.sex;
+      _identifierCtrl.text = e.identifier ?? '';
+      _addressCtrl.text = e.address ?? '';
+      _ageCtrl.text = e.ageYears?.toString() ?? '';
+      _weightCtrl.text = e.weightKg == null ? '' : _fmtNum(e.weightKg!);
+      _heightCtrl.text = e.heightCm == null ? '' : _fmtNum(e.heightCm!);
+      _loadSheets();
     }
   }
+
+  Future<void> _loadSheets() async {
+    final id = widget.existing?.id;
+    if (id == null) return;
+    final list = await DatabaseHelper.instance.getVictimSheetsOfPerson(id);
+    if (!mounted) return;
+    setState(() => _sheets = list);
+  }
+
+  Future<void> _openSheet(
+      ({SessionPersonLink link, String surveyTitle, DateTime startedAt}) s) async {
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => VictimDetailsScreen(
+          attached: AttachedPerson(link: s.link, person: widget.existing!),
+        ),
+      ),
+    );
+    _loadSheets();
+  }
+
+  static String _fmtNum(double v) =>
+      v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toString();
+
+  static String? _text(TextEditingController c) {
+    final v = c.text.trim();
+    return v.isEmpty ? null : v;
+  }
+
+  static double? _parseNum(TextEditingController c) =>
+      double.tryParse(c.text.trim().replaceAll(',', '.'));
+
+  String _sexText(AppLocalizations loc, VictimSex s) => switch (s) {
+        VictimSex.female => loc.victimSexFemale,
+        VictimSex.male => loc.victimSexMale,
+        VictimSex.unknown => loc.victimSexUnknown,
+      };
 
   @override
   void dispose() {
     _nameCtrl.dispose();
     _notesCtrl.dispose();
     _phoneCtrl.dispose();
+    _ageCtrl.dispose();
+    _weightCtrl.dispose();
+    _heightCtrl.dispose();
+    _identifierCtrl.dispose();
+    _addressCtrl.dispose();
     for (final c in _emailCtrls) {
       c.dispose();
     }
@@ -110,6 +170,12 @@ class _PersonEntryScreenState extends State<PersonEntryScreen> {
       name: _nameCtrl.text.trim(),
       medicalExamExpiryDate: _medicalExamExpiryDate,
       trainingExpiryDate: _trainingExpiryDate,
+      identifier: _text(_identifierCtrl),
+      address: _text(_addressCtrl),
+      sex: _sex,
+      ageYears: int.tryParse(_ageCtrl.text.trim()),
+      weightKg: _parseNum(_weightCtrl),
+      heightCm: _parseNum(_heightCtrl),
       notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
       phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
       emails: _emailCtrls
@@ -165,6 +231,17 @@ class _PersonEntryScreenState extends State<PersonEntryScreen> {
               controller: _phoneCtrl,
               decoration: InputDecoration(labelText: loc.personPhoneLabel),
               keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _identifierCtrl,
+              decoration: InputDecoration(labelText: loc.personIdentifierLabel),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _addressCtrl,
+              decoration: InputDecoration(labelText: loc.personAddressLabel),
+              maxLines: 2,
             ),
             for (var i = 0; i < _emailCtrls.length; i++) ...[
               const SizedBox(height: 12),
@@ -229,6 +306,52 @@ class _PersonEntryScreenState extends State<PersonEntryScreen> {
               onTap: _pickTrainingExpiryDate,
             ),
             const Divider(height: 32),
+            Text(loc.personPhysicalHeading,
+                style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<VictimSex?>(
+              initialValue: _sex,
+              decoration: InputDecoration(labelText: loc.victimSexLabel),
+              items: [
+                const DropdownMenuItem<VictimSex?>(
+                    value: null, child: Text('—')),
+                for (final s in VictimSex.values)
+                  DropdownMenuItem<VictimSex?>(
+                      value: s, child: Text(_sexText(loc, s))),
+              ],
+              onChanged: (v) => setState(() => _sex = v),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _ageCtrl,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(labelText: loc.victimAgeLabel),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextFormField(
+                    controller: _weightCtrl,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(labelText: loc.victimWeightLabel),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextFormField(
+                    controller: _heightCtrl,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(labelText: loc.victimHeightLabel),
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 32),
             Row(
               children: [
                 Expanded(
@@ -288,6 +411,29 @@ class _PersonEntryScreenState extends State<PersonEntryScreen> {
             ),
             const SizedBox(height: 24),
             FilledButton(onPressed: _save, child: Text(loc.saveButton)),
+            if (widget.existing != null) ...[
+              const Divider(height: 32),
+              Text(loc.personPatientSheetsHeading,
+                  style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              if (_sheets.isEmpty)
+                Text(loc.personPatientSheetsEmpty)
+              else
+                for (final s in _sheets)
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.medical_services_outlined,
+                          color: Colors.red),
+                      title: Text(s.surveyTitle),
+                      subtitle: Text([
+                        _dateFormat.format(s.startedAt),
+                        s.link.triage?.localized(loc) ?? loc.rrTriageNone,
+                      ].join(' · ')),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _openSheet(s),
+                    ),
+                  ),
+            ],
           ],
         ),
       ),

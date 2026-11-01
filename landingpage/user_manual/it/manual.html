@@ -35,7 +35,7 @@
       <div class="container">
 
 <h1>Manuale utente di RadRecon</h1>
-<p>Ultimo aggiornamento: 23/10/2026</p>
+<p>Ultimo aggiornamento: 01/11/2026</p>
 <p>L’app è disponibile in sei lingue: ungherese, inglese, tedesco, spagnolo, francese e italiano. In questo manuale i nomi dei pulsanti e delle voci di menu sono in grassetto, così come compaiono nella versione italiana dell’app.</p>
 
 <h2>Indice</h2>
@@ -54,7 +54,8 @@
 <li><a href="#m12">Strumenti di lavoro</a></li>
 <li><a href="#m13">Chiusura, esportazione e importazione</a></li>
 <li><a href="#m14">Risoluzione dei problemi</a></li>
-<li><a href="#m15">Avviso importante</a></li>
+<li><a href="#m15">Persone ferite e consegna ospedaliera</a></li>
+<li><a href="#m16">Avviso importante</a></li>
 </ol>
 
 <h2 id="m1">1. Introduzione</h2>
@@ -124,6 +125,7 @@
 <p>Oltre al nome, alla scadenza della visita medica e della formazione, una persona ha un <strong>Numero di telefono</strong>, uno o più <strong>Indirizzo e-mail</strong> e un numero qualsiasi di <strong>Certificati</strong>. Premete <strong>Aggiungi certificato</strong> e inserite la denominazione (per esempio esame di radioprotezione), il numero del certificato, l’ente emittente, la data di emissione e la validità, quindi allegate il file. La scadenza di un certificato può essere ricordata come le altre scadenze. Il telefono e gli indirizzi e-mail sono nel CSV delle persone, i certificati no.</p>
 
 
+<p>Nella scheda di una persona puoi inserire un <strong>identificativo</strong> (per esempio un numero interno) e un <strong>indirizzo</strong>, oltre a nome, numero di telefono e indirizzi e-mail. Se la persona è ferita, puoi indicare <strong>sesso</strong>, <strong>età</strong> (anni), <strong>peso</strong> (kg, approssimativo) e <strong>altezza</strong> (cm) nella sezione <strong>Dati fisici</strong>. L'identificativo compare nel verbale, l'indirizzo no. In fondo alla scheda della persona, l'elenco <strong>Schede pazienti</strong> mostra i rilievi in cui la persona risultava ferita; toccando una voce si apre la scheda della persona ferita.</p>
 <h2 id="m6">6. Dosi</h2>
 <p>RadRecon può tenere la dose di ogni persona. Le dosi sono salvate in µSv. L’elenco delle persone mostra la dose annuale di ciascuna, suddivisa per fonte, e ha un selettore <strong>Anno</strong>.</p>
 <ul>
@@ -155,10 +157,11 @@
 </ol>
 <p>Nome e luogo si possono modificare in seguito con l’icona di modifica, ed è lì che assegnate il personale partecipante.</p>
 
+<p>Alla creazione di un rilievo puoi scegliere anche la modalità mappa: <strong>online</strong> (GPS e mappa OpenStreetMap) oppure <strong>planimetria</strong>. Per i rilievi in interni in modalità planimetria carichi un'immagine della planimetria (o generi una planimetria vuota con le dimensioni indicate), segni due punti e inserisci la distanza reale tra loro. I punti vengono poi registrati senza GPS, con coordinate locali. Quando assegni una persona, il ruolo predefinito è quello che la persona aveva l'ultima volta (rilevatore o persona ferita).</p>
 <h2 id="m9">9. Registrare un punto di misura</h2>
 <p>Nel rilevamento premete <strong>Nuovo punto</strong>.</p>
 <ul>
-<li><strong>Tipo di misura:</strong> rateo di dose, contaminazione superficiale, conteggi (cps), conteggi neutronici (cps) o campionamento. Il campionamento comprende anche i tipi <strong>Meteorologia</strong> e <strong>Misura dei gas</strong>, che non hanno un valore misurato: i dati meteorologici o le concentrazioni dei gas si inseriscono insieme al punto.</li>
+<li><strong>Tipo di misura:</strong> rateo di dose, contaminazione superficiale, rateo di conteggio (cps), rateo di conteggio neutronico (cps), campionamento, meteorologia, <strong>sostanza chimica</strong> o <strong>materiale biologico</strong>. I punti di meteorologia, chimica e biologia non hanno un valore misurato, e per loro non compare la sezione delle sorgenti radioattive.</li>
 <li><strong>Nome del luogo, Valore misurato e Unità.</strong> Ogni tipo ha un’unità predefinita.</li>
 <li><strong>Distanza dalla sorgente</strong> e <strong>Nuclide</strong>, da cui l’app ricava una stima rapida dell’attività dal valore misurato.</li>
 <li><strong>Strumento:</strong> scegliete uno strumento dall’elenco oppure aggiungetene uno nuovo con il pulsante più. Per uno strumento Modbus usate <strong>Interrogazione Modbus</strong> per leggere direttamente il valore.</li>
@@ -178,6 +181,10 @@
 <p>Se la precisione GPS è scarsa (per esempio ±10 m), restate fermi sul punto e premete <strong>GPS mediato</strong> sotto la posizione. Scegliete 30, 60 o 120 secondi. L’app raccoglie le posizioni, le pesa in base alla precisione, scarta i valori anomali e inserisce la posizione media con una precisione stimata. All’aperto il risultato è migliore. Un tempo più lungo aiuta, ma l’errore GPS è correlato nel tempo: non aspettatevi che la precisione migliori con la radice del numero di campioni.</p>
 
 
+<h3>Sostanza chimica, materiale biologico e analisi del campione</h3>
+<p><strong>Sostanza chimica:</strong> in un punto si possono registrare più composti, scelti dall'elenco oppure inseriti con <strong>Altro</strong> e un nome proprio. Per ogni composto inserisci lo stato fisico (gas, liquido, solido, aerosol) e la concentrazione. L'unità può essere un rapporto (ppm, ppb, vol%, %, %LEL) oppure massa per base, dove la massa (µg, mg, g, kg, t, oz, lb) e la base (volume, massa o superficie) si scelgono separatamente. Quando cambia lo stato fisico, un'unità non più applicabile passa automaticamente a una base adatta.</p>
+<p><strong>Materiale biologico:</strong> in un punto si possono registrare più materiali: nome (testo libero), tipo (batterio, virus, tossina, fungo o altro) e quantità in testo libero. Non esiste un elenco predefinito di agenti patogeni; i nomi li inserisci tu.</p>
+<p><strong>Analisi del campione:</strong> su un punto di campionamento o di materiale biologico, l'icona della provetta apre l'elenco delle analisi. Per una nuova analisi inserisci il metodo (FT-IR, NIR, Raman, XRF, PCR o altro), lo strumento, data e ora, l'operatore, il risultato e le note; puoi allegare un file, per esempio un'esportazione dello spettro. Per la PCR, il bersaglio (gene o agente), il risultato (positivo, negativo o non valido) e il valore Ct si inseriscono in campi separati. Le analisi sui campioni compaiono anche nel verbale.</p>
 <h2 id="m10">10. Sorgenti su un punto</h2>
 <p>Nella schermata del punto scegliete <strong>Gestisci sorgente/i radioattiva/e</strong> e associate sorgenti dal registro. Per ciascuna inserite la distanza dal punto di misura. L’app mostra poi:</p>
 <ul>
@@ -192,6 +199,7 @@
 <h3>Aree contrassegnate</h3>
 <p>Le aree permettono di contrassegnare sulla mappa una parte del sito rilevato, per esempio un’area controllata, interdetta o contaminata. Premete <strong>Segna un'area</strong> sulla mappa. Inserite un <strong>Nome</strong> (per esempio Surveyed area), scegliete la <strong>Forma</strong> (<strong>Poligono</strong> o <strong>Cerchio</strong>) e un <strong>Colore</strong>, quindi premete <strong>Disegna</strong>. In un poligono toccate i vertici uno dopo l’altro e premete <strong>Fatto</strong>; servono almeno 3 vertici, e <strong>Annulla</strong> elimina l’ultimo. In un cerchio toccate il centro e poi un punto del bordo per fissare il raggio. Le aree vengono disegnate con un riempimento semitrasparente del loro colore. Il pulsante <strong>Aree segnate</strong> elenca le aree del rilevamento; dall’elenco potete eliminare un’area dopo conferma. Le aree sono incluse nei verbali Word e PDF (nome, forma, geometria e superficie in m²) e nel file di backup.</p>
 
+<p>Puoi anche collocare sorgenti di radiazione sulla mappa: una sorgente scelta dall'elenco aperto con l'icona della sorgente compare sulla mappa con il suo identificativo e i nuclidi. Con uno zoom sufficiente si vede l'etichetta, da più lontano solo l'icona. In modalità planimetria la planimetria calibrata sostituisce la mappa; i punti sono numerati e le sorgenti mostrano il loro nome.</p>
 <h2 id="m12">12. Strumenti di lavoro</h2>
 <p>Gli strumenti di lavoro si trovano nel menu del rilevamento (tre puntini).</p>
 <ul>
@@ -217,6 +225,7 @@
 <p>Il protocollo usa le unità scelte nelle impostazioni. Le esportazioni CSV e JSON conservano le unità memorizzate. Il protocollo mostra il valore con il suo errore e il numero di campioni di una misura mediata, e lo strumento con le sue registrazioni di verifica e taratura. Il CSV ha le colonne aggiuntive <strong>Errore (±)</strong>, <strong>Media (campioni; s)</strong> e <strong>Verifica/taratura dello strumento</strong>; il file JSON contiene gli stessi dati.</p>
 
 
+<p>Puoi cercare nell'elenco dei rilievi per nome e luogo, filtrarlo per stato (aperto, chiuso o archiviato) e per periodo, e ordinarlo per data o nome. Un rilievo chiuso può essere archiviato; i rilievi archiviati si mostrano con un filtro dedicato e i dati restano conservati. L'elenco delle misure si può cercare, filtrare per tipo di misura, tempo e valore, e ordinare. Il verbale è creato in formato Word o PDF; contiene la planimetria con i segnaposto, le sorgenti sulla mappa, le tabelle di meteorologia e gas, le sostanze chimiche e biologiche, le analisi sui campioni, i dati di consegna ospedaliera delle persone ferite, le figure della mappa corporea e gli identificativi delle persone. Il backup aziendale contiene anche le planimetrie allegate e i file delle analisi sui campioni.</p>
 <h2 id="m14">14. Risoluzione dei problemi</h2>
 <ul>
 <li><strong>Nessuna posizione GPS:</strong> verificate che i servizi di localizzazione siano attivi e che RadRecon possa usare la posizione, poi premete <strong>Aggiorna GPS</strong>. Al chiuso la precisione può essere scarsa; il raggio di precisione viene salvato con il punto.</li>
@@ -227,7 +236,15 @@
 </ul>
 <p>Se il problema persiste, scrivete a <a href="mailto:info@radrecon.hu">info@radrecon.hu</a>.</p>
 
-<h2 id="m15">15. Avviso importante</h2>
+<h2 id="m15">15. Persone ferite e consegna ospedaliera</h2>
+<p>Per le persone con il ruolo <strong>persona ferita / vittima</strong>, apri la scheda della persona ferita con l'icona medica sulla riga della persona. La scheda mostra in un unico punto il ruolo, la categoria di triage, lesioni e malattie, i dati personali e la mappa corporea.</p>
+<ul>
+<li><strong>Mappa corporea:</strong> tocca la figura frontale o posteriore per aggiungere un segnaposto. Il tipo di segnaposto è <strong>lesione</strong> (con una nota, per esempio ustione o frattura) oppure <strong>contaminazione</strong>. Tocca un segnaposto esistente per modificarlo o eliminarlo.</li>
+<li><strong>Contaminanti:</strong> per ogni segnaposto puoi inserire facoltativamente l'isotopo (dal catalogo), un contaminante chimico e uno biologico. Un segnaposto può contenerli tutti e tre.</li>
+<li><strong>Dati personali:</strong> sesso, età, peso e altezza si modificano nella scheda della persona; la scheda della persona ferita li mostra soltanto.</li>
+</ul>
+<p>I dati di consegna ospedaliera compaiono nel verbale per ogni persona ferita: nome, sesso, età, peso, altezza, contaminanti e sedi delle lesioni, insieme alla figura della mappa corporea. Il pulsante di salvataggio nell'intestazione della scheda consente di salvare le modifiche in qualsiasi momento. Lesioni, contaminazioni e dati fisici sono dati relativi alla salute; devono essere trattati solo da persone autorizzate.</p>
+<h2 id="m16">16. Avviso importante</h2>
 <p>RadRecon è un ausilio per la documentazione e il calcolo, non uno strumento di misura. I valori calcolati e la direzione della ricerca della sorgente sono solo orientativi. Verificateli su una fonte autorevole per i documenti ufficiali e seguite le istruzioni del vostro esperto di radioprotezione. Vedi i <a href="../../terms/it/terms.html">Termini e condizioni</a>.</p>
 
       </div>

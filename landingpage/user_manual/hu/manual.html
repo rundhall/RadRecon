@@ -35,7 +35,7 @@
       <div class="container">
 
 <h1>RadRecon felhasználói kézikönyv</h1>
-<p>Utolsó frissítés: 2026. 10. 23.</p>
+<p>Utolsó frissítés: 2026. 11. 01.</p>
 
 <h2>Tartalom</h2>
 <ol>
@@ -53,7 +53,8 @@
 <li><a href="#m12">Eszközök</a></li>
 <li><a href="#m13">Lezárás, export és import</a></li>
 <li><a href="#m14">Hibaelhárítás</a></li>
-<li><a href="#m15">Fontos tudnivaló</a></li>
+<li><a href="#m15">Sérültek és kórházi átadó</a></li>
+<li><a href="#m16">Fontos tudnivaló</a></li>
 </ol>
 
 <h2 id="m1">1. Bevezetés</h2>
@@ -122,6 +123,7 @@
 <p>A névén, az orvosi alkalmassági vizsga és az oktatás lejáratán kívül a személyhez tartozik <strong>Telefonszám</strong>, több <strong>E-mail cím</strong> és tetszőleges számú <strong>Bizonyítvány</strong>. A <strong>Bizonyítvány hozzáadása</strong> gombbal add meg a megnevezést (például sugárvédelmi vizsga), a bizonyítvány számát, a kiállítót, a kiállítás dátumát, az érvényességet, és csatold a fájlt. A bizonyítvány lejárata a többi lejárathoz hasonlóan emlékeztethet. A telefonszám és az e-mail címek benne vannak a személyek CSV-jében, a bizonyítványok nem.</p>
 
 
+<p>A személy adatlapján a névhez, a telefonszámhoz és az e-mail címekhez megadható egy <strong>Azonosító</strong> (például belső törzsszám) és egy <strong>Cím</strong> is. Ha a személy sérültként szerepel, a <strong>Nem</strong>, a <strong>Kor</strong> (év), a <strong>Súly</strong> (kg, közelítő) és a <strong>Magasság</strong> (cm) is megadható a <strong>Testi adatok</strong> szakaszban. Az azonosító a jegyzőkönyvben megjelenik, a lakcím nem. A személy adatlapjának alján a <strong>Beteglapok</strong> listában látszik, mely felméréseken szerepelt sérültként; a sorra koppintva megnyílik az adott sérült-lap.</p>
 <h2 id="m6">6. Dózisok</h2>
 <p>A RadRecon személyenként nyilvántartja a dózisokat. A dózisok µSv-ben tárolódnak. A személyek listája mutatja mindenki éves dózisát forrás szerinti bontásban, és van <strong>Év</strong> választó.</p>
 <ul>
@@ -153,10 +155,11 @@
 </ol>
 <p>A név és a helyszín később a szerkesztés ikonnal módosítható, itt rendelheted hozzá a mérésben részt vevő személyeket is.</p>
 
+<p>A felmérés létrehozásakor a térkép módját is választhatod: <strong>online</strong> (GPS és OpenStreetMap-térkép) vagy <strong>alaprajz</strong>. Beltéri felmérésnél alaprajz módban egy alaprajzképet töltesz be (vagy üres alaprajzot generálsz megadott méretekkel), kijelölsz rajta két pontot, és megadod közöttük a valós távolságot. Ezután a pontok GPS nélkül, helyi koordinátákkal rögzülnek. Egy személy hozzárendelésekor az alapértelmezett szerep az, amelyben az illető utoljára szerepelt (felmérő vagy sérült).</p>
 <h2 id="m9">9. Mérési pont rögzítése</h2>
 <p>A felmérésben nyomd meg az <strong>Új pont</strong> gombot.</p>
 <ul>
-<li><strong>Mérés típusa:</strong> dózisteljesítmény, felületi szennyezettség, beütésszám (cps), neutron beütésszám (cps) vagy mintavétel. A Mintavétel alatt található a <strong>Meteorológia</strong> és a <strong>Gázmérés</strong> típus is: ezeknél nincs mért érték, az időjárási adatokat, illetve a gázkoncentrációkat a ponttal együtt kell megadni.</li>
+<li><strong>Mérés típusa:</strong> dózisteljesítmény, felületi szennyezettség, beütésszám (cps), neutron beütésszám (cps), mintavétel, meteorológia, <strong>vegyi anyag</strong> vagy <strong>biológiai anyag</strong>. A meteorológiai, vegyi és biológiai pontoknál nincs mért érték, és nem jelenik meg a radioaktív források szakasz.</li>
 <li><strong>Helyszín neve, mért érték és mértékegység.</strong> Minden típushoz tartozik alapértelmezett mértékegység.</li>
 <li><strong>Távolság a forrástól</strong> és <strong>nuklid</strong>, amelyekből az app gyors aktivitásbecslést ad a mért értékből.</li>
 <li><strong>Műszer:</strong> válassz a listádból, vagy vegyél fel újat a plusz gombbal. Modbus-műszernél a <strong>Modbus lekérdezés</strong> gombbal közvetlenül beolvashatod az értéket.</li>
@@ -176,6 +179,10 @@
 <p>Ha a GPS pontossága rossz (például ±10 m), állj meg a ponton, és nyomd meg a pozíció alatt az <strong>Átlagolt GPS</strong> gombot. Válassz 30, 60 vagy 120 másodpercet. Az app gyűjti a pozíciókat, pontosság szerint súlyozza őket, elhagyja a kiugróakat, és beírja az átlagpozíciót a becsült pontossággal. Nyílt ég alatt a legjobb az eredmény. A hosszabb idő segít, de a GPS-hiba időben összefügg, ezért ne várd, hogy a pontosság a minták számának négyzetgyökével javul.</p>
 
 
+<h3>Vegyi anyag, biológiai anyag és mintavizsgálat</h3>
+<p><strong>Vegyi anyag:</strong> egy ponton több vegyület is felvehető a listából, vagy az <strong>Egyéb</strong> menüponttal saját névvel. Minden vegyülethez megadod a halmazállapotot (gáz, folyadék, szilárd, aeroszol) és a koncentrációt. A mértékegység lehet arány (ppm, ppb, vol%, %, %LEL), vagy tömeg per alap, ahol a tömeg (µg, mg, g, kg, t, oz, lb) és az alap (térfogat, tömeg vagy felület) külön választható. A halmazállapot váltásakor a nem értelmezhető egység automatikusan a megfelelő alapra vált.</p>
+<p><strong>Biológiai anyag:</strong> egy ponton több anyag is felvehető: név (szabad szöveg), típus (baktérium, vírus, toxin, gomba vagy egyéb) és szabad szöveges mennyiség. Kórokozó-lista nincs, a neveket te írod be.</p>
+<p><strong>Mintavizsgálat:</strong> mintavétel vagy biológiai anyag pontján a kémcső-ikonnal nyitható a vizsgálatok listája. Új vizsgálatnál megadod a módszert (FT-IR, NIR, Raman, XRF, PCR vagy egyéb), a műszert, az időpontot, a kezelőt, az eredményt és a megjegyzést, és csatolhatsz fájlt, például spektrumexportot. PCR-nél a célpont, az eredmény (pozitív, negatív vagy érvénytelen) és a Ct-érték külön mezőben adható meg. A mintavizsgálatok a jegyzőkönyvben is megjelennek.</p>
 <h2 id="m10">10. Források egy ponton</h2>
 <p>A pont képernyőjén válaszd a <strong>Radioaktív forrás(ok) kezelése</strong> lehetőséget, és rendelj hozzá forrásokat a nyilvántartásból. Mindegyikhez add meg a mérési ponttól mért távolságát. Az app ezután megjeleníti:</p>
 <ul>
@@ -191,6 +198,7 @@
 <h3>Megjelölt területek</h3>
 <p>A területekkel a felmért terület egy részét jelölheted ki a térképen, például felmért, lezárt vagy szennyezett területet. Nyomd meg a térképen a <strong>Terület jelölése</strong> gombot. Írd be a <strong>Név</strong> mezőbe a nevet (például Felmért terület), az <strong>Alakzat</strong> mezőben válaszd a <strong>Poligon</strong> vagy a <strong>Kör</strong> lehetőséget, a <strong>Szín</strong> mezőben pedig a színt, majd nyomd meg a <strong>Rajzolás</strong> gombot. Poligonnál koppints egymás után a sarokpontokra, és nyomd meg a <strong>Kész</strong> gombot; legalább 3 sarokpont kell, a <strong>Visszavonás</strong> az utolsó sarokpontot törli. Körnél koppints a középpontra, majd a szélén egy pontra, így áll be a sugár. A területeket az app a színükkel, félig áttetszően töltve rajzolja ki. A <strong>Jelölt területek</strong> gomb listázza a felmérés területeit; a listából megerősítés után törölhetsz területet. A területek bekerülnek a Word- és a PDF-jegyzőkönyvbe (név, alakzat, geometria és terület m²-ben), és benne vannak a mentésfájlban.</p>
 
+<p>A térképen a forrásokat is elhelyezheted: a forrás-ikonnal megnyíló listából kiválasztott sugárforrás a térképen az azonosítójával és a nuklidjaival jelenik meg. Megfelelő nagyításnál a felirat is látszik, távolabbról csak az ikon. Alaprajz módban a térkép helyén a kalibrált alaprajz látszik, rajta a pontok sorszámmal és a források nevükkel.</p>
 <h2 id="m12">12. Eszközök</h2>
 <p>Az eszközök a felmérés menüjében (három pont) találhatók.</p>
 <ul>
@@ -216,6 +224,7 @@
 <p>A jegyzőkönyv a beállításokban választott egységeket használja. A CSV- és JSON-exportok a tárolt egységeket őrzik. A jegyzőkönyv az értéket a hibájával és az átlagolt mérés mintaszámával mutatja, a műszert pedig a hitelesítési/kalibrálási bejegyzéseivel. A CSV új oszlopai: <strong>Hiba (±)</strong>, <strong>Átlagolás (minta; mp)</strong> és <strong>Műszer hitelesítése/kalibrálása</strong>; a JSON fájl ugyanezeket az adatokat hordozza.</p>
 
 
+<p>A felmérések listáját kereshetsz a nevük és a helyszínük alapján, szűrheted nyitott, lezárt vagy archivált állapot és időszak szerint, és időrend vagy név szerint rendezheted. A lezárt felmérést archiválhatod; az archivált felmérések külön szűrővel jeleníthetők meg, az adatai megmaradnak. A mérések listáját keresheted, szűrheted mérési típus, idő és érték szerint, és rendezheted. A jegyzőkönyv Word vagy PDF formátumban készül; tartalmazza az alaprajzot a jelölésekkel, a térképi forrásokat, a meteorológiai és gázmérési táblázatokat, a vegyi és biológiai anyagokat, a mintavizsgálatokat, a sérültek kórházi átadó adatait, a fantomrajzokat és a személyek azonosítóit. A cég-mentésfájl a csatolt alaprajzokat és a mintavizsgálati fájlokat is tartalmazza.</p>
 <h2 id="m14">14. Hibaelhárítás</h2>
 <ul>
 <li><strong>Nincs GPS-pozíció:</strong> ellenőrizd, hogy a helyszolgáltatások be vannak kapcsolva, és a RadRecon használhatja a helyadatot, majd nyomd meg a <strong>GPS frissítése</strong> gombot. Épületben a pontosság gyenge lehet, a pontossági sugár a ponttal együtt tárolódik.</li>
@@ -226,7 +235,15 @@
 </ul>
 <p>Ha a probléma megmarad, írj a <a href="mailto:info@radrecon.hu">info@radrecon.hu</a> címre.</p>
 
-<h2 id="m15">15. Fontos tudnivaló</h2>
+<h2 id="m15">15. Sérültek és kórházi átadó</h2>
+<p>A felmérés személyei közül az <strong>Érintett / áldozat</strong> szerepűek sérült-ablakát a személy sorának orvosi ikonjával nyithatod meg. Az ablakban egy helyen van a szerep, a triázs-besorolás, a sérülések és betegségek, a személy adatai és a fantomrajz.</p>
+<ul>
+<li><strong>Fantomrajz:</strong> elölnézetben vagy hátulnézetben koppintással jelölést adsz hozzá. A jelölés típusa <strong>sérülés</strong> (megjegyzéssel, például égés vagy törés) vagy <strong>szennyezés</strong>. Egy meglévő jelölésre koppintva szerkeszthetsz vagy törölhetsz.</li>
+<li><strong>Szennyezők:</strong> minden jelöléshez opcionálisan megadhatod az izotópot (a katalógusból), a vegyi és a biológiai szennyezőt. Egy jelöléshez mindhárom megadható.</li>
+<li><strong>Személyes adatok:</strong> a nem, a kor, a súly és a magasság a személy adatlapján szerkeszthető, a sérült-ablakban csak megjelennek.</li>
+</ul>
+<p>A kórházi átadó adatai a jegyzőkönyvben érintettenként jelennek meg: név, nem, kor, súly, magasság, a szennyezések és a sérülések helye, a fantomrajzzal együtt. A sérült-ablak fejlécében a mentés gombbal bármikor elmentheted a változtatásokat. A sérülések, a szennyezések és a testi adatok egészségügyi jellegű adatok, ezért csak arra jogosult személy kezelje őket.</p>
+<h2 id="m16">16. Fontos tudnivaló</h2>
 <p>A RadRecon dokumentációs és számítási segédeszköz, nem mérőműszer. A számított értékek és a forráskereső iránya csak tájékoztató jellegűek. Hivatalos dokumentumokhoz ellenőrizd őket hiteles forrásból, és kövesd a sugárvédelmi megbízottad utasításait. Lásd a <a href="../../terms/hu/terms.html">Felhasználási feltételeket</a>.</p>
 
       </div>

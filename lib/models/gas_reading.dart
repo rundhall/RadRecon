@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'activity_concentration.dart';
+import 'concentration_unit.dart';
+
 /// Gázmérésnél választható vegyület: név és kémiai képlet.
 class GasSpecies {
   const GasSpecies(this.name, this.formula, [this.molarMass]);
@@ -60,38 +63,40 @@ String gasFormulaOf(String name) {
 }
 
 /// A koncentráció mértékegysége.
-enum GasUnit {
-  ppm('ppm'),
-  ppb('ppb'),
-  ugPerM3('µg/m³'),
-  mgPerM3('mg/m³'),
-  volPercent('vol%'),
-  lelPercent('%LEL');
-
-  const GasUnit(this.symbol);
-
-  final String symbol;
-
-  static GasUnit? fromSymbol(String? value) {
-    for (final u in GasUnit.values) {
-      if (u.symbol == value) return u;
-    }
-    return null;
-  }
-}
 
 /// Egy mért gáz egy mérési ponton.
+/// A vegyi anyag halmazállapota a mérés idején.
+enum PhysicalState {
+  gas('gas'),
+  liquid('liquid'),
+  solid('solid'),
+  aerosol('aerosol');
+
+  const PhysicalState(this.dbValue);
+
+  final String dbValue;
+
+  /// Régi sorokban nincs halmazállapot: gáz.
+  static PhysicalState fromStorage(String? value) =>
+      PhysicalState.values.firstWhere(
+        (s) => s.dbValue == value,
+        orElse: () => PhysicalState.gas,
+      );
+}
+
 class GasReading {
   final String name;
   final String formula;
   final double concentration;
-  final GasUnit unit;
+  final ConcentrationUnit unit;
+  final PhysicalState state;
 
   const GasReading({
     required this.name,
     required this.formula,
     required this.concentration,
     required this.unit,
+    this.state = PhysicalState.gas,
   });
 
   Map<String, Object?> toJson() {
@@ -100,6 +105,7 @@ class GasReading {
       'formula': formula,
       'concentration': concentration,
       'unit': unit.symbol,
+      'state': state.dbValue,
     };
   }
 
@@ -108,7 +114,9 @@ class GasReading {
       name: m['name'] as String,
       formula: (m['formula'] as String?) ?? '',
       concentration: (m['concentration'] as num).toDouble(),
-      unit: GasUnit.fromSymbol(m['unit'] as String?) ?? GasUnit.ppm,
+      state: PhysicalState.fromStorage(m['state'] as String?),
+      unit: ConcentrationUnit.fromSymbol(m['unit'] as String?) ??
+          const ConcentrationUnit.ratio(RatioUnit.ppm),
     );
   }
 
@@ -123,3 +131,11 @@ class GasReading {
   static String listToJsonString(List<GasReading> gases) =>
       jsonEncode([for (final g in gases) g.toJson()]);
 }
+
+/// A halmazállapothoz választható nevező-típusok (lásd [ConcentrationUnit]):
+/// levegő és aeroszol: térfogat; folyadék: térfogat vagy tömeg; szilárd: tömeg vagy felület.
+List<BasisKind> basisKindsFor(PhysicalState state) => switch (state) {
+      PhysicalState.gas || PhysicalState.aerosol => const [BasisKind.volume],
+      PhysicalState.liquid => const [BasisKind.volume, BasisKind.mass],
+      PhysicalState.solid => const [BasisKind.mass, BasisKind.area],
+    };

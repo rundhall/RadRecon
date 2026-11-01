@@ -1,3 +1,4 @@
+import '../models/victim_details.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -5,6 +6,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../models/sample_analysis.dart';
 import '../models/instrument.dart';
 import '../models/map_area.dart';
 import '../models/map_measure_line.dart';
@@ -18,7 +20,10 @@ import '../models/person_condition.dart';
 import '../models/person_dose.dart';
 import '../models/session_dosimeter.dart';
 import '../models/point_source_link.dart';
+import '../models/activity_origin.dart';
 import '../models/radiation_source.dart';
+import '../models/source_nuclide.dart';
+import '../models/survey_source_placement.dart';
 import '../models/session_person_link.dart';
 import '../models/protocol_field.dart';
 import '../models/survey_purpose.dart';
@@ -64,7 +69,13 @@ class DatabaseHelper {
   // v26: térképi mérővonalak (`survey_map_lines`).
   // v30: a felmérés célja (`survey_sessions.purpose`) és a célhoz tartozó
   // jegyzőkönyv-mezők tábla (`survey_protocol_fields`).
-  static const _dbVersion = 30;
+  // v31: talált forrás és felmérési elhelyezés: `source_nuclides` (nuklidonkénti
+  // aktivitás), `survey_source_placements` (forrás bekerülése egy felmérésbe),
+  // `origin` és `notify_enabled` a `radiation_sources`-ban.
+  // v32: a radiation_sources nuklid-, aktivitás- és gyártási dátum-mezője
+  // nullable (talált forrás). A tábla újraépítése a megnyitáskor fut, FK nélkül.
+  // v33: forrásonkénti lejárati értesítés (`notify_enabled`, a meglévők bekapcsolva).
+  static const _dbVersion = 42;
 
   /// A jelenlegi séma-verzió (a mentésfájlok kompatibilitás-ellenőrzéséhez).
   static const schemaVersion = _dbVersion;
@@ -105,15 +116,19 @@ class DatabaseHelper {
 
   Future<Database> _initDatabase() async {
     final path = await databaseFilePath();
-    return openDatabase(
+    // A FK a megnyitás idejére ki van kapcsolva: a séma-átalakítás (tábla-
+    // újraépítés) így nem törli a hozzárendeléseket. Utána visszakapcsoljuk.
+    final db = await openDatabase(
       path,
       version: _dbVersion,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
       onConfigure: (db) async {
-        await db.execute('PRAGMA foreign_keys = ON');
+        await db.execute('PRAGMA foreign_keys = OFF');
       },
     );
+    await db.execute('PRAGMA foreign_keys = ON');
+    return db;
   }
 
   /// Az adatbázis-fájl célmappája.
@@ -464,6 +479,301 @@ class DatabaseHelper {
       await db.execute('ALTER TABLE survey_sessions ADD COLUMN purpose TEXT');
     }
     await _createProtocolFieldsTable(db);
+
+    // v31: talált forrás és felmérési elhelyezés (lásd
+    // docs/talalt-forras-modell.md). Minden lépés idempotens.
+    final sourceColumnsV31 =
+        (await db.rawQuery('PRAGMA table_info(radiation_sources)'))
+            .map((c) => c['name'] as String)
+            .toSet();
+    if (!sourceColumnsV31.contains('origin')) {
+      await db.execute(
+        "ALTER TABLE radiation_sources ADD COLUMN origin TEXT NOT NULL DEFAULT 'own'",
+      );
+    }
+    if (!sourceColumnsV31.contains('notify_enabled')) {
+      await db.execute(
+        'ALTER TABLE radiation_sources ADD COLUMN notify_enabled INTEGER NOT NULL DEFAULT 0',
+      );
+    }
+    await _createSourceNuclidesTable(db);
+    await _createSurveyPlacementsTable(db);
+    await _backfillSourceNuclides(db);
+
+    // v32: a radiation_sources nuklid-, aktivitás- és gyártási dátum-mezője
+    // nullable (talált forrás). Az SQLite nem szüntet meg NOT NULL-t, ezért
+    // a tábla újraépül. A FK a megnyitáskor ki van kapcsolva (lásd
+    // _initDatabase), így az eldobás nem törli a hozzárendeléseket.
+    final sourceNotNull = {
+      for (final c in await db.rawQuery('PRAGMA table_info(radiation_sources)'))
+        c['name'] as String: (c['notnull'] as int) == 1,
+    };
+    if (sourceNotNull['manufacture_date'] == true) {
+      await _rebuildRadiationSourcesNullable(db);
+    }
+
+    // v33: a korábbi forrásoknál eddig a globális kapcsoló döntött, ezért
+    // megtartjuk: értesítést kapnak.
+    if (oldVersion < 33) {
+      await db.execute('UPDATE radiation_sources SET notify_enabled = 1');
+    }
+
+    // v34: alaprajz mód — a felmérés térképi módja és a kalibrált alaprajz.
+    if (oldVersion < 34) {
+      final v34Columns =
+          (await db.rawQuery('PRAGMA table_info(survey_sessions)'))
+              .map((c) => c['name'] as String)
+              .toSet();
+      const v34Defs = <String, String>{
+        'map_mode': "TEXT NOT NULL DEFAULT 'online'",
+        'plan_image_path': 'TEXT',
+        'plan_width_px': 'INTEGER',
+        'plan_height_px': 'INTEGER',
+        'plan_origin_lat': 'REAL',
+        'plan_origin_lon': 'REAL',
+        'plan_meters_per_px': 'REAL',
+      };
+      for (final entry in v34Defs.entries) {
+        if (!v34Columns.contains(entry.key)) {
+          await db.execute(
+              'ALTER TABLE survey_sessions ADD COLUMN ${entry.key} ${entry.value}');
+        }
+      }
+    }
+
+    // v35: helyi koordináta (GPS nélküli alaprajz). Idempotens.
+    if (oldVersion < 35) {
+      final v35Columns =
+          (await db.rawQuery('PRAGMA table_info(survey_sessions)'))
+              .map((c) => c['name'] as String)
+              .toSet();
+      if (!v35Columns.contains('plan_local_coords')) {
+        await db.execute(
+            'ALTER TABLE survey_sessions ADD COLUMN plan_local_coords INTEGER NOT NULL DEFAULT 0');
+      }
+    }
+
+    // v36: forrás térképi pozíciója (szélesség, hosszúság). Idempotens.
+    if (oldVersion < 36) {
+      final v36Columns =
+          (await db.rawQuery('PRAGMA table_info(survey_source_placements)'))
+              .map((c) => c['name'] as String)
+              .toSet();
+      const v36Defs = <String, String>{'map_lat': 'REAL', 'map_lon': 'REAL'};
+      for (final entry in v36Defs.entries) {
+        if (!v36Columns.contains(entry.key)) {
+          await db.execute(
+              'ALTER TABLE survey_source_placements ADD COLUMN ${entry.key} ${entry.value}');
+        }
+      }
+    }
+
+    // v37: felmérés archiválása (nem törlés): az archiválás időpontja.
+    if (oldVersion < 37) {
+      final v37Columns =
+          (await db.rawQuery('PRAGMA table_info(survey_sessions)'))
+              .map((c) => c['name'] as String)
+              .toSet();
+      if (!v37Columns.contains('archived_at')) {
+        await db.execute('ALTER TABLE survey_sessions ADD COLUMN archived_at TEXT');
+      }
+    }
+
+    // v38: mintavizsgálatok.
+    if (oldVersion < 38) {
+      await _createSampleAnalysesTable(db);
+    }
+    if (oldVersion < 39) {
+      // v39: biológiai anyag (JSON-lista a mérési ponton) és PCR-mezők a mintavizsgálatoknál.
+      final bioCols = (await db.rawQuery('PRAGMA table_info(measurement_points)'))
+          .map((c) => c['name'] as String)
+          .toSet();
+      if (!bioCols.contains('bio_json')) {
+        await db.execute('ALTER TABLE measurement_points ADD COLUMN bio_json TEXT');
+      }
+      final pcrCols = (await db.rawQuery('PRAGMA table_info(sample_analyses)'))
+          .map((c) => c['name'] as String)
+          .toSet();
+      if (!pcrCols.contains('pcr_target')) {
+        await db.execute('ALTER TABLE sample_analyses ADD COLUMN pcr_target TEXT');
+      }
+      if (!pcrCols.contains('pcr_outcome')) {
+        await db.execute('ALTER TABLE sample_analyses ADD COLUMN pcr_outcome TEXT');
+      }
+      if (!pcrCols.contains('pcr_ct')) {
+        await db.execute('ALTER TABLE sample_analyses ADD COLUMN pcr_ct REAL');
+      }
+    }
+    if (oldVersion < 40) {
+      // v40: az érintett neme, kora, súlya és a fantomrajz jelölései a felméréshez rendelt személyen.
+      final victimCols = (await db.rawQuery('PRAGMA table_info(survey_session_persons)'))
+          .map((c) => c['name'] as String)
+          .toSet();
+      if (!victimCols.contains('sex')) {
+        await db.execute('ALTER TABLE survey_session_persons ADD COLUMN sex TEXT');
+      }
+      if (!victimCols.contains('age_years')) {
+        await db.execute('ALTER TABLE survey_session_persons ADD COLUMN age_years INTEGER');
+      }
+      if (!victimCols.contains('weight_kg')) {
+        await db.execute('ALTER TABLE survey_session_persons ADD COLUMN weight_kg REAL');
+      }
+      if (!victimCols.contains('body_markers')) {
+        await db.execute('ALTER TABLE survey_session_persons ADD COLUMN body_markers TEXT');
+      }
+    }
+    if (oldVersion < 41) {
+      // v41: a személy testi adatai (nem, kor, súly, magasság) a nyilvántartásban.
+      final personCols = (await db.rawQuery('PRAGMA table_info(persons)'))
+          .map((c) => c['name'] as String)
+          .toSet();
+      if (!personCols.contains('sex')) {
+        await db.execute('ALTER TABLE persons ADD COLUMN sex TEXT');
+      }
+      if (!personCols.contains('age_years')) {
+        await db.execute('ALTER TABLE persons ADD COLUMN age_years INTEGER');
+      }
+      if (!personCols.contains('weight_kg')) {
+        await db.execute('ALTER TABLE persons ADD COLUMN weight_kg REAL');
+      }
+      if (!personCols.contains('height_cm')) {
+        await db.execute('ALTER TABLE persons ADD COLUMN height_cm REAL');
+      }
+    }
+    if (oldVersion < 42) {
+      // v42: személy azonosítója és címe.
+      final personCols42 = (await db.rawQuery('PRAGMA table_info(persons)'))
+          .map((c) => c['name'] as String)
+          .toSet();
+      if (!personCols42.contains('identifier')) {
+        await db.execute('ALTER TABLE persons ADD COLUMN identifier TEXT');
+      }
+      if (!personCols42.contains('address')) {
+        await db.execute('ALTER TABLE persons ADD COLUMN address TEXT');
+      }
+    }
+  }
+
+  Future<void> _rebuildRadiationSourcesNullable(Database db) async {
+    await db.execute('''
+      CREATE TABLE radiation_sources_v32 (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        identifier TEXT NOT NULL,
+        nuclide_name TEXT,
+        activity_at_manufacture_mbq REAL,
+        activity_error_percent REAL,
+        manufacture_date TEXT,
+        service_life_expiry_date TEXT,
+        next_inspection_date TEXT,
+        notes TEXT,
+        certificate_files TEXT,
+        origin TEXT NOT NULL DEFAULT 'own',
+        notify_enabled INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    ''');
+    await db.execute('''
+      INSERT INTO radiation_sources_v32 (
+        id, identifier, nuclide_name, activity_at_manufacture_mbq,
+        activity_error_percent, manufacture_date, service_life_expiry_date,
+        next_inspection_date, notes, certificate_files, origin,
+        notify_enabled, created_at, updated_at
+      )
+      SELECT
+        id, identifier, nuclide_name, activity_at_manufacture_mbq,
+        activity_error_percent, manufacture_date, service_life_expiry_date,
+        next_inspection_date, notes, certificate_files, origin,
+        notify_enabled, created_at, updated_at
+      FROM radiation_sources
+    ''');
+    await db.execute('DROP TABLE radiation_sources');
+    await db.execute(
+      'ALTER TABLE radiation_sources_v32 RENAME TO radiation_sources',
+    );
+  }
+
+  Future<void> _createSourceNuclidesTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS source_nuclides (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        radiation_source_id INTEGER NOT NULL,
+        nuclide TEXT NOT NULL,
+        activity_mbq REAL,
+        reference_date TEXT NOT NULL,
+        origin TEXT NOT NULL,
+        shielding_json TEXT,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (radiation_source_id) REFERENCES radiation_sources (id)
+          ON DELETE CASCADE
+      )
+    ''');
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_source_nuclides_source ON source_nuclides (radiation_source_id)',
+    );
+  }
+
+  /// Mintavizsgálatok tábla (v38). Idempotens.
+  Future<void> _createSampleAnalysesTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS sample_analyses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        measurement_point_id INTEGER NOT NULL,
+        method TEXT NOT NULL,
+        instrument_name TEXT,
+        performed_at TEXT NOT NULL,
+        operator_name TEXT,
+        result TEXT,
+        notes TEXT,
+        file_path TEXT,
+        pcr_target TEXT,
+        pcr_outcome TEXT,
+        pcr_ct REAL,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (measurement_point_id) REFERENCES measurement_points (id)
+          ON DELETE CASCADE
+      )
+    ''');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_sample_analyses_point ON sample_analyses (measurement_point_id)');
+  }
+
+  Future<void> _createSurveyPlacementsTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS survey_source_placements (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        survey_session_id INTEGER NOT NULL,
+        radiation_source_id INTEGER NOT NULL,
+        measurement_point_id INTEGER,
+        plan_x REAL,
+        plan_y REAL,
+        map_lat REAL,
+        map_lon REAL,
+        included INTEGER NOT NULL DEFAULT 1,
+        calc_date_override TEXT,
+        created_at TEXT NOT NULL,
+        UNIQUE (survey_session_id, radiation_source_id),
+        FOREIGN KEY (survey_session_id) REFERENCES survey_sessions (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (radiation_source_id) REFERENCES radiation_sources (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (measurement_point_id) REFERENCES measurement_points (id)
+          ON DELETE SET NULL
+      )
+    ''');
+  }
+
+  /// Visszamenőleges adat: minden meglévő forrás kap egy nuklid-sort.
+  Future<void> _backfillSourceNuclides(Database db) async {
+    await db.execute('''
+      INSERT INTO source_nuclides
+        (radiation_source_id, nuclide, activity_mbq, reference_date, origin, created_at)
+      SELECT rs.id, rs.nuclide_name, rs.activity_at_manufacture_mbq,
+        rs.manufacture_date, 'manual', rs.created_at
+      FROM radiation_sources rs
+      WHERE NOT EXISTS (
+        SELECT 1 FROM source_nuclides sn WHERE sn.radiation_source_id = rs.id)
+    ''');
   }
 
   Future<void> _createProtocolFieldsTable(Database db) async {
@@ -580,6 +890,12 @@ class DatabaseHelper {
         notes TEXT,
         phone TEXT,
         emails TEXT,
+        identifier TEXT,
+        address TEXT,
+        sex TEXT,
+        age_years INTEGER,
+        weight_kg REAL,
+        height_cm REAL,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
@@ -596,6 +912,10 @@ class DatabaseHelper {
         created_at TEXT NOT NULL,
         role TEXT NOT NULL DEFAULT 'surveyor',
         triage TEXT,
+        sex TEXT,
+        age_years INTEGER,
+        weight_kg REAL,
+        body_markers TEXT,
         FOREIGN KEY (survey_session_id) REFERENCES survey_sessions (id)
           ON DELETE CASCADE,
         FOREIGN KEY (person_id) REFERENCES persons (id)
@@ -630,19 +950,23 @@ class DatabaseHelper {
       CREATE TABLE radiation_sources (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         identifier TEXT NOT NULL,
-        nuclide_name TEXT NOT NULL,
-        activity_at_manufacture_mbq REAL NOT NULL,
+        nuclide_name TEXT,
+        activity_at_manufacture_mbq REAL,
         activity_error_percent REAL,
-        manufacture_date TEXT NOT NULL,
+        manufacture_date TEXT,
         service_life_expiry_date TEXT,
         next_inspection_date TEXT,
         notes TEXT,
         certificate_files TEXT,
+        origin TEXT NOT NULL DEFAULT 'own',
+        notify_enabled INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
     ''');
     await _createPointSourcesTable(db);
+    await _createSourceNuclidesTable(db);
+    await _createSurveyPlacementsTable(db);
     await _createSurveyMapAreasTable(db);
     await _createSurveyMapLinesTable(db);
   }
@@ -695,12 +1019,22 @@ class DatabaseHelper {
         notes TEXT,
         started_at TEXT NOT NULL,
         closed_at TEXT,
-        purpose TEXT
+        purpose TEXT,
+        map_mode TEXT NOT NULL DEFAULT 'online',
+        plan_image_path TEXT,
+        plan_width_px INTEGER,
+        plan_height_px INTEGER,
+        plan_origin_lat REAL,
+        plan_origin_lon REAL,
+        plan_meters_per_px REAL,
+        plan_local_coords INTEGER NOT NULL DEFAULT 0,
+        archived_at TEXT
       )
     ''');
 
     await _createProtocolFieldsTable(db);
     await _createCalibrationTable(db);
+    await _createSampleAnalysesTable(db);
 
     await db.execute('''
       CREATE TABLE instruments (
@@ -751,6 +1085,7 @@ class DatabaseHelper {
         sample_unit TEXT,
         meteo_json TEXT,
         gas_json TEXT,
+        bio_json TEXT,
         basis_amount REAL,
         basis_unit TEXT,
         spectrum_kind TEXT,
@@ -832,6 +1167,17 @@ class DatabaseHelper {
     );
     if (rows.isEmpty) return null;
     return SurveySession.fromMap(rows.first);
+  }
+
+  /// Archiválás (null = visszavonás). A felmérés adatai változatlanok maradnak.
+  Future<void> setSurveySessionArchived(int id, DateTime? archivedAt) async {
+    final db = await database;
+    await db.update(
+      'survey_sessions',
+      {'archived_at': archivedAt?.toIso8601String()},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   Future<void> closeSurveySession(int id, DateTime closedAt) async {
@@ -1270,14 +1616,75 @@ class DatabaseHelper {
   // Felmérés ↔ személy hozzárendelések
   // ---------------------------------------------------------------------
 
+  /// A személy beteglapjai: azok a felmérések, ahol érintettként szerepelt,
+  /// legújabb elöl.
+  Future<List<({SessionPersonLink link, String surveyTitle, DateTime startedAt})>>
+      getVictimSheetsOfPerson(int personId) async {
+    final db = await database;
+    final rows = await db.rawQuery(
+      '''
+      SELECT
+        sp.id AS link_id,
+        sp.survey_session_id AS link_survey_session_id,
+        sp.person_id AS link_person_id,
+        sp.created_at AS link_created_at,
+        sp.role AS link_role,
+        sp.triage AS link_triage,
+        sp.body_markers AS link_body_markers,
+        s.title AS survey_title,
+        s.started_at AS survey_started_at
+      FROM survey_session_persons sp
+      INNER JOIN survey_sessions s ON s.id = sp.survey_session_id
+      WHERE sp.person_id = ? AND sp.role = 'victim'
+      ORDER BY s.started_at DESC
+      ''',
+      [personId],
+    );
+    return [
+      for (final row in rows)
+        (
+          link: SessionPersonLink(
+            id: row['link_id'] as int,
+            surveySessionId: row['link_survey_session_id'] as int,
+            personId: row['link_person_id'] as int,
+            createdAt: DateTime.parse(row['link_created_at'] as String),
+            role: SessionPersonRole.fromDbValue(row['link_role'] as String?),
+            triage: TriageCategory.fromDbValue(row['link_triage'] as String?),
+            bodyMarkers:
+                bodyMarkersFromJson(row['link_body_markers'] as String?),
+          ),
+          surveyTitle: row['survey_title'] as String,
+          startedAt: DateTime.parse(row['survey_started_at'] as String),
+        ),
+    ];
+  }
+
+  /// A személy legutóbbi felmérési szerepe (felmérő vagy érintett). Ha még
+  /// nem volt hozzárendelése, null.
+  Future<SessionPersonRole?> getLastSessionRoleOf(int personId) async {
+    final db = await database;
+    final rows = await db.query(
+      'survey_session_persons',
+      columns: ['role'],
+      where: 'person_id = ?',
+      whereArgs: [personId],
+      orderBy: 'id DESC',
+      limit: 1,
+    );
+    if (rows.isEmpty) return null;
+    return SessionPersonRole.fromDbValue(rows.first['role'] as String?);
+  }
+
   Future<int> insertSessionPerson({
     required int surveySessionId,
     required int personId,
+    SessionPersonRole role = SessionPersonRole.surveyor,
   }) async {
     final db = await database;
     return db.insert('survey_session_persons', {
       'survey_session_id': surveySessionId,
       'person_id': personId,
+      'role': role.dbValue,
       'created_at': DateTime.now().toIso8601String(),
     });
   }
@@ -1295,6 +1702,7 @@ class DatabaseHelper {
         sp.created_at AS link_created_at,
         sp.role AS link_role,
         sp.triage AS link_triage,
+        sp.body_markers AS link_body_markers,
         p.id AS id,
         p.name AS name,
         p.medical_exam_expiry_date AS medical_exam_expiry_date,
@@ -1302,6 +1710,12 @@ class DatabaseHelper {
         p.notes AS notes,
         p.phone AS phone,
         p.emails AS emails,
+        p.sex AS sex,
+        p.age_years AS age_years,
+        p.weight_kg AS weight_kg,
+        p.height_cm AS height_cm,
+        p.identifier AS identifier,
+        p.address AS address,
         p.created_at AS created_at,
         p.updated_at AS updated_at
       FROM survey_session_persons sp
@@ -1321,6 +1735,7 @@ class DatabaseHelper {
         createdAt: DateTime.parse(row['link_created_at'] as String),
         role: SessionPersonRole.fromDbValue(row['link_role'] as String?),
         triage: TriageCategory.fromDbValue(row['link_triage'] as String?),
+        bodyMarkers: bodyMarkersFromJson(row['link_body_markers'] as String?),
       );
       return AttachedPerson(
         link: link,
@@ -1328,6 +1743,20 @@ class DatabaseHelper {
             .copyWith(certificates: certs[row['id'] as int] ?? const []),
       );
     }).toList();
+  }
+
+  /// A felméréshez rendelt személy fantomrajzának jelöléseit menti.
+  Future<void> updateBodyMarkers({
+    required int linkId,
+    required List<BodyMarker> markers,
+  }) async {
+    final db = await database;
+    await db.update(
+      'survey_session_persons',
+      {'body_markers': bodyMarkersToJson(markers)},
+      where: 'id = ?',
+      whereArgs: [linkId],
+    );
   }
 
   /// A felméréshez rendelt személy szerepét és triázs-besorolását menti.
@@ -1658,28 +2087,42 @@ class DatabaseHelper {
 
   Future<int> insertRadiationSource(RadiationSource source) async {
     final db = await database;
-    final id = await db.insert(
-      'radiation_sources',
-      source.toMap()..remove('id'),
-    );
+    final id = await db.transaction<int>((txn) async {
+      final newId = await txn.insert(
+        'radiation_sources',
+        source.toMap()..remove('id')..['origin'] = source.origin,
+      );
+      await _syncLegacyNuclideRow(txn, newId, source);
+      return newId;
+    });
     onExpiryDataChanged?.call();
     return id;
   }
 
   Future<List<RadiationSource>> getRadiationSources() async {
     final db = await database;
-    final rows = await db.query('radiation_sources', orderBy: 'identifier ASC');
+    final rows = await db.rawQuery('''
+      SELECT rs.*,
+        (SELECT sn.reference_date FROM source_nuclides sn
+          WHERE sn.radiation_source_id = rs.id ORDER BY sn.id LIMIT 1)
+          AS activity_reference_date
+      FROM radiation_sources rs
+      ORDER BY rs.identifier ASC
+    ''');
     return rows.map(RadiationSource.fromMap).toList();
   }
 
   Future<void> updateRadiationSource(RadiationSource source) async {
     final db = await database;
-    await db.update(
-      'radiation_sources',
-      source.toMap(),
-      where: 'id = ?',
-      whereArgs: [source.id],
-    );
+    await db.transaction((txn) async {
+      await txn.update(
+        'radiation_sources',
+        source.toMap(),
+        where: 'id = ?',
+        whereArgs: [source.id],
+      );
+      await _syncLegacyNuclideRow(txn, source.id!, source);
+    });
     onExpiryDataChanged?.call();
   }
 
@@ -1690,6 +2133,190 @@ class DatabaseHelper {
     final db = await database;
     await db.delete('radiation_sources', where: 'id = ?', whereArgs: [id]);
     onExpiryDataChanged?.call();
+  }
+
+  // ---------------------------------------------------------------------
+  // Forrás-nuklidok és felmérési elhelyezések (v31)
+  // ---------------------------------------------------------------------
+
+  /// Átmeneti szinkron: a forrás nuklid-sorát a nyilvántartott, egynuklidos
+  /// adatból állítja elő. A többnuklidos űrlappal ez megszűnik, a sorokat
+  /// onnantól közvetlenül kezeli a kód.
+  Future<void> _syncLegacyNuclideRow(
+    DatabaseExecutor executor,
+    int sourceId,
+    RadiationSource source,
+  ) async {
+    // Gyártási dátum nélküli (talált) forrásnál a nuklid-sorokat nem írjuk felül.
+    final reference = source.manufactureDate;
+    if (reference == null) return;
+    await executor.delete(
+      'source_nuclides',
+      where: 'radiation_source_id = ?',
+      whereArgs: [sourceId],
+    );
+    await executor.insert('source_nuclides', {
+      'radiation_source_id': sourceId,
+      'nuclide': source.nuclideName,
+      'activity_mbq': source.activityAtManufactureMBq,
+      'reference_date': reference.toIso8601String(),
+      'origin': ActivityOrigin.manual.name,
+      'created_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Future<List<SampleAnalysis>> getSampleAnalyses(int measurementPointId) async {
+    final db = await database;
+    final rows = await db.query(
+      'sample_analyses',
+      where: 'measurement_point_id = ?',
+      whereArgs: [measurementPointId],
+      orderBy: 'performed_at DESC, id DESC',
+    );
+    return rows.map(SampleAnalysis.fromMap).toList();
+  }
+
+  Future<int> insertSampleAnalysis(SampleAnalysis analysis) async {
+    final db = await database;
+    return db.insert('sample_analyses', analysis.toMap()..remove('id'));
+  }
+
+  Future<void> deleteSampleAnalysis(int id) async {
+    final db = await database;
+    await db.delete('sample_analyses', where: 'id = ?', whereArgs: [id]);
+  }
+
+  /// Nuklidnevek forrásonként, egy lekérdezésben (a kereséshez és a listához).
+  Future<Map<int, List<String>>> getNuclideNamesBySource() async {
+    final db = await database;
+    final rows = await db.query(
+      'source_nuclides',
+      columns: ['radiation_source_id', 'nuclide'],
+      orderBy: 'id ASC',
+    );
+    final result = <int, List<String>>{};
+    for (final row in rows) {
+      final id = row['radiation_source_id'] as int;
+      result.putIfAbsent(id, () => []).add(row['nuclide'] as String);
+    }
+    return result;
+  }
+
+  Future<List<SourceNuclide>> getSourceNuclides(int radiationSourceId) async {
+    final db = await database;
+    final rows = await db.query(
+      'source_nuclides',
+      where: 'radiation_source_id = ?',
+      whereArgs: [radiationSourceId],
+      orderBy: 'id ASC',
+    );
+    return rows.map(SourceNuclide.fromMap).toList();
+  }
+
+  Future<List<SurveySourcePlacement>> getSurveyPlacements(
+    int surveySessionId,
+  ) async {
+    final db = await database;
+    final rows = await db.query(
+      'survey_source_placements',
+      where: 'survey_session_id = ?',
+      whereArgs: [surveySessionId],
+      orderBy: 'id ASC',
+    );
+    return rows.map(SurveySourcePlacement.fromMap).toList();
+  }
+
+  Future<int> insertSurveyPlacement(SurveySourcePlacement placement) async {
+    final db = await database;
+    return db.insert(
+      'survey_source_placements',
+      placement.toMap()..remove('id'),
+    );
+  }
+
+  Future<void> updateSurveyPlacement(SurveySourcePlacement placement) async {
+    final db = await database;
+    await db.update(
+      'survey_source_placements',
+      placement.toMap()..remove('id'),
+      where: 'id = ?',
+      whereArgs: [placement.id],
+    );
+  }
+
+  Future<void> deleteSurveyPlacement(int id) async {
+    final db = await database;
+    await db.delete(
+      'survey_source_placements',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  /// Forrás beszúrása a nuklid-sorokkal együtt (talált forrás, többnuklidos
+  /// import). Nem használja az egynuklidos szinkront.
+  Future<int> insertRadiationSourceWithNuclides(
+    RadiationSource source,
+    List<SourceNuclide> nuclides,
+  ) async {
+    final db = await database;
+    final id = await db.transaction<int>((txn) async {
+      final newId = await txn.insert(
+        'radiation_sources',
+        source.toMap()..remove('id')..['origin'] = source.origin,
+      );
+      await _insertNuclideRows(txn, newId, nuclides);
+      return newId;
+    });
+    onExpiryDataChanged?.call();
+    return id;
+  }
+
+  /// A forrás nuklid-soranak cseréje (import felülíráskor).
+  Future<void> replaceSourceNuclides(
+    int sourceId,
+    List<SourceNuclide> nuclides,
+  ) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete(
+        'source_nuclides',
+        where: 'radiation_source_id = ?',
+        whereArgs: [sourceId],
+      );
+      await _insertNuclideRows(txn, sourceId, nuclides);
+    });
+  }
+
+  Future<void> _insertNuclideRows(
+    DatabaseExecutor executor,
+    int sourceId,
+    List<SourceNuclide> nuclides,
+  ) async {
+    for (final n in nuclides) {
+      final map = n.toMap()..remove('id');
+      map['radiation_source_id'] = sourceId;
+      await executor.insert('source_nuclides', map);
+    }
+  }
+
+  /// A felmérés pontjaihoz rendelt források elhelyezése, ha még nincs.  /// A felmérés pontjaihoz rendelt források elhelyezése, ha még nincs. A
+  /// kizárt (included = 0) elhelyezés megmarad; a törölt újra bekerülhet.
+  Future<void> ensureDefaultPlacements(int surveySessionId) async {
+    final db = await database;
+    await db.rawInsert(
+      '''
+      INSERT OR IGNORE INTO survey_source_placements
+        (survey_session_id, radiation_source_id, measurement_point_id,
+         included, created_at)
+      SELECT mp.survey_session_id, mps.radiation_source_id, MIN(mp.id), 1, ?
+      FROM measurement_point_sources mps
+      INNER JOIN measurement_points mp ON mp.id = mps.measurement_point_id
+      WHERE mp.survey_session_id = ?
+      GROUP BY mp.survey_session_id, mps.radiation_source_id
+      ''',
+      [DateTime.now().toIso8601String(), surveySessionId],
+    );
   }
 
   // ---------------------------------------------------------------------
@@ -1733,7 +2360,10 @@ class DatabaseHelper {
         rs.service_life_expiry_date AS service_life_expiry_date,
         rs.notes AS notes,
         rs.created_at AS created_at,
-        rs.updated_at AS updated_at
+        rs.updated_at AS updated_at,
+        (SELECT sn.reference_date FROM source_nuclides sn
+          WHERE sn.radiation_source_id = rs.id ORDER BY sn.id LIMIT 1)
+          AS activity_reference_date
       FROM measurement_point_sources mps
       INNER JOIN radiation_sources rs ON rs.id = mps.radiation_source_id
       WHERE mps.measurement_point_id = ?

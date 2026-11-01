@@ -193,6 +193,8 @@ class ExpiryNotificationService {
     }
 
     for (final s in sources) {
+      // Forrásonként kikapcsolható (a globális kapcsoló mellett).
+      if (!s.notifyEnabled) continue;
       add(s.identifier, loc.serviceLifeExpiryDateLabel, s.serviceLifeExpiryDate);
       add(s.identifier, loc.nextInspectionDateLabel, s.nextInspectionDate);
     }

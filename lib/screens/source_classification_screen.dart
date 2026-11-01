@@ -48,7 +48,7 @@ class _SourceClassificationScreenState
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(loc.classificationTitle)),
+      appBar: AppBar(title: Text(loc.registryClassificationTitle)),
       body: FutureBuilder<List<RadiationSource>>(
         future: _future,
         builder: (context, snapshot) {

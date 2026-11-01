@@ -35,7 +35,7 @@
       <div class="container">
 
 <h1>Manuel d’utilisation de RadRecon</h1>
-<p>Dernière mise à jour : 23/10/2026</p>
+<p>Dernière mise à jour : 01/11/2026</p>
 <p>L’application est disponible en six langues : hongrois, anglais, allemand, espagnol, français et italien. Dans ce manuel, les noms des boutons et des éléments de menu sont en gras, tels qu’ils apparaissent dans la version française de l’application.</p>
 
 <h2>Sommaire</h2>
@@ -54,7 +54,8 @@
 <li><a href="#m12">Outils</a></li>
 <li><a href="#m13">Clôture, export et import</a></li>
 <li><a href="#m14">Dépannage</a></li>
-<li><a href="#m15">Avis important</a></li>
+<li><a href="#m15">Personnes blessées et transfert hospitalier</a></li>
+<li><a href="#m16">Avis important</a></li>
 </ol>
 
 <h2 id="m1">1. Introduction</h2>
@@ -124,6 +125,7 @@
 <p>En plus du nom, de l’expiration de la visite médicale et de la formation, une personne a un <strong>Numéro de téléphone</strong>, plusieurs <strong>Adresse e-mail</strong>es et un nombre quelconque de <strong>Certificats</strong>. Appuyez sur <strong>Ajouter un certificat</strong> et saisissez l’intitulé (par exemple examen de radioprotection), le numéro du certificat, l’émetteur, la date d’émission et la validité, puis joignez le fichier. L’expiration d’un certificat peut être rappelée comme les autres dates d’expiration. Le téléphone et les adresses e-mail figurent dans le CSV des personnes, pas les certificats.</p>
 
 
+<p>Sur la fiche d'une personne, vous pouvez saisir un <strong>identifiant</strong> (par exemple un numéro interne) et une <strong>adresse</strong>, en plus du nom, du numéro de téléphone et des adresses e-mail. Si la personne est blessée, vous pouvez saisir le <strong>sexe</strong>, l'<strong>âge</strong> (en années), le <strong>poids</strong> (kg, approximatif) et la <strong>taille</strong> (cm) dans la section <strong>Données physiques</strong>. L'identifiant apparaît dans le protocole, l'adresse non. En bas de la fiche de la personne, la liste <strong>Fiches patient</strong> indique les relevés où la personne figurait comme blessée ; un appui sur une ligne ouvre la fiche de la personne blessée concernée.</p>
 <h2 id="m6">6. Doses</h2>
 <p>RadRecon peut tenir la dose de chaque personne. Les doses sont enregistrées en µSv. La liste des personnes affiche la dose annuelle de chacune, ventilée par source, et comporte un sélecteur <strong>Année</strong>.</p>
 <ul>
@@ -155,10 +157,11 @@
 </ol>
 <p>Le nom et le lieu peuvent être modifiés plus tard avec l’icône de modification ; c’est là aussi que vous affectez le personnel participant.</p>
 
+<p>Lors de la création d'un relevé, vous pouvez aussi choisir le mode de carte : <strong>en ligne</strong> (GPS et carte OpenStreetMap) ou <strong>plan</strong>. Pour les relevés en intérieur en mode plan, chargez une image de plan (ou générez un plan vierge aux dimensions indiquées), marquez deux points dessus et saisissez la distance réelle entre eux. Les points sont ensuite enregistrés sans GPS, avec des coordonnées locales. Lors de l'affectation d'une personne, le rôle par défaut est celui qu'elle avait en dernier (opérateur ou personne blessée).</p>
 <h2 id="m9">9. Enregistrer un point de mesure</h2>
 <p>Dans le relevé, appuyez sur <strong>Nouveau point</strong>.</p>
 <ul>
-<li><strong>Type de mesure :</strong> débit de dose, contamination de surface, taux de comptage (cps), taux de comptage neutronique (cps) ou prélèvement. Le prélèvement inclut aussi les types <strong>Météorologie</strong> et <strong>Mesure de gaz</strong>, qui n’ont pas de valeur mesurée : les données météorologiques ou les concentrations de gaz se saisissent avec le point.</li>
+<li><strong>Type de mesure :</strong> débit de dose, contamination surfacique, taux de comptage (cps), taux de comptage neutronique (cps), prélèvement, météorologie, <strong>substance chimique</strong> ou <strong>matériel biologique</strong>. Les points météorologiques, chimiques et biologiques n'ont pas de valeur mesurée, et la section des sources radioactives n'est pas affichée pour eux.</li>
 <li><strong>Nom du lieu, Valeur mesurée et Unité.</strong> Chaque type a une unité par défaut.</li>
 <li><strong>Distance à la source</strong> et <strong>Nucléide</strong>, à partir desquels l’application donne une estimation rapide de l’activité à partir de la valeur mesurée.</li>
 <li><strong>Instrument :</strong> choisissez-en un dans votre liste ou ajoutez-en un nouveau avec le bouton plus. Pour un instrument Modbus, utilisez <strong>Requête Modbus</strong> pour lire directement la valeur.</li>
@@ -178,6 +181,10 @@
 <p>Si la précision GPS est mauvaise (par exemple ±10 m), restez immobile sur le point et appuyez sous la position sur <strong>GPS moyenné</strong>. Choisissez 30, 60 ou 120 secondes. L’application collecte les positions, les pondère selon leur précision, écarte les valeurs aberrantes et enregistre la position moyenne avec une précision estimée. En plein air, le résultat est le meilleur. Une durée plus longue aide, mais l’erreur GPS est corrélée dans le temps ; ne vous attendez donc pas à ce que la précision s’améliore avec la racine du nombre d’échantillons.</p>
 
 
+<h3>Substance chimique, matériel biologique et analyse d'échantillon</h3>
+<p><strong>Substance chimique :</strong> plusieurs composés peuvent être enregistrés en un point, choisis dans la liste ou saisis avec <strong>Autre</strong> et un nom propre. Pour chaque composé, vous saisissez l'état physique (gaz, liquide, solide, aérosol) et la concentration. L'unité peut être un rapport (ppm, ppb, vol %, %, %LEL) ou une masse par base, où la masse (µg, mg, g, kg, t, oz, lb) et la base (volume, masse ou surface) se choisissent séparément. Lorsque l'état physique change, une unité qui ne s'applique plus passe automatiquement à une base appropriée.</p>
+<p><strong>Matériel biologique :</strong> plusieurs matériaux peuvent être enregistrés en un point : nom (texte libre), type (bactérie, virus, toxine, champignon ou autre) et quantité en texte libre. Il n'existe pas de liste d'agents pré-remplie ; vous saisissez vous-même les noms.</p>
+<p><strong>Analyse d'échantillon :</strong> sur un point de prélèvement ou de matériel biologique, l'icône de tube à essai ouvre la liste des analyses. Pour une nouvelle analyse, vous saisissez la méthode (FT-IR, NIR, Raman, XRF, PCR ou autre), l'instrument, la date et l'heure, l'opérateur, le résultat et les notes ; vous pouvez joindre un fichier, par exemple un export de spectre. Pour la PCR, la cible (gène ou agent), le résultat (positif, négatif ou invalide) et la valeur Ct se saisissent dans des champs distincts. Les analyses d'échantillons apparaissent aussi dans le protocole.</p>
 <h2 id="m10">10. Sources sur un point</h2>
 <p>Dans l’écran du point, choisissez <strong>Gérer la ou les source(s) radioactive(s)</strong> et rattachez des sources du registre. Pour chacune, saisissez sa distance au point de mesure. L’application affiche alors :</p>
 <ul>
@@ -192,6 +199,7 @@
 <h3>Zones marquées</h3>
 <p>Les zones permettent de marquer sur la carte une partie du site étudié, par exemple une zone contrôlée, interdite d’accès ou contaminée. Appuyez sur <strong>Marquer une zone</strong> sur la carte. Saisissez un <strong>Nom</strong> (par exemple Surveyed area), choisissez la <strong>Forme</strong> (<strong>Polygone</strong> ou <strong>Cercle</strong>) et une <strong>Couleur</strong>, puis appuyez sur <strong>Dessiner</strong>. Pour un polygone, touchez les sommets les uns après les autres et appuyez sur <strong>Terminé</strong> ; il faut au moins 3 sommets, et <strong>Annuler</strong> supprime le dernier. Pour un cercle, touchez le centre puis un point du bord pour fixer le rayon. Les zones sont dessinées avec un remplissage semi-transparent dans leur couleur. Le bouton <strong>Zones marquées</strong> liste les zones du relevé ; depuis la liste, vous pouvez supprimer une zone après confirmation. Les zones figurent dans les procès-verbaux Word et PDF (nom, forme, géométrie et surface en m²) et dans le fichier de sauvegarde.</p>
 
+<p>Vous pouvez aussi placer des sources de rayonnement sur la carte : une source choisie dans la liste ouverte par l'icône de source apparaît sur la carte avec son identifiant et ses nucléides. À un zoom suffisant, l'étiquette est affichée ; de plus loin, seule l'icône. En mode plan, le plan étalonné remplace la carte ; les points sont numérotés et les sources affichent leur nom.</p>
 <h2 id="m12">12. Outils</h2>
 <p>Les outils se trouvent dans le menu du relevé (trois points).</p>
 <ul>
@@ -217,6 +225,7 @@
 <p>Le protocole utilise les unités choisies dans les réglages. Les exports CSV et JSON conservent les unités enregistrées. Le protocole affiche la valeur avec son erreur et le nombre d’échantillons d’une mesure moyennée, ainsi que l’instrument avec ses enregistrements de vérification et d’étalonnage. Le CSV comporte les colonnes supplémentaires <strong>Erreur (±)</strong>, <strong>Moyennage (échantillons ; s)</strong> et <strong>Vérification/étalonnage de l'instrument</strong> ; le fichier JSON contient les mêmes données.</p>
 
 
+<p>Vous pouvez rechercher dans la liste des relevés par nom et lieu, la filtrer par état (ouvert, clos ou archivé) et par période, et la trier par date ou par nom. Un relevé clos peut être archivé ; les relevés archivés s'affichent avec un filtre dédié, et leurs données sont conservées. La liste des mesures peut être recherchée, filtrée par type de mesure, date et valeur, et triée. Le protocole est créé au format Word ou PDF ; il contient le plan avec ses repères, les sources de la carte, les tableaux météo et gaz, les substances chimiques et biologiques, les analyses d'échantillons, les données de transfert hospitalier des personnes blessées, les figures du schéma corporel et les identifiants des personnes. La sauvegarde d'entreprise contient aussi les plans joints et les fichiers d'analyse d'échantillons.</p>
 <h2 id="m14">14. Dépannage</h2>
 <ul>
 <li><strong>Pas de position GPS :</strong> vérifiez que les services de localisation sont activés et que RadRecon peut utiliser la position, puis appuyez sur <strong>Actualiser le GPS</strong>. À l’intérieur, la précision peut être mauvaise ; le rayon de précision est enregistré avec le point.</li>
@@ -227,7 +236,15 @@
 </ul>
 <p>Si le problème persiste, écrivez à <a href="mailto:info@radrecon.hu">info@radrecon.hu</a>.</p>
 
-<h2 id="m15">15. Avis important</h2>
+<h2 id="m15">15. Personnes blessées et transfert hospitalier</h2>
+<p>Pour les personnes ayant le rôle <strong>personne blessée / victime</strong>, ouvrez la fiche de la personne blessée avec l'icône médicale située sur la ligne de la personne. La fiche affiche à un seul endroit le rôle, la catégorie de triage, les blessures et maladies, les données personnelles et le schéma corporel.</p>
+<ul>
+<li><strong>Schéma corporel :</strong> appuyez sur la figure de face ou de dos pour ajouter un repère. Le type de repère est <strong>blessure</strong> (avec une note, par exemple brûlure ou fracture) ou <strong>contamination</strong>. Appuyez sur un repère existant pour le modifier ou le supprimer.</li>
+<li><strong>Contaminants :</strong> pour chaque repère, vous pouvez saisir facultativement l'isotope (du catalogue), un contaminant chimique et un contaminant biologique. Un repère peut porter les trois.</li>
+<li><strong>Données personnelles :</strong> le sexe, l'âge, le poids et la taille se modifient sur la fiche de la personne ; la fiche de la personne blessée les affiche seulement.</li>
+</ul>
+<p>Les données de transfert hospitalier apparaissent dans le protocole pour chaque personne blessée : nom, sexe, âge, poids, taille, contaminants et lieux des blessures, avec la figure du schéma corporel. Le bouton d'enregistrement en haut de la fiche permet d'enregistrer les modifications à tout moment. Les blessures, les contaminations et les données physiques sont des données de santé ; seules les personnes autorisées doivent les traiter.</p>
+<h2 id="m16">16. Avis important</h2>
 <p>RadRecon est une aide à la documentation et au calcul, pas un instrument de mesure. Les valeurs calculées et la direction de la recherche de source sont données à titre indicatif. Vérifiez-les auprès d’une source faisant autorité pour les documents officiels, et suivez les instructions de votre personne compétente en radioprotection. Voir les <a href="../../terms/fr/terms.html">Conditions d’utilisation</a>.</p>
 
       </div>

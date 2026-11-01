@@ -80,7 +80,7 @@ SourceClassification classifySource(RadiationSource s, DateTime asOf) {
   double? r;
   if (infinite) {
     r = 0; // D = ∞ → R-hozzájárulás elhanyagolható
-  } else if (d != null && d > 0) {
+  } else if (d != null && d > 0 && activity != null) {
     r = (activity / 1e6) / d; // MBq → TBq
   }
   return SourceClassification(
@@ -92,7 +92,7 @@ SourceClassification classifySource(RadiationSource s, DateTime asOf) {
     rValue: r,
     exemption: kExemptionValues[nuclide],
     adr: kAdrValues[nuclide],
-    lab: classifyLab(nuclide, activity),
+    lab: activity == null ? null : classifyLab(nuclide, activity),
   );
 }
 

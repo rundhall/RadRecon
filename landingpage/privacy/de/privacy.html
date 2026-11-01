@@ -26,19 +26,22 @@
   </header>
   <main class="legal-page">
     <div class="container">
-      <h1>Datenschutzerklärung von RadRecon</h1>
-      <p>RadRecon speichert Messdaten lokal auf dem Gerät, auf dem sie erfasst wurden. Die App benötigt kein Konto und lädt die lokale Datenbank nicht in eine RadRecon-Cloud oder ein Backend hoch.</p>
+      <h1>RadRecon Datenschutzhinweise</h1>
+      <p>RadRecon speichert die Felddaten auf dem Gerät, auf dem Sie sie erfasst haben. Für die App ist kein Konto nötig, und die lokale Datenbank wird nicht in eine RadRecon-Cloud oder ein Hintergrundsystem hochgeladen.</p>
       <h2>Auf dem Gerät gespeicherte Daten</h2>
-      <p>Datensätze können Sitzungen, Messwerte und Einheiten, Zeitstempel, Notizen, GPS-Koordinaten und Genauigkeit, Geräte- und Quellenangaben sowie Einstellungen enthalten. Der Standort wird nur mit Berechtigung und bei Verwendung einer entsprechenden Funktion abgerufen.</p>
+      <p>Datensätze können Erhebungen, Messwerte und Einheiten, Zeitstempel, Notizen, GPS-Koordinaten und Genauigkeit, Angaben zu Messgeräten und Strahlenquellen, Namen und Konzentrationen chemischer und biologischer Stoffe, Ergebnisse von Probenanalysen sowie Einstellungen enthalten. Standortdaten nutzt die App erst nach Erteilung der Berechtigung und bei Verwendung einer Funktion, die sie braucht.</p>
+      <p>Dateien, die einer Erhebung zugeordnet sind, bleiben ebenfalls auf dem Gerät: Fotos, Bildschirmfotos, Spektrumdateien, Grundrisse, Anhänge von Probenanalysen und Abbildungen für das Protokoll.</p>
+      <p>Das Personenregister kann Name, Telefonnummer, E-Mail-Adresse, Kennung und Adresse enthalten. Wird eine Person bei einer Erhebung als verletzt erfasst, können außerdem Geschlecht, Alter, Gewicht und Größe gespeichert werden; zu verletzten Personen können Verletzungen, Erkrankungen und auf der Körperkarte markierte Kontaminationen (Isotop, chemischer oder biologischer Stoff) gehören. Dabei handelt es sich um gesundheitsbezogene, besonders schützenswerte Daten. Für die Rechtsgrundlage der Erfassung, die Information der Betroffenen und die Bedingungen der Weitergabe ist die Organisation verantwortlich, die die Erhebung durchführt.</p>
       <h2>Speicherung und Aufbewahrung</h2>
-      <p>Die App verwendet eine lokale SQLite-Datenbank. Daten bleiben auf dem Gerät, bis Sie sie löschen oder die App-Daten entfernen. Betriebssystem-Backups können App-Daten gemäß Ihren Geräteeinstellungen kopieren. Exporte und Backups können separat bestehen bleiben.</p>
+      <p>Die App verwendet eine lokale SQLite-Datenbank. Die Daten bleiben auf dem Gerät, bis Sie sie löschen oder die Daten der App löschen. Eine abgeschlossene Erhebung können Sie archivieren; die Archivierung löscht keine Daten. Systemseitige Sicherungen des Betriebssystems können je nach Ihren Einstellungen Daten der App kopieren. Exportierte Dateien und Firmen-Sicherungsdateien sind getrennte Kopien; die Firmen-Sicherungsdatei enthält die vollständige Datenbank und die angehängten Dateien.</p>
+      <p>Die App verschlüsselt weder Datenbank, Sicherungsdateien noch Exporte. Sperre und Verschlüsselung des Geräts regeln Sie über die Einstellungen des Betriebssystems; bewahren Sie Sicherungsdateien und Exporte sicher auf.</p>
       <h2>Netzwerkverbindungen</h2>
-      <p>Beim Anzeigen einer Karte kann OpenStreetMap Ihre IP-Adresse, angeforderte Kachelkoordinaten und übliche Anfrageinformationen erhalten; Kacheln können das betrachtete Gebiet erkennen lassen. Ein konfiguriertes Modbus/TCP-Gerät kommuniziert mit der von Ihnen angegebenen Adresse. Standort, Benachrichtigungen, Dateiauswahl und Teilen nutzen Betriebssystemdienste.</p>
-      <h2>Exporte und Wahlmöglichkeiten</h2>
-      <p>Die App enthält keine Analyse- oder Werbe-SDKs und sendet keine Messdaten an den Entwickler. Sie bestimmen, wo exportierte Dateien gespeichert oder geteilt werden. Für andere Apps, Empfänger, Kartenanbieter, Geräte und Plattformen gelten deren eigene Regeln.</p>
+      <p>Bei der Kartenanzeige kann OpenStreetMap Ihre IP-Adresse, die Koordinaten der angeforderten Kartenkacheln und übliche Anfragedaten erhalten; aus den Kacheln kann auf den angezeigten Bereich geschlossen werden. Die App ruft höchstens einmal täglich radrecon.hu/version.json ab, um Updates zu prüfen; dabei sieht der Server Ihre IP-Adresse. Das Formular für Mitwirkende öffnet eine externe Seite (Google Forms). Ist ein Modbus/TCP-Messgerät eingerichtet, kommuniziert die App mit der angegebenen Adresse. Standort-, Benachrichtigungs-, Dateiauswahl- und Teilen-Funktionen nutzen Dienste des Betriebssystems.</p>
+      <h2>Export und Wahlmöglichkeiten</h2>
+      <p>Die App enthält kein Analyse- oder Werbe-SDK, und die Entwicklung erhält keine Messdaten. Sie wählen, wohin exportierte Dateien gespeichert oder geteilt werden. Das Word- oder PDF-Protokoll kann Messpunkte, Kennungen der Erhebenden und der betroffenen Personen, Geschlecht, Alter, Gewicht, Größe, Verletzungen und Kontaminationen verletzter Personen, Ergebnisse von Probenanalysen und Körperkarten-Abbildungen enthalten. Die Adresse steht nicht im Protokoll, der CSV-Export des Personenregisters enthält jedoch Kennung und Adresse. Geben Sie das fertige Protokoll und die Exportdateien nur an berechtigte Personen weiter. Für externe Anwendungen, Kartendienste, Geräte und Plattformen gelten deren eigene Regeln.</p>
       <h2>Rechte und Kontakt</h2>
-      <p>Sie können Datensätze mit verfügbaren App-Funktionen und Geräteeinstellungen anzeigen, bearbeiten, exportieren oder löschen und den Standortzugriff in den Systemeinstellungen widerrufen. Fragen: info@radrecon.hu.</p>
-      <p><a href="https://operations.osmfoundation.org/policies/tiles/">OpenStreetMap tile usage policy</a></p>
+      <p>Mit den verfügbaren Funktionen und Geräteeinstellungen können Sie die Daten einsehen, ändern, exportieren oder löschen. Die Daten von Personen verwalten Sie im Personendatenblatt, im Patientenblatt der Erhebung und in der Personenliste. Die Standortberechtigung können Sie in den Geräteeinstellungen deaktivieren oder widerrufen. Fragen: info@radrecon.hu.</p>
+      <p><a href="https://operations.osmfoundation.org/policies/tiles/">OpenStreetMap-Kachelrichtlinie</a></p>
     </div>
   </main>
   <footer>

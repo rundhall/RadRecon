@@ -3,11 +3,22 @@ import 'dart:typed_data';
 
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
+import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../l10n/app_localizations.dart';
+import 'source_classification.dart';
+import 'survey_source_total.dart';
 
 /// Egy fénykép a PDF-ben, a mérési pontra utaló felirattal.
+/// Egy jegyzőkönyvi ábra (PNG) feliratával.
+class ProtocolFigure {
+  const ProtocolFigure({required this.caption, required this.bytes});
+
+  final String caption;
+  final Uint8List bytes;
+}
+
 class ProtocolPhoto {
   const ProtocolPhoto({required this.caption, required this.path});
 
@@ -35,10 +46,24 @@ class ProtocolPdfData {
     this.meteoRows = const [],
     this.gasHeaders = const [],
     this.gasRows = const [],
+    this.bioHeaders = const [],
+    this.bioRows = const [],
+    this.sampleHeaders = const [],
+    this.sampleRows = const [],
+    this.handoverHeaders = const [],
+    this.handoverRows = const [],
+    this.identityHeaders = const [],
+    this.identityRows = const [],
+    this.phantomFigures = const [],
     this.areaHeaders = const [],
     this.areaRows = const [],
     this.screenshots = const [],
     this.protocolFields = const [],
+    this.classification,
+    this.planImage,
+    this.planCaption = '',
+    this.mapSourceHeaders = const [],
+    this.mapSourceRows = const [],
   });
 
   final List<(String, String)> headerFields;
@@ -51,16 +76,32 @@ class ProtocolPdfData {
   final List<List<String>> dosimeterRows;
   final List<(String, String)> signatureFields;
   final List<ProtocolPhoto> photos;
+  /// Az alaprajz PNG-ben, a jelölésekkel (alaprajz módú felmérésnél).
+  final Uint8List? planImage;
+  final String planCaption;
+  final List<String> mapSourceHeaders;
+  final List<List<String>> mapSourceRows;
   final List<String> victimHeaders;
   final List<List<String>> victimRows;
   final List<String> meteoHeaders;
   final List<List<String>> meteoRows;
   final List<String> gasHeaders;
   final List<List<String>> gasRows;
+  final List<String> bioHeaders;
+  final List<List<String>> bioRows;
+  final List<String> sampleHeaders;
+  final List<List<String>> sampleRows;
+  final List<String> handoverHeaders;
+  final List<List<String>> handoverRows;
+  final List<String> identityHeaders;
+  final List<List<String>> identityRows;
+  final List<ProtocolFigure> phantomFigures;
   final List<String> areaHeaders;
   final List<List<String>> areaRows;
   final List<ProtocolPhoto> screenshots;
   final List<(String, String)> protocolFields;
+  /// Felmérés-besorolás (bekerülő források R-je), ha van.
+  final SurveyClassification? classification;
 }
 
 /// Jegyzőkönyv PDF-et készít a `pdf` csomaggal.
@@ -138,6 +179,32 @@ class ProtocolPdfBuilder {
             _safe(data.sourceNote),
             style: _style(8, color: PdfColors.grey800),
           ),
+          if (data.classification != null) ...[
+            pw.SizedBox(height: 14),
+            _heading(l.classificationTitle),
+            pw.SizedBox(height: 6),
+            ..._classificationWidgets(data.classification!, l),
+          ],
+          if (data.planImage != null) ...[
+            pw.SizedBox(height: 14),
+            _heading(l.protoPlanHeading),
+            pw.SizedBox(height: 6),
+            pw.SizedBox(
+              height: 360,
+              child: pw.Image(
+                pw.MemoryImage(data.planImage!),
+                fit: pw.BoxFit.contain,
+              ),
+            ),
+            pw.SizedBox(height: 4),
+            pw.Text(_safe(data.planCaption), style: _style(8, color: PdfColors.grey800)),
+          ],
+          if (data.mapSourceRows.isNotEmpty) ...[
+            pw.SizedBox(height: 14),
+            _heading(l.protoSourcesOnMapHeading),
+            pw.SizedBox(height: 6),
+            _table(data.mapSourceHeaders, data.mapSourceRows),
+          ],
           pw.SizedBox(height: 14),
           _heading(l.protoDosimeterHeading),
           pw.SizedBox(height: 6),
@@ -165,6 +232,47 @@ class ProtocolPdfBuilder {
             _heading(l.protoGasHeading),
             pw.SizedBox(height: 6),
             _table(data.gasHeaders, data.gasRows),
+            pw.SizedBox(height: 14),
+          ],
+          if (data.bioRows.isNotEmpty) ...[
+            _heading(l.protoBioHeading),
+            pw.SizedBox(height: 6),
+            _table(data.bioHeaders, data.bioRows),
+            pw.SizedBox(height: 14),
+          ],
+          if (data.sampleRows.isNotEmpty) ...[
+            _heading(l.protoSampleAnalysesHeading),
+            pw.SizedBox(height: 6),
+            _table(data.sampleHeaders, data.sampleRows),
+            pw.SizedBox(height: 14),
+          ],
+          if (data.handoverRows.isNotEmpty) ...[
+            _heading(l.protoHandoverHeading),
+            pw.SizedBox(height: 6),
+            _table(data.handoverHeaders, data.handoverRows),
+            pw.SizedBox(height: 14),
+          ],
+          if (data.identityRows.isNotEmpty) ...[
+            _heading(l.protoIdentityHeading),
+            pw.SizedBox(height: 6),
+            _table(data.identityHeaders, data.identityRows),
+            pw.SizedBox(height: 14),
+          ],
+          if (data.phantomFigures.isNotEmpty) ...[
+            _heading(l.protoPhantomHeading),
+            pw.SizedBox(height: 6),
+            for (final f in data.phantomFigures) ...[
+              pw.Text(_safe(f.caption), style: _style(9)),
+              pw.SizedBox(height: 4),
+              pw.SizedBox(
+                height: 240,
+                child: pw.Image(
+                  pw.MemoryImage(f.bytes),
+                  fit: pw.BoxFit.contain,
+                ),
+              ),
+              pw.SizedBox(height: 10),
+            ],
             pw.SizedBox(height: 14),
           ],
           for (final (label, value) in data.signatureFields)
@@ -205,6 +313,72 @@ class ProtocolPdfBuilder {
       ),
     );
     return doc.save();
+  }
+
+  static String _fmtR(double v) {
+    if (v == 0) return '0';
+    final a = v.abs();
+    if (a >= 1e5 || a < 1e-3) return v.toStringAsExponential(2);
+    return v.toStringAsPrecision(3);
+  }
+
+  /// Felmérés-besorolás: összesítő sorok és a forrás-táblázat.
+  static List<pw.Widget> _classificationWidgets(
+    SurveyClassification c,
+    AppLocalizations l,
+  ) {
+    final t = c.total;
+    final cat = t.physicalCategory;
+    final rSum = t.rSum;
+    final dateFormat = DateFormat('yyyy.MM.dd');
+    final rows = <List<String>>[
+      for (final r in c.rows)
+        [
+          r.source.identifier,
+          r.nuclides.isEmpty
+              ? '—'
+              : r.nuclides.map((n) => n.nuclide).join(', '),
+          r.composition.rSum == null ? '—' : _fmtR(r.composition.rSum!),
+          r.composition.physicalCategory?.toString() ?? '—',
+          r.composition.physicalCategory == null
+              ? '—'
+              : physicalProtectionLevel(r.composition.physicalCategory!),
+          r.placement.included ? '+' : '–',
+          dateFormat.format(r.asOf),
+        ],
+    ];
+    return [
+      _field(
+        l.classificationTotal,
+        rSum == null || cat == null
+            ? l.surveyClassNoRSum
+            : 'R = ${_fmtR(rSum)} · ${l.classificationPhysCat}: $cat · '
+                '${l.classificationProtLevel}: ${physicalProtectionLevel(cat)}',
+      ),
+      if (!t.isComplete) ...[
+        _field(l.classificationUnknownCount, '${t.unknownCount}'),
+        pw.Text(
+          _safe(l.surveyClassLowerBound),
+          style: _style(8, color: PdfColors.grey800),
+        ),
+      ],
+      pw.SizedBox(height: 6),
+      if (rows.isEmpty)
+        pw.Text(_safe(l.surveyClassEmpty), style: _style(8))
+      else
+        _table(
+          [
+            l.sourceIdentifierLabel,
+            l.nuclideLabel,
+            'R',
+            l.classificationPhysCat,
+            l.classificationProtLevel,
+            l.surveyClassIncluded,
+            l.surveyClassCalcDate,
+          ],
+          rows,
+        ),
+    ];
   }
 
   /// A beágyazott Noto Sans betűkészlet nem tartalmazza ezeket a jeleket:

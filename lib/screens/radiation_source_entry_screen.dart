@@ -54,6 +54,7 @@ class _RadiationSourceEntryScreenState
   DateTime? _manufactureDate;
   DateTime? _expiryDate;
   DateTime? _nextInspectionDate;
+  bool _notifyEnabled = true;
   DateTime _asOfDate = DateTime.now();
 
   bool _manufactureDateTouched = false;
@@ -72,14 +73,17 @@ class _RadiationSourceEntryScreenState
         _isCustomNuclide = true;
         _customNuclideCtrl.text = e.nuclideName;
       }
-      _activityCtrl.text = QuantityField.formatNumber(
-          _activityUnit.fromMBq(e.activityAtManufactureMBq));
+      final activityMBq = e.activityAtManufactureMBq;
+      _activityCtrl.text = activityMBq == null
+          ? ''
+          : QuantityField.formatNumber(_activityUnit.fromMBq(activityMBq));
       _errorPercentCtrl.text = e.activityErrorPercent?.toString() ?? '';
       _notesCtrl.text = e.notes ?? '';
       _certificateFiles = [...e.certificateFiles];
       _manufactureDate = e.manufactureDate;
       _expiryDate = e.serviceLifeExpiryDate;
       _nextInspectionDate = e.nextInspectionDate;
+      _notifyEnabled = e.notifyEnabled;
     }
   }
 
@@ -194,6 +198,7 @@ class _RadiationSourceEntryScreenState
       nextInspectionDate: _nextInspectionDate,
       notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
       certificateFiles: _certificateFiles,
+      notifyEnabled: _notifyEnabled,
       createdAt: widget.existing?.createdAt ?? now,
       updatedAt: now,
     );
@@ -340,6 +345,12 @@ class _RadiationSourceEntryScreenState
               ),
               trailing: const Icon(Icons.edit_calendar),
               onTap: _pickNextInspectionDate,
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(loc.sourceNotifyLabel),
+              value: _notifyEnabled,
+              onChanged: (v) => setState(() => _notifyEnabled = v),
             ),
             const SizedBox(height: 12),
             Row(

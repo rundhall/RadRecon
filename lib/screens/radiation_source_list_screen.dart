@@ -9,6 +9,7 @@ import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/radiation_source.dart';
 import '../services/registry_csv_service.dart';
+import '../services/source_search.dart';
 import 'radiation_source_entry_screen.dart';
 import 'source_classification_screen.dart';
 
@@ -26,6 +27,7 @@ class RadiationSourceListScreen extends StatefulWidget {
 class _RadiationSourceListScreenState
     extends State<RadiationSourceListScreen> {
   late Future<List<RadiationSource>> _sourcesFuture;
+  Map<int, List<String>> _nuclidesBySource = {}; // forrásonként a nuklidok
   final _dateFormat = DateFormat('yyyy.MM.dd');
   final _csvService = RegistryCsvService();
   String _searchQuery = '';
@@ -39,7 +41,7 @@ class _RadiationSourceListScreenState
 
   void _reload() {
     setState(() {
-      _sourcesFuture = DatabaseHelper.instance.getRadiationSources();
+      _sourcesFuture = _loadSources();
     });
   }
 
@@ -158,6 +160,16 @@ class _RadiationSourceListScreenState
     }
   }
 
+  Future<List<RadiationSource>> _loadSources() async {
+    final db = DatabaseHelper.instance;
+    _nuclidesBySource = await db.getNuclideNamesBySource();
+    return db.getRadiationSources();
+  }
+
+  /// A forrás összes nuklidja (ha nincs a táblában, az elsődleges név).
+  List<String> _nuclidesOf(RadiationSource s) =>
+      _nuclidesBySource[s.id] ?? [s.nuclideName];
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
@@ -167,7 +179,7 @@ class _RadiationSourceListScreenState
         actions: [
           IconButton(
             icon: const Icon(Icons.rule),
-            tooltip: loc.classificationTitle,
+            tooltip: loc.registryClassificationTitle,
             onPressed: () => Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => const SourceClassificationScreen(),
             )),
@@ -207,13 +219,12 @@ class _RadiationSourceListScreenState
             return const Center(child: CircularProgressIndicator());
           }
           final allSources = snapshot.data!;
-          final query = _searchQuery.trim().toLowerCase();
           final sources = allSources
-              .where(
-                (source) =>
-                    source.identifier.toLowerCase().contains(query) ||
-                    source.nuclideName.toLowerCase().contains(query),
-              )
+              .where((source) => sourceMatchesQuery(
+                    identifier: source.identifier,
+                    nuclides: _nuclidesOf(source),
+                    query: _searchQuery,
+                  ))
               .toList();
           final now = DateTime.now();
           return Column(
@@ -252,10 +263,10 @@ class _RadiationSourceListScreenState
                                       : Colors.grey,
                                 ),
                                 title: Text(
-                                  '${s.identifier} · ${s.nuclideName}',
+                                  '${s.identifier} · ${_nuclidesOf(s).where((n) => n.isNotEmpty).toSet().join(', ')}',
                                 ),
                                 subtitle: Text(
-                                  '${loc.manufactureDateLabel}: ${_dateFormat.format(s.manufactureDate)}'
+                                  '${loc.manufactureDateLabel}: ${s.manufactureDate == null ? '—' : _dateFormat.format(s.manufactureDate!)}'
                                   '${s.serviceLifeExpiryDate != null ? ' · ${loc.serviceLifeExpiryDateLabel}: ${_dateFormat.format(s.serviceLifeExpiryDate!)}' : ''}',
                                 ),
                                 trailing: IconButton(

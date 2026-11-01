@@ -1,3 +1,7 @@
+import '../models/bio_agent.dart';
+import '../services/plan_georeference.dart';
+import '../models/survey_session.dart';
+import '../models/plan_calibration.dart';
 import '../models/radiation_kind.dart';
 import '../models/dose_quantity.dart';
 import '../models/count_rate_unit.dart';
@@ -27,6 +31,7 @@ import '../models/nuclide_id.dart';
 import '../models/point_source_link.dart';
 import '../l10n/domain_labels.dart';
 import '../models/gas_reading.dart';
+import '../models/concentration_unit.dart';
 import '../models/meteorology.dart';
 import '../models/sample_unit.dart';
 import '../models/shielding.dart';
@@ -40,6 +45,9 @@ import '../services/dose_unit_controller.dart';
 import '../services/dose_unit_converter.dart';
 import '../services/modbus_reader_service.dart';
 import '../services/unit_format.dart';
+import '../models/activity_origin.dart';
+import '../services/found_source_builder.dart';
+import 'found_source_entry_screen.dart';
 import '../services/settings_service.dart';
 import '../services/value_averager.dart';
 import '../widgets/position_averaging_dialog.dart';
@@ -131,6 +139,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   // Gázmérés: tetszőleges számú vegyület egy mérési ponton.
   final List<_GasEdit> _gases = [];
   final List<_GasEdit> _discardedGases = [];
+  final List<_BioEdit> _bios = [];
+  final List<_BioEdit> _discardedBios = [];
 
   final _latCtrl = TextEditingController();
   final _lonCtrl = TextEditingController();
@@ -183,6 +193,9 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   // Opcionális árnyékolás (anyag + vastagság) az árnyékolt forrás aktivitásához.
   final List<_LayerEdit> _layers = [];
 
+  late Future<void> _sessionFuture;
+  PlanCalibration? _plan; // alaprajz mód: a felmérés kalibrált alaprajza
+
   @override
   void initState() {
     super.initState();
@@ -194,13 +207,16 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     }
     _unitCtrl.text = _displayUnitFor(_type);
     _loadInstruments();
-    _loadSessionState();
+    _sessionFuture = _loadSessionState();
     if (_editingPoint != null) {
       _prefillFromExisting(_editingPoint!);
       _loadAttachedSources();
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _fetchGpsPosition();
+        // Alaprajz módban nincs automatikus GPS-kitöltés: a pozíciót az alaprajz adja.
+        _sessionFuture.then((_) {
+          if (mounted && _plan == null) _fetchGpsPosition();
+        });
       });
     }
   }
@@ -208,7 +224,13 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   Future<void> _loadSessionState() async {
     final session =
         await DatabaseHelper.instance.getSurveySession(widget.surveySessionId);
-    if (mounted) setState(() => _sessionOpen = session != null && !session.isClosed);
+    if (!mounted) return;
+    setState(() {
+      _sessionOpen = session != null && !session.isClosed;
+      _plan = session?.mapMode == SurveyMapMode.plan
+          ? session?.planCalibration
+          : null;
+    });
   }
 
   /// Mérési pont törlése megerősítés után, csak nyitott felmérésben.
@@ -328,6 +350,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       final e = _GasEdit(
         species: known ? g.name : otherGasName,
         unit: g.unit,
+        state: g.state,
       );
       if (!known) {
         e.nameCtrl.text = g.name;
@@ -335,6 +358,12 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       }
       e.concCtrl.text = _fmt(g.concentration, 4);
       _gases.add(e);
+    }
+    for (final b in p.bioAgents) {
+      final e = _BioEdit(kind: b.kind);
+      e.nameCtrl.text = b.name;
+      e.quantityCtrl.text = b.quantity;
+      _bios.add(e);
     }
   }
 
@@ -375,6 +404,23 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   double? _distanceMeters() {
     final v = parseDecimal(_distanceCtrl.text);
     return v == null ? null : _distanceUnit.toMeters(v);
+  }
+
+  /// Talált forrás felvétele a mérésből. Új pontot előbb ment, hogy legyen
+  /// azonosítója a hozzárendeléshez.
+  Future<void> _startFoundSource(List<FoundNuclideDraft> nuclides) async {
+    final point = await _ensureSavedForSourceLink();
+    if (point == null || !mounted) return;
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => FoundSourceEntryScreen(
+          measurementPoint: point,
+          initialNuclides: nuclides,
+          initialDistanceMeters: _distanceMeters(),
+        ),
+      ),
+    );
+    if (saved == true) _loadAttachedSources();
   }
 
   Future<void> _openSources() async {
@@ -935,6 +981,22 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
         ),
         for (final a in _spectrumNuclideActivities)
           Text(nuclideActivityText(a)),
+        if (_spectrumNuclideActivities.isNotEmpty)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              icon: const Icon(Icons.add_circle_outline),
+              label: Text(loc.foundSourceButton),
+              onPressed: () => _startFoundSource([
+                for (final a in _spectrumNuclideActivities)
+                  FoundNuclideDraft(
+                    nuclide: a.nuclide,
+                    activityMBq: a.mbq,
+                    origin: ActivityOrigin.spectrum,
+                  ),
+              ]),
+            ),
+          ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(loc.spectrumLogScaleLabel),
@@ -1086,6 +1148,22 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                     ?.copyWith(fontWeight: FontWeight.w600),
               ),
             ],
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                icon: const Icon(Icons.add_circle_outline),
+                label: Text(loc.foundSourceButton),
+                onPressed: () => _startFoundSource([
+                  FoundNuclideDraft(
+                    nuclide: nuclideName,
+                    activityMBq: estimate.shieldedMBq ?? estimate.unshieldedMBq,
+                    origin: estimate.shieldedMBq != null
+                        ? ActivityOrigin.shieldedMeasurement
+                        : ActivityOrigin.measurement,
+                  ),
+                ]),
+              ),
+            ),
             Align(
               alignment: Alignment.centerRight,
               child: DisclaimerInfoIcon(
@@ -1272,6 +1350,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   }
 
   Future<void> _fetchGpsPosition() async {
+    if (_plan != null) return; // alaprajz módban a GPS nem adja a pozíciót
     final loc = AppLocalizations.of(context)!;
     setState(() => _isFetchingGps = true);
     try {
@@ -1307,6 +1386,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   }
 
   Future<void> _averageGpsPosition() async {
+    if (_plan != null) return; // alaprajz módban a GPS nem adja a pozíciót
     final loc = AppLocalizations.of(context)!;
     if (!await Geolocator.isLocationServiceEnabled()) {
       _showError(loc.locationServiceDisabledError);
@@ -1332,16 +1412,39 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     });
   }
 
+  /// Helyi koordináta kijelzése alaprajz módban (X/Y méterben).
+  Widget _localPositionHint(AppLocalizations loc) {
+    final plan = _plan;
+    final lat = parseDecimal(_latCtrl.text);
+    final lon = parseDecimal(_lonCtrl.text);
+    if (plan == null || lat == null || lon == null) {
+      return const SizedBox.shrink();
+    }
+    final m = planLocalMetres(plan, lat, lon);
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        '${loc.planLocalCoordLabel}: X ${m.x.toStringAsFixed(2)} m, '
+        'Y ${m.y.toStringAsFixed(2)} m',
+      ),
+    );
+  }
+
   Future<void> _openMapPicker() async {
     final currentLat = parseDecimal(_latCtrl.text);
     final currentLon = parseDecimal(_lonCtrl.text);
     final initialCenter = (currentLat != null && currentLon != null)
         ? ll.LatLng(currentLat, currentLon)
-        : const ll.LatLng(47.4979, 19.0402); // Budapest, ha még nincs pozíció
+        : (_plan != null
+            ? _planCentreLatLng(_plan!)
+            : const ll.LatLng(47.4979, 19.0402)); // Budapest, ha még nincs pozíció
 
     final picked = await Navigator.of(context).push<ll.LatLng>(
       MaterialPageRoute(
-        builder: (_) => MapPointPickerScreen(initialCenter: initialCenter),
+        builder: (_) => MapPointPickerScreen(
+          initialCenter: initialCenter,
+          plan: _plan,
+        ),
       ),
     );
     if (picked == null) return;
@@ -1479,6 +1582,75 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
         _ => loc.rrMetAerosol,
       };
 
+  void _removeBio(_BioEdit b) {
+    setState(() {
+      _bios.remove(b);
+      _discardedBios.add(b);
+    });
+  }
+
+  List<BioAgentReading> _bioValues() {
+    final out = <BioAgentReading>[];
+    for (final b in _bios) {
+      final name = b.nameCtrl.text.trim();
+      if (name.isEmpty) continue;
+      out.add(BioAgentReading(
+        name: name,
+        kind: b.kind,
+        quantity: b.quantityCtrl.text.trim(),
+      ));
+    }
+    return out;
+  }
+
+  Widget _bioEditor(_BioEdit b) {
+    final loc = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              SizedBox(
+                width: 140,
+                child: DropdownButtonFormField<BioKind>(
+                  isExpanded: true,
+                  initialValue: b.kind,
+                  decoration: InputDecoration(labelText: loc.rrBioKindLabel),
+                  items: [
+                    for (final k in BioKind.values)
+                      DropdownMenuItem(value: k, child: Text(k.localized(loc))),
+                  ],
+                  onChanged: (v) {
+                    if (v != null) setState(() => b.kind = v);
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextFormField(
+                  controller: b.nameCtrl,
+                  decoration: InputDecoration(labelText: loc.rrBioAgentName),
+                ),
+              ),
+              IconButton(
+                tooltip: loc.rrDeleteTooltip,
+                icon: const Icon(Icons.delete_outline),
+                onPressed: () => _removeBio(b),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: b.quantityCtrl,
+            decoration: InputDecoration(labelText: loc.rrBioQuantityLabel),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _removeGas(_GasEdit g) {
     setState(() {
       _gases.remove(g);
@@ -1512,6 +1684,122 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     return m.isEmpty ? null : m;
   }
 
+  /// Mértékegység: arány (ppm, vol% …), vagy tömeg / alap, ahol a tömeg és az
+  /// alap külön választható. Az alapértékek a Beállítások mintaegységei.
+  Widget _unitSelector(_GasEdit g, AppLocalizations loc) {
+    final u = g.unit;
+    final isRatio = u.ratio != null;
+    final basisKinds = basisKindsFor(g.state);
+    void setMode(bool ratio) => setState(() {
+          g.unit = ratio
+              ? const ConcentrationUnit.ratio(RatioUnit.ppm)
+              : ConcentrationUnit.perBasis(
+                  mass: BasisUnitController.of(BasisKind.mass),
+                  basis: BasisUnitController.of(basisKinds.first),
+                );
+        });
+    return SizedBox(
+      key: ValueKey('${u.symbol}|${g.state.name}'),
+      width: double.infinity,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 110,
+            child: DropdownButtonFormField<bool>(
+              isExpanded: true,
+              initialValue: isRatio,
+              decoration: InputDecoration(labelText: loc.rrUnitMode),
+              items: [
+                DropdownMenuItem(value: true, child: Text(loc.rrUnitRatio)),
+                DropdownMenuItem(value: false, child: Text(loc.rrUnitMassPerBasis)),
+              ],
+              onChanged: (v) {
+                if (v != null) setMode(v);
+              },
+            ),
+          ),
+          const SizedBox(width: 6),
+          if (isRatio)
+            Expanded(
+              child: DropdownButtonFormField<RatioUnit>(
+                isExpanded: true,
+                initialValue: u.ratio,
+                decoration: InputDecoration(labelText: loc.rrGasUnit),
+                items: [
+                  for (final r in RatioUnit.values)
+                    if (!r.gasOnly || g.state == PhysicalState.gas)
+                      DropdownMenuItem(value: r, child: Text(r.symbol)),
+                ],
+                onChanged: (v) {
+                  if (v != null) {
+                    setState(() => g.unit = ConcentrationUnit.ratio(v));
+                  }
+                },
+              ),
+            )
+          else ...[
+            Expanded(
+              child: DropdownButtonFormField<BasisUnit>(
+                isExpanded: true,
+                initialValue: u.massUnit,
+                decoration: InputDecoration(labelText: loc.rrUnitMass),
+                items: [
+                  for (final m in BasisUnit.ofKind(BasisKind.mass))
+                    DropdownMenuItem(value: m, child: Text(m.symbol)),
+                ],
+                onChanged: (v) {
+                  if (v != null) {
+                    setState(() => g.unit = ConcentrationUnit.perBasis(
+                          mass: v,
+                          basis: u.basisUnit!,
+                        ));
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: DropdownButtonFormField<BasisUnit>(
+                isExpanded: true,
+                initialValue: u.basisUnit,
+                decoration: InputDecoration(labelText: loc.rrUnitBasis),
+                items: [
+                  for (final k in basisKinds)
+                    for (final b in BasisUnit.ofKind(k))
+                      DropdownMenuItem(value: b, child: Text(b.symbol)),
+                ],
+                onChanged: (v) {
+                  if (v != null) {
+                    setState(() => g.unit = ConcentrationUnit.perBasis(
+                          mass: u.massUnit!,
+                          basis: v,
+                        ));
+                  }
+                },
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Halmazállapot-váltásnál az érvénytelen egység a halmazállapothoz illőre cserélődik.
+  static ConcentrationUnit _coerceUnit(ConcentrationUnit u, PhysicalState state) {
+    final r = u.ratio;
+    if (r != null) {
+      return r.gasOnly && state != PhysicalState.gas
+          ? const ConcentrationUnit.ratio(RatioUnit.ppm)
+          : u;
+    }
+    final kinds = basisKindsFor(state);
+    if (kinds.contains(u.basisUnit!.kind)) return u;
+    return ConcentrationUnit.perBasis(
+      mass: u.massUnit!,
+      basis: BasisUnitController.of(kinds.first),
+    );
+  }
+
   /// A gázmérési sorok; koncentráció nélküli vagy név nélküli sor kimarad.
   List<GasReading> _gasValues() {
     final out = <GasReading>[];
@@ -1526,6 +1814,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
         formula: isOther ? g.formulaCtrl.text.trim() : gasFormulaOf(g.species),
         concentration: conc,
         unit: g.unit,
+        state: g.state,
       ));
     }
     return out;
@@ -1546,7 +1835,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                 child: DropdownButtonFormField<String>(
                   isExpanded: true,
                   initialValue: g.species,
-                  decoration: InputDecoration(labelText: loc.rrGasSpecies),
+                  decoration: InputDecoration(labelText: loc.rrChemicalSpecies),
                   items: [
                     for (final s in gasSpecies)
                       DropdownMenuItem(
@@ -1608,24 +1897,30 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                   },
                 ),
               ),
-              const SizedBox(width: 8),
               SizedBox(
-                width: 130,
-                child: DropdownButtonFormField<GasUnit>(
+                width: 120,
+                child: DropdownButtonFormField<PhysicalState>(
                   isExpanded: true,
-                  initialValue: g.unit,
-                  decoration: InputDecoration(labelText: loc.rrGasUnit),
+                  initialValue: g.state,
+                  decoration: InputDecoration(labelText: loc.physicalStateLabel),
                   items: [
-                    for (final u in GasUnit.values)
-                      DropdownMenuItem(value: u, child: Text(u.symbol)),
+                    for (final s in PhysicalState.values)
+                      DropdownMenuItem(value: s, child: Text(s.localized(loc))),
                   ],
                   onChanged: (v) {
-                    if (v != null) setState(() => g.unit = v);
+                    if (v != null) {
+                      setState(() {
+                        g.state = v;
+                        g.unit = _coerceUnit(g.unit, v);
+                      });
+                    }
                   },
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 8),
+          _unitSelector(g, loc),
         ],
       ),
     );
@@ -1742,6 +2037,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
           : null,
       meteorology: _type == MeasurementType.meteorology ? _meteorologyValue() : null,
       gases: _type == MeasurementType.gasMeasurement ? _gasValues() : const [],
+      bioAgents: _type == MeasurementType.biological ? _bioValues() : const [],
       sampleMethod: _isSample && _sampleMethodCtrl.text.trim().isNotEmpty
           ? _sampleMethodCtrl.text.trim()
           : null,
@@ -1933,6 +2229,9 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     }
     for (final g in [..._gases, ..._discardedGases]) {
       g.dispose();
+    }
+    for (final b in [..._bios, ..._discardedBios]) {
+      b.dispose();
     }
     super.dispose();
   }
@@ -2269,6 +2568,16 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                 ),
                 const SizedBox(height: 12),
             ],
+            if (_type == MeasurementType.biological) ...[
+                for (final b in _bios)
+                  KeyedSubtree(key: ObjectKey(b), child: _bioEditor(b)),
+                TextButton.icon(
+                  onPressed: () => setState(() => _bios.add(_BioEdit())),
+                  icon: const Icon(Icons.add),
+                  label: Text(loc.rrAddBioAgent),
+                ),
+                const SizedBox(height: 12),
+            ],
             if (_type == MeasurementType.gasMeasurement) ...[
                 for (final g in _gases)
                   KeyedSubtree(key: ObjectKey(g), child: _gasEditor(g)),
@@ -2277,10 +2586,11 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                     () => _gases.add(_GasEdit(species: gasSpecies.first.name)),
                   ),
                   icon: const Icon(Icons.add),
-                  label: Text(loc.rrAddGas),
+                  label: Text(loc.rrAddChemical),
                 ),
                 const SizedBox(height: 12),
             ],
+            if (_type.usesRadioactiveSources) ...[
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.radio_button_checked),
@@ -2292,6 +2602,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
             if (_attachedSources.isNotEmpty) ...[
               const SizedBox(height: 8),
               _buildSourcesSummaryPanel(loc),
+            ],
             ],
             const SizedBox(height: 12),
             TextFormField(
@@ -2483,34 +2794,45 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _isFetchingGps ? null : _fetchGpsPosition,
-                    icon: const Icon(Icons.my_location),
-                    label: Text(loc.liveGpsButton),
+            if (_plan == null) ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _isFetchingGps ? null : _fetchGpsPosition,
+                      icon: const Icon(Icons.my_location),
+                      label: Text(loc.liveGpsButton),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _openMapPicker,
-                    icon: const Icon(Icons.map_outlined),
-                    label: Text(loc.onMapButton),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _openMapPicker,
+                      icon: const Icon(Icons.map_outlined),
+                      label: Text(loc.onMapButton),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: _isFetchingGps ? null : _averageGpsPosition,
-                icon: const Icon(Icons.filter_tilt_shift),
-                label: Text(loc.gpsAverageButton),
+                ],
               ),
-            ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _isFetchingGps ? null : _averageGpsPosition,
+                  icon: const Icon(Icons.filter_tilt_shift),
+                  label: Text(loc.gpsAverageButton),
+                ),
+              ),
+            ] else
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _openMapPicker,
+                  icon: const Icon(Icons.map_outlined),
+                  label: Text(loc.onMapButton),
+                ),
+              ),
+          if (_plan?.localCoordinates ?? false) _localPositionHint(loc),
           ],
         ),
       ),
@@ -2641,12 +2963,31 @@ class _LayerEdit {
   DistanceUnit unit = DistanceUnit.cm;
 }
 
+/// Egy szerkesztés alatti biológiai anyag-sor a vezérlőivel.
+class _BioEdit {
+  _BioEdit({this.kind = BioKind.bacterium});
+
+  BioKind kind;
+  final nameCtrl = TextEditingController();
+  final quantityCtrl = TextEditingController();
+
+  void dispose() {
+    nameCtrl.dispose();
+    quantityCtrl.dispose();
+  }
+}
+
 /// Egy szerkesztés alatti gázmérés-sor a vezérlőivel.
 class _GasEdit {
-  _GasEdit({required this.species, this.unit = GasUnit.ppm});
+  _GasEdit({
+    required this.species,
+    this.unit = const ConcentrationUnit.ratio(RatioUnit.ppm),
+    this.state = PhysicalState.gas,
+  });
 
   String species;
-  GasUnit unit;
+  ConcentrationUnit unit;
+  PhysicalState state;
   final nameCtrl = TextEditingController();
   final formulaCtrl = TextEditingController();
   final concCtrl = TextEditingController();
@@ -2656,4 +2997,10 @@ class _GasEdit {
     formulaCtrl.dispose();
     concCtrl.dispose();
   }
+}
+
+/// Az alaprajz közepe mint flutter_map-koordináta (a picker kezdőpontja).
+ll.LatLng _planCentreLatLng(PlanCalibration plan) {
+  final c = PlanGeoref(plan).centre;
+  return ll.LatLng(c.lat, c.lon);
 }

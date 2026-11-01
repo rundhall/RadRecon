@@ -3030,6 +3030,83 @@ class AppLocalizationsHu extends AppLocalizations {
   String get customFieldValueLabel => 'Érték';
 
   @override
+  String get registryClassificationTitle => 'Nyilvántartás összesítése';
+
+  @override
+  String get sourceNotifyLabel => 'Lejárati értesítés ehhez a forráshoz';
+
+  @override
+  String get activityUnknownCalcWarning =>
+      'Az aktivitás vagy a vonatkozási dátum nem ismert, ezért nincs számolt dózisteljesítmény.';
+
+  @override
+  String get surveyClassEmpty =>
+      'Ebben a felmérésben nincs forrás. Rendelj forrást egy mérési ponthoz, vagy vedd fel talált forrásként.';
+
+  @override
+  String get surveyClassNoRSum =>
+      'Nincs számolható R: nincs bevont forrás, vagy egyiknek sincs ismert aktivitása és nuklidja.';
+
+  @override
+  String get surveyClassLowerBound =>
+      'Hiányos adat: a kategória csak alsó becslés. A hiányzó források szigorúbb szintet indokolhatnak.';
+
+  @override
+  String get surveyClassIncompleteSource =>
+      'Hiányos adat: nincs aktivitás vagy nuklid, ezért nem számít bele az összegbe.';
+
+  @override
+  String get surveyClassCalcDate => 'Számítás dátuma';
+
+  @override
+  String get surveyClassCalcDateDefault =>
+      'Alapértelmezett: a felmérés kezdete';
+
+  @override
+  String get surveyClassIncluded => 'Bekerül a felmérés besorolásába';
+
+  @override
+  String get foundSourceButton => 'Talált forrás felvétele';
+
+  @override
+  String get foundSourceTitle => 'Talált forrás';
+
+  @override
+  String get foundSourceNuclideLabel => 'Nuklid';
+
+  @override
+  String get foundSourceActivityLabel => 'Aktivitás';
+
+  @override
+  String get foundSourceOriginLabel => 'Eredet';
+
+  @override
+  String get foundSourceAddNuclide => 'Nuklid hozzáadása';
+
+  @override
+  String get foundSourceUnknownHint =>
+      'Ha az aktivitás vagy az összetétel nem ismert, hagyd üresen. Az ilyen forrás nem számít bele a besorolás összegébe, csak jelzett.';
+
+  @override
+  String get foundSourceOriginMeasurement => 'Dózisból becsült';
+
+  @override
+  String get foundSourceOriginShielded => 'Dózisból, árnyékolással';
+
+  @override
+  String get foundSourceOriginSpectrum => 'Spektrumból';
+
+  @override
+  String get foundSourceOriginManual => 'Kézzel';
+
+  @override
+  String get foundSourceNuclideRequiredError =>
+      'Add meg a nuklid nevét, vagy töröld a sort.';
+
+  @override
+  String get foundSourceNoDistanceError => 'Add meg a távolságot a forrástól.';
+
+  @override
   String get removeFieldTooltip => 'Mező törlése';
 
   @override
@@ -3273,4 +3350,455 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get wasteLongLived => 'hosszú élettartamú';
+
+  @override
+  String get planGpsFailed => 'Nem sikerült GPS-pozíciót lekérni.';
+
+  @override
+  String get planCoordDialogTitle => 'Horgonypont koordinátái';
+
+  @override
+  String get planLatLabel => 'Szélesség (lat)';
+
+  @override
+  String get planLonLabel => 'Hosszúság (lon)';
+
+  @override
+  String get planInvalidValue => 'Érvénytelen érték.';
+
+  @override
+  String get planDistanceLabel => 'Valós távolság A–B (m)';
+
+  @override
+  String get planCalibrationTitle => 'Alaprajz kalibrálása';
+
+  @override
+  String get planCalibrationHint =>
+      '1. Jelöld meg az A pontot (ahol a GPS-t rögzíted), 2. jelöld meg a B pontot, 3. add meg a két pont valós távolságát méterben.';
+
+  @override
+  String get planPointA => 'A pont';
+
+  @override
+  String get planPointB => 'B pont';
+
+  @override
+  String get planGpsAtAButton => 'GPS az A pontban';
+
+  @override
+  String get planManualCoordButton => 'Koordináta kézzel';
+
+  @override
+  String get planDistanceButton => 'A–B távolság';
+
+  @override
+  String get planSaveButton => 'Kalibrálás mentése';
+
+  @override
+  String get surveyMapModeOnline => 'Online térkép';
+
+  @override
+  String get surveyMapModePlan => 'Offline alaprajz';
+
+  @override
+  String get planImageUnreadable => 'Az alaprajz nem olvasható.';
+
+  @override
+  String get planSourceImage => 'Feltöltött kép';
+
+  @override
+  String get planSourceGenerated => 'Generált háttér';
+
+  @override
+  String get planBgWidthLabel => 'Szélesség (m)';
+
+  @override
+  String get planBgHeightLabel => 'Magasság (m)';
+
+  @override
+  String get planBgColorLabel => 'Háttér színe';
+
+  @override
+  String get planColorWhite => 'Fehér';
+
+  @override
+  String get planColorLightGrey => 'Világosszürke';
+
+  @override
+  String get planColorCream => 'Krém';
+
+  @override
+  String get planColorLightBlue => 'Világoskék';
+
+  @override
+  String get planColorLightGreen => 'Világoszöld';
+
+  @override
+  String get planCalibrationHintGenerated =>
+      'Jelöld meg az A pontot az alaprajzon (ahol a GPS-t rögzíted), majd rögzítsd a GPS-koordinátáját.';
+
+  @override
+  String get planLocalModeSwitch => 'GPS nélkül (helyi koordináta)';
+
+  @override
+  String get planLocalModeHint =>
+      'GPS nélkül: a pontok helyzete az alaprajzon belüli méterben (X/Y) lesz tárolva. A méretarány a távolságból vagy a generált lapból adódik.';
+
+  @override
+  String get planAccuracyLabel => 'Pontosság';
+
+  @override
+  String get planLocalCoordLabel => 'Helyi koordináta';
+
+  @override
+  String get mapPlaceSourceTooltip => 'Forrás elhelyezése';
+
+  @override
+  String get mapPlaceSourceCancelTooltip => 'Elhelyezés megszakítása';
+
+  @override
+  String get mapPlaceSourceTitle => 'Válassz forrást';
+
+  @override
+  String get mapPlaceSourceHint => 'Koppints a térképen a forrás helyére.';
+
+  @override
+  String get mapNoSources => 'Nincs forrás a központi listában.';
+
+  @override
+  String get mapSourceRelocate => 'Áthelyezés';
+
+  @override
+  String get mapSourceClearPosition => 'Pozíció törlése';
+
+  @override
+  String get mapSourceDialogClose => 'Bezárás';
+
+  @override
+  String get surveyFilterActive => 'Aktív';
+
+  @override
+  String get surveyFilterOpen => 'Nyitott';
+
+  @override
+  String get surveyFilterClosed => 'Lezárt';
+
+  @override
+  String get surveyFilterArchived => 'Archivált';
+
+  @override
+  String get surveyTimeAll => 'Bármikor';
+
+  @override
+  String get surveyTimeLast7 => 'Utolsó 7 nap';
+
+  @override
+  String get surveyTimeLast30 => 'Utolsó 30 nap';
+
+  @override
+  String get surveyTimeThisYear => 'Idén';
+
+  @override
+  String get surveyTimeCustom => 'Egyéni időszak…';
+
+  @override
+  String get surveySortTimeNewest => 'Idő: újabb elöl';
+
+  @override
+  String get surveySortTimeOldest => 'Idő: régebbi elöl';
+
+  @override
+  String get surveySortNameAsc => 'Név: A–Z';
+
+  @override
+  String get surveySortNameDesc => 'Név: Z–A';
+
+  @override
+  String get surveyArchiveAction => 'Archiválás';
+
+  @override
+  String get surveyUnarchiveAction => 'Archiválás visszavonása';
+
+  @override
+  String get measurementFilterAllKinds => 'Minden típus';
+
+  @override
+  String get measurementFilterSourceOnly => 'Csak forrás-pozíció';
+
+  @override
+  String get measurementSortValueHighest => 'Érték: nagyobb elöl';
+
+  @override
+  String get measurementSortValueLowest => 'Érték: kisebb elöl';
+
+  @override
+  String get measurementCountShown => 'Találat';
+
+  @override
+  String get sourceOnMapListLabel => 'Forrás a térképen';
+
+  @override
+  String get protoPlanHeading => 'Alaprajz';
+
+  @override
+  String get protoPlanCaption =>
+      'Alaprajz a mérési pontok (sorszám) és a térképen elhelyezett források (azonosító) jelölésével';
+
+  @override
+  String get protoSourcesOnMapHeading => 'Térképen elhelyezett források';
+
+  @override
+  String get protoColPosition => 'Pozíció';
+
+  @override
+  String get measurementTypeChemical => 'Vegyi anyag';
+
+  @override
+  String get rrAddChemical => 'Vegyi anyag hozzáadása';
+
+  @override
+  String get rrChemicalSpecies => 'Vegyi anyag';
+
+  @override
+  String get physicalStateLabel => 'Halmazállapot';
+
+  @override
+  String get physStateGas => 'Gáz';
+
+  @override
+  String get physStateLiquid => 'Folyadék';
+
+  @override
+  String get physStateSolid => 'Szilárd';
+
+  @override
+  String get physStateAerosol => 'Aeroszol';
+
+  @override
+  String get sampleAnalysisTitle => 'Mintavizsgálatok';
+
+  @override
+  String get sampleAnalysisAddButton => 'Vizsgálat hozzáadása';
+
+  @override
+  String get sampleAnalysisEmpty => 'Még nincs vizsgálat ezen a mintán.';
+
+  @override
+  String get sampleAnalysisTooltip => 'Vizsgálatok';
+
+  @override
+  String get analysisMethodLabel => 'Módszer';
+
+  @override
+  String get analysisMethodOther => 'Egyéb';
+
+  @override
+  String get analysisInstrumentLabel => 'Műszer';
+
+  @override
+  String get analysisPerformedAtLabel => 'Vizsgálat ideje';
+
+  @override
+  String get analysisOperatorLabel => 'Kezelő';
+
+  @override
+  String get analysisResultLabel => 'Eredmény / azonosítás';
+
+  @override
+  String get analysisNotesLabel => 'Megjegyzés';
+
+  @override
+  String get analysisAttachFile => 'Fájl csatolása';
+
+  @override
+  String get analysisFileLabel => 'Csatolt fájl';
+
+  @override
+  String get analysisDeleteConfirm =>
+      'Törlöd ezt a vizsgálatot? A csatolt fájl is törlődik.';
+
+  @override
+  String get rrUnitMode => 'Típus';
+
+  @override
+  String get rrUnitRatio => 'Arány';
+
+  @override
+  String get rrUnitMassPerBasis => 'Tömeg / alap';
+
+  @override
+  String get rrUnitMass => 'Tömeg';
+
+  @override
+  String get rrUnitBasis => 'Alap';
+
+  @override
+  String get measurementTypeBiological => 'Biológiai anyag';
+
+  @override
+  String get rrAddBioAgent => 'Biológiai anyag hozzáadása';
+
+  @override
+  String get rrBioAgentName => 'Megnevezés';
+
+  @override
+  String get rrBioKindLabel => 'Típus';
+
+  @override
+  String get rrBioQuantityLabel => 'Mennyiség (szabad szöveg)';
+
+  @override
+  String get bioKindBacterium => 'Baktérium';
+
+  @override
+  String get bioKindVirus => 'Vírus';
+
+  @override
+  String get bioKindToxin => 'Toxin';
+
+  @override
+  String get bioKindFungus => 'Gomba';
+
+  @override
+  String get bioKindOther => 'Egyéb';
+
+  @override
+  String get pcrTargetLabel => 'Célpont (gén, kórokozó)';
+
+  @override
+  String get pcrOutcomeLabel => 'PCR eredmény';
+
+  @override
+  String get pcrCtLabel => 'Ct érték';
+
+  @override
+  String get pcrOutcomePositive => 'Pozitív';
+
+  @override
+  String get pcrOutcomeNegative => 'Negatív';
+
+  @override
+  String get pcrOutcomeInvalid => 'Érvénytelen';
+
+  @override
+  String get protoBioHeading => 'Biológiai anyagok';
+
+  @override
+  String get protoSampleAnalysesHeading => 'Mintavizsgálatok';
+
+  @override
+  String get victimDetailsTooltip => 'Sérült adatai és fantomrajz';
+
+  @override
+  String get victimDetailsTitle => 'Sérült adatai';
+
+  @override
+  String get victimSexLabel => 'Nem';
+
+  @override
+  String get victimSexFemale => 'Nő';
+
+  @override
+  String get victimSexMale => 'Férfi';
+
+  @override
+  String get victimSexUnknown => 'Ismeretlen';
+
+  @override
+  String get victimAgeLabel => 'Kor (év)';
+
+  @override
+  String get victimWeightLabel => 'Súly (kg, közelítő)';
+
+  @override
+  String get victimPhantomFront => 'Elölnézet';
+
+  @override
+  String get victimPhantomBack => 'Hátulnézet';
+
+  @override
+  String get victimPhantomHint =>
+      'Koppints a rajzra új jelöléshez, a meglévő jelölésre a szerkesztéséhez.';
+
+  @override
+  String get victimMarkerTitleNew => 'Új jelölés';
+
+  @override
+  String get victimMarkerTitleEdit => 'Jelölés szerkesztése';
+
+  @override
+  String get victimMarkerKindLabel => 'Jelölés típusa';
+
+  @override
+  String get victimMarkerKindInjury => 'Sérülés';
+
+  @override
+  String get victimMarkerKindContamination => 'Szennyezés';
+
+  @override
+  String get victimMarkerIsotopeLabel => 'Izotóp';
+
+  @override
+  String get victimMarkerNoteLabel => 'Megjegyzés (pl. égés, törés)';
+
+  @override
+  String get victimMarkerDelete => 'Jelölés törlése';
+
+  @override
+  String get victimMarkersHeading => 'Jelölések';
+
+  @override
+  String get victimNoMarkers => 'Még nincs jelölés.';
+
+  @override
+  String get protoHandoverHeading => 'Kórházi átadó adatok';
+
+  @override
+  String get protoColContamination => 'Szennyezés (izotóp)';
+
+  @override
+  String get protoColInjuryLocations => 'Sérülés helye';
+
+  @override
+  String get victimMarkerChemicalLabel => 'Vegyi szennyező';
+
+  @override
+  String get victimMarkerBioLabel => 'Biológiai szennyező';
+
+  @override
+  String get victimContaminantHeading => 'Szennyezés (opcionális)';
+
+  @override
+  String get victimHeightLabel => 'Magasság (cm)';
+
+  @override
+  String get personPhysicalHeading => 'Testi adatok (sérült esetén)';
+
+  @override
+  String get victimPersonDataHeading => 'Személyes adatok';
+
+  @override
+  String get victimPersonDataHint =>
+      'Nem, kor, súly és magasság a személy adatlapján szerkeszthetők.';
+
+  @override
+  String get personIdentifierLabel => 'Azonosító';
+
+  @override
+  String get personAddressLabel => 'Cím';
+
+  @override
+  String get lastUsedRoleLabel => 'Utoljára';
+
+  @override
+  String get personPatientSheetsHeading => 'Beteglapok';
+
+  @override
+  String get personPatientSheetsEmpty => 'Még nincs beteglap.';
+
+  @override
+  String get protoIdentityHeading => 'Személyek azonosítója';
+
+  @override
+  String get protoPhantomHeading => 'Fantomrajz';
 }

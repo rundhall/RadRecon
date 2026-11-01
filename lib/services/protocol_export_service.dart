@@ -1,8 +1,12 @@
+import 'phantom_figure_service.dart';
+import '../models/victim_details.dart';
+import '../models/sample_analysis.dart';
 import '../models/dose_quantity.dart';
 import '../models/radiation_kind.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -11,6 +15,10 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../database/database_helper.dart';
+import 'survey_source_total.dart';
+import '../models/plan_calibration.dart';
+import 'plan_georeference.dart';
+import 'plan_figure_service.dart';
 import '../l10n/app_localizations.dart';
 import '../l10n/domain_labels.dart';
 import '../models/calibration_labels.dart';
@@ -88,6 +96,7 @@ class ProtocolExportService {
     final calibrationsByInstrument = inputs.calibrationsByInstrument;
     final attachedByPointId = inputs.attachedByPointId;
     final personsText = inputs.personsText;
+    final phantomFigures = await _phantomFiguresFor(inputs.victims);
     final docxBytes = await _generateDocx(
       session,
       points,
@@ -99,6 +108,11 @@ class ProtocolExportService {
       _victimValueRows(inputs.victims, inputs.conditionsByLink),
       _areaRows(inputs.mapAreas),
       inputs.protocolFieldPairs,
+      _bioRows(points),
+      _sampleRows(points, inputs.sampleAnalysesByPointId),
+      _handoverRows(inputs.victims),
+      _identityRows(inputs.surveyors, inputs.victims),
+      phantomFigures,
     );
 
     final outputDir = await _prepareOutputDir(session);
@@ -137,8 +151,17 @@ class ProtocolExportService {
       }
     }
 
+    // A jegyzőkönyv-zip az ideiglenes mappába kerül; a régi példányok törlődnek.
+    final tmpDir = await getTemporaryDirectory();
+    await _removeOldProtocolFiles(tmpDir.path, '.zip');
+    if (Platform.isAndroid || Platform.isIOS) {
+      await _removeOldProtocolFiles(
+        (await getApplicationDocumentsDirectory()).path,
+        '.zip',
+      );
+    }
     final zipFile = File(p.join(
-      (await getApplicationDocumentsDirectory()).path,
+      tmpDir.path,
       '${_safeFileName(session.title)}_jegyzokonyv.zip',
     ));
     if (await zipFile.exists()) await zipFile.delete();
@@ -170,6 +193,13 @@ class ProtocolExportService {
     for (final point in points) {
       if (point.id == null) continue;
       attachedByPointId[point.id!] = await db.getAttachedSources(point.id!);
+    }
+
+    final sampleAnalysesByPointId = <int, List<SampleAnalysis>>{};
+    for (final point in points) {
+      if (point.id == null) continue;
+      final analyses = await db.getSampleAnalyses(point.id!);
+      if (analyses.isNotEmpty) sampleAnalysesByPointId[point.id!] = analyses;
     }
 
     final attachedPersons = await db.getAttachedPersons(surveySessionId);
@@ -205,6 +235,8 @@ class ProtocolExportService {
       instrumentById: instrumentById,
       calibrationsByInstrument: calibrationsByInstrument,
       attachedByPointId: attachedByPointId,
+      sampleAnalysesByPointId: sampleAnalysesByPointId,
+      surveyors: surveyors,
       personsText: personsText,
       dosimeters: snapshot.dosimeters,
       victims: victims,
@@ -542,6 +574,163 @@ class ProtocolExportService {
     return rows;
   }
 
+  String _sexText(VictimSex? s) => switch (s) {
+        VictimSex.female => _l.victimSexFemale,
+        VictimSex.male => _l.victimSexMale,
+        VictimSex.unknown => _l.victimSexUnknown,
+        null => '—',
+      };
+
+  /// Kórházi átadó adatok: érintettenként egy sor (nem, kor, súly, szennyezés,
+  /// sérülések helye).
+  List<List<String>> _handoverRows(List<AttachedPerson> victims) {
+    String sideText(BodyMarker m) =>
+        m.side == BodySide.front ? _l.victimPhantomFront : _l.victimPhantomBack;
+    final rows = <List<String>>[];
+    for (var i = 0; i < victims.length; i++) {
+      final link = victims[i].link;
+      final contamination = [
+        for (final m in link.bodyMarkers)
+          if (m.hasContaminant) '${m.contaminantText} (${sideText(m)})',
+      ];
+      final injuries = [
+        for (final m in link.bodyMarkers)
+          if (m.kind == MarkerKind.injury)
+            m.note.isEmpty ? sideText(m) : '${sideText(m)}: ${m.note}',
+      ];
+      rows.add([
+        '${i + 1}',
+        victims[i].person.name,
+        _sexText(victims[i].person.sex),
+        victims[i].person.ageYears?.toString() ?? '—',
+        victims[i].person.weightKg == null ? '—' : _protoNum(victims[i].person.weightKg!),
+        victims[i].person.heightCm == null ? '—' : _protoNum(victims[i].person.heightCm!),
+        contamination.isEmpty ? '—' : contamination.join(', '),
+        injuries.isEmpty ? '—' : injuries.join('; '),
+      ]);
+    }
+    return rows;
+  }
+
+  List<String> get _handoverHeaders => [
+        '#',
+        _l.protoColName,
+        _l.victimSexLabel,
+        _l.victimAgeLabel,
+        _l.victimWeightLabel,
+        _l.victimHeightLabel,
+        _l.protoColContamination,
+        _l.protoColInjuryLocations,
+      ];
+  static const _handoverColumnWidths = [500, 2300, 1200, 800, 1000, 1000, 3800, 4798];
+
+  /// Fantomrajzok: érintettenként egy PNG (elöl és hátul), ha van jelölés.
+  Future<List<ProtocolFigure>> _phantomFiguresFor(
+      List<AttachedPerson> victims) async {
+    final out = <ProtocolFigure>[];
+    for (final v in victims) {
+      if (v.link.bodyMarkers.isEmpty) continue;
+      final png = await renderPhantomFigure(
+        markers: v.link.bodyMarkers,
+        frontLabel: _l.victimPhantomFront,
+        backLabel: _l.victimPhantomBack,
+      );
+      if (png == null) continue;
+      out.add(ProtocolFigure(
+        caption: '${_l.protoPhantomHeading}: ${v.person.name}',
+        bytes: png,
+      ));
+    }
+    return out;
+  }
+
+  List<String> get _identityHeaders => [
+        '#',
+        _l.protoColName,
+        _l.rrRoleLabel,
+        _l.personIdentifierLabel,
+      ];
+  static const _identityColumnWidths = [500, 4500, 3000, 7398];
+
+  /// A felmérők és az érintettek azonosítója (cím nélkül), személyenként egy sor.
+  List<List<String>> _identityRows(
+    List<AttachedPerson> surveyors,
+    List<AttachedPerson> victims,
+  ) {
+    final all = [...surveyors, ...victims];
+    return [
+      for (var i = 0; i < all.length; i++)
+        [
+          '${i + 1}',
+          all[i].person.name,
+          all[i].link.role.localized(_l),
+          all[i].person.identifier ?? '—',
+        ],
+    ];
+  }
+
+  /// A biológiai anyagok sorai: pontonként, anyagonként egy sor.
+  List<List<String>> _bioRows(List<MeasurementPoint> points) {
+    final rows = <List<String>>[];
+    for (var i = 0; i < points.length; i++) {
+      for (final b in points[i].bioAgents) {
+        rows.add([
+          '${i + 1}',
+          b.name,
+          b.kind.localized(_l),
+          b.quantity.isEmpty ? '—' : b.quantity,
+        ]);
+      }
+    }
+    return rows;
+  }
+
+  /// A mintavizsgálatok sorai: pontonként, vizsgálatonként egy sor.
+  List<List<String>> _sampleRows(
+    List<MeasurementPoint> points,
+    Map<int, List<SampleAnalysis>> byPointId,
+  ) {
+    final rows = <List<String>>[];
+    for (var i = 0; i < points.length; i++) {
+      final id = points[i].id;
+      if (id == null) continue;
+      for (final a in byPointId[id] ?? const <SampleAnalysis>[]) {
+        final method = a.method == SampleAnalysisMethod.other
+            ? _l.analysisMethodOther
+            : a.method.fixedLabel;
+        rows.add([
+          '${i + 1}',
+          method,
+          a.instrumentName ?? '—',
+          _dateFormat.format(a.performedAt),
+          a.operatorName ?? '—',
+          (a.result ?? '—').replaceAll('\n', ' · '),
+          (a.notes ?? '—').replaceAll('\n', ' · '),
+        ]);
+      }
+    }
+    return rows;
+  }
+
+  List<String> get _bioHeaders => [
+        '#',
+        _l.rrBioAgentName,
+        _l.rrBioKindLabel,
+        _l.rrBioQuantityLabel,
+      ];
+  static const _bioColumnWidths = [500, 5500, 3500, 5898];
+
+  List<String> get _sampleHeaders => [
+        '#',
+        _l.analysisMethodLabel,
+        _l.analysisInstrumentLabel,
+        _l.analysisPerformedAtLabel,
+        _l.analysisOperatorLabel,
+        _l.analysisResultLabel,
+        _l.analysisNotesLabel,
+      ];
+  static const _sampleColumnWidths = [500, 1800, 2000, 2200, 2000, 3600, 3298];
+
   /// A gázmérések sorai: pontonként, vegyületenként egy sor.
   List<List<String>> _gasRows(List<MeasurementPoint> points) {
     final rows = <List<String>>[];
@@ -549,7 +738,7 @@ class ProtocolExportService {
       for (final g in points[i].gases) {
         rows.add([
           '${i + 1}',
-          localizedGasName(_l, g.name),
+          '${localizedGasName(_l, g.name)} (${g.state.localized(_l)})',
           g.formula.isEmpty ? '—' : g.formula,
           _protoNum(g.concentration),
           g.unit.symbol,
@@ -716,11 +905,106 @@ class ProtocolExportService {
 
   /// A mérési pont sorának cellaszövegei (kulcs = a sablon placeholder neve).
   /// A Word- és a PDF-jegyzőkönyv ugyanezt használja.
+  /// Pozíció szövege: alaprajz módban a helyi X/Y (méter), egyébként a GPS-koordináta.
+  String _positionText(double lat, double lon, PlanCalibration? plan) {
+    if (plan != null && plan.localCoordinates) {
+      final m = planLocalMetres(plan, lat, lon);
+      return '${_l.planLocalCoordLabel}: X ${m.x.toStringAsFixed(2)} m, '
+          'Y ${m.y.toStringAsFixed(2)} m';
+    }
+    return '${lat.toStringAsFixed(6)}, ${lon.toStringAsFixed(6)}';
+  }
+
+  /// A pont helye a jegyzőkönyvben (lásd [_positionText]).
+  String _pointPositionText(MeasurementPoint point, PlanCalibration? plan) =>
+      _positionText(point.latitude, point.longitude, plan);
+
+  /// A térképi források sorai a jegyzőkönyvi táblázathoz.
+  List<List<String>> _mapSourceRowValues(
+    List<MapSourceEntry> sources,
+    PlanCalibration? plan,
+  ) =>
+      [
+        for (var i = 0; i < sources.length; i++)
+          [
+            '${i + 1}',
+            sources[i].identifier,
+            sources[i].nuclides.isEmpty ? '—' : sources[i].nuclides,
+            _positionText(sources[i].lat, sources[i].lon, plan),
+          ],
+      ];
+
+  /// A térképi források szakasza a Word-jegyzőkönyvbe.
+  String _mapSourcesDocxXml(List<MapSourceEntry> sources, PlanCalibration? plan) {
+    final heading = '<w:p><w:r><w:rPr><w:b/><w:sz w:val="26"/></w:rPr>'
+        '<w:t xml:space="preserve">${_xmlEscape(_l.protoSourcesOnMapHeading)}</w:t></w:r></w:p>';
+    return '$heading${_tableXml(
+      ['#', _l.protoColIdentifier, _l.nuclideLabel, _l.protoColPosition],
+      _mapSourceRowValues(sources, plan),
+      const [700, 3200, 4000, 7498],
+    )}<w:p/>';
+  }
+
+  /// A térképen elhelyezett források (csak a térképi pozícióval rendelkezők).
+  Future<List<MapSourceEntry>> _loadMapSources(int surveySessionId) async {
+    final db = DatabaseHelper.instance;
+    final placements = await db.getSurveyPlacements(surveySessionId);
+    final sources = await db.getRadiationSources();
+    final nuclides = await db.getNuclideNamesBySource();
+    final byId = {for (final src in sources) if (src.id != null) src.id!: src};
+    final out = <MapSourceEntry>[];
+    for (final pl in placements) {
+      final lat = pl.mapLat;
+      final lon = pl.mapLon;
+      final src = byId[pl.radiationSourceId];
+      if (lat == null || lon == null || src == null) continue;
+      final names = (nuclides[src.id] ?? [src.nuclideName])
+          .where((n) => n.isNotEmpty)
+          .toSet()
+          .join(', ');
+      out.add(MapSourceEntry(
+        identifier: src.identifier,
+        nuclides: names,
+        lat: lat,
+        lon: lon,
+      ));
+    }
+    return out;
+  }
+
+  /// Az alaprajz a jelölésekkel: csak alaprajz módú felmérésnél, különben null.
+  Future<Uint8List?> _planFigureFor(
+    SurveySession session,
+    List<MeasurementPoint> points,
+    List<MapSourceEntry> sources,
+  ) async {
+    final plan = session.planCalibration;
+    if (session.mapMode != SurveyMapMode.plan || plan == null) return null;
+    final marks = [
+      for (var i = 0; i < points.length; i++)
+        PlanMark(
+          lat: points[i].latitude,
+          lon: points[i].longitude,
+          label: '${i + 1}',
+          isSource: false,
+        ),
+      for (final src in sources)
+        PlanMark(
+          lat: src.lat,
+          lon: src.lon,
+          label: src.identifier,
+          isSource: true,
+        ),
+    ];
+    return renderPlanFigure(plan, marks);
+  }
+
   Map<String, String> _pointRowValues(
     int index,
     MeasurementPoint point,
     Map<int?, Instrument> instrumentById,
     Map<int, List<InstrumentCalibration>> calibrationsByInstrument,
+    PlanCalibration? plan,
   ) {
     final instrument = instrumentById[point.instrumentId];
     return {
@@ -750,8 +1034,7 @@ class ProtocolExportService {
             : (calibrationsByInstrument[instrument!.id!] ?? const []),
         point.timestamp,
       ),
-      'gps':
-          '${point.latitude.toStringAsFixed(6)}, ${point.longitude.toStringAsFixed(6)}',
+      'gps': _pointPositionText(point, plan),
       'accuracy': point.gpsAccuracyMeters == null
           ? '—'
           : DistanceUnitController.current
@@ -837,6 +1120,7 @@ class ProtocolExportService {
         point,
         inputs.instrumentById,
         inputs.calibrationsByInstrument,
+        session.planCalibration,
       );
       pointRows.add([for (final k in pointKeys) values[k] ?? '—']);
 
@@ -886,8 +1170,22 @@ class ProtocolExportService {
         ProtocolPhoto(caption: _screenshotCaption(shot), path: shot.path),
     ];
 
+    final classification = await loadSurveyClassification(surveySessionId);
+    final mapSources = await _loadMapSources(surveySessionId);
+    final planPng = await _planFigureFor(session, points, mapSources);
+    final phantomFigures = await _phantomFiguresFor(inputs.victims);
     final data = ProtocolPdfData(
+      planImage: planPng,
+      planCaption: _l.protoPlanCaption,
+      mapSourceHeaders: [
+        '#',
+        _l.protoColIdentifier,
+        _l.nuclideLabel,
+        _l.protoColPosition,
+      ],
+      mapSourceRows: _mapSourceRowValues(mapSources, session.planCalibration),
       protocolFields: inputs.protocolFieldPairs,
+      classification: classification,
       headerFields: [
         (_l.protoCompany, company),
         (_l.protoSurveyName, session.title),
@@ -909,7 +1207,9 @@ class ProtocolExportService {
         _l.protoColUnit,
         _l.protoColDistance(unitSymbol),
         _l.protoColInstrument,
-        _l.protoColGps,
+        session.planCalibration?.localCoordinates == true
+            ? _l.planLocalCoordLabel
+            : _l.protoColGps,
         _l.protoColGpsAccuracy(unitSymbol),
         _l.protoColTime,
         _l.protoNotes,
@@ -942,6 +1242,15 @@ class ProtocolExportService {
       meteoRows: _meteoRows(points),
       gasHeaders: _gasHeaders,
       gasRows: _gasRows(points),
+      bioHeaders: _bioHeaders,
+      bioRows: _bioRows(points),
+      sampleHeaders: _sampleHeaders,
+      sampleRows: _sampleRows(points, inputs.sampleAnalysesByPointId),
+      handoverHeaders: _handoverHeaders,
+      handoverRows: _handoverRows(inputs.victims),
+      identityHeaders: _identityHeaders,
+      identityRows: _identityRows(inputs.surveyors, inputs.victims),
+      phantomFigures: phantomFigures,
       areaHeaders: _areaHeaders,
       areaRows: _areaRows(inputs.mapAreas),
       victimHeaders: _victimHeaders,
@@ -964,9 +1273,17 @@ class ProtocolExportService {
     );
 
     final bytes = await ProtocolPdfBuilder.build(data, _l);
-    final docsDir = await getApplicationDocumentsDirectory();
+    // A PDF az ideiglenes mappába kerül; a régi jegyzőkönyv-PDF-ek törlődnek.
+    final tmpDir = await getTemporaryDirectory();
+    await _removeOldProtocolFiles(tmpDir.path, '.pdf');
+    if (Platform.isAndroid || Platform.isIOS) {
+      await _removeOldProtocolFiles(
+        (await getApplicationDocumentsDirectory()).path,
+        '.pdf',
+      );
+    }
     final pdfFile = File(p.join(
-      docsDir.path,
+      tmpDir.path,
       '${_safeFileName(session.title)}_jegyzokonyv.pdf',
     ));
     await pdfFile.writeAsBytes(bytes);
@@ -1024,9 +1341,8 @@ class ProtocolExportService {
       input.replaceAll(RegExp(r'[^\w\-]'), '_');
 
   /// Egy spektrum-ábra a Word-dokumentumban: kép (inline) és felirat.
-  String _spectrumFigureXml(String rId, int id, String caption) {
-    const cx = 5760000; // 16 cm
-    const cy = 2880000; // 8 cm
+  String _spectrumFigureXml(String rId, int id, String caption,
+      {int cx = 5760000, int cy = 2880000}) {
     final fig = '<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:drawing>'
         '<wp:inline distT="0" distB="0" distL="0" distR="0" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">'
         '<wp:extent cx="$cx" cy="$cy"/><wp:effectExtent l="0" t="0" r="0" b="0"/>'
@@ -1054,6 +1370,114 @@ class ProtocolExportService {
   String _withPngContentType(String types) {
     if (types.contains('Extension="png"')) return types;
     return types.replaceFirst('</Types>', '<Default Extension="png" ContentType="image/png"/></Types>');
+  }
+
+  /// A felmérés besorolása WordprocessingML-ben: összesítő sorok és táblázat.
+  String _classificationDocxXml(SurveyClassification c) {
+    final l = _l;
+    String para(String text, {bool bold = false, int halfPoints = 0}) {
+      final props = StringBuffer();
+      if (bold) props.write('<w:b/>');
+      if (halfPoints > 0) props.write('<w:sz w:val="$halfPoints"/>');
+      final rPr = props.isEmpty ? '' : '<w:rPr>$props</w:rPr>';
+      return '<w:p><w:r>$rPr<w:t xml:space="preserve">'
+          '${_xmlEscape(text)}</w:t></w:r></w:p>';
+    }
+
+    final t = c.total;
+    final cat = t.physicalCategory;
+    final rSum = t.rSum;
+    final dateFormat = DateFormat('yyyy.MM.dd');
+    final out = StringBuffer(
+      para(l.classificationTitle, bold: true, halfPoints: 26),
+    );
+    out.write(para(
+      rSum == null || cat == null
+          ? l.surveyClassNoRSum
+          : '${l.classificationTotal}: R = ${_fmtR(rSum)} · '
+              '${l.classificationPhysCat}: $cat · '
+              '${l.classificationProtLevel}: ${physicalProtectionLevel(cat)}',
+    ));
+    if (!t.isComplete) {
+      out.write(para('${l.classificationUnknownCount}: ${t.unknownCount}'));
+      out.write(para(l.surveyClassLowerBound));
+    }
+    if (c.rows.isEmpty) {
+      out.write(para(l.surveyClassEmpty));
+      return out.toString();
+    }
+
+    final headerRow = [
+      l.sourceIdentifierLabel,
+      l.nuclideLabel,
+      'R',
+      l.classificationPhysCat,
+      l.classificationProtLevel,
+      l.surveyClassIncluded,
+      l.surveyClassCalcDate,
+    ];
+    const colWidth = 1280;
+    const border = 'w:val="single" w:sz="4" w:space="0" w:color="808080"';
+    final table = StringBuffer(
+      '<w:tbl><w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblBorders>'
+      '<w:top $border/><w:left $border/><w:bottom $border/>'
+      '<w:right $border/><w:insideH $border/><w:insideV $border/>'
+      '</w:tblBorders></w:tblPr><w:tblGrid>',
+    );
+    for (var i = 0; i < headerRow.length; i++) {
+      table.write('<w:gridCol w:w="$colWidth"/>');
+    }
+    table.write('</w:tblGrid>');
+
+    void addRow(List<String> cells, {bool header = false}) {
+      table.write('<w:tr>');
+      for (final cell in cells) {
+        table.write('<w:tc><w:tcPr><w:tcW w:w="$colWidth" w:type="dxa"/>'
+            '</w:tcPr>${para(cell, bold: header, halfPoints: 16)}</w:tc>');
+      }
+      table.write('</w:tr>');
+    }
+
+    addRow(headerRow, header: true);
+    for (final r in c.rows) {
+      addRow([
+        r.source.identifier,
+        r.nuclides.isEmpty ? '—' : r.nuclides.map((n) => n.nuclide).join(', '),
+        r.composition.rSum == null ? '—' : _fmtR(r.composition.rSum!),
+        r.composition.physicalCategory?.toString() ?? '—',
+        r.composition.physicalCategory == null
+            ? '—'
+            : physicalProtectionLevel(r.composition.physicalCategory!),
+        r.placement.included ? '+' : '–',
+        dateFormat.format(r.asOf),
+      ]);
+    }
+    table.write('</w:tbl><w:p/>');
+    out.write(table.toString());
+    return out.toString();
+  }
+
+  static String _fmtR(double v) {
+    if (v == 0) return '0';
+    final a = v.abs();
+    if (a >= 1e5 || a < 1e-3) return v.toStringAsExponential(2);
+    return v.toStringAsPrecision(3);
+  }
+
+  /// Törli a korábbi jegyzőkönyv-fájlokat (`_jegyzokonyv.<ext>`) a mappából.
+  Future<void> _removeOldProtocolFiles(String dirPath, String extension) async {
+    final dir = Directory(dirPath);
+    if (!await dir.exists()) return;
+    final victims = <File>[];
+    await for (final entity in dir.list()) {
+      if (entity is File &&
+          p.basename(entity.path).endsWith('_jegyzokonyv$extension')) {
+        victims.add(entity);
+      }
+    }
+    for (final file in victims) {
+      await file.delete();
+    }
   }
 
   String _xmlEscape(String s) => s
@@ -1192,6 +1616,11 @@ class ProtocolExportService {
     List<Map<String, String>> victimRows,
     List<List<String>> areaRows,
     List<(String, String)> protocolFieldPairs,
+    List<List<String>> bioRows,
+    List<List<String>> sampleRows,
+    List<List<String>> handoverRows,
+    List<List<String>> identityRows,
+    List<ProtocolFigure> phantomFigures,
   ) async {
     final templateData = await rootBundle.load(_templateAssetPath);
     final templateArchive =
@@ -1222,7 +1651,13 @@ class ProtocolExportService {
     final generatedRows = StringBuffer();
     for (var i = 0; i < points.length; i++) {
       final point = points[i];
-      final values = _pointRowValues(i, point, instrumentById, calibrationsByInstrument);
+      final values = _pointRowValues(
+        i,
+        point,
+        instrumentById,
+        calibrationsByInstrument,
+        session.planCalibration,
+      );
 
       var row = rowTemplate;
       for (final entry in values.entries) {
@@ -1360,6 +1795,26 @@ class ProtocolExportService {
         ..write(_headingXmlFor(_l.protoGasHeading))
         ..write(_tableXml(_gasHeaders, gas, _gasColumnWidths));
     }
+    if (bioRows.isNotEmpty) {
+      extraBlock
+        ..write(_headingXmlFor(_l.protoBioHeading))
+        ..write(_tableXml(_bioHeaders, bioRows, _bioColumnWidths));
+    }
+    if (sampleRows.isNotEmpty) {
+      extraBlock
+        ..write(_headingXmlFor(_l.protoSampleAnalysesHeading))
+        ..write(_tableXml(_sampleHeaders, sampleRows, _sampleColumnWidths));
+    }
+    if (handoverRows.isNotEmpty) {
+      extraBlock
+        ..write(_headingXmlFor(_l.protoHandoverHeading))
+        ..write(_tableXml(_handoverHeaders, handoverRows, _handoverColumnWidths));
+    }
+    if (identityRows.isNotEmpty) {
+      extraBlock
+        ..write(_headingXmlFor(_l.protoIdentityHeading))
+        ..write(_tableXml(_identityHeaders, identityRows, _identityColumnWidths));
+    }
     if (extraBlock.isNotEmpty) {
       xml = xml.replaceRange(signStart, signStart, extraBlock.toString());
     }
@@ -1391,7 +1846,9 @@ class ProtocolExportService {
       'lbl_col_unit': _l.protoColUnit,
       'lbl_col_distance': _l.protoColDistance(DistanceUnitController.current.symbol),
       'lbl_col_instrument': _l.protoColInstrument,
-      'lbl_col_gps': _l.protoColGps,
+      'lbl_col_gps': session.planCalibration?.localCoordinates == true
+          ? _l.planLocalCoordLabel
+          : _l.protoColGps,
       'lbl_col_gps_accuracy':
           _l.protoColGpsAccuracy(DistanceUnitController.current.symbol),
       'lbl_col_time': _l.protoColTime,
@@ -1418,9 +1875,44 @@ class ProtocolExportService {
       xml = xml.replaceAll('\${${entry.key}}', _xmlEscape(entry.value));
     }
 
+    // Felmérés-besorolás és a térképi források a jegyzőkönyv végére (a spektrum-ábrák elé).
+    final classification = await loadSurveyClassification(session.id!);
+    final mapSources = await _loadMapSources(session.id!);
+    final sectionXml = StringBuffer();
+    if (classification != null) {
+      sectionXml.write(_classificationDocxXml(classification));
+    }
+    if (mapSources.isNotEmpty) {
+      sectionXml.write(_mapSourcesDocxXml(mapSources, session.planCalibration));
+    }
+    if (sectionXml.isNotEmpty) {
+      final sectAt = xml.lastIndexOf('<w:sectPr');
+      final insertAt = sectAt >= 0 ? sectAt : xml.lastIndexOf('</w:body>');
+      xml = xml.substring(0, insertAt) + sectionXml.toString() + xml.substring(insertAt);
+    }
+
     // Spektrum-ábrák a jegyzőkönyv végén: a PNG a docx médiatárába kerül,
     // a kapcsolatok és a tartalomtípusok ehhez igazodnak.
     final figures = <({String rId, String target, List<int> bytes, String caption, int id})>[];
+    final planPng = await _planFigureFor(session, points, mapSources);
+    if (planPng != null) {
+      figures.add((
+        rId: 'rIdPlan',
+        target: 'media/plan.png',
+        bytes: planPng,
+        caption: _l.protoPlanCaption,
+        id: 8999,
+      ));
+    }
+    for (var i = 0; i < phantomFigures.length; i++) {
+      figures.add((
+        rId: 'rIdPhantom$i',
+        target: 'media/phantom_$i.png',
+        bytes: phantomFigures[i].bytes,
+        caption: phantomFigures[i].caption,
+        id: 9500 + i,
+      ));
+    }
     for (final point in points) {
       if (point.type != MeasurementType.spectrum) continue;
       final tmp = await getTemporaryDirectory();
@@ -1442,7 +1934,10 @@ class ProtocolExportService {
     if (figures.isNotEmpty) {
       final figuresXml = StringBuffer();
       for (final f in figures) {
-        figuresXml.write(_spectrumFigureXml(f.rId, f.id, f.caption));
+        final phantom = f.rId.startsWith('rIdPhantom');
+        figuresXml.write(_spectrumFigureXml(f.rId, f.id, f.caption,
+            cx: phantom ? 3600000 : 5760000,
+            cy: phantom ? 3130000 : 2880000));
       }
       final sectAt = xml.lastIndexOf('<w:sectPr');
       final insertAt = sectAt >= 0 ? sectAt : xml.lastIndexOf('</w:body>');
@@ -1498,6 +1993,8 @@ class _ProtocolInputs {
     required this.instrumentById,
     required this.calibrationsByInstrument,
     required this.attachedByPointId,
+    required this.surveyors,
+    required this.sampleAnalysesByPointId,
     required this.personsText,
     required this.dosimeters,
     required this.victims,
@@ -1511,10 +2008,27 @@ class _ProtocolInputs {
   final Map<int?, Instrument> instrumentById;
   final Map<int, List<InstrumentCalibration>> calibrationsByInstrument;
   final Map<int, List<AttachedSource>> attachedByPointId;
+  final Map<int, List<SampleAnalysis>> sampleAnalysesByPointId;
+  final List<AttachedPerson> surveyors;
   final String personsText;
   final List<SessionDosimeter> dosimeters;
   final List<AttachedPerson> victims;
   final Map<int, List<PersonCondition>> conditionsByLink;
   final List<MapArea> mapAreas;
   final List<(String, String)> protocolFieldPairs;
+}
+
+/// Egy térképen elhelyezett forrás a jegyzőkönyvhöz.
+class MapSourceEntry {
+  const MapSourceEntry({
+    required this.identifier,
+    required this.nuclides,
+    required this.lat,
+    required this.lon,
+  });
+
+  final String identifier;
+  final String nuclides;
+  final double lat;
+  final double lon;
 }

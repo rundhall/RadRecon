@@ -1,3 +1,4 @@
+import 'victim_details.dart';
 import 'person.dart';
 
 /// Egy felméréshez rendelt személy szerepe: felmérőként vagy érintettként
@@ -49,6 +50,7 @@ class SessionPersonLink {
   final DateTime createdAt;
   final SessionPersonRole role;
   final TriageCategory? triage;
+  final List<BodyMarker> bodyMarkers;
 
   const SessionPersonLink({
     this.id,
@@ -57,6 +59,7 @@ class SessionPersonLink {
     required this.createdAt,
     this.role = SessionPersonRole.surveyor,
     this.triage,
+    this.bodyMarkers = const [],
   });
 
   Map<String, Object?> toMap() {
@@ -67,6 +70,7 @@ class SessionPersonLink {
       'created_at': createdAt.toIso8601String(),
       'role': role.dbValue,
       'triage': triage?.dbValue,
+      'body_markers': bodyMarkersToJson(bodyMarkers),
     };
   }
 
@@ -78,6 +82,7 @@ class SessionPersonLink {
       createdAt: DateTime.parse(map['created_at'] as String),
       role: SessionPersonRole.fromDbValue(map['role'] as String?),
       triage: TriageCategory.fromDbValue(map['triage'] as String?),
+      bodyMarkers: bodyMarkersFromJson(map['body_markers'] as String?),
     );
   }
 }

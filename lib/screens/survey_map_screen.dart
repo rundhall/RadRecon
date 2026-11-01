@@ -10,12 +10,18 @@ import '../models/map_measure_line.dart';
 import '../models/measurement_point.dart';
 import '../models/measurement_type.dart';
 import '../models/nuclide_id.dart';
+import '../models/radiation_source.dart';
+import '../models/survey_session.dart';
+import '../models/survey_source_placement.dart';
 import '../services/dose_unit_converter.dart';
+import '../services/plan_georeference.dart';
+import '../services/source_search.dart';
 import '../services/display_units.dart';
 import '../services/unit_format.dart';
 import '../services/screenshot_service.dart';
 import 'map_area_dialog.dart';
 import 'measurement_entry_screen.dart';
+import '../widgets/plan_map_layers.dart';
 
 /// A pont térképi kategóriája: a mintavétel a `isSample` jelzőből, minden más
 /// a típusából adódik. Csak a `doseRate` kap színskálát, a többi egyszínű ikon.
@@ -50,6 +56,13 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
   ll.LatLng? _pending; // az aktuális vonal kezdőpontja
   int? _selectedLine; // kijelölt vonal indexe
   int _measureColor = mapAreaPalette.first; // új vonalak színe
+  PlanGeoref? _georef; // alaprajz mód: a felmérés kalibrált alaprajza
+  List<RadiationSource> _sources = []; // a központi forráslista
+  List<SurveySourcePlacement> _placements = []; // a felmérés forrás-elhelyezései
+  int? _placingSourceId; // ha nem null, a következő koppintás ennek a forrásnak a helyét adja meg
+  Map<int, List<String>> _nuclidesBySource = {}; // forrásonként a nuklidok (kereséshez)
+  double _zoom = 16; // a térkép nagyítása: a forrás-feliratok ettől látszanak
+  static const _sourceLabelMinZoom = 17.0;
 
   @override
   void initState() {
@@ -64,11 +77,25 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
         await DatabaseHelper.instance.getMapAreas(widget.surveySessionId);
     final lines = await DatabaseHelper.instance
         .getMapMeasureLines(widget.surveySessionId);
+    final session =
+        await DatabaseHelper.instance.getSurveySession(widget.surveySessionId);
+    final plan = session?.mapMode == SurveyMapMode.plan
+        ? session?.planCalibration
+        : null;
+    final sources = await DatabaseHelper.instance.getRadiationSources();
+    final nuclidesBySource =
+        await DatabaseHelper.instance.getNuclideNamesBySource();
+    final placements = await DatabaseHelper.instance
+        .getSurveyPlacements(widget.surveySessionId);
     if (!mounted) return;
     setState(() {
       _points = points.map(withCurrentDoseUnit).toList();
       _areas = areas;
       _lines = lines;
+      _georef = plan == null ? null : PlanGeoref(plan);
+      _sources = sources;
+      _nuclidesBySource = nuclidesBySource;
+      _placements = placements;
       _loading = false;
     });
   }
@@ -80,6 +107,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
     MeasurementType.sample: (Icons.science, Colors.blueGrey),
     MeasurementType.meteorology: (Icons.thermostat, Colors.indigo),
     MeasurementType.gasMeasurement: (Icons.air, Colors.brown),
+    MeasurementType.biological: (Icons.coronavirus, Colors.green),
     MeasurementType.activity: (Icons.radio_button_checked, Colors.deepOrange),
     MeasurementType.activityConcentration: (Icons.water_drop, Colors.lightBlue),
     MeasurementType.spectrum: (Icons.show_chart, Colors.pinkAccent),
@@ -211,6 +239,18 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
     return ll.LatLng(avgLat, avgLon);
   }
 
+  /// A pont helye a részletekben: alaprajz módban a helyi X/Y (méter), egyébként a GPS.
+  String _positionText(MeasurementPoint p) {
+    final plan = _georef?.calibration;
+    if (plan != null && plan.localCoordinates) {
+      final m = planLocalMetres(plan, p.latitude, p.longitude);
+      final loc = AppLocalizations.of(context)!;
+      return '${loc.planLocalCoordLabel}: X ${m.x.toStringAsFixed(2)} m, '
+          'Y ${m.y.toStringAsFixed(2)} m';
+    }
+    return '${p.latitude.toStringAsFixed(5)}, ${p.longitude.toStringAsFixed(5)}';
+  }
+
   void _showPointDetails(MeasurementPoint p) {
     final loc = AppLocalizations.of(context)!;
     showModalBottomSheet(
@@ -223,7 +263,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                p.locationLabel ?? '${p.latitude.toStringAsFixed(5)}, ${p.longitude.toStringAsFixed(5)}',
+                p.locationLabel ?? _positionText(p),
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
@@ -549,7 +589,187 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
     setState(() => _draw = _DrawState(draft));
   }
 
+  RadiationSource? _sourceById(int id) {
+    for (final s in _sources) {
+      if (s.id == id) return s;
+    }
+    return null;
+  }
+
+  /// Forrásikon: az ikon közepe a koppintott helyen van, az azonosító alatta.
+  Marker _placedSourceMarker(SurveySourcePlacement pl) {
+    if (_zoom < _sourceLabelMinZoom) {
+      // Kis nagyításnál csak az ikon, hogy a feliratok ne takarják egymást.
+      return Marker(
+        point: ll.LatLng(pl.mapLat!, pl.mapLon!),
+        width: 32,
+        height: 32,
+        child: GestureDetector(
+          onTap: () => _showPlacedSourceDetails(pl),
+          child: Icon(
+            Icons.warning_amber_rounded,
+            color: Colors.amber.shade800,
+            size: 28,
+          ),
+        ),
+      );
+    }
+    final identifier = _sourceById(pl.radiationSourceId)?.identifier ?? '';
+    const boxWidth = 160.0;
+    const boxHeight = 72.0;
+    const iconSize = 32.0;
+    return Marker(
+      point: ll.LatLng(pl.mapLat!, pl.mapLon!),
+      width: boxWidth,
+      height: boxHeight,
+      child: GestureDetector(
+        onTap: () => _showPlacedSourceDetails(pl),
+        child: Stack(
+          children: [
+            // A doboz közepe a pont: az ikon közepe is ide kerül.
+            Positioned(
+              left: (boxWidth - iconSize) / 2,
+              top: boxHeight / 2 - iconSize / 2,
+              child: Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.amber.shade800,
+                size: iconSize,
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              top: boxHeight / 2 + iconSize / 2 + 2,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.85),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    identifier,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _reloadPlacements() async {
+    final placements = await DatabaseHelper.instance
+        .getSurveyPlacements(widget.surveySessionId);
+    if (!mounted) return;
+    setState(() => _placements = placements);
+  }
+
+  void _cancelSourcePlacement() => setState(() => _placingSourceId = null);
+
+  /// Forrásválasztó: a központi lista forrásai. A kiválasztott forrás helyét
+  /// a következő koppintás adja meg.
+  /// Forrásválasztó lap; a keresőmező vezérlőjét a lap saját állapota kezeli.
+  void _showSourcePicker() {
+    final placedIds = {
+      for (final pl in _placements)
+        if (pl.hasMapPosition) pl.radiationSourceId,
+    };
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _SourcePickerSheet(
+        sources: _sources,
+        nuclidesBySource: _nuclidesBySource,
+        placedSourceIds: placedIds,
+        onPick: (source) {
+          setState(() => _placingSourceId = source.id);
+          _snack(AppLocalizations.of(context)!.mapPlaceSourceHint);
+        },
+      ),
+    );
+  }
+
+  /// A kiválasztott forrás helyének rögzítése: új elhelyezés, vagy a meglévő
+  /// áthelyezése. Az elhelyezés a felmérés R-jébe is bekerül.
+  Future<void> _placeSource(int sourceId, ll.LatLng p) async {
+    final db = DatabaseHelper.instance;
+    SurveySourcePlacement? existing;
+    for (final pl in _placements) {
+      if (pl.radiationSourceId == sourceId) existing = pl;
+    }
+    if (existing == null) {
+      await db.insertSurveyPlacement(SurveySourcePlacement(
+        surveySessionId: widget.surveySessionId,
+        radiationSourceId: sourceId,
+        mapLat: p.latitude,
+        mapLon: p.longitude,
+        createdAt: DateTime.now(),
+      ));
+    } else {
+      await db.updateSurveyPlacement(
+        existing.copyWith(mapLat: p.latitude, mapLon: p.longitude),
+      );
+    }
+    if (!mounted) return;
+    setState(() => _placingSourceId = null);
+    await _reloadPlacements();
+  }
+
+  /// Részletek és műveletek: áthelyezés, pozíció törlése.
+  void _showPlacedSourceDetails(SurveySourcePlacement pl) {
+    final loc = AppLocalizations.of(context)!;
+    final source = _sourceById(pl.radiationSourceId);
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(source?.identifier ?? '—'),
+        content: Text(
+          source == null || source.nuclideName.isEmpty
+              ? '—'
+              : source.nuclideName,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              setState(() => _placingSourceId = pl.radiationSourceId);
+            },
+            child: Text(loc.mapSourceRelocate),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              await DatabaseHelper.instance.updateSurveyPlacement(
+                pl.copyWith(clearMapPosition: true),
+              );
+              await _reloadPlacements();
+            },
+            child: Text(loc.mapSourceClearPosition),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(loc.mapSourceDialogClose),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _onMapTap(ll.LatLng p) {
+    final placingId = _placingSourceId;
+    if (placingId != null) {
+      _placeSource(placingId, p);
+      return;
+    }
     if (_measuring) {
       _onMeasureTap(p);
       return;
@@ -790,6 +1010,21 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
         title: Text(loc.mapTitle),
         actions: [
           IconButton(
+            icon: Icon(
+              _placingSourceId == null
+                  ? Icons.warning_amber_rounded
+                  : Icons.close,
+            ),
+            tooltip: _placingSourceId == null
+                ? loc.mapPlaceSourceTooltip
+                : loc.mapPlaceSourceCancelTooltip,
+            onPressed: _draw != null || _measuring
+                ? null
+                : (_placingSourceId == null
+                    ? _showSourcePicker
+                    : _cancelSourcePlacement),
+          ),
+          IconButton(
             icon: const Icon(Icons.add_location_alt_outlined),
             tooltip: loc.mapAreaButtonTooltip,
             onPressed: _draw == null && !_measuring ? _startAreaDraw : null,
@@ -829,13 +1064,29 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
             options: MapOptions(
               initialCenter: _center(),
               initialZoom: 16,
+              initialCameraFit:
+                  _georef == null ? null : planCameraFit(_georef!),
               onTap: (_, p) => _onMapTap(p),
+              onMapReady: () {
+                if (mounted) setState(() => _zoom = _mapController.camera.zoom);
+              },
+              onPositionChanged: (camera, _) {
+                final wasShown = _zoom >= _sourceLabelMinZoom;
+                _zoom = camera.zoom;
+                if (wasShown != (_zoom >= _sourceLabelMinZoom)) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) setState(() {});
+                  });
+                }
+              },
             ),
             children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.rundhall.rad_recon',
-              ),
+              if (_georef != null) planOverlayLayer(_georef!.calibration),
+              if (_georef == null)
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.rundhall.rad_recon',
+                ),
               // Területek: áttetsző kitöltés, teljes színű körvonal.
               PolygonLayer(
                 polygons: [
@@ -863,6 +1114,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
                       ),
                 ],
               ),
+              if (_georef == null)
               Align(
                 alignment: Alignment.topRight,
                 child: IgnorePointer(
@@ -929,6 +1181,13 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
                   ],
                 ),
               ],
+              // Forrás-elhelyezések: külön ikon, koppintásra részletek.
+              MarkerLayer(
+                markers: [
+                  for (final pl in _placements)
+                    if (pl.hasMapPosition) _placedSourceMarker(pl),
+                ],
+              ),
               // Területek nevei a közepükön.
               MarkerLayer(
                 markers: [
@@ -1038,4 +1297,106 @@ class _DrawState {
   final List<ll.LatLng> vertices = []; // poligon csúcsai
   ll.LatLng? center; // kör középpontja
   ll.LatLng? edge; // kör sugárpontja
+}
+
+/// Forrásválasztó: kereső mező, azonosító- és nuklidszűrés, ABC-sorrend.
+/// A keresőmező vezérlőjét ez az állapot szabadítja fel, nem a lap bezárása.
+class _SourcePickerSheet extends StatefulWidget {
+  final List<RadiationSource> sources;
+  final Map<int, List<String>> nuclidesBySource;
+  final Set<int> placedSourceIds;
+  final ValueChanged<RadiationSource> onPick;
+
+  const _SourcePickerSheet({
+    required this.sources,
+    required this.nuclidesBySource,
+    required this.placedSourceIds,
+    required this.onPick,
+  });
+
+  @override
+  State<_SourcePickerSheet> createState() => _SourcePickerSheetState();
+}
+
+class _SourcePickerSheetState extends State<_SourcePickerSheet> {
+  final _searchCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final matches = widget.sources
+        .where((s) =>
+            s.id != null &&
+            sourceMatchesQuery(
+              identifier: s.identifier,
+              nuclides: widget.nuclidesBySource[s.id] ?? [s.nuclideName],
+              query: _searchCtrl.text,
+            ))
+        .toList()
+      ..sort((x, y) => x.identifier.compareTo(y.identifier));
+    return SafeArea(
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.7,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                loc.mapPlaceSourceTitle,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: TextField(
+                controller: _searchCtrl,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                  hintText: loc.searchHint,
+                  prefixIcon: const Icon(Icons.search),
+                  border: const OutlineInputBorder(),
+                  isDense: true,
+                ),
+              ),
+            ),
+            Expanded(
+              child: widget.sources.isEmpty
+                  ? Center(child: Text(loc.mapNoSources))
+                  : matches.isEmpty
+                      ? Center(child: Text(loc.searchNoResults))
+                      : ListView.builder(
+                          itemCount: matches.length,
+                          itemBuilder: (context, i) {
+                            final s = matches[i];
+                            final nuclides =
+                                (widget.nuclidesBySource[s.id] ?? [s.nuclideName])
+                                    .where((n) => n.isNotEmpty)
+                                    .toSet()
+                                    .join(', ');
+                            return ListTile(
+                              leading: const Icon(Icons.warning_amber_rounded),
+                              title: Text(s.identifier),
+                              subtitle: Text(nuclides.isEmpty ? '—' : nuclides),
+                              trailing: widget.placedSourceIds.contains(s.id)
+                                  ? const Icon(Icons.check)
+                                  : null,
+                              onTap: () {
+                                Navigator.of(context).pop();
+                                widget.onPick(s);
+                              },
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

@@ -3055,6 +3055,84 @@ class AppLocalizationsIt extends AppLocalizations {
   String get customFieldValueLabel => 'Valore';
 
   @override
+  String get registryClassificationTitle => 'Totale del registro';
+
+  @override
+  String get sourceNotifyLabel => 'Promemoria di scadenza per questa sorgente';
+
+  @override
+  String get activityUnknownCalcWarning =>
+      'Attività o data di riferimento ignote: nessun rateo di dose calcolato.';
+
+  @override
+  String get surveyClassEmpty =>
+      'Questo rilievo non contiene sorgenti. Assegna una sorgente a un punto di misura o aggiungila come sorgente trovata.';
+
+  @override
+  String get surveyClassNoRSum =>
+      'Nessun R calcolabile: nessuna sorgente inclusa, o nessuna con attività e radionuclide noti.';
+
+  @override
+  String get surveyClassLowerBound =>
+      'Dati incompleti: la categoria è solo una stima per difetto. Le sorgenti mancanti possono richiedere un livello più severo.';
+
+  @override
+  String get surveyClassIncompleteSource =>
+      'Dati incompleti: manca attività o radionuclide, quindi non conteggiata nel totale.';
+
+  @override
+  String get surveyClassCalcDate => 'Data di calcolo';
+
+  @override
+  String get surveyClassCalcDateDefault => 'Predefinito: inizio del rilievo';
+
+  @override
+  String get surveyClassIncluded => 'Inclusa nella classificazione del rilievo';
+
+  @override
+  String get foundSourceButton => 'Aggiungi sorgente trovata';
+
+  @override
+  String get foundSourceTitle => 'Sorgente trovata';
+
+  @override
+  String get foundSourceNuclideLabel => 'Radionuclide';
+
+  @override
+  String get foundSourceActivityLabel => 'Attività';
+
+  @override
+  String get foundSourceOriginLabel => 'Origine';
+
+  @override
+  String get foundSourceAddNuclide => 'Aggiungi radionuclide';
+
+  @override
+  String get foundSourceUnknownHint =>
+      'Se attività o composizione sono ignote, lasciare vuoto. Tale sorgente non entra nel totale di classificazione, viene solo segnalata.';
+
+  @override
+  String get foundSourceOriginMeasurement => 'Stimata dal rateo di dose';
+
+  @override
+  String get foundSourceOriginShielded =>
+      'Da rateo di dose, corretto per schermatura';
+
+  @override
+  String get foundSourceOriginSpectrum => 'Dallo spettro';
+
+  @override
+  String get foundSourceOriginManual => 'Manuale';
+
+  @override
+  String get foundSourceNuclideRequiredError =>
+      'Inserire il nome del radionuclide o eliminare la riga.';
+
+  @override
+  String get foundSourceNoDistanceError =>
+      'Inserire la distanza dalla sorgente.';
+
+  @override
   String get removeFieldTooltip => 'Rimuovi campo';
 
   @override
@@ -3301,4 +3379,457 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get wasteLongLived => 'a vita lunga';
+
+  @override
+  String get planGpsFailed => 'Impossibile ottenere la posizione GPS.';
+
+  @override
+  String get planCoordDialogTitle => 'Coordinate del punto di ancoraggio';
+
+  @override
+  String get planLatLabel => 'Latitudine';
+
+  @override
+  String get planLonLabel => 'Longitudine';
+
+  @override
+  String get planInvalidValue => 'Valore non valido.';
+
+  @override
+  String get planDistanceLabel => 'Distanza reale A–B (m)';
+
+  @override
+  String get planCalibrationTitle => 'Calibra la planimetria';
+
+  @override
+  String get planCalibrationHint =>
+      '1. Segna il punto A (dove rilevi la posizione GPS), 2. segna il punto B, 3. inserisci la distanza reale tra i due punti in metri.';
+
+  @override
+  String get planPointA => 'Punto A';
+
+  @override
+  String get planPointB => 'Punto B';
+
+  @override
+  String get planGpsAtAButton => 'GPS al punto A';
+
+  @override
+  String get planManualCoordButton => 'Inserisci coordinate';
+
+  @override
+  String get planDistanceButton => 'Distanza A–B';
+
+  @override
+  String get planSaveButton => 'Salva calibrazione';
+
+  @override
+  String get surveyMapModeOnline => 'Mappa online';
+
+  @override
+  String get surveyMapModePlan => 'Planimetria offline';
+
+  @override
+  String get planImageUnreadable => 'Impossibile leggere la planimetria.';
+
+  @override
+  String get planSourceImage => 'Immagine caricata';
+
+  @override
+  String get planSourceGenerated => 'Sfondo generato';
+
+  @override
+  String get planBgWidthLabel => 'Larghezza (m)';
+
+  @override
+  String get planBgHeightLabel => 'Altezza (m)';
+
+  @override
+  String get planBgColorLabel => 'Colore dello sfondo';
+
+  @override
+  String get planColorWhite => 'Bianco';
+
+  @override
+  String get planColorLightGrey => 'Grigio chiaro';
+
+  @override
+  String get planColorCream => 'Crema';
+
+  @override
+  String get planColorLightBlue => 'Azzurro chiaro';
+
+  @override
+  String get planColorLightGreen => 'Verde chiaro';
+
+  @override
+  String get planCalibrationHintGenerated =>
+      'Segna il punto A sulla planimetria (dove rilevi la posizione GPS), poi registra le sue coordinate GPS.';
+
+  @override
+  String get planLocalModeSwitch => 'Senza GPS (coordinate locali)';
+
+  @override
+  String get planLocalModeHint =>
+      'Senza GPS: le posizioni dei punti sono memorizzate in metri (X/Y) all\'interno della planimetria. La scala deriva dalla distanza misurata o dal foglio generato.';
+
+  @override
+  String get planAccuracyLabel => 'Precisione';
+
+  @override
+  String get planLocalCoordLabel => 'Coordinate locali';
+
+  @override
+  String get mapPlaceSourceTooltip => 'Posiziona sorgente';
+
+  @override
+  String get mapPlaceSourceCancelTooltip => 'Annulla posizionamento';
+
+  @override
+  String get mapPlaceSourceTitle => 'Scegli una sorgente';
+
+  @override
+  String get mapPlaceSourceHint =>
+      'Tocca la mappa nel punto in cui si trova la sorgente.';
+
+  @override
+  String get mapNoSources => 'Nessuna sorgente nell\'elenco centrale.';
+
+  @override
+  String get mapSourceRelocate => 'Sposta';
+
+  @override
+  String get mapSourceClearPosition => 'Cancella posizione';
+
+  @override
+  String get mapSourceDialogClose => 'Chiudi';
+
+  @override
+  String get surveyFilterActive => 'Attive';
+
+  @override
+  String get surveyFilterOpen => 'Aperte';
+
+  @override
+  String get surveyFilterClosed => 'Chiuse';
+
+  @override
+  String get surveyFilterArchived => 'Archiviate';
+
+  @override
+  String get surveyTimeAll => 'Qualsiasi data';
+
+  @override
+  String get surveyTimeLast7 => 'Ultimi 7 giorni';
+
+  @override
+  String get surveyTimeLast30 => 'Ultimi 30 giorni';
+
+  @override
+  String get surveyTimeThisYear => 'Quest\'anno';
+
+  @override
+  String get surveyTimeCustom => 'Periodo personalizzato…';
+
+  @override
+  String get surveySortTimeNewest => 'Data: più recenti prima';
+
+  @override
+  String get surveySortTimeOldest => 'Data: più vecchie prima';
+
+  @override
+  String get surveySortNameAsc => 'Nome: A–Z';
+
+  @override
+  String get surveySortNameDesc => 'Nome: Z–A';
+
+  @override
+  String get surveyArchiveAction => 'Archivia';
+
+  @override
+  String get surveyUnarchiveAction => 'Ripristina dall\'archivio';
+
+  @override
+  String get measurementFilterAllKinds => 'Tutti i tipi';
+
+  @override
+  String get measurementFilterSourceOnly => 'Solo posizioni sorgente';
+
+  @override
+  String get measurementSortValueHighest => 'Valore: più alto prima';
+
+  @override
+  String get measurementSortValueLowest => 'Valore: più basso prima';
+
+  @override
+  String get measurementCountShown => 'Risultati';
+
+  @override
+  String get sourceOnMapListLabel => 'Sorgente sulla mappa';
+
+  @override
+  String get protoPlanHeading => 'Planimetria';
+
+  @override
+  String get protoPlanCaption =>
+      'Planimetria con i punti di misura (numero) e le sorgenti posizionate sulla mappa (identificativo)';
+
+  @override
+  String get protoSourcesOnMapHeading => 'Sorgenti posizionate sulla mappa';
+
+  @override
+  String get protoColPosition => 'Posizione';
+
+  @override
+  String get measurementTypeChemical => 'Sostanza chimica';
+
+  @override
+  String get rrAddChemical => 'Aggiungi sostanza chimica';
+
+  @override
+  String get rrChemicalSpecies => 'Sostanza chimica';
+
+  @override
+  String get physicalStateLabel => 'Stato fisico';
+
+  @override
+  String get physStateGas => 'Gas';
+
+  @override
+  String get physStateLiquid => 'Liquido';
+
+  @override
+  String get physStateSolid => 'Solido';
+
+  @override
+  String get physStateAerosol => 'Aerosol';
+
+  @override
+  String get sampleAnalysisTitle => 'Analisi del campione';
+
+  @override
+  String get sampleAnalysisAddButton => 'Aggiungi analisi';
+
+  @override
+  String get sampleAnalysisEmpty => 'Nessuna analisi per questo campione.';
+
+  @override
+  String get sampleAnalysisTooltip => 'Analisi';
+
+  @override
+  String get analysisMethodLabel => 'Metodo';
+
+  @override
+  String get analysisMethodOther => 'Altro';
+
+  @override
+  String get analysisInstrumentLabel => 'Strumento';
+
+  @override
+  String get analysisPerformedAtLabel => 'Ora dell\'analisi';
+
+  @override
+  String get analysisOperatorLabel => 'Operatore';
+
+  @override
+  String get analysisResultLabel => 'Risultato / identificazione';
+
+  @override
+  String get analysisNotesLabel => 'Note';
+
+  @override
+  String get analysisAttachFile => 'Allega file';
+
+  @override
+  String get analysisFileLabel => 'File allegato';
+
+  @override
+  String get analysisDeleteConfirm =>
+      'Eliminare questa analisi? Anche il file allegato verrà eliminato.';
+
+  @override
+  String get rrUnitMode => 'Tipo';
+
+  @override
+  String get rrUnitRatio => 'Rapporto';
+
+  @override
+  String get rrUnitMassPerBasis => 'Massa / base';
+
+  @override
+  String get rrUnitMass => 'Massa';
+
+  @override
+  String get rrUnitBasis => 'Base';
+
+  @override
+  String get measurementTypeBiological => 'Materiale biologico';
+
+  @override
+  String get rrAddBioAgent => 'Aggiungi materiale biologico';
+
+  @override
+  String get rrBioAgentName => 'Denominazione';
+
+  @override
+  String get rrBioKindLabel => 'Tipo';
+
+  @override
+  String get rrBioQuantityLabel => 'Quantità (testo libero)';
+
+  @override
+  String get bioKindBacterium => 'Batterio';
+
+  @override
+  String get bioKindVirus => 'Virus';
+
+  @override
+  String get bioKindToxin => 'Tossina';
+
+  @override
+  String get bioKindFungus => 'Fungo';
+
+  @override
+  String get bioKindOther => 'Altro';
+
+  @override
+  String get pcrTargetLabel => 'Bersaglio (gene, organismo)';
+
+  @override
+  String get pcrOutcomeLabel => 'Risultato PCR';
+
+  @override
+  String get pcrCtLabel => 'Valore Ct';
+
+  @override
+  String get pcrOutcomePositive => 'Positivo';
+
+  @override
+  String get pcrOutcomeNegative => 'Negativo';
+
+  @override
+  String get pcrOutcomeInvalid => 'Non valido';
+
+  @override
+  String get protoBioHeading => 'Materiali biologici';
+
+  @override
+  String get protoSampleAnalysesHeading => 'Analisi dei campioni';
+
+  @override
+  String get victimDetailsTooltip =>
+      'Dati e mappa corporea della persona ferita';
+
+  @override
+  String get victimDetailsTitle => 'Persona ferita';
+
+  @override
+  String get victimSexLabel => 'Sesso';
+
+  @override
+  String get victimSexFemale => 'Donna';
+
+  @override
+  String get victimSexMale => 'Uomo';
+
+  @override
+  String get victimSexUnknown => 'Sconosciuto';
+
+  @override
+  String get victimAgeLabel => 'Età (anni)';
+
+  @override
+  String get victimWeightLabel => 'Peso (kg, circa)';
+
+  @override
+  String get victimPhantomFront => 'Vista frontale';
+
+  @override
+  String get victimPhantomBack => 'Vista posteriore';
+
+  @override
+  String get victimPhantomHint =>
+      'Tocca la figura per aggiungere un segnalino, tocca un segnalino per modificarlo.';
+
+  @override
+  String get victimMarkerTitleNew => 'Nuovo segnalino';
+
+  @override
+  String get victimMarkerTitleEdit => 'Modifica segnalino';
+
+  @override
+  String get victimMarkerKindLabel => 'Tipo di segnalino';
+
+  @override
+  String get victimMarkerKindInjury => 'Lesione';
+
+  @override
+  String get victimMarkerKindContamination => 'Contaminazione';
+
+  @override
+  String get victimMarkerIsotopeLabel => 'Isotopo';
+
+  @override
+  String get victimMarkerNoteLabel => 'Nota (es. ustione, frattura)';
+
+  @override
+  String get victimMarkerDelete => 'Elimina segnalino';
+
+  @override
+  String get victimMarkersHeading => 'Segnalini';
+
+  @override
+  String get victimNoMarkers => 'Nessun segnalino.';
+
+  @override
+  String get protoHandoverHeading => 'Dati per il passaggio ospedaliero';
+
+  @override
+  String get protoColContamination => 'Contaminazione (isotopo)';
+
+  @override
+  String get protoColInjuryLocations => 'Sede della lesione';
+
+  @override
+  String get victimMarkerChemicalLabel => 'Contaminante chimico';
+
+  @override
+  String get victimMarkerBioLabel => 'Contaminante biologico';
+
+  @override
+  String get victimContaminantHeading => 'Contaminazione (facoltativo)';
+
+  @override
+  String get victimHeightLabel => 'Altezza (cm)';
+
+  @override
+  String get personPhysicalHeading => 'Dati fisici (persone ferite)';
+
+  @override
+  String get victimPersonDataHeading => 'Dati personali';
+
+  @override
+  String get victimPersonDataHint =>
+      'Sesso, età, peso e altezza si modificano nella scheda della persona.';
+
+  @override
+  String get personIdentifierLabel => 'Identificativo';
+
+  @override
+  String get personAddressLabel => 'Indirizzo';
+
+  @override
+  String get lastUsedRoleLabel => 'Ultimo';
+
+  @override
+  String get personPatientSheetsHeading => 'Schede pazienti';
+
+  @override
+  String get personPatientSheetsEmpty => 'Nessuna scheda paziente.';
+
+  @override
+  String get protoIdentityHeading => 'Identificativi delle persone';
+
+  @override
+  String get protoPhantomHeading => 'Mappa corporea';
 }

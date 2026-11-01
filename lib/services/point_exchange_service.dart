@@ -1,3 +1,4 @@
+import '../models/bio_agent.dart';
 import '../models/radiation_kind.dart';
 import '../models/dose_quantity.dart';
 import '../models/spectrum.dart';
@@ -19,7 +20,11 @@ import '../models/measurement_type.dart';
 import '../models/nuclide_id.dart';
 import '../models/point_source_link.dart';
 import '../models/shielding.dart';
+import '../models/activity_origin.dart';
 import '../models/radiation_source.dart';
+import '../models/source_nuclide.dart';
+import '../models/survey_source_placement.dart';
+import 'exchange_format.dart';
 import 'activity_estimate.dart';
 import 'dose_unit_controller.dart';
 import 'dose_unit_converter.dart';
@@ -128,8 +133,8 @@ class ImportResult {
 /// (.zip, "fotok/" mappával) viszi át. A CSV egyszerű táblázatos nézet
 /// Excelhez, azt az app nem tudja visszaolvasni.
 class PointExchangeService {
-  static const _formatId = 'rad_recon_export';
-  static const _formatVersion = 1;
+  static const _formatId = ExchangeFormat.jsonCurrentId;
+  static const _formatVersion = ExchangeFormat.jsonCurrentVersion;
 
   Future<File> exportJson(int surveySessionId) async {
     final db = DatabaseHelper.instance;
@@ -160,6 +165,23 @@ class PointExchangeService {
         if (a.source.id != null) usedSourcesById[a.source.id!] = a.source;
       }
     }
+
+    // A felmérés elhelyezéseinél szereplő források is exportálandók, akkor is,
+    // ha egyik ponthoz sincsenek kötve.
+    final placements = await db.getSurveyPlacements(surveySessionId);
+    final registry = {
+      for (final s in await db.getRadiationSources())
+        if (s.id != null) s.id!: s,
+    };
+    final exportSourceIds = <int>{
+      ...usedSourcesById.keys,
+      for (final pl in placements) pl.radiationSourceId,
+    };
+    final exportSources = exportSourceIds
+        .map((id) => registry[id])
+        .whereType<RadiationSource>()
+        .toList()
+      ..sort((a, b) => a.identifier.compareTo(b.identifier));
 
     final calibrationsByInstrumentId = <int, List<InstrumentCalibration>>{};
     for (final i in usedInstruments) {
@@ -212,18 +234,22 @@ class PointExchangeService {
                 ],
               })
           .toList(),
-      'sources': usedSourcesById.values
-          .map((s) => {
-                'identifier': s.identifier,
-                'nuclide_name': s.nuclideName,
-                'activity_at_manufacture_mbq': s.activityAtManufactureMBq,
-                'activity_error_percent': s.activityErrorPercent,
-                'manufacture_date': s.manufactureDate.toIso8601String(),
-                'service_life_expiry_date':
-                    s.serviceLifeExpiryDate?.toIso8601String(),
-                'notes': s.notes,
-              })
-          .toList(),
+      'sources': [
+        for (final s in exportSources) await _sourceJsonV2(db, s),
+      ],
+      'placements': [
+        for (final pl in placements)
+          if (registry[pl.radiationSourceId] != null)
+            {
+              'source_identifier': registry[pl.radiationSourceId]!.identifier,
+              'included': pl.included,
+              'calc_date_override': pl.calcDateOverride?.toIso8601String(),
+              'plan_x': pl.planX,
+              'plan_y': pl.planY,
+              'map_lat': pl.mapLat,
+              'map_lon': pl.mapLon,
+            },
+      ],
       'points': points
           .map((pt) => {
                 'location_label': pt.locationLabel,
@@ -258,6 +284,7 @@ class PointExchangeService {
                 'sample_unit': pt.sampleUnit,
                 'meteo_json': pt.meteoJson,
                 'gas_json': pt.gasJson,
+                'bio_json': pt.bioJson,
                 'notes': pt.notes,
                 'basis_amount': pt.basisAmount,
                 'basis_unit': pt.basisUnit,
@@ -560,6 +587,94 @@ class PointExchangeService {
   /// Beolvassa a JSON exportot, és a benne lévő pontokat/műszereket
   /// hozzáadja a megadott felméréshez. A hiányzó nevű műszereket létrehozza,
   /// a meglévőket a nevük alapján párosítja.
+  /// Egy forrás JSON-ja (v2): nyilvántartási adatok és a nuklid-sorok.
+  Future<Map<String, Object?>> _sourceJsonV2(
+    DatabaseHelper db,
+    RadiationSource s,
+  ) async {
+    final nuclides = await db.getSourceNuclides(s.id!);
+    return {
+      'identifier': s.identifier,
+      'activity_error_percent': s.activityErrorPercent,
+      'manufacture_date': s.manufactureDate?.toIso8601String(),
+      'origin': s.origin,
+      'service_life_expiry_date': s.serviceLifeExpiryDate?.toIso8601String(),
+      'next_inspection_date': s.nextInspectionDate?.toIso8601String(),
+      'notes': s.notes,
+      'nuclides': [
+        for (final n in nuclides)
+          {
+            'nuclide': n.nuclide,
+            'activity_mbq': n.activityMBq,
+            'reference_date': n.referenceDate.toIso8601String(),
+            'origin': n.origin.name,
+          },
+      ],
+    };
+  }
+
+  /// Egy bejövő forrás-bejegyzés. v1: a bejegyzés egy nuklidot tartalmaz.
+  /// v2: a `nuclides` lista. Gyártási dátum nélkül is importálható (talált forrás).
+  ({RadiationSource? source, List<SourceNuclide> nuclides, String? warning})
+      _parseIncomingSource(Map<String, dynamic> entry, int formatVersion) {
+    final identifier = entry['identifier'] as String;
+    final now = DateTime.now();
+    final manufactureRaw = entry['manufacture_date'] as String?;
+    final List<SourceNuclide> nuclides;
+    if (formatVersion >= 2) {
+      nuclides = [
+        for (final raw
+            in (entry['nuclides'] as List? ?? const []).cast<Map<String, dynamic>>())
+          SourceNuclide(
+            radiationSourceId: 0,
+            nuclide: raw['nuclide'] as String,
+            activityMBq: (raw['activity_mbq'] as num?)?.toDouble(),
+            referenceDate: DateTime.parse(raw['reference_date'] as String),
+            origin: ActivityOrigin.values.byName(raw['origin'] as String),
+            createdAt: now,
+          ),
+      ];
+    } else {
+      final name = entry['nuclide_name'] as String?;
+      nuclides = [
+        if (name != null && manufactureRaw != null)
+          SourceNuclide(
+            radiationSourceId: 0,
+            nuclide: name,
+            activityMBq:
+                (entry['activity_at_manufacture_mbq'] as num?)?.toDouble(),
+            referenceDate: DateTime.parse(manufactureRaw),
+            origin: ActivityOrigin.manual,
+            createdAt: now,
+          ),
+      ];
+    }
+    final primary = nuclides.isEmpty ? null : nuclides.first;
+    return (
+      source: RadiationSource(
+        identifier: identifier,
+        nuclideName: primary?.nuclide ?? '',
+        activityAtManufactureMBq: primary?.activityMBq,
+        activityErrorPercent:
+            (entry['activity_error_percent'] as num?)?.toDouble(),
+        manufactureDate:
+            manufactureRaw == null ? null : DateTime.parse(manufactureRaw),
+        serviceLifeExpiryDate: entry['service_life_expiry_date'] == null
+            ? null
+            : DateTime.parse(entry['service_life_expiry_date'] as String),
+        nextInspectionDate: entry['next_inspection_date'] == null
+            ? null
+            : DateTime.parse(entry['next_inspection_date'] as String),
+        notes: entry['notes'] as String?,
+        origin: (entry['origin'] as String?) ?? 'own',
+        createdAt: now,
+        updatedAt: now,
+      ),
+      nuclides: nuclides,
+      warning: null,
+    );
+  }
+
   Future<ImportResult> importJson(
     String filePath,
     int targetSurveySessionId, {
@@ -574,8 +689,14 @@ class PointExchangeService {
     final raw = await file.readAsString();
     final data = jsonDecode(raw) as Map<String, dynamic>;
 
-    if (data['format'] != _formatId) {
+    final formatVersion = ExchangeFormat.jsonVersion(data['format'] as String?);
+    if (formatVersion == null) {
       throw StateError('Ismeretlen fájlformátum — ez nem RadRecon export.');
+    }
+    if (formatVersion > ExchangeFormat.jsonCurrentVersion) {
+      throw StateError(
+        'Ez az export újabb RadRecon verzióval készült. Frissítsd az appot.',
+      );
     }
 
     final db = DatabaseHelper.instance;
@@ -640,33 +761,48 @@ class PointExchangeService {
         (data['sources'] as List?)?.cast<Map<String, dynamic>>() ?? [];
     for (final entry in incomingSources) {
       final identifier = entry['identifier'] as String?;
-      final nuclideName = entry['nuclide_name'] as String?;
-      final manufactureDateRaw = entry['manufacture_date'] as String?;
-      if (identifier == null ||
-          sourceIdByIdentifier.containsKey(identifier) ||
-          nuclideName == null ||
-          manufactureDateRaw == null) {
+      if (identifier == null || sourceIdByIdentifier.containsKey(identifier)) {
         continue;
       }
-      final now = DateTime.now();
-      final source = RadiationSource(
-        identifier: identifier,
-        nuclideName: nuclideName,
-        activityAtManufactureMBq:
-            (entry['activity_at_manufacture_mbq'] as num?)?.toDouble() ?? 0,
-        activityErrorPercent:
-            (entry['activity_error_percent'] as num?)?.toDouble(),
-        manufactureDate: DateTime.parse(manufactureDateRaw),
-        serviceLifeExpiryDate: entry['service_life_expiry_date'] == null
-            ? null
-            : DateTime.parse(entry['service_life_expiry_date'] as String),
-        notes: entry['notes'] as String?,
-        createdAt: now,
-        updatedAt: now,
-      );
-      final newSourceId = await db.insertRadiationSource(source);
+      final parsed = _parseIncomingSource(entry, formatVersion);
+      final source = parsed.source;
+      if (source == null) {
+        warnings.add(parsed.warning ?? 'Forrás kihagyva: $identifier');
+        continue;
+      }
+      final newSourceId =
+          await db.insertRadiationSourceWithNuclides(source, parsed.nuclides);
       sourceIdByIdentifier[identifier] = newSourceId;
       sourcesCreated++;
+    }
+
+    // Felmérés-elhelyezések (v2): bekerül-e a forrás az összegbe, és hol.
+    final incomingPlacements =
+        (data['placements'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+    if (incomingPlacements.isNotEmpty) {
+      final placedSourceIds = {
+        for (final pl in await db.getSurveyPlacements(targetSurveySessionId))
+          pl.radiationSourceId,
+      };
+      for (final entry in incomingPlacements) {
+        final sourceId =
+            sourceIdByIdentifier[entry['source_identifier'] as String?];
+        if (sourceId == null || placedSourceIds.contains(sourceId)) continue;
+        await db.insertSurveyPlacement(SurveySourcePlacement(
+          surveySessionId: targetSurveySessionId,
+          radiationSourceId: sourceId,
+          included: entry['included'] as bool? ?? true,
+          calcDateOverride: entry['calc_date_override'] == null
+              ? null
+              : DateTime.parse(entry['calc_date_override'] as String),
+          planX: (entry['plan_x'] as num?)?.toDouble(),
+          planY: (entry['plan_y'] as num?)?.toDouble(),
+          mapLat: (entry['map_lat'] as num?)?.toDouble(),
+          mapLon: (entry['map_lon'] as num?)?.toDouble(),
+          createdAt: DateTime.now(),
+        ));
+        placedSourceIds.add(sourceId);
+      }
     }
 
     final incomingPoints =
@@ -729,6 +865,7 @@ class PointExchangeService {
         sampleUnit: entry['sample_unit'] as String?,
         meteorology: Meteorology.fromJsonString(entry['meteo_json'] as String?),
         gases: GasReading.listFromJsonString(entry['gas_json'] as String?),
+        bioAgents: BioAgentReading.listFromJsonString(entry['bio_json'] as String?),
         basisAmount: (entry['basis_amount'] as num?)?.toDouble(),
         basisUnit: entry['basis_unit'] as String?,
         spectrumKind: entry['spectrum_kind'] as String?,

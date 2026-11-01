@@ -1,3 +1,4 @@
+import 'victim_details.dart';
 import 'dart:convert';
 
 import 'person_certificate.dart';
@@ -23,6 +24,16 @@ class Person {
   /// Tetszőleges bizonyítványok lejárattal (nem az `persons` táblában tárolt).
   final List<PersonCertificate> certificates;
 
+  /// Testi adatok (sérült esetén): nem, kor (év), súly és magasság.
+  final VictimSex? sex;
+  final int? ageYears;
+  final double? weightKg; // közelítő
+  final double? heightCm;
+
+  /// Azonosító (pl. belső törzsszám) és lakcím / tartózkodási hely.
+  final String? identifier;
+  final String? address;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -35,6 +46,12 @@ class Person {
     this.phone,
     this.emails = const [],
     this.certificates = const [],
+    this.sex,
+    this.ageYears,
+    this.weightKg,
+    this.heightCm,
+    this.identifier,
+    this.address,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -59,6 +76,12 @@ class Person {
     String? phone,
     List<String>? emails,
     List<PersonCertificate>? certificates,
+    VictimSex? sex,
+    int? ageYears,
+    double? weightKg,
+    double? heightCm,
+    String? identifier,
+    String? address,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -72,6 +95,12 @@ class Person {
       phone: phone ?? this.phone,
       emails: emails ?? this.emails,
       certificates: certificates ?? this.certificates,
+      sex: sex ?? this.sex,
+      ageYears: ageYears ?? this.ageYears,
+      weightKg: weightKg ?? this.weightKg,
+      heightCm: heightCm ?? this.heightCm,
+      identifier: identifier ?? this.identifier,
+      address: address ?? this.address,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -86,6 +115,12 @@ class Person {
       'notes': notes,
       'phone': phone,
       'emails': emails.isEmpty ? null : jsonEncode(emails),
+      'sex': sex?.dbValue,
+      'age_years': ageYears,
+      'weight_kg': weightKg,
+      'height_cm': heightCm,
+      'identifier': identifier,
+      'address': address,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -104,6 +139,12 @@ class Person {
       notes: map['notes'] as String?,
       phone: map['phone'] as String?,
       emails: _decodeEmails(map['emails']),
+      sex: VictimSex.fromDbValue(map['sex'] as String?),
+      ageYears: map['age_years'] as int?,
+      weightKg: (map['weight_kg'] as num?)?.toDouble(),
+      heightCm: (map['height_cm'] as num?)?.toDouble(),
+      identifier: map['identifier'] as String?,
+      address: map['address'] as String?,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );

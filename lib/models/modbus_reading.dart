@@ -29,6 +29,7 @@ List<String> modbusUnitsFor(MeasurementType type) {
     case MeasurementType.sample:
     case MeasurementType.meteorology:
     case MeasurementType.gasMeasurement:
+    case MeasurementType.biological:
       return const [];
   }
 }

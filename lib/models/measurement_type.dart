@@ -19,6 +19,7 @@ enum MeasurementType {
   sample, // fizikai mintavétel (nem élő mérés)
   meteorology, // meteorológiai megfigyelés (nincs mérési érték)
   gasMeasurement, // gázmérés, vegyületenként (nincs mérési érték)
+  biological, // biológiai anyag, nevekkel és szabad szöveges mennyiséggel (nincs mérési érték)
 }
 
 extension MeasurementTypeX on MeasurementType {
@@ -43,6 +44,8 @@ extension MeasurementTypeX on MeasurementType {
         return 'meteorology';
       case MeasurementType.gasMeasurement:
         return 'gas_measurement';
+      case MeasurementType.biological:
+        return 'biological_measurement';
     }
   }
 
@@ -68,15 +71,24 @@ extension MeasurementTypeX on MeasurementType {
       case MeasurementType.sample:
       case MeasurementType.meteorology:
       case MeasurementType.gasMeasurement:
+      case MeasurementType.biological:
         return '';
     }
   }
+
+  /// Kell-e a rögzítőben a radioaktív forrás (felmérés-forrás) szakasz. Meteorológiai,
+  /// vegyi és biológiai pontoknál nem.
+  bool get usesRadioactiveSources =>
+      this != MeasurementType.meteorology &&
+      this != MeasurementType.gasMeasurement &&
+      this != MeasurementType.biological;
 
   /// A típus rögzít-e mérési értéket.
   bool get hasValue =>
       this != MeasurementType.sample &&
       this != MeasurementType.meteorology &&
       this != MeasurementType.gasMeasurement &&
+      this != MeasurementType.biological &&
       this != MeasurementType.spectrum;
 
   /// Nyelvfüggő megjelenítési név — `context` kell hozzá, mert a fordítás a
@@ -101,7 +113,9 @@ extension MeasurementTypeX on MeasurementType {
       case MeasurementType.meteorology:
         return loc.measurementTypeMeteorology;
       case MeasurementType.gasMeasurement:
-        return loc.measurementTypeGasMeasurement;
+        return loc.measurementTypeChemical;
+      case MeasurementType.biological:
+        return loc.measurementTypeBiological;
     }
   }
 

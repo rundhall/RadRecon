@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:archive/archive.dart';
+import 'package:archive/archive_io.dart';
 import 'package:file_selector/file_selector.dart' as fs;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -376,44 +376,12 @@ class DatabaseTransferService {
       await copyDb.close();
     }
 
-    final archive = Archive();
-    final dbBytes = await workCopy.readAsBytes();
-    archive.addFile(ArchiveFile(_dbEntryName, dbBytes.length, dbBytes));
-    for (final e in photoEntries.entries) {
-      final bytes = await e.value.readAsBytes();
-      archive.addFile(
-        ArchiveFile('$_photosPrefix${e.key}', bytes.length, bytes),
-      );
-    }
-
-    for (final e in spectraEntries.entries) {
-      final bytes = await e.value.readAsBytes();
-      archive.addFile(
-        ArchiveFile('$_spectraPrefix${e.key}', bytes.length, bytes),
-      );
-    }
-
-    for (final e in attachmentEntries.entries) {
-      final bytes = await e.value.readAsBytes();
-      archive.addFile(
-        ArchiveFile('$_attachmentsPrefix${e.key}', bytes.length, bytes),
-      );
-    }
-
     final docs = await getApplicationDocumentsDirectory();
-    final screenshotsDir = Directory(p.join(docs.path, _screenshotsDirName));
-    if (await screenshotsDir.exists()) {
-      await for (final entity in screenshotsDir.list(recursive: true)) {
-        if (entity is! File) continue;
-        final rel = p
-            .relative(entity.path, from: screenshotsDir.path)
-            .replaceAll(r'\', '/');
-        final bytes = await entity.readAsBytes();
-        archive.addFile(
-          ArchiveFile('$_screenshotsPrefix$rel', bytes.length, bytes),
-        );
-      }
-    }
+    final out = File(p.join(
+      docs.path,
+      '${sanitizeName(companyName)}_${_dateStamp()}.zip',
+    ));
+    if (await out.exists()) await out.delete();
 
     final manifest = utf8.encode(jsonEncode({
       'format': 'radrecon-backup',
@@ -424,19 +392,45 @@ class DatabaseTransferService {
       'attachmentCount': attachmentEntries.length,
       'spectrumCount': spectraEntries.length,
     }));
-    archive.addFile(ArchiveFile(_manifestName, manifest.length, manifest));
 
-    final encoded = ZipEncoder().encode(archive);
-    await workCopy.delete();
-    if (encoded == null) {
-      throw StateError('Could not create the backup ZIP file.');
+    // Fájlba streamelés: a fotók, spektrumok és mellékletek nem kerülnek
+    // egyszerre a memóriába (korábban a teljes zip a RAM-ban épült fel).
+    final encoder = ZipFileEncoder()..create(out.path);
+    try {
+      await encoder.addFile(workCopy, _dbEntryName);
+      for (final e in photoEntries.entries) {
+        await encoder.addFile(e.value, '$_photosPrefix${e.key}');
+      }
+      for (final e in spectraEntries.entries) {
+        await encoder.addFile(e.value, '$_spectraPrefix${e.key}');
+      }
+      for (final e in attachmentEntries.entries) {
+        await encoder.addFile(e.value, '$_attachmentsPrefix${e.key}');
+      }
+
+      final screenshotsDir = Directory(p.join(docs.path, _screenshotsDirName));
+      if (await screenshotsDir.exists()) {
+        await for (final entity in screenshotsDir.list(recursive: true)) {
+          if (entity is! File) continue;
+          final rel = p
+              .relative(entity.path, from: screenshotsDir.path)
+              .replaceAll(r'\', '/');
+          await encoder.addFile(entity, '$_screenshotsPrefix$rel');
+        }
+      }
+
+      encoder.addArchiveFile(
+        ArchiveFile(_manifestName, manifest.length, manifest),
+      );
+      await encoder.close();
+    } catch (_) {
+      // Hiba esetén ne maradjon félkész zip a dokumentum-mappában.
+      await encoder.close().catchError((Object _) {});
+      if (await out.exists()) await out.delete();
+      rethrow;
+    } finally {
+      if (await workCopy.exists()) await workCopy.delete();
     }
-
-    final out = File(p.join(
-      docs.path,
-      '${sanitizeName(companyName)}_${_dateStamp()}.zip',
-    ));
-    await out.writeAsBytes(encoded);
     return out;
   }
 
@@ -639,10 +633,51 @@ class DatabaseTransferService {
     return sanitizeName(name);
   }
 
-  /// A jelenlegi adatbázis FELÜLÍRÁSA a mentés tartalmával. Visszaadja a
-  /// mentésben tárolt cégnevet.
+  /// Mentésfájl betöltése a helyi fájlból, streamelve: a bejegyzések egyenként
+  /// kerülnek ki a zipből, a fotók nem töltődnek be egyszerre a memóriába.
+  Future<String> importFromFile(File zip) async {
+    final name = await _importZipAs(zip);
+    await _setActiveCompanyName(name);
+    return sanitizeName(name);
+  }
+
+  /// Egy bejegyzés kiírása fájlba, majd a kicsomagolt tartalom eldobása, így a
+  /// visszaállítás egyszerre csak egy fájlt tart a memóriában.
+  Future<void> _writeEntry(ArchiveFile entry, String path) async {
+    await File(path).writeAsBytes(entry.content as List<int>);
+    entry.clear();
+  }
+
+  /// Bájtok ideiglenes zip-fájlba írása, hogy a streamelő útvonal fusson rajta.
+  Future<File> _writeTempZip(Uint8List bytes) async {
+    final tmp = await getTemporaryDirectory();
+    final file = File(p.join(tmp.path, 'rad_recon_import.zip'));
+    await file.writeAsBytes(bytes);
+    return file;
+  }
+
+  /// A jelenlegi adatbázis FELÜLÍRÁSA a mentés tartalmával (bájtokból). Visszaadja
+  /// a mentésben tárolt cégnevet.
   Future<String> _importBytesAs(Uint8List bytes) async {
-    final archive = ZipDecoder().decodeBytes(bytes);
+    final tmp = await _writeTempZip(bytes);
+    try {
+      return await _importZipAs(tmp);
+    } finally {
+      if (await tmp.exists()) await tmp.delete();
+    }
+  }
+
+  /// A jelenlegi adatbázis FELÜLÍRÁSA a helyi zip-fájl tartalmával, streamelve.
+  Future<String> _importZipAs(File zip) async {
+    final input = InputFileStream(zip.path);
+    try {
+      return await _restoreFromArchive(ZipDecoder().decodeBuffer(input));
+    } finally {
+      await input.close();
+    }
+  }
+
+  Future<String> _restoreFromArchive(Archive archive) async {
     final info = _infoFromArchive(archive);
     if (info.schemaVersion > DatabaseHelper.schemaVersion) {
       throw FormatException(
@@ -656,10 +691,8 @@ class DatabaseTransferService {
     final dbPath = await helper.databaseFilePath();
     await helper.close();
 
-    final dbBytes = archive.findFile(_dbEntryName)!.content as List<int>;
-
     await _deleteDbFiles(dbPath);
-    await File(dbPath).writeAsBytes(dbBytes);
+    await _writeEntry(archive.findFile(_dbEntryName)!, dbPath);
 
     final docs = await getApplicationDocumentsDirectory();
 
@@ -670,8 +703,7 @@ class DatabaseTransferService {
     for (final entry in archive.files) {
       if (!entry.isFile || !entry.name.startsWith(_photosPrefix)) continue;
       final name = p.basename(entry.name);
-      await File(p.join(photosDir.path, name))
-          .writeAsBytes(entry.content as List<int>);
+      await _writeEntry(entry, p.join(photosDir.path, name));
     }
     // Spektrumfájlok: külön mappába, az útvonalak átírása lent.
     final spectraDir = Directory(p.join(docs.path, _restoredSpectraDirName));
@@ -679,8 +711,7 @@ class DatabaseTransferService {
     await spectraDir.create(recursive: true);
     for (final entry in archive.files) {
       if (!entry.isFile || !entry.name.startsWith(_spectraPrefix)) continue;
-      await File(p.join(spectraDir.path, p.basename(entry.name)))
-          .writeAsBytes(entry.content as List<int>);
+      await _writeEntry(entry, p.join(spectraDir.path, p.basename(entry.name)));
     }
     // Csatolmányok (műbizonylatok, hitelesítési bizonylatok, bizonyítványok).
     final attachmentsDir =
@@ -691,8 +722,7 @@ class DatabaseTransferService {
     await attachmentsDir.create(recursive: true);
     for (final entry in archive.files) {
       if (!entry.isFile || !entry.name.startsWith(_attachmentsPrefix)) continue;
-      await File(p.join(attachmentsDir.path, p.basename(entry.name)))
-          .writeAsBytes(entry.content as List<int>);
+      await _writeEntry(entry, p.join(attachmentsDir.path, p.basename(entry.name)));
     }
     final db = await openDatabase(dbPath);
     try {
@@ -743,7 +773,7 @@ class DatabaseTransferService {
       final rel = entry.name.substring(_screenshotsPrefix.length);
       final out = File(p.joinAll([screenshotsDir.path, ...rel.split('/')]));
       await out.parent.create(recursive: true);
-      await out.writeAsBytes(entry.content as List<int>);
+      await _writeEntry(entry, out.path);
     }
 
     await _afterDataReplaced();

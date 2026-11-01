@@ -1,3 +1,4 @@
+import 'dart:io';
 import '../services/basis_unit_controller.dart';
 import '../models/activity_concentration.dart';
 import '../l10n/domain_labels.dart';
@@ -178,7 +179,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         allowedExtensions: const ['zip'],
       );
       if (selection.isEmpty || !mounted) return;
-      final bytes = await selection.single.readAsBytes();
+      final picked = selection.single;
       if (!mounted) return;
       final ok = await _confirmDialog(
         loc.loadDatabaseConfirmTitle,
@@ -188,8 +189,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
       if (!ok || !mounted) return;
       setState(() => _dataBusy = true);
-      final companyName =
-          await DatabaseTransferService.instance.importFromBytes(bytes);
+      // Helyi útvonal esetén streamelve töltjük be; egyébként bájtokból.
+      final path = picked.path;
+      final companyName = path != null
+          ? await DatabaseTransferService.instance.importFromFile(File(path))
+          : await DatabaseTransferService.instance
+              .importFromBytes(await picked.readAsBytes());
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
       final message = loc.databaseLoadedMessage(companyName);

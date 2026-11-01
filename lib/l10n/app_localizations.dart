@@ -5473,8 +5473,16 @@ abstract class AppLocalizations {
   /// **'Mélység (d, mm)'**
   String get doseDepthLabel;
 
+  /// No description provided for @csvHeaderRadiation.
+  ///
+  /// In hu, this message translates to:
+  /// **'Sugárzás'**
   String get csvHeaderRadiation;
 
+  /// No description provided for @csvHeaderQuantity.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mennyiség (dózis)'**
   String get csvHeaderQuantity;
 }
 

@@ -14,6 +14,7 @@ import '../database/database_helper.dart';
 import '../models/gas_reading.dart';
 import '../models/meteorology.dart';
 import '../models/instrument.dart';
+import '../models/modbus_reading.dart';
 import '../models/calibration_labels.dart';
 import '../models/instrument_calibration.dart';
 import '../models/measurement_point.dart';
@@ -259,6 +260,9 @@ class PointExchangeService {
                 'modbus_gps_lon_address': i.modbusGpsLonAddress,
                 'modbus_measurement_type': i.modbusMeasurementType.dbValue,
                 'modbus_unit': i.modbusUnit,
+                'modbus_channels': [
+                  for (final c in i.effectiveModbusChannels) c.toJson(),
+                ],
                 'calibrations': [
                   for (final c in calibrationsByInstrumentId[i.id] ?? const [])
                     c.toJson()
@@ -842,6 +846,7 @@ class PointExchangeService {
           'modbus_measurement_type': entry['modbus_measurement_type'],
         }).modbusMeasurementType,
         modbusUnit: entry['modbus_unit'] as String? ?? 'nSv/h',
+        modbusChannels: ModbusChannel.listFromJson(entry['modbus_channels']),
       );
       final newId = await db.insertInstrument(instrument);
       if (incomingCalibrations.isNotEmpty) {

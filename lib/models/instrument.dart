@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'measurement_type.dart';
 import 'modbus_reading.dart';
 
@@ -29,6 +31,10 @@ class Instrument {
   /// felvett műszerek alapértelmezése: dózisteljesítmény, nSv/h.
   final String modbusUnit;
 
+  /// Több Modbus-csatorna: típusonként egy regiszter és egység. Üres, ha a
+  /// régi, egyetlen regiszteres beállítás érvényes.
+  final List<ModbusChannel> modbusChannels;
+
   const Instrument({
     this.id,
     required this.name,
@@ -46,7 +52,37 @@ class Instrument {
     this.modbusGpsLonAddress = 428,
     this.modbusMeasurementType = MeasurementType.doseRate,
     this.modbusUnit = 'nSv/h',
+    this.modbusChannels = const [],
   });
+
+  /// A műszer Modbus-csatornái. Ha nincs külön lista, a régi egyetlen
+  /// regiszter az egyetlen csatorna.
+  List<ModbusChannel> get effectiveModbusChannels {
+    if (modbusChannels.isNotEmpty) return modbusChannels;
+    final address = modbusRegisterAddress;
+    if (address == null) return const [];
+    return [
+      ModbusChannel(
+        type: modbusMeasurementType,
+        address: address,
+        unit: modbusUnit,
+      ),
+    ];
+  }
+
+  /// A megadott mérési típushoz tartozó csatorna, ha van.
+  ModbusChannel? modbusChannelFor(MeasurementType type) {
+    for (final c in effectiveModbusChannels) {
+      if (c.type == type) return c;
+    }
+    return null;
+  }
+
+  /// A megadott típus összes csatornája (meteorológiánál és gázmérésnél több).
+  List<ModbusChannel> modbusChannelsOf(MeasurementType type) => [
+        for (final c in effectiveModbusChannels)
+          if (c.type == type) c,
+      ];
 
   Instrument copyWith({
     int? id,
@@ -65,6 +101,7 @@ class Instrument {
     int? modbusGpsLonAddress,
     MeasurementType? modbusMeasurementType,
     String? modbusUnit,
+    List<ModbusChannel>? modbusChannels,
   }) {
     return Instrument(
       id: id ?? this.id,
@@ -84,6 +121,7 @@ class Instrument {
       modbusMeasurementType:
           modbusMeasurementType ?? this.modbusMeasurementType,
       modbusUnit: modbusUnit ?? this.modbusUnit,
+      modbusChannels: modbusChannels ?? this.modbusChannels,
     );
   }
 
@@ -105,6 +143,7 @@ class Instrument {
       'modbus_gps_lon_address': modbusGpsLonAddress,
       'modbus_measurement_type': modbusMeasurementType.dbValue,
       'modbus_unit': modbusUnit,
+      'modbus_channels': jsonEncode([for (final c in modbusChannels) c.toJson()]),
     };
   }
 
@@ -130,7 +169,17 @@ class Instrument {
       modbusGpsLonAddress: map['modbus_gps_lon_address'] as int? ?? 428,
       modbusMeasurementType: _typeFromDb(map['modbus_measurement_type']),
       modbusUnit: map['modbus_unit'] as String? ?? 'nSv/h',
+      modbusChannels: _channelsFromDb(map['modbus_channels']),
     );
+  }
+
+  static List<ModbusChannel> _channelsFromDb(Object? raw) {
+    if (raw is! String || raw.isEmpty) return const [];
+    try {
+      return ModbusChannel.listFromJson(jsonDecode(raw));
+    } catch (_) {
+      return const [];
+    }
   }
 
   /// Ismeretlen/hiányzó értéknél a régi viselkedés: dózisteljesítmény.

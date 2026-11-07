@@ -3639,6 +3639,42 @@ abstract class AppLocalizations {
   /// **'A bizonytalanság számításához legalább 2 érvényes minta kell, csak az érték került be.'**
   String get modbusAverageTooFew;
 
+  /// No description provided for @modbusNoChannelForType.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ehhez a mérési típushoz nincs Modbus-regiszter beállítva ezen a műszeren.'**
+  String get modbusNoChannelForType;
+
+  /// No description provided for @modbusChannelsTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mért mennyiségek és regiszterek'**
+  String get modbusChannelsTitle;
+
+  /// No description provided for @modbusChannelsHelper.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mérési típusonként egy regiszter és egység adható meg. A kézi lekérdezés, az átlagolás és az automatikus naplózás a kiválasztott típus regiszterét olvassa.'**
+  String get modbusChannelsHelper;
+
+  /// No description provided for @modbusAddChannelButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Regiszter hozzáadása'**
+  String get modbusAddChannelButton;
+
+  /// No description provided for @modbusDuplicateChannelType.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ehhez a mennyiséghez már van regiszter. Típusonként csak egy adható meg.'**
+  String get modbusDuplicateChannelType;
+
+  /// No description provided for @modbusChannelsRequired.
+  ///
+  /// In hu, this message translates to:
+  /// **'Adjon meg legalább egy Modbus-regisztert.'**
+  String get modbusChannelsRequired;
+
   /// No description provided for @measurementErrorLabel.
   ///
   /// In hu, this message translates to:
@@ -7114,8 +7150,62 @@ abstract class AppLocalizations {
   /// No description provided for @btnEnabledHelp.
   ///
   /// In hu, this message translates to:
-  /// **'Androidon a Bluetooth-os médiagombos távirányító parancsokat küld az appnak. Csak akkor működik, ha az app előtérben van.'**
+  /// **'A Bluetooth-os médiagombos távirányító (lejátszás, következő, előző) és a billentyűzetes vagy lapozó távirányító parancsokat küld az appnak. Csak akkor működik, ha az app előtérben van. iPhone-on a hangerő gombok nem használhatók.'**
   String get btnEnabledHelp;
+
+  /// No description provided for @btnKeyboardSectionTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Billentyűzetes / lapozó távirányító'**
+  String get btnKeyboardSectionTitle;
+
+  /// No description provided for @btnKeyboardHelp.
+  ///
+  /// In hu, this message translates to:
+  /// **'Billentyű hozzáadásához nyomd meg a gombot a távirányítón. Minden megtanult billentyű egy parancsot futtat. A médiagombok parancsait a fenti gombok adják meg.'**
+  String get btnKeyboardHelp;
+
+  /// No description provided for @btnKeyboardAdd.
+  ///
+  /// In hu, this message translates to:
+  /// **'Billentyű hozzáadása'**
+  String get btnKeyboardAdd;
+
+  /// No description provided for @btnKeyboardLearnTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nyomd meg a távirányító gombját'**
+  String get btnKeyboardLearnTitle;
+
+  /// No description provided for @btnKeyboardLearnBody.
+  ///
+  /// In hu, this message translates to:
+  /// **'Várakozás billentyű lenyomására. A leállításhoz koppints a Mégse gombra.'**
+  String get btnKeyboardLearnBody;
+
+  /// No description provided for @btnKeyboardEmpty.
+  ///
+  /// In hu, this message translates to:
+  /// **'Még nincs hozzáadott billentyű.'**
+  String get btnKeyboardEmpty;
+
+  /// No description provided for @pointSavedMessage.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mérés mentve'**
+  String get pointSavedMessage;
+
+  /// No description provided for @cameraUnavailableError.
+  ///
+  /// In hu, this message translates to:
+  /// **'A kamera nem érhető el. Ellenőrizd a kamera engedélyét.'**
+  String get cameraUnavailableError;
+
+  /// No description provided for @saveValidationError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hiányzó vagy hibás adat van a mezők között.'**
+  String get saveValidationError;
 
   /// No description provided for @keepScreenOnLabel.
   ///
@@ -7236,6 +7326,204 @@ abstract class AppLocalizations {
   /// In hu, this message translates to:
   /// **'Még egyszer nyomd meg 3 másodpercen belül a mégsemhez'**
   String get discardConfirmHint;
+
+  /// No description provided for @modbusChannelQuantityLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mennyiség'**
+  String get modbusChannelQuantityLabel;
+
+  /// No description provided for @modbusAverageRadiationOnly.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az átlagolás csak sugárzási mérési típusnál érhető el (dózisteljesítmény, felületi szennyezés, beütésszám).'**
+  String get modbusAverageRadiationOnly;
+
+  /// No description provided for @autoLogSourcesTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Rögzítendő csatornák'**
+  String get autoLogSourcesTitle;
+
+  /// No description provided for @autoLogSourcesHelper.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jelölje ki, mely műszerek mely értékeit mentse. Egyszerre több műszer is rögzíthető, például az egyiké CPS, a másiké gázkoncentráció.'**
+  String get autoLogSourcesHelper;
+
+  /// No description provided for @autoLogSelectChannel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jelöljön ki legalább egy csatornát.'**
+  String get autoLogSelectChannel;
+
+  /// No description provided for @autoLogOneDoseSource.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dózisszámításhoz legfeljebb egy dózisteljesítmény-csatorna jelölhető ki.'**
+  String get autoLogOneDoseSource;
+
+  /// No description provided for @mapColorScaleTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Színezett mennyiség'**
+  String get mapColorScaleTitle;
+
+  /// No description provided for @mapInterpolationTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Interpolációs réteg'**
+  String get mapInterpolationTitle;
+
+  /// No description provided for @mapInterpolationSubtitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Becsült felület a pontok között (IDW). Nem mérés, csak becslés.'**
+  String get mapInterpolationSubtitle;
+
+  /// No description provided for @mapInterpolationLegend.
+  ///
+  /// In hu, this message translates to:
+  /// **'Becsült (IDW)'**
+  String get mapInterpolationLegend;
+
+  /// No description provided for @mapNoScalableValues.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs színezhető numerikus mérés ebben a felmérésben.'**
+  String get mapNoScalableValues;
+
+  /// No description provided for @mapToolsTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Rajzolás és mérés'**
+  String get mapToolsTooltip;
+
+  /// No description provided for @mapLayersTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Rétegek'**
+  String get mapLayersTooltip;
+
+  /// No description provided for @mapMeasureStopTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Távolságmérés befejezése'**
+  String get mapMeasureStopTooltip;
+
+  /// No description provided for @mapVisibilityTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Megjelenítés'**
+  String get mapVisibilityTitle;
+
+  /// No description provided for @mapPointsLayerTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mérési pontok'**
+  String get mapPointsLayerTitle;
+
+  /// No description provided for @mapAreasLayerTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Területek'**
+  String get mapAreasLayerTitle;
+
+  /// No description provided for @mapSourcesLayerTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Forrás pozíciók'**
+  String get mapSourcesLayerTitle;
+
+  /// No description provided for @mapDistancesLayerTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Távolságok'**
+  String get mapDistancesLayerTitle;
+
+  /// No description provided for @mapToggleAllLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Összes be/ki'**
+  String get mapToggleAllLabel;
+
+  /// No description provided for @mapScaleGroupTypes.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mérési típusok'**
+  String get mapScaleGroupTypes;
+
+  /// No description provided for @mapLineDeleteConfirm.
+  ///
+  /// In hu, this message translates to:
+  /// **'Törli ezt a mérővonalat?'**
+  String get mapLineDeleteConfirm;
+
+  /// No description provided for @mapLineDeleteTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mérővonal törlése'**
+  String get mapLineDeleteTooltip;
+
+  /// No description provided for @mapNoDistanceLines.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs mentett mérővonal.'**
+  String get mapNoDistanceLines;
+
+  /// No description provided for @personListFieldsTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Megjelenített adatok'**
+  String get personListFieldsTitle;
+
+  /// No description provided for @personListFieldExpiry.
+  ///
+  /// In hu, this message translates to:
+  /// **'Lejárati dátumok'**
+  String get personListFieldExpiry;
+
+  /// No description provided for @personListFieldContact.
+  ///
+  /// In hu, this message translates to:
+  /// **'Telefon és e-mail'**
+  String get personListFieldContact;
+
+  /// No description provided for @personListFieldAnnualDose.
+  ///
+  /// In hu, this message translates to:
+  /// **'Éves dózis'**
+  String get personListFieldAnnualDose;
+
+  /// No description provided for @personListFieldDoseBreakdown.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dózis forrásonként'**
+  String get personListFieldDoseBreakdown;
+
+  /// No description provided for @personListFieldLimit.
+  ///
+  /// In hu, this message translates to:
+  /// **'Dózis-keret kihasználtsága'**
+  String get personListFieldLimit;
+
+  /// No description provided for @personListFieldLastStatus.
+  ///
+  /// In hu, this message translates to:
+  /// **'Utolsó állapot'**
+  String get personListFieldLastStatus;
+
+  /// No description provided for @personFilterAll.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mind'**
+  String get personFilterAll;
+
+  /// No description provided for @personFilterExpired.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csak lejárt'**
+  String get personFilterExpired;
 }
 
 class _AppLocalizationsDelegate

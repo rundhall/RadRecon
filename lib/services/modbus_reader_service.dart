@@ -5,6 +5,7 @@ import 'package:modbus_client_tcp/modbus_client_tcp.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/instrument.dart';
+import '../models/modbus_reading.dart';
 
 /// Egyszeri Modbus/TCP kiolvasás eredménye.
 class ModbusReadResult {
@@ -94,21 +95,19 @@ Future<ModbusReadResult> _readAll(
 class ModbusReaderService {
   static Future<ModbusReadResult> readFloatRegister(
     Instrument instrument,
+    ModbusChannel channel,
     AppLocalizations l10n,
   ) async {
     final host = instrument.modbusHost;
     final port = instrument.modbusPort;
     final unitId = instrument.modbusUnitId;
-    final address = instrument.modbusRegisterAddress;
+    final address = channel.address;
 
     if (host == null || host.isEmpty) {
       return ModbusReadResult.error(l10n.instrumentIPAddressNotSet);
     }
     if (unitId == null) {
       return ModbusReadResult.error(l10n.modbusUnitIdNotSet);
-    }
-    if (address == null) {
-      return ModbusReadResult.error(l10n.registerAddressNotSet);
     }
 
     for (var attempt = 1; attempt <= 2; attempt++) {
@@ -187,14 +186,15 @@ class ModbusLiveSession {
 
   static Future<ModbusLiveSession> connect(
     Instrument instrument,
+    ModbusChannel channel,
     AppLocalizations l10n,
   ) async {
     final host = instrument.modbusHost;
     final port = instrument.modbusPort;
     final unitId = instrument.modbusUnitId;
-    final address = instrument.modbusRegisterAddress;
+    final address = channel.address;
 
-    if (host == null || host.isEmpty || unitId == null || address == null) {
+    if (host == null || host.isEmpty || unitId == null) {
       throw StateError(l10n.modbusAccessIncomplete);
     }
 

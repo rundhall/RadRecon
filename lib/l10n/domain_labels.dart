@@ -1,3 +1,4 @@
+import '../models/victim_details.dart';
 import '../models/bio_agent.dart';
 import '../models/gas_reading.dart';
 import '../models/dose_quantity.dart';
@@ -279,5 +280,13 @@ extension BioKindText on BioKind {
         BioKind.toxin => loc.bioKindToxin,
         BioKind.fungus => loc.bioKindFungus,
         BioKind.other => loc.bioKindOther,
+      };
+}
+
+extension VictimSexText on VictimSex {
+  String localized(AppLocalizations loc) => switch (this) {
+        VictimSex.female => loc.victimSexFemale,
+        VictimSex.male => loc.victimSexMale,
+        VictimSex.unknown => loc.victimSexUnknown,
       };
 }

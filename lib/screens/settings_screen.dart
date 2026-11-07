@@ -34,6 +34,9 @@ import 'contributors_screen.dart';
 
 /// Típusonkénti riasztási küszöbértékek beállítása. Ha egy mérési pont
 /// rögzítésekor a mért érték eléri/túllépi a küszöböt, az app figyelmeztet.
+/// A Beállítások főmenüjének kategóriái (a null azt jelenti: a főmenü látszik).
+enum _SettingsCategory { appearance, units, bluetooth, alerts, expiry, data, help }
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -50,6 +53,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _dataBusy = false;
   bool _expiryNotifEnabled = false;
   ExpiryLeadTime _expiryLead = ExpiryLeadTime.sameDay;
+  _SettingsCategory? _category;
 
   @override
   void initState() {
@@ -267,25 +271,73 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.dispose();
   }
 
+  List<Widget> _menuTiles(AppLocalizations loc) {
+    ListTile tile(_SettingsCategory c, IconData icon, String title) => ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: Icon(icon),
+          title: Text(title),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => setState(() => _category = c),
+        );
+    return [
+      tile(_SettingsCategory.appearance, Icons.palette_outlined, loc.appearanceSectionTitle),
+      tile(_SettingsCategory.units, Icons.straighten, loc.unitsSectionTitle),
+      tile(_SettingsCategory.bluetooth, Icons.bluetooth, loc.btnSectionTitle),
+      tile(_SettingsCategory.alerts, Icons.notifications_outlined, loc.alertThresholdsTooltip),
+      tile(_SettingsCategory.expiry, Icons.event_outlined, loc.expiryNotificationsSectionTitle),
+      tile(_SettingsCategory.data, Icons.storage, loc.dataManagementSectionTitle),
+      tile(_SettingsCategory.help, Icons.help_outline, loc.helpManualTitle),
+    ];
+  }
+
+  String _categoryTitle(AppLocalizations loc, _SettingsCategory c) => switch (c) {
+        _SettingsCategory.appearance => loc.appearanceSectionTitle,
+        _SettingsCategory.units => loc.unitsSectionTitle,
+        _SettingsCategory.bluetooth => loc.btnSectionTitle,
+        _SettingsCategory.alerts => loc.alertThresholdsTooltip,
+        _SettingsCategory.expiry => loc.expiryNotificationsSectionTitle,
+        _SettingsCategory.data => loc.dataManagementSectionTitle,
+        _SettingsCategory.help => loc.helpManualTitle,
+      };
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    return Scaffold(
+    final category = _category;
+    return PopScope(
+      canPop: category == null,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && category != null) setState(() => _category = null);
+      },
+      child: Scaffold(
       appBar: AppBar(
-        title: Text(loc.settingsTitle),
+        leading: category == null
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.arrow_back),
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                onPressed: () => setState(() => _category = null),
+              ),
+        title: Text(
+          category == null ? loc.settingsTitle : _categoryTitle(loc, category),
+        ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            tooltip: loc.saveButton,
-            onPressed: _save,
-          ),
+          if (category != null)
+            IconButton(
+              icon: const Icon(Icons.save),
+              tooltip: loc.saveButton,
+              onPressed: _save,
+            ),
         ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.all(16),
-              children: [
+              children: category == null
+                  ? _menuTiles(loc)
+                  : [
+                if (category == _SettingsCategory.appearance) ...[
                 Text(
                   loc.appearanceSectionTitle,
                   style: const TextStyle(fontWeight: FontWeight.w600),
@@ -323,7 +375,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                   },
                 ),
-                const Divider(height: 32),
+                ],
+                if (category == _SettingsCategory.units) ...[
                 Text(
                   loc.unitsSectionTitle,
                   style: const TextStyle(fontWeight: FontWeight.w600),
@@ -455,7 +508,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                   },
                 ),
-                const Divider(height: 32),
+                ],
+                if (category == _SettingsCategory.bluetooth) ...[
                 Text(
                   loc.btnSectionTitle,
                   style: const TextStyle(fontWeight: FontWeight.w600),
@@ -482,7 +536,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                for (final button in HardwareButton.values) ...[
+                for (final button in _visibleButtons()) ...[
                   ValueListenableBuilder<ButtonCommand>(
                     valueListenable: HardwareButtonController.commandOf(button),
                     builder: (context, current, _) {
@@ -511,6 +565,69 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 12),
                 ],
                 const SizedBox(height: 12),
+                Text(
+                  loc.btnKeyboardSectionTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 4),
+                Text(loc.btnKeyboardHelp, style: const TextStyle(fontSize: 13)),
+                const SizedBox(height: 8),
+                ValueListenableBuilder<List<LearnedKey>>(
+                  valueListenable: HardwareButtonController.learnedKeys,
+                  builder: (context, keys, _) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (keys.isEmpty)
+                        Text(
+                          loc.btnKeyboardEmpty,
+                          style: const TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      for (final k in keys) ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButtonFormField<ButtonCommand>(
+                                key: ValueKey(
+                                  'learned-${k.keyId}-${k.command.name}',
+                                ),
+                                initialValue: k.command,
+                                isExpanded: true,
+                                decoration: InputDecoration(labelText: k.label),
+                                items: [
+                                  for (final c in ButtonCommand.values)
+                                    DropdownMenuItem(
+                                      value: c,
+                                      child: Text(_commandLabel(loc, c)),
+                                    ),
+                                ],
+                                onChanged: (c) {
+                                  if (c != null) {
+                                    HardwareButtonController
+                                        .setLearnedKeyCommand(k.keyId, c);
+                                  }
+                                },
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: loc.deleteButton,
+                              icon: const Icon(Icons.delete_outline),
+                              onPressed: () => HardwareButtonController
+                                  .removeLearnedKey(k.keyId),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.add),
+                        label: Text(loc.btnKeyboardAdd),
+                        onPressed: () => _learnKeyboardKey(context, loc),
+                      ),
+                    ],
+                  ),
+                ),
+                ],
+                if (category == _SettingsCategory.units) ...[
                 Text(loc.displayUnitsHint, style: const TextStyle(fontSize: 13)),
                 const SizedBox(height: 8),
                 DisplayUnitDropdown(
@@ -576,7 +693,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                   },
                 ),
-                const Divider(height: 32),
+                ],
+                if (category == _SettingsCategory.appearance) ...[
                 Text(
                   loc.languageSectionTitle,
                   style: const TextStyle(fontWeight: FontWeight.w600),
@@ -625,7 +743,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                   },
                 ),
-                const Divider(height: 32),
+                ],
+                if (category == _SettingsCategory.data) ...[
                 Text(
                   loc.dataManagementSectionTitle,
                   style: const TextStyle(fontWeight: FontWeight.w600),
@@ -670,7 +789,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     padding: EdgeInsets.only(top: 8),
                     child: LinearProgressIndicator(),
                   ),
-                const Divider(height: 32),
+                ],
+                if (category == _SettingsCategory.expiry) ...[
                 if (ExpiryNotificationService.isSupported) ...[
                   Text(
                     loc.expiryNotificationsSectionTitle,
@@ -701,8 +821,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
                     ),
                   ],
-                  const Divider(height: 32),
                 ],
+                ],
+                if (category == _SettingsCategory.alerts) ...[
                 Text(
                   loc.alertThresholdExplanation,
                   style: const TextStyle(fontSize: 13),
@@ -728,7 +849,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                 const SizedBox(height: 12),
                 FilledButton(onPressed: _save, child: Text(loc.saveButton)),
-                const Divider(height: 32),
+                ],
+                if (category == _SettingsCategory.help) ...[
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.help_outline),
@@ -763,10 +885,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                   },
                 ),
+                ],
               ],
             ),
+      ),
     );
   }
+}
+
+/// Az iPhone nem adja át a hangerőgombokat, ezért azok nem kötehetők.
+List<HardwareButton> _visibleButtons() => [
+      for (final b in HardwareButton.values)
+        if (!(Platform.isIOS &&
+            (b == HardwareButton.volumeUp || b == HardwareButton.volumeDown)))
+          b,
+    ];
+
+/// Megtanítja a következő lenyomott billentyűt a távirányítóról.
+Future<void> _learnKeyboardKey(
+  BuildContext context,
+  AppLocalizations loc,
+) async {
+  final navigator = Navigator.of(context);
+  var open = true;
+  HardwareButtons.startLearning((key) {
+    HardwareButtonController.addLearnedKey(key);
+    if (open) {
+      open = false;
+      navigator.pop();
+    }
+  });
+  await showDialog<void>(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: Text(loc.btnKeyboardLearnTitle),
+      content: Text(loc.btnKeyboardLearnBody),
+      actions: [
+        TextButton(
+          onPressed: () {
+            if (open) {
+              open = false;
+              navigator.pop();
+            }
+          },
+          child: Text(loc.cancelButton),
+        ),
+      ],
+    ),
+  );
+  open = false;
+  HardwareButtons.stopLearning();
 }
 
 String _buttonLabel(AppLocalizations loc, HardwareButton button) =>

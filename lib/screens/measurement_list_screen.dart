@@ -1,4 +1,5 @@
 import '../models/hardware_button.dart';
+import '../widgets/filter_label.dart';
 import '../services/hardware_buttons.dart';
 import '../models/bio_agent.dart';
 import '../l10n/domain_labels.dart';
@@ -925,62 +926,65 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(
-                          child: DropdownButton<Object>(
-                            isExpanded: true,
-                            value: _sourceOnly ? #sourceOnly : (_kind ?? #allKinds),
-                            items: [
-                              DropdownMenuItem<Object>(
-                                value: #allKinds,
-                                child: Text(loc.measurementFilterAllKinds),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButton<Object>(
+                                isExpanded: true,
+                                value: _sourceOnly ? #sourceOnly : (_kind ?? #allKinds),
+                                items: [
+                                  DropdownMenuItem<Object>(
+                                    value: #allKinds,
+                                    child: filterLabel(loc.measurementFilterAllKinds),
+                                  ),
+                                  DropdownMenuItem<Object>(
+                                    value: #sourceOnly,
+                                    child: filterLabel(loc.measurementFilterSourceOnly),
+                                  ),
+                                  for (final t in MeasurementType.values)
+                                    DropdownMenuItem<Object>(
+                                      value: t,
+                                      child: filterLabel(t.label(context)),
+                                    ),
+                                ],
+                                onChanged: (v) => setState(() {
+                                  _sourceOnly = v == #sourceOnly;
+                                  _kind = v is MeasurementType ? v : null;
+                                }),
                               ),
-                              DropdownMenuItem<Object>(
-                                value: #sourceOnly,
-                                child: Text(loc.measurementFilterSourceOnly),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: DropdownButton<SurveyTimeFilter>(
+                                isExpanded: true,
+                                value: _time,
+                                items: [
+                                  for (final f in SurveyTimeFilter.values)
+                                    DropdownMenuItem(
+                                      value: f,
+                                      child: filterLabel(_timeLabel(loc, f)),
+                                    ),
+                                ],
+                                onChanged: _onTimeChanged,
                               ),
-                              for (final t in MeasurementType.values)
-                                DropdownMenuItem<Object>(
-                                  value: t,
-                                  child: Text(t.label(context)),
-                                ),
-                            ],
-                            onChanged: (v) => setState(() {
-                              _sourceOnly = v == #sourceOnly;
-                              _kind = v is MeasurementType ? v : null;
-                            }),
-                          ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: DropdownButton<SurveyTimeFilter>(
-                            isExpanded: true,
-                            value: _time,
-                            items: [
-                              for (final f in SurveyTimeFilter.values)
-                                DropdownMenuItem(
-                                  value: f,
-                                  child: Text(_timeLabel(loc, f)),
-                                ),
-                            ],
-                            onChanged: _onTimeChanged,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: DropdownButton<MeasurementSort>(
-                            isExpanded: true,
-                            value: _sort,
-                            items: [
-                              for (final f in MeasurementSort.values)
-                                DropdownMenuItem(
-                                  value: f,
-                                  child: Text(_sortLabel(loc, f)),
-                                ),
-                            ],
-                            onChanged: (v) => setState(() => _sort = v ?? _sort),
-                          ),
+                        const SizedBox(height: 8),
+                        DropdownButton<MeasurementSort>(
+                          isExpanded: true,
+                          value: _sort,
+                          items: [
+                            for (final f in MeasurementSort.values)
+                              DropdownMenuItem(
+                                value: f,
+                                child: filterLabel(_sortLabel(loc, f)),
+                              ),
+                          ],
+                          onChanged: (v) => setState(() => _sort = v ?? _sort),
                         ),
                       ],
                     ),

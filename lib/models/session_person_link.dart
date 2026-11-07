@@ -96,3 +96,11 @@ class AttachedPerson {
 
   const AttachedPerson({required this.link, required this.person});
 }
+
+/// A személy legutóbbi felmérésbeli állapota: szerep, triázs-besorolás és a
+/// felmérés kezdete.
+typedef PersonLatestStatus = ({
+  SessionPersonRole role,
+  TriageCategory? triage,
+  DateTime startedAt,
+});

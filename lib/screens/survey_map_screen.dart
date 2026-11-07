@@ -1,12 +1,22 @@
 import '../models/hardware_button.dart';
 import '../services/hardware_buttons.dart';
+import 'dart:convert';
+import 'dart:math' as math;
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart' as ll;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/domain_labels.dart';
+import '../l10n/modbus_quantity_labels.dart';
+import '../models/meteorology.dart';
+import '../models/modbus_reading.dart';
 import '../models/map_area.dart';
 import '../models/map_measure_line.dart';
 import '../models/measurement_point.dart';
@@ -26,12 +36,83 @@ import 'measurement_entry_screen.dart';
 import '../widgets/plan_map_layers.dart';
 
 /// A pont térképi kategóriája: a mintavétel a `isSample` jelzőből, minden más
-/// a típusából adódik. Csak a `doseRate` kap színskálát, a többi egyszínű ikon.
+/// a típusából adódik. A színezhető mennyiségeket a színezési lista adja.
 MeasurementType mapKindOf({required bool isSample, required MeasurementType type}) =>
     isSample ? MeasurementType.sample : type;
 
+/// Az IDW-becslés bemenete: a mintapontok síkbeli koordinátái és a rácsgeometria.
+/// Csak egyszerű adatokat tartalmaz, így átadható a háttérszálnak.
+class _IdwGrid {
+  _IdwGrid({
+    required this.lat0,
+    required this.lon0,
+    required this.mPerLat,
+    required this.mPerLon,
+    required this.xs,
+    required this.ys,
+    required this.vs,
+    required this.minX,
+    required this.minY,
+    required this.cell,
+    required this.nx,
+    required this.ny,
+    required this.lo,
+    required this.hi,
+  });
+
+  final double lat0;
+  final double lon0;
+  final double mPerLat;
+  final double mPerLon;
+  final List<double> xs;
+  final List<double> ys;
+  final List<double> vs;
+  final double minX;
+  final double minY;
+  final double cell;
+  final int nx;
+  final int ny;
+  final double lo;
+  final double hi;
+}
+
+/// A rajzolási és mérési módok menüpontjai (egymást kizáró módok).
+enum _ToolAction { area, measure, source }
+
+/// Színezhető mennyiség forrása: mérési típus, meteorológiai mező vagy gáz.
+enum _ScaleSource { typed, meteo, gas }
+
+/// Egy színezhető mennyiség azonosítója (forrás + név + egység).
+class _ScaleKey {
+  const _ScaleKey(this.source, this.name, this.unit);
+
+  final _ScaleSource source;
+  final String name; // MeasurementType.name, meteorológiai mezőkulcs vagy gáznév
+  final String unit;
+
+  @override
+  bool operator ==(Object other) =>
+      other is _ScaleKey &&
+      other.source == source &&
+      other.name == name &&
+      other.unit == unit;
+
+  @override
+  int get hashCode => Object.hash(source, name, unit);
+}
+
+/// A színezési lista egy eleme.
+class _ScaleOption {
+  const _ScaleOption(this.key, this.label);
+
+  final _ScaleKey key;
+  final String label;
+
+  String get unit => key.unit;
+}
+
 /// A felmérés pontjait jeleníti meg térképen (OpenStreetMap csempék), a
-/// dózisteljesítmény szerint színezve (a többi mérés egyszínű ikonnal), és
+/// a kiválasztott mennyiség szerint színezve (a többi mérés egyszínű ikonnal), és
 /// a bejárt útvonalat (időrendi sorrend)
 /// egy vonallal összekötve.
 class SurveyMapScreen extends StatefulWidget {
@@ -66,11 +147,27 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
   Map<int, List<String>> _nuclidesBySource = {}; // forrásonként a nuklidok (kereséshez)
   double _zoom = 16; // a térkép nagyítása: a forrás-feliratok ettől látszanak
   static const _sourceLabelMinZoom = 17.0;
+  _ScaleKey? _scaleKey; // a színezett mennyiség (nincs kiválasztva: a dózisteljesítmény)
+  bool _showInterpolation = false; // becsült (IDW) felület réteg
+  Object? _interpSource; // az utoljára kiszámolt felület pontlistája (_points azonossága)
+  _ScaleKey? _interpKey; // és mennyisége
+  List<Polygon> _interpPolys = const [];
+  int _interpToken = 0; // a háttérszámítás azonosítója: csak a legutolsó eredmény érvényes
+  Object? _interpJobSource; // a folyamatban lévő számítás pontlistája
+  _ScaleKey? _interpJobKey; // és mennyisége
+  bool _viewRestored = false; // a mentett nézet visszatöltése megtörtént-e
+  bool _showPoints = true; // mérési pontok és a bejárt útvonal
+  bool _showAreas = true; // jelölt területek (kitöltés, kör, név)
+  bool _showSources = true; // forrás-elhelyezések ikonjai
+  bool _showDistances = true; // mentett mérővonalak és távolságcímkéik
+  final Set<int> _hiddenAreaIds = {}; // egyenként elrejtett területek
+  final Set<int> _hiddenLineIds = {}; // egyenként elrejtett mérővonalak
 
   @override
   void initState() {
     super.initState();
     HardwareButtons.register(_buttonHandler);
+    _restoreView();
     _load();
   }
 
@@ -98,6 +195,414 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
       if (saved == true) _load();
     });
     return true;
+  }
+
+  /// Rajzolási és mérési módok egy menüben. A módok egymást kizárják, ezért
+  /// a menüpontok a futó módtól függően tiltódnak.
+  Widget _buildToolsMenu(AppLocalizations loc) {
+    final busy = _draw != null;
+    final active = busy || _measuring || _placingSourceId != null;
+    ListTile item(IconData icon, String title) => ListTile(
+          dense: true,
+          contentPadding: EdgeInsets.zero,
+          leading: Icon(icon),
+          title: Text(title),
+        );
+    return PopupMenuButton<_ToolAction>(
+      tooltip: loc.mapToolsTooltip,
+      icon: Icon(
+        Icons.edit_outlined,
+        color: active ? Theme.of(context).colorScheme.primary : null,
+      ),
+      onSelected: (action) {
+        switch (action) {
+          case _ToolAction.area:
+            _startAreaDraw();
+          case _ToolAction.measure:
+            if (_measuring) {
+              _stopMeasure();
+            } else {
+              _startMeasure();
+            }
+          case _ToolAction.source:
+            if (_placingSourceId == null) {
+              _showSourcePicker();
+            } else {
+              _cancelSourcePlacement();
+            }
+        }
+      },
+      itemBuilder: (_) => [
+        PopupMenuItem(
+          value: _ToolAction.area,
+          enabled: !busy && !_measuring,
+          child: item(Icons.add_location_alt_outlined, loc.mapAreaButtonTooltip),
+        ),
+        PopupMenuItem(
+          value: _ToolAction.measure,
+          enabled: !busy,
+          child: item(
+            Icons.straighten,
+            _measuring ? loc.mapMeasureStopTooltip : loc.mapMeasureTooltip,
+          ),
+        ),
+        PopupMenuItem(
+          value: _ToolAction.source,
+          enabled: !busy && !_measuring,
+          child: _placingSourceId == null
+              ? item(Icons.warning_amber_rounded, loc.mapPlaceSourceTooltip)
+              : item(Icons.close, loc.mapPlaceSourceCancelTooltip),
+        ),
+      ],
+    );
+  }
+
+  /// Gyűjtő: egy elem rejtése vagy mutatása a halmazban.
+  static void _setHidden(Set<int> hidden, int? id, bool hide) {
+    if (id == null) return;
+    if (hide) {
+      hidden.add(id);
+    } else {
+      hidden.remove(id);
+    }
+  }
+
+  /// Összes be/ki: ha bármi látszik, mindent elrejt; különben mindent mutat.
+  static void _toggleAll(Iterable<int> ids, Set<int> hidden) {
+    final list = ids.toList();
+    final allShown = list.every((id) => !hidden.contains(id));
+    hidden.clear();
+    if (allShown) hidden.addAll(list);
+  }
+
+  Future<bool> _confirmAction(String message, String actionLabel) async {
+    final loc = AppLocalizations.of(context)!;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(loc.cancelButton),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(actionLabel),
+          ),
+        ],
+      ),
+    );
+    return ok ?? false;
+  }
+
+  /// Mérővonal törlése a listából és az adatbázisból.
+  Future<void> _deleteLine(MapMeasureLine line) async {
+    setState(() {
+      _lines.removeWhere((l) => identical(l, line));
+      _selectedLine = null;
+      _hiddenLineIds.remove(line.id);
+    });
+    _persistView();
+    if (line.id != null) {
+      await DatabaseHelper.instance.deleteMapMeasureLine(line.id!);
+    }
+  }
+
+  /// A színezési legördülő elemei, forrásonként fejléccel (a fejléc értéke null,
+  /// így kiválasztva sem változtat a színezésen).
+  List<DropdownMenuItem<_ScaleKey?>> _scaleMenuItems(
+      BuildContext context, List<_ScaleOption> options) {
+    final loc = AppLocalizations.of(context)!;
+    final items = <DropdownMenuItem<_ScaleKey?>>[];
+    _ScaleSource? group;
+    for (final o in options) {
+      final src = o.key.source;
+      if (src != group) {
+        group = src;
+        final header = switch (src) {
+          _ScaleSource.typed => loc.mapScaleGroupTypes,
+          _ScaleSource.meteo => MeasurementType.meteorology.label(context),
+          _ScaleSource.gas => MeasurementType.gasMeasurement.label(context),
+        };
+        items.add(DropdownMenuItem<_ScaleKey?>(
+          value: null,
+          child: Text(header,
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+        ));
+      }
+      items.add(DropdownMenuItem<_ScaleKey?>(
+        value: o.key,
+        child: Text('${o.label} (${o.unit})'),
+      ));
+    }
+    return items;
+  }
+
+  /// Rétegek: megjelenítési chipek, jelölt területek és mérővonalak soronként
+  /// (be-/kikapcsolás, törlés), és a színezett mennyiség legördülője. A két
+  /// lista összecsukható, hogy sok elem esetén is átlátható maradjon a lap.
+  void _showLayersSheet() {
+    final options = _scaleOptions(context);
+    // A fejléc-elem kiválasztásakor a mező újraépül, hogy ne maradjon rajta a fejléc.
+    var scaleFieldEpoch = 0;
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (sheetContext, setSheet) {
+          final loc = AppLocalizations.of(sheetContext)!;
+          final theme = Theme.of(sheetContext).textTheme;
+          final active = _activeOption(options);
+
+          void changed(VoidCallback change) {
+            setState(change);
+            setSheet(() {});
+            _persistView();
+          }
+
+          return SafeArea(
+            child: ListView(
+              shrinkWrap: true,
+              padding: const EdgeInsets.all(16),
+              children: [
+                Text(loc.mapLayersTooltip, style: theme.titleMedium),
+                const SizedBox(height: 12),
+                Text(loc.mapVisibilityTitle, style: theme.labelLarge),
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    FilterChip(
+                      label: Text(loc.mapPointsLayerTitle),
+                      selected: _showPoints,
+                      onSelected: (v) => changed(() => _showPoints = v),
+                    ),
+                    FilterChip(
+                      label: Text(loc.mapAreasLayerTitle),
+                      selected: _showAreas,
+                      onSelected: (v) => changed(() => _showAreas = v),
+                    ),
+                    FilterChip(
+                      label: Text(loc.mapSourcesLayerTitle),
+                      selected: _showSources,
+                      onSelected: (v) => changed(() => _showSources = v),
+                    ),
+                    FilterChip(
+                      label: Text(loc.mapDistancesLayerTitle),
+                      selected: _showDistances,
+                      onSelected: (v) => changed(() => _showDistances = v),
+                    ),
+                    FilterChip(
+                      label: Text(loc.mapInterpolationTitle),
+                      selected: _showInterpolation,
+                      onSelected: (v) => changed(() => _showInterpolation = v),
+                    ),
+                  ],
+                ),
+                const Divider(height: 24),
+                ExpansionTile(
+                  tilePadding: EdgeInsets.zero,
+                  title: Text('${loc.mapAreaListTooltip} (${_areas.length})'),
+                  children: [
+                    if (_areas.isEmpty)
+                      ListTile(
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(loc.mapAreaNoAreas),
+                      )
+                    else
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () => changed(() => _toggleAll(
+                              _areas.map((a) => a.id).whereType<int>(),
+                              _hiddenAreaIds)),
+                          child: Text(loc.mapToggleAllLabel),
+                        ),
+                      ),
+                    for (final a in _areas)
+                      ListTile(
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        leading: CircleAvatar(
+                          backgroundColor: Color(a.colorArgb),
+                          radius: 10,
+                        ),
+                        title: Text(a.name),
+                        subtitle: Text(a.shape == MapAreaShape.polygon
+                            ? loc.mapAreaPolygon
+                            : loc.mapAreaCircle),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Switch(
+                              value: !_hiddenAreaIds.contains(a.id),
+                              onChanged: (v) => changed(
+                                  () => _setHidden(_hiddenAreaIds, a.id, !v)),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete_outline),
+                              tooltip: loc.mapAreaDeleteTooltip,
+                              onPressed: () async {
+                                if (!await _confirmDeleteArea()) return;
+                                await DatabaseHelper.instance
+                                    .deleteMapArea(a.id!);
+                                setState(() {
+                                  _hiddenAreaIds.remove(a.id);
+                                });
+                                _persistView();
+                                await _load();
+                                if (sheetContext.mounted) setSheet(() {});
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+                ExpansionTile(
+                  tilePadding: EdgeInsets.zero,
+                  title:
+                      Text('${loc.mapDistancesLayerTitle} (${_lines.length})'),
+                  children: [
+                    if (_lines.isEmpty)
+                      ListTile(
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(loc.mapNoDistanceLines),
+                      )
+                    else
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () => changed(() => _toggleAll(
+                              _lines.map((l) => l.id).whereType<int>(),
+                              _hiddenLineIds)),
+                          child: Text(loc.mapToggleAllLabel),
+                        ),
+                      ),
+                    for (final line in _lines)
+                      ListTile(
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        leading: CircleAvatar(
+                          backgroundColor: Color(line.colorArgb),
+                          radius: 10,
+                        ),
+                        title: Text(formatDistanceMeters(line.meters)),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Switch(
+                              value: !_hiddenLineIds.contains(line.id),
+                              onChanged: (v) => changed(() =>
+                                  _setHidden(_hiddenLineIds, line.id, !v)),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete_outline),
+                              tooltip: loc.mapLineDeleteTooltip,
+                              onPressed: () async {
+                                if (!await _confirmAction(
+                                    loc.mapLineDeleteConfirm,
+                                    loc.mapLineDeleteTooltip)) {
+                                  return;
+                                }
+                                await _deleteLine(line);
+                                if (sheetContext.mounted) setSheet(() {});
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+                const Divider(height: 24),
+                if (options.isEmpty)
+                  Text(loc.mapNoScalableValues)
+                else ...[
+                  DropdownButtonFormField<_ScaleKey?>(
+                    key: ValueKey((scaleFieldEpoch, active?.key)),
+                    isExpanded: true,
+                    initialValue: active?.key,
+                    decoration:
+                        InputDecoration(labelText: loc.mapColorScaleTitle),
+                    items: _scaleMenuItems(sheetContext, options),
+                    onChanged: (v) {
+                      if (v != null) {
+                        changed(() => _scaleKey = v);
+                      } else {
+                        setSheet(() {
+                          scaleFieldEpoch++;
+                        });
+                      }
+                    },
+                  ),
+                  if (_showInterpolation)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(loc.mapInterpolationSubtitle,
+                          style: theme.bodySmall),
+                    ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  static String _viewKey(int sessionId) => 'map_view_$sessionId';
+
+  static Set<int> _intSet(Object? raw) =>
+      raw is List ? raw.whereType<int>().toSet() : <int>{};
+
+  /// A térkép nézetének visszatöltése (rétegek és egyenként elrejtett elemek)
+  /// munkamenetenként. A mentés ezen az eszközön marad.
+  Future<void> _restoreView() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_viewKey(widget.surveySessionId));
+    if (mounted && raw != null) {
+      try {
+        final m = jsonDecode(raw) as Map<String, dynamic>;
+        setState(() {
+          _showPoints = m['points'] as bool? ?? _showPoints;
+          _showAreas = m['areas'] as bool? ?? _showAreas;
+          _showSources = m['sources'] as bool? ?? _showSources;
+          _showDistances = m['distances'] as bool? ?? _showDistances;
+          _showInterpolation = m['interp'] as bool? ?? _showInterpolation;
+          _hiddenAreaIds
+            ..clear()
+            ..addAll(_intSet(m['hiddenAreas']));
+          _hiddenLineIds
+            ..clear()
+            ..addAll(_intSet(m['hiddenLines']));
+        });
+      } on Object {
+        // Hibás vagy régi mentésnél marad az alapértelmezett nézet.
+      }
+    }
+    _viewRestored = true;
+  }
+
+  /// A nézet mentése: a rétegek állapota és az egyenként elrejtett elemek.
+  Future<void> _persistView() async {
+    if (!_viewRestored) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _viewKey(widget.surveySessionId),
+      jsonEncode({
+        'points': _showPoints,
+        'areas': _showAreas,
+        'sources': _showSources,
+        'distances': _showDistances,
+        'interp': _showInterpolation,
+        'hiddenAreas': _hiddenAreaIds.toList(),
+        'hiddenLines': _hiddenLineIds.toList(),
+      }),
+    );
   }
 
   Future<void> _load() async {
@@ -146,51 +651,338 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
   MeasurementType _kindOf(MeasurementPoint p) =>
       mapKindOf(isSample: p.isSample, type: p.type);
 
-  /// A dózisteljesítményen kívüli kategóriák, amelyek a térképen előfordulnak.
-  List<MeasurementType> _otherKinds() {
-    final kinds = <MeasurementType>{};
+  /// Színezhető típusok: a dózisteljesítmény mellett a számlálási és aktivitási
+  /// mennyiségek. A mintavétel (isSample) nem kap színskálát.
+  static const _typedScalable = <MeasurementType>{
+    MeasurementType.doseRate,
+    MeasurementType.countRate,
+    MeasurementType.surfaceContamination,
+    MeasurementType.activity,
+    MeasurementType.activityConcentration,
+  };
+
+  /// A meteorológiai mezők közül a színezhetőek (a szélirány körkörös, nem skálázható).
+  static final _meteoScaleKeys = [
+    for (final k in kModbusMeteoUnits.keys)
+      if (k != 'wind_direction_deg') k,
+  ];
+
+  static bool _isKerma(MeasurementPoint p) =>
+      p.type == MeasurementType.doseRate && p.doseQuantity == 'kerma';
+
+  static double? _meteoField(String key, Meteorology m) => switch (key) {
+        'air_temperature_c' => m.airTemperatureC,
+        'relative_humidity_pct' => m.relativeHumidityPct,
+        'pressure_hpa' => m.pressureHpa,
+        'wind_speed_ms' => m.windSpeedMs,
+        'gust_ms' => m.gustMs,
+        'precipitation_mm_h' => m.precipitationMmH,
+        'solar_wm2' => m.solarWm2,
+        'cloud_okta' => m.cloudOkta,
+        'visibility_m' => m.visibilityM,
+        'soil_moisture_pct' => m.soilMoisturePct,
+        'aerosol_ug_m3' => m.aerosolUgM3,
+        _ => null,
+      };
+
+  /// A térkép színezhető mennyiségei a felmérés pontjaiból: csak a ténylegesen
+  /// előforduló típus+egység, meteorológiai mező és gázvegyület+egység párok.
+  List<_ScaleOption> _scaleOptions(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final byKey = <_ScaleKey, _ScaleOption>{};
+    void add(_ScaleKey key, String label) =>
+        byKey.putIfAbsent(key, () => _ScaleOption(key, label));
     for (final p in _points) {
-      final k = _kindOf(p);
-      if (k != MeasurementType.doseRate) kinds.add(k);
+      if (p.isSample) continue;
+      if (p.value != null && _typedScalable.contains(p.type) && !_isKerma(p)) {
+        add(_ScaleKey(_ScaleSource.typed, p.type.name, p.unit),
+            p.type.label(context));
+      }
+      final m = p.meteorology;
+      if (m != null) {
+        for (final k in _meteoScaleKeys) {
+          if (_meteoField(k, m) != null) {
+            add(_ScaleKey(_ScaleSource.meteo, k, kModbusMeteoUnits[k]!.first),
+                modbusMeteoLabel(loc, k));
+          }
+        }
+      }
+      for (final g in p.gases) {
+        add(_ScaleKey(_ScaleSource.gas, g.name, g.unit.symbol),
+            localizedGasName(loc, g.name));
+      }
     }
-    return kinds.toList();
+    return byKey.values.toList()
+      ..sort((a, b) {
+        final bySource = a.key.source.index.compareTo(b.key.source.index);
+        if (bySource != 0) return bySource;
+        final aDose = a.key.name == MeasurementType.doseRate.name ? 0 : 1;
+        final bDose = b.key.name == MeasurementType.doseRate.name ? 0 : 1;
+        if (aDose != bDose) return aDose.compareTo(bDose);
+        return a.label.compareTo(b.label);
+      });
   }
 
-  /// Dózisteljesítmény-skála: típusonként (csak dózis) normalizál, min→zöld,
-  /// max→piros.
-  Map<int, Color> _computeColors() {
-    final byType = _colorGroups();
+  /// A ténylegesen színezett mennyiség: a kiválasztott, vagy alapértelmezésben a
+  /// dózisteljesítmény (ha van), különben az első elérhető.
+  _ScaleOption? _activeOption(List<_ScaleOption> options) {
+    if (options.isEmpty) return null;
+    for (final o in options) {
+      if (o.key == _scaleKey) return o;
+    }
+    return options.firstWhere(
+      (o) =>
+          o.key.source == _ScaleSource.typed &&
+          o.key.name == MeasurementType.doseRate.name,
+      orElse: () => options.first,
+    );
+  }
 
-    final colors = <int, Color>{};
-    for (final entry in byType.entries) {
-      final values = entry.value.map((p) => p.value!).toList();
-      final min = values.reduce((a, b) => a < b ? a : b);
-      final max = values.reduce((a, b) => a > b ? a : b);
-      for (final p in entry.value) {
-        final t = (max == min) ? 0.5 : (p.value! - min) / (max - min);
-        colors[p.id!] = Color.lerp(Colors.green, Colors.red, t)!;
+  /// Egy pont értéke a kiválasztott mennyiségből (null: nem színezhető).
+  static double? _scaleValue(_ScaleKey k, MeasurementPoint p) {
+    if (p.isSample) return null;
+    if (k.source == _ScaleSource.typed) {
+      if (p.type.name != k.name ||
+          p.unit != k.unit ||
+          p.value == null ||
+          _isKerma(p)) {
+        return null;
       }
+      return p.value;
+    }
+    if (k.source == _ScaleSource.meteo) {
+      final m = p.meteorology;
+      return m == null ? null : _meteoField(k.name, m);
+    }
+    for (final g in p.gases) {
+      if (g.name == k.name && g.unit.symbol == k.unit) return g.concentration;
+    }
+    return null;
+  }
+
+  List<(MeasurementPoint, double)> _scaleSamples(_ScaleKey key) {
+    final out = <(MeasurementPoint, double)>[];
+    for (final p in _points) {
+      final v = _scaleValue(key, p);
+      if (v != null) out.add((p, v));
+    }
+    return out;
+  }
+
+  static (double, double) _range(Iterable<double> values) {
+    var lo = double.infinity;
+    var hi = double.negativeInfinity;
+    for (final v in values) {
+      if (v < lo) lo = v;
+      if (v > hi) hi = v;
+    }
+    return (lo, hi);
+  }
+
+  /// Zöld (legkisebb) → piros (legnagyobb) skála.
+  static Color _scaleColor(double v, double lo, double hi) {
+    final raw = hi == lo ? 0.5 : (v - lo) / (hi - lo);
+    final t = raw < 0 ? 0.0 : (raw > 1 ? 1.0 : raw);
+    return Color.lerp(Colors.green, Colors.red, t)!;
+  }
+
+  Map<int, Color> _computeColors(_ScaleKey? key) {
+    final colors = <int, Color>{};
+    if (key == null) return colors;
+    final samples = _scaleSamples(key);
+    if (samples.isEmpty) return colors;
+    final (lo, hi) = _range(samples.map((s) => s.$2));
+    for (final (p, v) in samples) {
+      colors[p.id!] = _scaleColor(v, lo, hi);
     }
     return colors;
   }
 
-  Map<MeasurementType, List<MeasurementPoint>> _colorGroups() {
-    final byType = <MeasurementType, List<MeasurementPoint>>{};
-    for (final p in _points) {
-      if (p.value == null || p.isSample) continue;
-      if (p.type != MeasurementType.doseRate) continue;
-      // A légkerma (K) nem dózisegyenérték: nem kerül a dózis-skálába.
-      if (p.doseQuantity == 'kerma') continue;
-      byType.putIfAbsent(p.type, () => []).add(p);
-    }
-    return byType;
+  /// A becsült felület (IDW) cellái a kiválasztott mennyiségre. A számítás
+  /// háttérszálon fut, így nem akasztja a térképet; amíg tart, nincs felület.
+  /// Ha a pontlista vagy a mennyiség változik, a régi eredményt eldobja.
+  List<Polygon> _interpolationPolygons(_ScaleKey key) {
+    final ready = identical(_interpSource, _points) && _interpKey == key;
+    final inFlight =
+        identical(_interpJobSource, _points) && _interpJobKey == key;
+    if (ready) return _interpPolys;
+    if (!inFlight) _startInterpolation(key);
+    return const [];
   }
 
-  Widget _buildLegend() {
-    final groups = _colorGroups();
-    final others = _otherKinds();
-    if (groups.isEmpty && others.isEmpty) return const SizedBox.shrink();
+  void _startInterpolation(_ScaleKey key) {
+    final src = _points;
+    final token = ++_interpToken;
+    final grid = _idwPrepare(_scaleSamples(key));
+    if (grid == null) {
+      _interpSource = src;
+      _interpKey = key;
+      _interpPolys = const [];
+      _interpJobSource = null;
+      _interpJobKey = null;
+      return;
+    }
+    _interpJobSource = src;
+    _interpJobKey = key;
+    compute(_idwRun, grid).then(
+      (values) {
+        if (!mounted || token != _interpToken) return;
+        final polys = _idwPolygons(grid, values);
+        setState(() {
+          _interpSource = src;
+          _interpKey = key;
+          _interpPolys = polys;
+          _interpJobSource = null;
+          _interpJobKey = null;
+        });
+      },
+      onError: (Object _, StackTrace _) {
+        if (!mounted || token != _interpToken) return;
+        setState(() {
+          _interpSource = src;
+          _interpKey = key;
+          _interpPolys = const [];
+          _interpJobSource = null;
+          _interpJobKey = null;
+        });
+      },
+    );
+  }
+
+  /// Az IDW-előkészítés: a mintapontok rácskoordinátái és a rács geometriája.
+  /// A fő szálon fut, mert csak O(n) munka.
+  static _IdwGrid? _idwPrepare(List<(MeasurementPoint, double)> samples) {
+    if (samples.length < 3) return null;
+    final lat0 = samples.map((s) => s.$1.latitude).reduce((a, b) => a + b) /
+        samples.length;
+    final lon0 = samples.map((s) => s.$1.longitude).reduce((a, b) => a + b) /
+        samples.length;
+    const mPerLat = 111320.0;
+    final mPerLon = 111320.0 * math.cos(lat0 * math.pi / 180);
+    final xs = [for (final s in samples) (s.$1.longitude - lon0) * mPerLon];
+    final ys = [for (final s in samples) (s.$1.latitude - lat0) * mPerLat];
+    final vs = [for (final s in samples) s.$2];
+    final minX = xs.reduce((a, b) => a < b ? a : b);
+    final maxX = xs.reduce((a, b) => a > b ? a : b);
+    final minY = ys.reduce((a, b) => a < b ? a : b);
+    final maxY = ys.reduce((a, b) => a > b ? a : b);
+    final span = math.max(maxX - minX, maxY - minY);
+    final cell = math.max(span / 50, 1.0);
+    final nx = (maxX - minX) ~/ cell + 1;
+    final ny = (maxY - minY) ~/ cell + 1;
+    final (lo, hi) = _range(vs);
+    return _IdwGrid(
+      lat0: lat0,
+      lon0: lon0,
+      mPerLat: mPerLat,
+      mPerLon: mPerLon,
+      xs: xs,
+      ys: ys,
+      vs: vs,
+      minX: minX,
+      minY: minY,
+      cell: cell,
+      nx: nx,
+      ny: ny,
+      lo: lo,
+      hi: hi,
+    );
+  }
+
+  /// Az IDW-becslés rácsonként, háttérszálon. A NaN a mintától túl távoli cella.
+  /// Csak a legközelebbi mérési ponthoz képest a pontsűrűségből adódó sugáron
+  /// belüli cellák kapnak értéket, hogy a bejárt területen kívül ne legyen felület.
+  static Float64List _idwRun(_IdwGrid g) {
+    final cutoff = math.max(5.0, 3 * _medianNearest(g.xs, g.ys));
+    final values = Float64List(g.nx * g.ny);
+    for (var iy = 0; iy < g.ny; iy++) {
+      for (var ix = 0; ix < g.nx; ix++) {
+        final cx = g.minX + (ix + 0.5) * g.cell;
+        final cy = g.minY + (iy + 0.5) * g.cell;
+        var wSum = 0.0;
+        var vSum = 0.0;
+        var nearest = double.infinity;
+        for (var i = 0; i < g.xs.length; i++) {
+          final dx = g.xs[i] - cx;
+          final dy = g.ys[i] - cy;
+          final d2 = dx * dx + dy * dy + 1e-6;
+          if (d2 < nearest) nearest = d2;
+          final w = 1 / d2;
+          wSum += w;
+          vSum += w * g.vs[i];
+        }
+        values[iy * g.nx + ix] =
+            math.sqrt(nearest) > cutoff ? double.nan : vSum / wSum;
+      }
+    }
+    return values;
+  }
+
+  /// A háttérszámítás cellaértékeiből a színezett poligonok (fő szál).
+  static List<Polygon> _idwPolygons(_IdwGrid g, Float64List values) {
+    ll.LatLng at(double x, double y) =>
+        ll.LatLng(g.lat0 + y / g.mPerLat, g.lon0 + x / g.mPerLon);
+    final out = <Polygon>[];
+    for (var iy = 0; iy < g.ny; iy++) {
+      for (var ix = 0; ix < g.nx; ix++) {
+        final v = values[iy * g.nx + ix];
+        if (v.isNaN) continue;
+        final cx = g.minX + (ix + 0.5) * g.cell;
+        final cy = g.minY + (iy + 0.5) * g.cell;
+        final x0 = cx - g.cell / 2;
+        final x1 = cx + g.cell / 2;
+        final y0 = cy - g.cell / 2;
+        final y1 = cy + g.cell / 2;
+        out.add(Polygon(
+          points: [at(x0, y0), at(x1, y0), at(x1, y1), at(x0, y1)],
+          color: _scaleColor(v, g.lo, g.hi).withValues(alpha: 0.45),
+          borderStrokeWidth: 0,
+          borderColor: Colors.transparent,
+        ));
+      }
+    }
+    return out;
+  }
+
+  /// A pontok legközelebbi-szomszéd távolságának mediánja (legfeljebb ~200 mintán).
+  static double _medianNearest(List<double> xs, List<double> ys) {
+    final n = xs.length;
+    final step = math.max(1, n ~/ 200);
+    final dists = <double>[];
+    for (var i = 0; i < n; i += step) {
+      var best = double.infinity;
+      for (var j = 0; j < n; j++) {
+        if (j == i) continue;
+        final dx = xs[i] - xs[j];
+        final dy = ys[i] - ys[j];
+        final d = math.sqrt(dx * dx + dy * dy);
+        if (d < best) best = d;
+      }
+      if (best.isFinite) dists.add(best);
+    }
+    if (dists.isEmpty) return 5.0;
+    dists.sort();
+    return dists[dists.length ~/ 2];
+  }
+
+  Widget _buildLegend(
+      AppLocalizations loc, _ScaleOption? active, Map<int, Color> colors) {
+    final others = <MeasurementType>{};
+    if (_showPoints) {
+      for (final p in _points) {
+        if (!colors.containsKey(p.id)) others.add(_kindOf(p));
+      }
+    }
+    final samples = active == null
+        ? const <(MeasurementPoint, double)>[]
+        : _scaleSamples(active.key);
+    final hasScale = active != null &&
+        samples.isNotEmpty &&
+        (_showPoints || _showInterpolation);
+    if (!hasScale && others.isEmpty) return const SizedBox.shrink();
+    final (lo, hi) = _range(samples.map((s) => s.$2));
     String fmt(double v) => '${double.parse(v.toStringAsFixed(4))}';
+    const style = TextStyle(fontSize: 11, color: Colors.black87);
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -201,62 +993,66 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (final e in groups.entries)
-            Builder(builder: (context) {
-              final values = e.value.map((p) => p.value!).toList();
-              final min = values.reduce((a, b) => a < b ? a : b);
-              final max = values.reduce((a, b) => a > b ? a : b);
-              final unit = e.value.first.unit;
-              const style = TextStyle(fontSize: 11, color: Colors.black87);
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('${e.key.label(context)} ($unit)',
-                        style: style.copyWith(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 2),
-                    Container(
-                      width: 160,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(3),
-                        gradient: const LinearGradient(
-                            colors: [Colors.green, Colors.red]),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 160,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(fmt(min), style: style),
-                          Text(fmt(max), style: style),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          for (final kind in others)
-            Builder(builder: (context) {
-              final st = _kindStyle[kind];
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
+          if (active != null && hasScale) ...[
+            Text('${active.label} (${active.unit})',
+                style: style.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 2),
+            Container(
+              width: 160,
+              height: 10,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(3),
+                gradient:
+                    const LinearGradient(colors: [Colors.green, Colors.red]),
+              ),
+            ),
+            SizedBox(
+              width: 160,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(fmt(lo), style: style),
+                  Text(fmt(hi), style: style),
+                ],
+              ),
+            ),
+            if (_showInterpolation)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(st?.$1 ?? Icons.location_on,
-                        color: st?.$2 ?? Colors.blue, size: 16),
+                    Container(
+                      width: 16,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(3),
+                        gradient: LinearGradient(colors: [
+                          Colors.green.withValues(alpha: 0.45),
+                          Colors.red.withValues(alpha: 0.45),
+                        ]),
+                      ),
+                    ),
                     const SizedBox(width: 6),
-                    Text(kind.label(context),
-                        style: const TextStyle(
-                            fontSize: 11, color: Colors.black87)),
+                    Text(loc.mapInterpolationLegend, style: style),
                   ],
                 ),
-              );
-            }),
+              ),
+            const SizedBox(height: 4),
+          ],
+          for (final kind in others)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(_kindStyle[kind]?.$1 ?? Icons.location_on,
+                      color: _kindStyle[kind]?.$2 ?? Colors.blue, size: 16),
+                  const SizedBox(width: 6),
+                  Text(kind.label(context), style: style),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -539,9 +1335,10 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
   List<Widget> _measureLayers() {
     final pending = _pending;
     return [
-      if (_lines.isNotEmpty)
+      if (_showDistances && _lines.isNotEmpty)
         PolylineLayer(polylines: [
           for (var i = 0; i < _lines.length; i++)
+            if (!_hiddenLineIds.contains(_lines[i].id))
             Polyline(
               points: [_lines[i].a, _lines[i].b],
               strokeWidth: i == _selectedLine ? 6 : 3,
@@ -549,7 +1346,9 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
             ),
         ]),
       MarkerLayer(markers: [
-        for (var i = 0; i < _lines.length; i++) ...[
+        if (_showDistances)
+        for (var i = 0; i < _lines.length; i++)
+          if (!_hiddenLineIds.contains(_lines[i].id)) ...[
           _endpointMarker(_lines[i].a, Color(_lines[i].colorArgb)),
           _endpointMarker(_lines[i].b, Color(_lines[i].colorArgb)),
           Marker(
@@ -976,52 +1775,6 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
     return ok ?? false;
   }
 
-  void _showAreaList() {
-    final loc = AppLocalizations.of(context)!;
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (sheetContext) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(loc.mapAreaListTooltip,
-                  style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 8),
-              if (_areas.isEmpty) Text(loc.mapAreaNoAreas),
-              for (final a in _areas)
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: CircleAvatar(
-                    backgroundColor: Color(a.colorArgb),
-                    radius: 10,
-                  ),
-                  title: Text(a.name),
-                  subtitle: Text(a.shape == MapAreaShape.polygon
-                      ? loc.mapAreaPolygon
-                      : loc.mapAreaCircle),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    tooltip: loc.mapAreaDeleteTooltip,
-                    onPressed: () async {
-                      if (!await _confirmDeleteArea()) return;
-                      await DatabaseHelper.instance.deleteMapArea(a.id!);
-                      await _load();
-                      if (sheetContext.mounted) {
-                        Navigator.of(sheetContext).pop();
-                      }
-                    },
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   /// A terület címkéjének helye: körnél a középpont, poligonnál a csúcsok átlaga.
   ll.LatLng? _areaAnchor(MapArea a) {
     if (a.shape == MapAreaShape.circle) {
@@ -1090,7 +1843,9 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
     }
 
     final loc = AppLocalizations.of(context)!;
-    final colors = _computeColors();
+    final scaleOptions = _scaleOptions(context);
+    final activeScale = _activeOption(scaleOptions);
+    final colors = _computeColors(activeScale?.key);
     final routePoints = _points.map((p) => ll.LatLng(p.latitude, p.longitude)).toList();
     final d = _draw;
     final previewColor = d == null ? Colors.blue : Color(d.draft.colorArgb);
@@ -1100,38 +1855,14 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
       appBar: AppBar(
         title: Text(loc.mapTitle),
         actions: [
-          IconButton(
-            icon: Icon(
-              _placingSourceId == null
-                  ? Icons.warning_amber_rounded
-                  : Icons.close,
-            ),
-            tooltip: _placingSourceId == null
-                ? loc.mapPlaceSourceTooltip
-                : loc.mapPlaceSourceCancelTooltip,
-            onPressed: _draw != null || _measuring
-                ? null
-                : (_placingSourceId == null
-                    ? _showSourcePicker
-                    : _cancelSourcePlacement),
-          ),
-          IconButton(
-            icon: const Icon(Icons.add_location_alt_outlined),
-            tooltip: loc.mapAreaButtonTooltip,
-            onPressed: _draw == null && !_measuring ? _startAreaDraw : null,
-          ),
-          IconButton(
-            icon: const Icon(Icons.straighten),
-            tooltip: loc.mapMeasureTooltip,
-            color: _measuring ? Theme.of(context).colorScheme.primary : null,
-            onPressed: _draw != null
-                ? null
-                : (_measuring ? _stopMeasure : _startMeasure),
-          ),
+          _buildToolsMenu(loc),
           IconButton(
             icon: const Icon(Icons.layers_outlined),
-            tooltip: loc.mapAreaListTooltip,
-            onPressed: _showAreaList,
+            tooltip: loc.mapLayersTooltip,
+            color: _showInterpolation
+                ? Theme.of(context).colorScheme.primary
+                : null,
+            onPressed: _showLayersSheet,
           ),
           if (_points.isNotEmpty)
             IconButton(
@@ -1178,10 +1909,16 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.rundhall.rad_recon',
                 ),
+              if (_showInterpolation && activeScale != null)
+                PolygonLayer(
+                  polygons: _interpolationPolygons(activeScale.key),
+                ),
               // Területek: áttetsző kitöltés, teljes színű körvonal.
+              if (_showAreas)
               PolygonLayer(
                 polygons: [
                   for (final a in _areas)
+                    if (!_hiddenAreaIds.contains(a.id))
                     if (a.shape == MapAreaShape.polygon && a.polygon.length >= 3)
                       Polygon(
                         points: [for (final v in a.polygon) ll.LatLng(v[0], v[1])],
@@ -1191,9 +1928,11 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
                       ),
                 ],
               ),
+              if (_showAreas)
               CircleLayer(
                 circles: [
                   for (final a in _areas)
+                    if (!_hiddenAreaIds.contains(a.id))
                     if (a.shape == MapAreaShape.circle && a.center != null)
                       CircleMarker(
                         point: ll.LatLng(a.center![0], a.center![1]),
@@ -1219,7 +1958,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
                   ),
                 ),
               ),
-              if (routePoints.length > 1)
+              if (_showPoints && routePoints.length > 1)
                 PolylineLayer(
                   polylines: [
                     Polyline(
@@ -1273,6 +2012,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
                 ),
               ],
               // Forrás-elhelyezések: külön ikon, koppintásra részletek.
+              if (_showSources)
               MarkerLayer(
                 markers: [
                   for (final pl in _placements)
@@ -1280,9 +2020,11 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
                 ],
               ),
               // Területek nevei a közepükön.
+              if (_showAreas)
               MarkerLayer(
                 markers: [
                   for (final a in _areas)
+                    if (!_hiddenAreaIds.contains(a.id))
                     if (_areaAnchor(a) case final anchor?)
                       Marker(
                         point: anchor,
@@ -1314,14 +2056,19 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
                 ],
               ),
               ..._measureLayers(),
+              if (_showPoints)
               MarkerLayer(
                 markers: _pointGroups().map((group) {
                   final p = group.first;
-                  final kind = _kindOf(p);
-                  final isDose = kind == MeasurementType.doseRate;
+                  // A csoport azon pontja, amelyiknek van színezhető értéke (ha van).
+                  final rep = group.firstWhere(
+                      (q) => colors.containsKey(q.id),
+                      orElse: () => p);
+                  final scaled = colors.containsKey(rep.id);
+                  final kind = _kindOf(rep);
                   final style = _kindStyle[kind];
-                  final color = isDose
-                      ? (colors[p.id!] ?? Colors.blue)
+                  final color = scaled
+                      ? colors[rep.id]!
                       : (style?.$2 ?? Colors.blue);
                   return Marker(
                     point: ll.LatLng(p.latitude, p.longitude),
@@ -1340,7 +2087,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
                       Icon(
                         p.isSourcePosition
                             ? Icons.warning_amber
-                            : (isDose
+                            : (scaled || kind == MeasurementType.doseRate
                                 ? Icons.location_on
                                 : (style?.$1 ?? Icons.location_on)),
                         color: color,
@@ -1357,7 +2104,10 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
               ),
             ],
           ),
-          Positioned(right: 8, bottom: 8, child: _buildLegend()),
+          Positioned(
+              right: 8,
+              bottom: 8,
+              child: _buildLegend(loc, activeScale, colors)),
           if (d != null)
             Positioned(
               top: 8,

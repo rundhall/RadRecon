@@ -1,7 +1,7 @@
 import '../models/radiation_kind.dart';
+import '../models/modbus_reading.dart';
 import '../models/count_rate_unit.dart';
 import '../models/dose_rate_unit.dart';
-import '../models/instrument.dart';
 import '../models/measurement_point.dart';
 import '../models/measurement_type.dart';
 import 'dose_unit_controller.dart';
@@ -40,20 +40,20 @@ MeasurementPoint withCurrentDoseUnit(MeasurementPoint p) {
 /// váltja. Dózisteljesítménynél a műszerhez beállított regiszter-egységből
 /// (pl. nSv/h) a Beállításokban választott alapegységre; a többi típusnál
 /// (Bq/cm², cps) nincs átváltás.
-double instrumentReadingInAppUnit(Instrument instrument, double raw) {
-  if (instrument.modbusMeasurementType == MeasurementType.countRate) {
+double channelReadingInAppUnit(ModbusChannel channel, double raw) {
+  if (channel.type == MeasurementType.countRate) {
     // Beütésszám: a műszer egysége (pl. kcps) beütés/s-ra váltva (cps/ncps).
-    final from = CountRateOption.fromSymbol(instrument.modbusUnit);
+    final from = CountRateOption.fromSymbol(channel.unit);
     return from == null ? raw : raw * from.baseFactor;
   }
-  if (instrument.modbusMeasurementType != MeasurementType.doseRate) return raw;
-  final from = DoseRateUnit.fromSymbol(instrument.modbusUnit) ??
+  if (channel.type != MeasurementType.doseRate) return raw;
+  final from = DoseRateUnit.fromSymbol(channel.unit) ??
       DoseRateUnit.instrumentNative;
   return from.convertTo(DoseUnitController.current, raw);
 }
 
 /// A műszer beütésszám-egységéből a sugárzás: ncps… esetén neutron.
-RadiationKind radiationForInstrument(Instrument instrument) =>
-    CountRateOption.fromSymbol(instrument.modbusUnit)?.neutron == true
+RadiationKind radiationForChannel(ModbusChannel channel) =>
+    CountRateOption.fromSymbol(channel.unit)?.neutron == true
         ? RadiationKind.neutron
         : RadiationKind.gamma;

@@ -10,6 +10,9 @@ import '../models/instrument.dart';
 import '../models/instrument_calibration.dart';
 import '../models/measurement_type.dart';
 import '../models/modbus_reading.dart';
+import '../l10n/modbus_quantity_labels.dart';
+import '../l10n/domain_labels.dart';
+import '../models/gas_reading.dart';
 import '../services/modbus_reader_service.dart';
 import '../widgets/calibration_record_dialog.dart';
 
@@ -34,7 +37,6 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
   final _modbusHostCtrl = TextEditingController();
   final _modbusPortCtrl = TextEditingController();
   final _modbusUnitIdCtrl = TextEditingController();
-  final _modbusRegisterAddressCtrl = TextEditingController();
   final _modbusGpsLatCtrl = TextEditingController(text: '426');
   final _modbusGpsLonCtrl = TextEditingController(text: '428');
 
@@ -43,8 +45,10 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
   bool _isModbusConnected = false;
   bool _isModbusGpsEnabled = false;
   bool _isTestingModbus = false;
-  MeasurementType _modbusType = MeasurementType.doseRate;
-  String _modbusUnit = defaultModbusUnitFor(MeasurementType.doseRate);
+  // A szerkesztett Modbus-regiszterek (mérési típusonként egy).
+  final List<_ChannelDraft> _channels = [];
+  // A törölt sorok: a controllerüket a dispose() szabadítja fel.
+  final List<_ChannelDraft> _removedChannels = [];
 
   @override
   void initState() {
@@ -59,15 +63,19 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
       _modbusHostCtrl.text = e.modbusHost ?? '';
       _modbusPortCtrl.text = e.modbusPort?.toString() ?? '';
       _modbusUnitIdCtrl.text = e.modbusUnitId?.toString() ?? '';
-      _modbusRegisterAddressCtrl.text =
-          e.modbusRegisterAddress?.toString() ?? '';
       _isModbusGpsEnabled = e.isModbusGpsEnabled;
       _modbusGpsLatCtrl.text = e.modbusGpsLatAddress.toString();
       _modbusGpsLonCtrl.text = e.modbusGpsLonAddress.toString();
-      _modbusType = e.modbusMeasurementType;
-      _modbusUnit = modbusUnitsFor(_modbusType).contains(e.modbusUnit)
-          ? e.modbusUnit
-          : defaultModbusUnitFor(_modbusType);
+      for (final c in e.effectiveModbusChannels) {
+        _channels.add(_ChannelDraft(
+          type: c.type,
+          quantity: c.quantity,
+          address: c.address.toString(),
+          unit: modbusUnitsFor(c.type, c.quantity).contains(c.unit)
+              ? c.unit
+              : defaultModbusUnitFor(c.type, c.quantity),
+        ));
+      }
       _loadRecords(e.id);
     }
   }
@@ -122,7 +130,9 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
     _modbusHostCtrl.dispose();
     _modbusPortCtrl.dispose();
     _modbusUnitIdCtrl.dispose();
-    _modbusRegisterAddressCtrl.dispose();
+    for (final d in [..._channels, ..._removedChannels]) {
+      d.addressCtrl.dispose();
+    }
     _modbusGpsLatCtrl.dispose();
     _modbusGpsLonCtrl.dispose();
     super.dispose();
@@ -138,11 +148,10 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
     if (picked != null) setState(() => _nextCalibrationDate = picked);
   }
 
-  /// Testet die Modbus/TCP-Verbindung anhand der aktuellen Einstellungen.
-  /// Zeigt das Ergebnis in einem Dialog an.
+  /// Teszteli a beállított Modbus-regisztereket, mindegyiket külön olvassa.
+  /// Az eredményt egy párbeszédablakban mutatja.
   Future<void> _testModbusConnection() async {
     final loc = AppLocalizations.of(context)!;
-    // Validiere die erforderlichen Felder
     if (_modbusHostCtrl.text.trim().isEmpty) {
       _showError(loc.modbusHostLabel);
       return;
@@ -151,14 +160,16 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
       _showError(loc.modbusPortLabel);
       return;
     }
-    if (_modbusRegisterAddressCtrl.text.trim().isEmpty) {
-      _showError(loc.modbusRegisterAddressLabel);
+    final channels = _collectChannels(loc);
+    if (channels == null) return;
+    if (channels.isEmpty) {
+      _showMessage(loc.modbusChannelsRequired);
       return;
     }
 
     setState(() => _isTestingModbus = true);
     try {
-      // Erstelle ein temporäres Instrument-Objekt mit den aktuellen Einstellungen
+      // Ideiglenes műszer-objektum a jelenlegi beállításokkal.
       final testInstrument = Instrument(
         id: widget.existing?.id,
         name: _nameCtrl.text.trim().isEmpty ? 'Test' : _nameCtrl.text.trim(),
@@ -169,70 +180,66 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
         modbusHost: _modbusHostCtrl.text.trim(),
         modbusPort: int.tryParse(_modbusPortCtrl.text.trim()),
         modbusUnitId: int.tryParse(_modbusUnitIdCtrl.text.trim()),
-        modbusRegisterAddress: int.tryParse(_modbusRegisterAddressCtrl.text.trim()),
         isModbusGpsEnabled: _isModbusGpsEnabled,
         modbusGpsLatAddress: int.tryParse(_modbusGpsLatCtrl.text.trim()) ?? 426,
         modbusGpsLonAddress: int.tryParse(_modbusGpsLonCtrl.text.trim()) ?? 428,
-        modbusMeasurementType: _modbusType,
-        modbusUnit: _modbusUnit,
+        modbusChannels: channels,
       );
 
-      final result = await ModbusReaderService.readFloatRegister(testInstrument, loc);
+      final lines = <String>[];
+      final failures = <String>[];
+      String? gpsInfo;
+      for (final channel in channels) {
+        final result = await ModbusReaderService.readFloatRegister(
+          testInstrument,
+          channel,
+          loc,
+        );
+        if (!mounted) return;
+        final label = modbusChannelLabel(loc, channel, channel.type.label(context));
+        if (result.success) {
+          final valueText = result.value == null
+              ? 'N/A'
+              : '${result.value!.toStringAsFixed(4)} ${channel.unit}';
+          lines.add('$label: ${loc.modbusTestValue(valueText)}');
+          if (result.hasGps && gpsInfo == null) {
+            gpsInfo = loc.modbusTestPosition(
+              result.latitude?.toStringAsFixed(6) ?? 'N/A',
+              result.longitude?.toStringAsFixed(6) ?? 'N/A',
+            );
+          }
+        } else {
+          failures.add('$label: ${result.errorMessage ?? loc.unknownModbusError}');
+        }
+      }
       if (!mounted) return;
 
-      if (result.success) {
-        String content = loc.modbusTestValue(
-          result.value == null
-              ? 'N/A'
-              : '${result.value!.toStringAsFixed(4)} $_modbusUnit',
-        );
-        if (result.hasGps) {
-          final gpsInfo = loc.modbusTestPosition(
-            result.latitude?.toStringAsFixed(6) ?? 'N/A',
-            result.longitude?.toStringAsFixed(6) ?? 'N/A',
-          );
-          content = '$content\n$gpsInfo';
-        }
-        await showDialog<void>(
-          context: context,
-          builder: (context) => AlertDialog(
-            icon: const Icon(
-              Icons.check_circle,
-              color: Colors.green,
-              size: 40,
-            ),
-            title: Text(loc.modbusTestSuccessTitle),
-            content: Text(content),
-            actions: [
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(loc.okButton),
-              ),
-            ],
+      final ok = failures.isEmpty;
+      final content = [
+        ...lines,
+        ...failures,
+        ?gpsInfo,
+      ].join('\n');
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          icon: Icon(
+            ok ? Icons.check_circle : Icons.error,
+            color: ok ? Colors.green : Colors.red,
+            size: 40,
           ),
-        );
-      } else {
-        await showDialog<void>(
-          context: context,
-          builder: (context) => AlertDialog(
-            icon: const Icon(
-              Icons.error,
-              color: Colors.red,
-              size: 40,
-            ),
-            title: Text(loc.modbusTestFailureTitle),
-            content: Text(
-              result.errorMessage ?? loc.unknownModbusError,
-            ),
-            actions: [
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(loc.okButton),
-              ),
-            ],
+          title: Text(
+            ok ? loc.modbusTestSuccessTitle : loc.modbusTestFailureTitle,
           ),
-        );
-      }
+          content: Text(content),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(loc.okButton),
+            ),
+          ],
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
       await showDialog<void>(
@@ -258,6 +265,198 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
     }
   }
 
+  /// A szerkesztett sorokból csatornalista. Hibánál üzenetet mutat és null-t ad.
+  List<ModbusChannel>? _collectChannels(AppLocalizations loc) {
+    final result = <ModbusChannel>[];
+    final seen = <String>{};
+    for (final d in _channels) {
+      final address = int.tryParse(d.addressCtrl.text.trim());
+      if (address == null) {
+        _showError(loc.modbusRegisterAddressLabel);
+        return null;
+      }
+      if (!seen.add(_slotKey(d.type, d.quantity))) {
+        _showMessage(loc.modbusDuplicateChannelType);
+        return null;
+      }
+      result.add(ModbusChannel(
+        type: d.type,
+        address: address,
+        unit: d.unit,
+        quantity: d.quantity,
+      ));
+    }
+    return result;
+  }
+
+  String _slotKey(MeasurementType type, String? quantity) =>
+      '${type.dbValue}|${quantity ?? ''}';
+
+  /// Egy mennyiség alapértelmezett "mennyiség" értéke (típusonként).
+  String? _defaultQuantityFor(MeasurementType t) {
+    if (t == MeasurementType.meteorology) return kModbusMeteoUnits.keys.first;
+    if (t == MeasurementType.gasMeasurement) return gasSpecies.first.name;
+    return null;
+  }
+
+  /// Az összes lehetséges (típus, mennyiség) páros, a felsorolás sorrendjében.
+  List<(MeasurementType, String?)> _allSlots() {
+    final slots = <(MeasurementType, String?)>[];
+    for (final t in kModbusMeasurableTypes) {
+      if (t == MeasurementType.meteorology) {
+        for (final k in kModbusMeteoUnits.keys) {
+          slots.add((t, k));
+        }
+      } else if (t == MeasurementType.gasMeasurement) {
+        for (final g in gasSpecies) {
+          slots.add((t, g.name));
+        }
+      } else {
+        slots.add((t, null));
+      }
+    }
+    return slots;
+  }
+
+  /// Első, még nem használt (típus, mennyiség) páros, vagy null, ha mind foglalt.
+  (MeasurementType, String?)? _firstFreeSlot() {
+    final used = {for (final d in _channels) _slotKey(d.type, d.quantity)};
+    for (final slot in _allSlots()) {
+      if (!used.contains(_slotKey(slot.$1, slot.$2))) return slot;
+    }
+    return null;
+  }
+
+  void _addChannel() {
+    final slot = _firstFreeSlot();
+    if (slot == null) return;
+    setState(() {
+      _channels.add(_ChannelDraft(
+        type: slot.$1,
+        quantity: slot.$2,
+        address: '',
+        unit: defaultModbusUnitFor(slot.$1, slot.$2),
+      ));
+    });
+  }
+
+  void _showMessage(String text) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+  }
+
+  /// Egy Modbus-csatorna sora: típus, mennyiség (meteorológia, gáz), cím,
+  /// egység és törlés.
+  Widget _buildChannelRow(_ChannelDraft d, AppLocalizations loc) {
+    final needsQuantity = d.type == MeasurementType.meteorology ||
+        d.type == MeasurementType.gasMeasurement;
+    final quantityItems = <String>[
+      if (d.type == MeasurementType.meteorology) ...kModbusMeteoUnits.keys,
+      if (d.type == MeasurementType.gasMeasurement)
+        for (final g in gasSpecies) g.name,
+    ];
+    String quantityLabel(String q) => d.type == MeasurementType.meteorology
+        ? modbusMeteoLabel(loc, q)
+        : localizedGasName(loc, q);
+
+    return Padding(
+      key: ObjectKey(d),
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<MeasurementType>(
+                  key: ValueKey('modbus-type-${d.type.name}'),
+                  initialValue: d.type,
+                  isExpanded: true,
+                  decoration:
+                      InputDecoration(labelText: loc.modbusQuantityLabel),
+                  items: [
+                    for (final t in kModbusMeasurableTypes)
+                      DropdownMenuItem(value: t, child: Text(t.label(context))),
+                  ],
+                  onChanged: (t) {
+                    if (t == null) return;
+                    setState(() {
+                      d.type = t;
+                      d.quantity = _defaultQuantityFor(t);
+                      d.unit = defaultModbusUnitFor(t, d.quantity);
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextFormField(
+                  controller: d.addressCtrl,
+                  decoration: InputDecoration(
+                    labelText: loc.modbusRegisterAddressLabel,
+                    helperText: loc.modbusRegisterAddressHelper,
+                    helperMaxLines: 2,
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ),
+            ],
+          ),
+          if (needsQuantity)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: DropdownButtonFormField<String>(
+                key: ValueKey('modbus-quantity-${d.type.name}-${d.quantity}'),
+                initialValue: d.quantity,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: loc.modbusChannelQuantityLabel,
+                ),
+                items: [
+                  for (final q in quantityItems)
+                    DropdownMenuItem(value: q, child: Text(quantityLabel(q))),
+                ],
+                onChanged: (q) {
+                  if (q == null) return;
+                  setState(() {
+                    d.quantity = q;
+                    d.unit = defaultModbusUnitFor(d.type, q);
+                  });
+                },
+              ),
+            ),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  key: ValueKey(
+                      'modbus-unit-${d.type.name}-${d.quantity}-${d.unit}'),
+                  initialValue: d.unit,
+                  isExpanded: true,
+                  decoration:
+                      InputDecoration(labelText: loc.modbusRegisterUnitLabel),
+                  items: [
+                    for (final u in modbusUnitsFor(d.type, d.quantity))
+                      DropdownMenuItem(value: u, child: Text(u)),
+                  ],
+                  onChanged: (u) {
+                    if (u != null) setState(() => d.unit = u);
+                  },
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                onPressed: () => setState(() {
+                  _channels.remove(d);
+                  _removedChannels.add(d);
+                }),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showError(String fieldLabel) {
     final loc = AppLocalizations.of(context)!;
     if (!mounted) return;
@@ -268,6 +467,20 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+
+    final modbusLoc = AppLocalizations.of(context)!;
+    var channels = <ModbusChannel>[];
+    if (_isModbusConnected) {
+      final collected = _collectChannels(modbusLoc);
+      if (collected == null) return;
+      if (collected.isEmpty) {
+        _showMessage(modbusLoc.modbusChannelsRequired);
+        return;
+      }
+      channels = collected;
+    }
+    // A régi, egy regiszteres mezők az első csatornát tükrözik.
+    final firstChannel = channels.isEmpty ? null : channels.first;
 
     final instrument = Instrument(
       id: widget.existing?.id,
@@ -290,17 +503,16 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
           _isModbusConnected && _modbusUnitIdCtrl.text.trim().isNotEmpty
               ? int.tryParse(_modbusUnitIdCtrl.text.trim())
               : null,
-      modbusRegisterAddress: _isModbusConnected &&
-              _modbusRegisterAddressCtrl.text.trim().isNotEmpty
-          ? int.tryParse(_modbusRegisterAddressCtrl.text.trim())
-          : null,
+      modbusRegisterAddress: firstChannel?.address,
       isModbusGpsEnabled: _isModbusConnected && _isModbusGpsEnabled,
       modbusGpsLatAddress:
           int.tryParse(_modbusGpsLatCtrl.text.trim()) ?? 426,
       modbusGpsLonAddress:
           int.tryParse(_modbusGpsLonCtrl.text.trim()) ?? 428,
-      modbusMeasurementType: _modbusType,
-      modbusUnit: _modbusUnit,
+      modbusMeasurementType: firstChannel?.type ?? MeasurementType.doseRate,
+      modbusUnit: firstChannel?.unit ??
+          defaultModbusUnitFor(MeasurementType.doseRate),
+      modbusChannels: channels,
     );
 
     final int instrumentId;
@@ -449,52 +661,21 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: _modbusRegisterAddressCtrl,
-                decoration: InputDecoration(
-                  labelText: loc.modbusRegisterAddressLabel,
-                  helperText: loc.modbusRegisterAddressHelper,
-                ),
-                keyboardType: TextInputType.number,
+              Text(
+                loc.modbusChannelsTitle,
+                style: Theme.of(context).textTheme.titleSmall,
               ),
-              const SizedBox(height: 12),
-              // Mit mér a műszer, és milyen egységben adja a regiszterben.
-              // Zárt listák, így nem lehet elgépelni.
-              DropdownButtonFormField<MeasurementType>(
-                key: ValueKey('modbus-type-${_modbusType.name}'),
-                initialValue: _modbusType,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  labelText: loc.modbusQuantityLabel,
-                  helperText: loc.modbusQuantityHelper,
-                  helperMaxLines: 3,
-                ),
-                items: [
-                  for (final t in kModbusMeasurableTypes)
-                    DropdownMenuItem(value: t, child: Text(t.label(context))),
-                ],
-                onChanged: (t) {
-                  if (t == null) return;
-                  setState(() {
-                    _modbusType = t;
-                    _modbusUnit = defaultModbusUnitFor(t);
-                  });
-                },
+              const SizedBox(height: 4),
+              Text(
+                loc.modbusChannelsHelper,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                key: ValueKey('modbus-unit-${_modbusType.name}-$_modbusUnit'),
-                initialValue: _modbusUnit,
-                isExpanded: true,
-                decoration:
-                    InputDecoration(labelText: loc.modbusRegisterUnitLabel),
-                items: [
-                  for (final u in modbusUnitsFor(_modbusType))
-                    DropdownMenuItem(value: u, child: Text(u)),
-                ],
-                onChanged: (u) {
-                  if (u != null) setState(() => _modbusUnit = u);
-                },
+              const SizedBox(height: 8),
+              for (final d in _channels) _buildChannelRow(d, loc),
+              OutlinedButton.icon(
+                onPressed: _firstFreeSlot() == null ? null : _addChannel,
+                icon: const Icon(Icons.add),
+                label: Text(loc.modbusAddChannelButton),
               ),
               const SizedBox(height: 12),
               SizedBox(
@@ -545,4 +726,19 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
       ),
     );
   }
+}
+
+/// Egy Modbus-regiszter a műszer szerkesztőjében (még nem mentett állapot).
+class _ChannelDraft {
+  _ChannelDraft({
+    required this.type,
+    required String address,
+    required this.unit,
+    this.quantity,
+  }) : addressCtrl = TextEditingController(text: address);
+
+  MeasurementType type;
+  String? quantity;
+  String unit;
+  final TextEditingController addressCtrl;
 }

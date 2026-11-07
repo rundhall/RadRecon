@@ -17,6 +17,8 @@ import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 
 import 'package:image_picker/image_picker.dart';
+import 'camera_capture_screen.dart';
+import '../widgets/remote_confirm_dialog.dart';
 import '../models/hardware_button.dart';
 import '../services/hardware_buttons.dart';
 import 'package:latlong2/latlong.dart' as ll;
@@ -27,6 +29,7 @@ import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../models/calibration_labels.dart';
 import '../models/instrument.dart';
+import '../models/modbus_reading.dart';
 import '../models/instrument_calibration.dart';
 import '../models/isotope.dart';
 import '../models/measurement_point.dart';
@@ -1286,6 +1289,11 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     );
   }
 
+  /// Meteorológia vagy gázmérés: több csatornából álló, nem egyértékű típus.
+  bool get _isSideDataType =>
+      _type == MeasurementType.meteorology ||
+      _type == MeasurementType.gasMeasurement;
+
   Instrument? get _selectedInstrument {
     if (_instrumentId == null) return null;
     for (final i in _instruments) {
@@ -1294,29 +1302,50 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     return null;
   }
 
-  /// Lekérdezi az aktuálisan kiválasztott, Modbus/TCP-n elérhető műszer
-  /// mért értékét, és beírja a "Mért érték" mezőbe.
+  /// A kiválasztott mérési típushoz tartozó Modbus-regiszter. Ha a műszerhez
+  /// csak egy regiszter tartozik, az mindig ez (a típust is arra állítjuk).
+  ModbusChannel? _channelForSelectedType(Instrument instrument) {
+    if (_isSideDataType) return null;
+    final channels = instrument.effectiveModbusChannels;
+    if (channels.length == 1 && channels.first.quantity == null) {
+      return channels.first;
+    }
+    return instrument.modbusChannelFor(_type);
+  }
+
+  /// Lekérdezi a kiválasztott mérési típushoz tartozó Modbus-regiszter mért
+  /// értékét, és beírja a "Mért érték" mezőbe.
   Future<void> _queryModbus() async {
     final instrument = _selectedInstrument;
     if (instrument == null) return;
 
     final loc = AppLocalizations.of(context)!;
+    if (_isSideDataType) {
+      await _queryModbusSideData(instrument, loc);
+      return;
+    }
+    final channel = _channelForSelectedType(instrument);
+    if (channel == null) {
+      _showError(loc.modbusNoChannelForType);
+      return;
+    }
     setState(() => _isQueryingModbus = true);
     try {
-      final result = await ModbusReaderService.readFloatRegister(instrument, loc);
+      final result =
+          await ModbusReaderService.readFloatRegister(instrument, channel, loc);
       if (!mounted) return;
       if (result.success) {
         setState(() {
-          // A műszer határozza meg, mit mér és milyen egységben adja vissza:
-          // a mérés típusát átállítjuk, az értéket pedig az alapegységre váltjuk.
-          _type = instrument.modbusMeasurementType;
+          // A regiszter határozza meg, mit mér és milyen egységben adja vissza:
+          // a mérés típusát erre állítjuk, az értéket pedig az alapegységre váltjuk.
+          _type = channel.type;
           if (_type == MeasurementType.countRate) {
-            _radiation = radiationForInstrument(instrument);
+            _radiation = radiationForChannel(channel);
           }
           _isSample = false;
           _unitCtrl.text = _displayUnitFor(_type);
           _valueCtrl.text = QuantityField.formatNumber(
-            _shownValue(_type, instrumentReadingInAppUnit(instrument, result.value!)),
+            _shownValue(_type, channelReadingInAppUnit(channel, result.value!)),
           );
           _errorCtrl.clear();
           _avgSamples = null;
@@ -1338,6 +1367,98 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     }
   }
 
+  /// Meteorológia vagy gázmérés: a műszer ilyen típusú csatornáit mind
+  /// lekérdezi, és a mérési típus mezőit tölti ki (külön pontként menthető).
+  Future<void> _queryModbusSideData(
+    Instrument instrument,
+    AppLocalizations loc,
+  ) async {
+    final channels = instrument.modbusChannelsOf(_type);
+    if (channels.isEmpty) {
+      _showError(loc.modbusNoChannelForType);
+      return;
+    }
+    setState(() => _isQueryingModbus = true);
+    final failures = <String>[];
+    try {
+      final readings = <(ModbusChannel, double)>[];
+      for (final c in channels) {
+        final r =
+            await ModbusReaderService.readFloatRegister(instrument, c, loc);
+        if (!mounted) return;
+        final value = r.value;
+        if (r.success && value != null) {
+          readings.add((c, value));
+        } else {
+          failures.add(r.errorMessage ?? loc.unknownModbusError);
+        }
+      }
+      if (!mounted) return;
+      setState(() {
+        for (final (c, raw) in readings) {
+          if (c.type == MeasurementType.meteorology) {
+            _applyMeteoReading(c, raw);
+          } else {
+            _applyGasReading(c, raw);
+          }
+        }
+      });
+      if (failures.isNotEmpty) _showError(failures.join('\n'));
+    } finally {
+      if (mounted) setState(() => _isQueryingModbus = false);
+    }
+  }
+
+  /// A meteorológiai mező kulcsa a bevitel vezérlőihez (_metCtrls).
+  String? _metCtrlKeyFor(String key) => switch (key) {
+        'air_temperature_c' => 'temp',
+        'relative_humidity_pct' => 'humidity',
+        'pressure_hpa' => 'pressure',
+        'wind_speed_ms' => 'wind',
+        'wind_direction_deg' => 'windDir',
+        'gust_ms' => 'gust',
+        'precipitation_mm_h' => 'precip',
+        'solar_wm2' => 'solar',
+        'cloud_okta' => 'cloud',
+        'visibility_m' => 'visibility',
+        'soil_moisture_pct' => 'soil',
+        'aerosol_ug_m3' => 'aerosol',
+        _ => null,
+      };
+
+  /// Egy meteorológiai olvasat a bevitel megjelenített egységében.
+  void _applyMeteoReading(ModbusChannel c, double raw) {
+    final key = c.quantity;
+    if (key == null) return;
+    final ctrlKey = _metCtrlKeyFor(key);
+    if (ctrlKey == null) return;
+    final si = meteoValueToStored(key, c.unit, raw);
+    final shown = switch (key) {
+      'air_temperature_c' => DisplayUnits.tempFromC(si),
+      'pressure_hpa' => DisplayUnits.pressureFromHpa(si),
+      'wind_speed_ms' || 'gust_ms' => DisplayUnits.windFromMs(si),
+      _ => si,
+    };
+    if (shown != null) _metCtrls[ctrlKey]!.text = _fmt(shown, 2);
+  }
+
+  /// Egy gázolvasat: a vegyület sorát frissíti, vagy új sort vesz fel.
+  void _applyGasReading(ModbusChannel c, double raw) {
+    final name = c.quantity;
+    final unit = ConcentrationUnit.fromSymbol(c.unit);
+    if (name == null || unit == null) return;
+    final row = _gases.firstWhere(
+      (g) => g.species == name,
+      orElse: () {
+        final created = _GasEdit(species: name, unit: unit);
+        _gases.add(created);
+        return created;
+      },
+    );
+    row.unit = unit;
+    row.concCtrl.text = QuantityField.formatNumber(raw);
+  }
+
   /// Átlagoló mérés: a kiválasztott időtartamig másodpercenként olvassa a
   /// műszert, az értékbe az átlag, a hibába az átlag standard hibája (1σ)
   /// kerül.
@@ -1345,6 +1466,15 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     final instrument = _selectedInstrument;
     if (instrument == null || _isAveraging) return;
     final loc = AppLocalizations.of(context)!;
+    if (_isSideDataType) {
+      _showError(loc.modbusAverageRadiationOnly);
+      return;
+    }
+    final channel = _channelForSelectedType(instrument);
+    if (channel == null) {
+      _showError(loc.modbusNoChannelForType);
+      return;
+    }
     setState(() {
       _isAveraging = true;
       _avgStop = false;
@@ -1356,14 +1486,14 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     ModbusReadResult? lastGps;
     var failed = 0;
     try {
-      session = await ModbusLiveSession.connect(instrument, loc);
+      session = await ModbusLiveSession.connect(instrument, channel, loc);
       final start = DateTime.now();
       while (mounted && !_avgStop && !_avgAbort) {
         final elapsed = DateTime.now().difference(start).inSeconds;
         if (elapsed >= _avgDuration) break;
         final r = await session.read();
         if (r.success) {
-          _avgValues.add(instrumentReadingInAppUnit(instrument, r.value!));
+          _avgValues.add(channelReadingInAppUnit(channel, r.value!));
           if (r.hasGps) lastGps = r;
         } else {
           failed++;
@@ -1385,9 +1515,9 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     setState(() {
       _isAveraging = false;
       if (stats == null) return;
-      _type = instrument.modbusMeasurementType;
+      _type = channel.type;
       if (_type == MeasurementType.countRate) {
-        _radiation = radiationForInstrument(instrument);
+        _radiation = radiationForChannel(channel);
       }
       _isSample = false;
       _unitCtrl.text = _displayUnitFor(_type);
@@ -1574,6 +1704,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   Future<void> _saveAndNewPoint() async {
     await _save(popAfter: false);
     if (!_lastSaveOk || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final savedText = AppLocalizations.of(context)!.pointSavedMessage;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (_) => MeasurementEntryScreen(
@@ -1582,6 +1714,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       ),
       result: true,
     );
+    _notifySaved(messenger, savedText);
   }
 
   /// Mérési típus léptetése; ugyanazt teszi, mint a típus-legördülő.
@@ -1651,6 +1784,17 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       ),
     );
     if (source == null) return;
+    if (!mounted) return;
+
+    if (source == ImageSource.camera) {
+      // Saját kamera-nézet: a Bluetooth-gomb azonnal készít képet, nincs
+      // olyan "OK" megerősítés, amelyet távirányítóval nem lehetne megnyomni.
+      final path = await Navigator.of(context).push<String>(
+        MaterialPageRoute(builder: (_) => const CameraCaptureScreen()),
+      );
+      if (path != null && mounted) setState(() => _photoPath = path);
+      return;
+    }
 
     final picker = ImagePicker();
     final photo = await picker.pickImage(
@@ -2244,7 +2388,10 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
 
   Future<void> _save({bool popAfter = true}) async {
     _lastSaveOk = false;
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      _showError(AppLocalizations.of(context)!.saveValidationError);
+      return;
+    }
     final latitude = parseDecimal(_latCtrl.text);
     final longitude = parseDecimal(_lonCtrl.text);
     if (latitude == null || longitude == null) {
@@ -2270,7 +2417,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     if (instr != null &&
         instrumentCalibrationStatus(instr) == CalibrationStatus.expired) {
       final loc = AppLocalizations.of(context)!;
-      final proceed = await showDialog<bool>(
+      final proceed = await showRemoteConfirmDialog(
         context: context,
         builder: (ctx) => AlertDialog(
           title: Text(loc.calibrationSaveAnywayTitle),
@@ -2298,8 +2445,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       createdAt: _editingPoint?.createdAt,
     );
 
-    await _checkThresholdAndWarn(point);
-    if (!mounted) return;
+    final canSave = await _checkThresholdAndWarn(point);
+    if (!canSave || !mounted) return;
 
     if (_editingPoint == null) {
       await _insertNewPoint(point);
@@ -2311,22 +2458,28 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     }
 
     _lastSaveOk = true;
-    if (mounted && popAfter) Navigator.of(context).pop(true);
+    if (!mounted || !popAfter) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final savedText = AppLocalizations.of(context)!.pointSavedMessage;
+    Navigator.of(context).pop(true);
+    _notifySaved(messenger, savedText);
   }
 
-  /// A mentés előtt figyelmeztet, ha a mért érték eléri/túllépi a
-  /// beállított riasztási küszöböt. Nem blokkolja a mentést — csak jelez.
-  Future<void> _checkThresholdAndWarn(MeasurementPoint point) async {
+  /// Riasztás, ha a mért érték eléri a beállított küszöböt. Megerősítést kér:
+  /// a mentés gomb (képernyőn vagy távirányítón) menti a pontot, az eldobás
+  /// gomb vagy a Mégse megszakítja a mentést.
+  /// Visszatér: menthető-e a pont.
+  Future<bool> _checkThresholdAndWarn(MeasurementPoint point) async {
     // A légkerma (K) nem dózisegyenérték: a küszöböt nem hasonlítjuk hozzá.
-    if (point.doseQuantity == DoseQuantity.kerma.dbValue) return;
+    if (point.doseQuantity == DoseQuantity.kerma.dbValue) return true;
     // A küszöb gamma/általános beütésszámra vonatkozik; neutronnál nincs riasztás.
     if (point.type == MeasurementType.countRate &&
         point.radiationKind == RadiationKind.neutron.dbValue) {
-      return;
+      return true;
     }
-    if (point.value == null) return;
+    if (point.value == null) return true;
     final threshold = await SettingsService().getThreshold(point.type);
-    if (threshold == null) return;
+    if (threshold == null) return true;
     var comparable = point.value!;
     var shownUnit = point.unit;
     if (point.type == MeasurementType.doseRate) {
@@ -2339,12 +2492,12 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
         shownUnit = DoseUnitController.current.symbol;
       }
     }
-    if (comparable < threshold) return;
-    if (!mounted) return;
+    if (comparable < threshold) return true;
+    if (!mounted) return false;
 
     final loc = AppLocalizations.of(context)!;
     HapticFeedback.heavyImpact();
-    await showDialog<void>(
+    final proceed = await showRemoteConfirmDialog(
       context: context,
       builder: (context) => AlertDialog(
         icon: const Icon(
@@ -2362,13 +2515,18 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
           ),
         ),
         actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(loc.cancelButton),
+          ),
           FilledButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(context).pop(true),
             child: Text(loc.okButton),
           ),
         ],
       ),
     );
+    return proceed ?? false;
   }
 
   @override
@@ -2567,68 +2725,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
                 const SizedBox(height: 8),
                 _buildActivityFromMeasurementPanel(loc)!,
               ],
-              const SizedBox(height: 12),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      // Amíg a műszerlista be nem töltött (aszinkron
-                      // _loadInstruments), a szerkesztett pont instrumentId-ja
-                      // még nem szerepelhet az items között — ha ilyenkor
-                      // mégis átadnánk értékként, a DropdownButton assertion
-                      // hibával elszáll (ezért fagyott le a pont megnyitása).
-                      // A key biztosítja, hogy a lista betöltése után a mező
-                      // újra inicializálódjon a helyes initialValue-val,
-                      // ne maradjon üresen.
-                      key: ValueKey('instrument_dd_${_instruments.length}'),
-                      initialValue:
-                          _instruments.any((i) => i.id == _instrumentId)
-                          ? _instrumentId
-                          : null,
-                      decoration: InputDecoration(
-                        labelText: loc.instrumentLabel,
-                      ),
-                      items: _instruments
-                          .map(
-                            (i) => DropdownMenuItem(
-                              value: i.id,
-                              child: Text(i.name),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (id) => setState(() => _instrumentId = id),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.add_circle_outline),
-                    tooltip: loc.addInstrumentTooltip,
-                    onPressed: _addInstrument,
-                  ),
-                ],
-              ),
-              if (_selectedInstrument != null)
-                _buildCalibrationBanner(loc, _selectedInstrument!),
-              if (_selectedInstrument?.isModbusConnected == true) ...[
-                const SizedBox(height: 8),
-                OutlinedButton.icon(
-                  onPressed: _isQueryingModbus ? null : _queryModbus,
-                  icon: _isQueryingModbus
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.wifi_tethering),
-                  label: Text(
-                    _isQueryingModbus
-                        ? loc.queryingLabel
-                        : loc.modbusQueryButton(_selectedInstrument!.name),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                _buildAveragingControls(loc),
-              ],
+            ],
+            if (_type.hasValue) ...[
               const SizedBox(height: 12),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
@@ -2773,6 +2871,72 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
               _buildSourcesSummaryPanel(loc),
             ],
             ],
+            if (_type.hasValue || _isSideDataType) ...[
+              const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<int>(
+                      // Amíg a műszerlista be nem töltött (aszinkron
+                      // _loadInstruments), a szerkesztett pont instrumentId-ja
+                      // még nem szerepelhet az items között — ha ilyenkor
+                      // mégis átadnánk értékként, a DropdownButton assertion
+                      // hibával elszáll (ezért fagyott le a pont megnyitása).
+                      // A key biztosítja, hogy a lista betöltése után a mező
+                      // újra inicializálódjon a helyes initialValue-val,
+                      // ne maradjon üresen.
+                      key: ValueKey('instrument_dd_${_instruments.length}'),
+                      initialValue:
+                          _instruments.any((i) => i.id == _instrumentId)
+                          ? _instrumentId
+                          : null,
+                      decoration: InputDecoration(
+                        labelText: loc.instrumentLabel,
+                      ),
+                      items: _instruments
+                          .map(
+                            (i) => DropdownMenuItem(
+                              value: i.id,
+                              child: Text(i.name),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (id) => setState(() => _instrumentId = id),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline),
+                    tooltip: loc.addInstrumentTooltip,
+                    onPressed: _addInstrument,
+                  ),
+                ],
+              ),
+              if (_selectedInstrument != null)
+                _buildCalibrationBanner(loc, _selectedInstrument!),
+              if (_selectedInstrument?.isModbusConnected == true) ...[
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: _isQueryingModbus ? null : _queryModbus,
+                  icon: _isQueryingModbus
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.wifi_tethering),
+                  label: Text(
+                    _isQueryingModbus
+                        ? loc.queryingLabel
+                        : loc.modbusQueryButton(_selectedInstrument!.name),
+                  ),
+                ),
+                if (!_isSideDataType) ...[
+                  const SizedBox(height: 8),
+                  _buildAveragingControls(loc),
+                ],
+              ],
+            ],
             const SizedBox(height: 12),
             TextFormField(
               controller: _notesCtrl,
@@ -2880,7 +3044,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
         const SizedBox(width: 12),
         Expanded(
           child: OutlinedButton.icon(
-            onPressed: _isQueryingModbus ? null : _startModbusAveraging,
+            onPressed: _isQueryingModbus || _isSideDataType ? null : _startModbusAveraging,
             icon: const Icon(Icons.timeline),
             label: Text(loc.modbusAverageButton),
           ),
@@ -3172,4 +3336,14 @@ class _GasEdit {
 ll.LatLng _planCentreLatLng(PlanCalibration plan) {
   final c = PlanGeoref(plan).centre;
   return ll.LatLng(c.lat, c.lon);
+}
+
+/// Mentés visszajelzése. A következő képkockában jelenik meg, hogy az új
+/// képernyőn is látsszon.
+void _notifySaved(ScaffoldMessengerState messenger, String text) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    messenger.showSnackBar(
+      SnackBar(content: Text(text), duration: const Duration(seconds: 2)),
+    );
+  });
 }

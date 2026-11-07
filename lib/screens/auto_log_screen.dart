@@ -5,20 +5,24 @@ import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:geolocator/geolocator.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import '../services/number_input.dart';
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
+import '../l10n/modbus_quantity_labels.dart';
+import '../models/concentration_unit.dart';
 import '../models/distance_unit.dart';
-import '../models/dose_rate_unit.dart';
+import '../models/gas_reading.dart';
+import '../models/hardware_button.dart';
 import '../models/instrument.dart';
 import '../models/measurement_point.dart';
 import '../models/measurement_type.dart';
+import '../models/meteorology.dart';
+import '../models/modbus_reading.dart';
 import '../services/dose_integrator.dart';
 import '../services/dose_unit_controller.dart';
 import '../services/dose_unit_converter.dart';
-import '../services/modbus_reader_service.dart';
-import '../models/hardware_button.dart';
 import '../services/hardware_buttons.dart';
+import '../services/modbus_reader_service.dart';
+import '../services/number_input.dart';
 import '../services/settings_service.dart';
 import '../widgets/dose_widgets.dart';
 import '../widgets/quantity_field.dart';
@@ -26,10 +30,41 @@ import '../widgets/time_series_chart.dart';
 
 enum _TriggerMode { time, distance }
 
+/// Egy kiválasztható csatorna: melyik műszer, melyik regiszter.
+class _Source {
+  _Source(this.instrument, this.channel);
+
+  final Instrument instrument;
+  final ModbusChannel channel;
+  bool selected = false;
+}
+
+/// Egy csatorna, amelyhez futás közben nyitott kapcsolat tartozik.
+class _ActiveSource {
+  _ActiveSource(this.source, this.session);
+
+  final _Source source;
+  final ModbusLiveSession session;
+}
+
+bool _isRadiation(MeasurementType t) =>
+    t == MeasurementType.doseRate ||
+    t == MeasurementType.countRate ||
+    t == MeasurementType.surfaceContamination;
+
+_Source? _firstOf(List<_Source> list, bool Function(_Source) test) {
+  for (final s in list) {
+    if (test(s)) return s;
+  }
+  return null;
+}
+
 /// Automatikus mintavételezés: időközönként (pl. 1 mp) vagy megtett
-/// távolságonként (pl. 5 m) magától rögzít egy mérési pontot a kiválasztott,
-/// Modbus/TCP-n elérhető műszer aktuális értékéből és az aktuális GPS
-/// pozícióból.
+/// távolságonként (pl. 5 m) magától rögzít pontokat. A kijelölt Modbus-
+/// csatornákat egyszerre olvassa: több műszer több csatornája egyidejűleg
+/// rögzíthető. A sugárzási értékek pontonként, a meteorológia és a gázok
+/// tickenként egy-egy összevont pontban mentődnek, közös időponttal és
+/// helyzettel. A GPS az első kijelölt, GPS-es műszertől, különben a telefontól jön.
 ///
 /// FONTOS KORLÁT: a rögzítés csak addig fut, amíg ez a képernyő nyitva /
 /// előtérben van — háttérbe kerülve (kikapcsolt kijelző, másik app) a
@@ -52,9 +87,18 @@ class AutoLogScreen extends StatefulWidget {
 }
 
 class _AutoLogScreenState extends State<AutoLogScreen> {
-  List<Instrument> _modbusInstruments = [];
-  Instrument? _instrument;
-  MeasurementType _type = MeasurementType.doseRate;
+  List<_Source> _sources = [];
+  List<_ActiveSource> _active = [];
+
+  /// A GPS forrása (ha van Modbus-GPS-es kijelölt műszer).
+  _Source? _gpsSrc;
+
+  /// Dózisintegráláshoz: legfeljebb egy dózisteljesítmény-csatorna.
+  _Source? _doseSrc;
+
+  /// Idődiagram és küszöb: az első kijelölt sugárzási csatorna.
+  _Source? _chartSrc;
+
   _TriggerMode _mode = _TriggerMode.time;
 
   final _intervalCtrl = TextEditingController(text: '1');
@@ -68,7 +112,6 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
   bool _starting = false;
   bool _busy = false; // egy tick fut-e éppen (átfedés elkerülése)
 
-  ModbusLiveSession? _session;
   Timer? _timer;
 
   /// Távolság-módban telefon-GPS-szel a mérés csak megtett útra triggerel, a
@@ -79,23 +122,41 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
   Position? _currentPosition;
   (double, double)? _lastModbusGpsPosition;
 
-  bool get _useModbusGps => _instrument?.isModbusGpsEnabled ?? false;
+  bool get _useModbusGps => _gpsSrc != null;
+
   /// A futás alatt olvasott értékek az idődiagramhoz (alapegységben).
   final List<TimeSample> _samples = [];
   static const _maxSamples = 7200;
   double? _threshold;
-
-  void _addSample(double raw) {
-    _samples.add(TimeSample(DateTime.now(), _toDefaultUnit(raw)));
-    if (_samples.length > _maxSamples) {
-      _samples.removeRange(0, _samples.length - _maxSamples);
-    }
-  }
+  String _chartUnit = '';
 
   int _capturedCount = 0;
   int _errorCount = 0;
   double? _lastValue;
+  String _lastUnit = '';
   String? _lastError;
+
+  List<_Source> get _selectedSources => [
+        for (final s in _sources)
+          if (s.selected) s,
+      ];
+
+  _ActiveSource? _activeFor(_Source? s) {
+    if (s == null) return null;
+    for (final a in _active) {
+      if (identical(a.source, s)) return a;
+    }
+    return null;
+  }
+
+  void _addSample(double raw, _Source s) {
+    _samples.add(
+      TimeSample(DateTime.now(), channelReadingInAppUnit(s.channel, raw)),
+    );
+    if (_samples.length > _maxSamples) {
+      _samples.removeRange(0, _samples.length - _maxSamples);
+    }
+  }
 
   @override
   void initState() {
@@ -108,11 +169,12 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     final all = await DatabaseHelper.instance.getInstruments();
     if (!mounted) return;
     setState(() {
-      _modbusInstruments = all.where((i) => i.isModbusConnected).toList();
-      if (_modbusInstruments.isNotEmpty) {
-        _instrument = _modbusInstruments.first;
-        _type = _instrument!.modbusMeasurementType;
-      }
+      _sources = [
+        for (final i in all)
+          if (i.isModbusConnected)
+            for (final c in i.effectiveModbusChannels) _Source(i, c),
+      ];
+      if (_sources.isNotEmpty) _sources.first.selected = true;
     });
     if (widget.autoStart && !_isRunning && !_starting) unawaited(_start());
   }
@@ -138,13 +200,23 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
 
   Future<void> _start() async {
     final loc = AppLocalizations.of(context)!;
-    final instrument = _instrument;
-    if (instrument == null) return;
+    final selected = _selectedSources;
+    if (selected.isEmpty) {
+      _showError(loc.autoLogSelectChannel);
+      return;
+    }
+    final doseCount = selected
+        .where((s) => s.channel.type == MeasurementType.doseRate)
+        .length;
+    if (doseCount > 1) {
+      _showError(loc.autoLogOneDoseSource);
+      return;
+    }
 
     final interval = int.tryParse(_intervalCtrl.text.trim()) ?? 1;
     // A távolságköz méterben (a választott egységből átszámolva).
-    final distance = _distanceUnit
-        .toMeters(parseDecimal(_distanceCtrl.text) ?? 5);
+    final distance =
+        _distanceUnit.toMeters(parseDecimal(_distanceCtrl.text) ?? 5);
     if (_mode == _TriggerMode.time && interval < 1) {
       _showError(loc.intervalMinError);
       return;
@@ -154,19 +226,39 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       return;
     }
 
-    if (!_useModbusGps && !await _ensureLocationPermission()) return;
+    final gpsCandidate =
+        _firstOf(selected, (s) => s.instrument.isModbusGpsEnabled);
+    if (gpsCandidate == null && !await _ensureLocationPermission()) return;
 
     setState(() => _starting = true);
+    final opened = <_ActiveSource>[];
     try {
-      _session = await ModbusLiveSession.connect(instrument, loc);
+      for (final s in selected) {
+        final session =
+            await ModbusLiveSession.connect(s.instrument, s.channel, loc);
+        opened.add(_ActiveSource(s, session));
+      }
     } catch (e) {
+      for (final a in opened) {
+        await a.session.close();
+      }
       _showError(loc.modbusConnectErrorMessage('$e'));
       if (mounted) setState(() => _starting = false);
       return;
     }
 
+    _active = opened;
+    _gpsSrc = gpsCandidate;
+    _doseSrc = _firstOf(
+        selected, (s) => s.channel.type == MeasurementType.doseRate);
+    _chartSrc = _firstOf(selected, (s) => _isRadiation(s.channel.type));
+
     unawaited(WakelockPlus.enable());
-    _threshold = await SettingsService().getThreshold(_type);
+    final chart = _chartSrc;
+    _threshold = chart == null
+        ? null
+        : await SettingsService().getThreshold(chart.channel.type);
+    _chartUnit = chart?.channel.type.defaultUnit ?? '';
     setState(() {
       _samples.clear();
       _isRunning = true;
@@ -174,12 +266,14 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       _capturedCount = 0;
       _errorCount = 0;
       _lastValue = null;
+      _lastUnit = '';
       _lastError = null;
       _lastModbusGpsPosition = null;
       _dose.reset();
     });
 
     if (_useModbusGps) {
+      // Modbus-GPS: a kijelölt műszer helyzetét használjuk, nem a telefonét.
       // Távolság módban 1 mp-es lekérdezés, a megtett utat a műszer GPS-éből számoljuk.
       final seconds = _mode == _TriggerMode.time ? interval : 1;
       _timer = Timer.periodic(
@@ -210,37 +304,24 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
           distanceFilter: distance.round(),
         ),
       ).listen(_captureTick);
-      _doseTimer = Timer.periodic(const Duration(seconds: 1), (_) => _doseTick());
+      _doseTimer =
+          Timer.periodic(const Duration(seconds: 1), (_) => _doseTick());
     }
-  }
-
-  /// A műszer nyers értékét (a műszernél beállított regiszter-egységből) az
-  /// aktuálisan választott alapegységre váltja.
-  double _toDefaultUnit(double raw) {
-    final instrument = _instrument;
-    return instrument == null ? raw : instrumentReadingInAppUnit(instrument, raw);
-  }
-
-  /// Dózisteljesítmény-minta hozzáadása az integrálóhoz (csak dózisteljesítmény
-  /// típusú mérésnél).
-  void _accumulateDose(double value) {
-    if (_type != MeasurementType.doseRate) return;
-    _dose.addSample(
-      value,
-      _instrument?.modbusUnit ?? DoseRateUnit.instrumentNative.symbol,
-      DateTime.now(),
-    );
   }
 
   /// Csak dózis-integráláshoz szükséges olvasás (nem rögzít mérési pontot).
   Future<void> _doseTick() async {
-    if (_busy || !_isRunning || _type != MeasurementType.doseRate) return;
+    final doseActive = _activeFor(_doseSrc);
+    if (_busy || !_isRunning || doseActive == null) return;
     _busy = true;
     try {
-      final result = await _session?.read();
-      if (result != null && result.success) {
-        _accumulateDose(result.value!);
-        _addSample(result.value!);
+      final result = await doseActive.session.read();
+      final value = result.value;
+      if (result.success && value != null) {
+        _dose.addSample(value, doseActive.source.channel.unit, DateTime.now());
+        if (identical(_chartSrc, _doseSrc)) {
+          _addSample(value, doseActive.source);
+        }
         if (mounted) setState(() {});
       }
     } finally {
@@ -273,26 +354,123 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     return (persons.length, dose);
   }
 
+  MeasurementPoint _point({
+    required MeasurementType type,
+    required double latitude,
+    required double longitude,
+    required double? accuracy,
+    required DateTime now,
+    required int? instrumentId,
+    double? value,
+    String unit = '',
+    Meteorology? meteorology,
+    List<GasReading> gases = const [],
+  }) =>
+      MeasurementPoint(
+        surveySessionId: widget.surveySessionId,
+        latitude: latitude,
+        longitude: longitude,
+        gpsAccuracyMeters: accuracy,
+        type: type,
+        value: value,
+        unit: unit,
+        instrumentId: instrumentId,
+        meteorology: meteorology,
+        gases: gases,
+        timestamp: now,
+        createdAt: now,
+        updatedAt: now,
+      );
+
+  /// Egy műszer meteorológiai csatornáiból egy megfigyelés (a többi mező üres).
+  Meteorology? _meteorologyFrom(List<(_ActiveSource, ModbusReadResult)> items) {
+    final values = <String, double>{};
+    for (final (a, r) in items) {
+      final c = a.source.channel;
+      final key = c.quantity;
+      if (c.type != MeasurementType.meteorology || key == null) continue;
+      values[key] = meteoValueToStored(key, c.unit, r.value!);
+    }
+    if (values.isEmpty) return null;
+    return Meteorology(
+      airTemperatureC: values['air_temperature_c'],
+      relativeHumidityPct: values['relative_humidity_pct'],
+      pressureHpa: values['pressure_hpa'],
+      windSpeedMs: values['wind_speed_ms'],
+      windDirectionDeg: values['wind_direction_deg'],
+      gustMs: values['gust_ms'],
+      precipitationMmH: values['precipitation_mm_h'],
+      solarWm2: values['solar_wm2'],
+      cloudOkta: values['cloud_okta'],
+      visibilityM: values['visibility_m'],
+      soilMoisturePct: values['soil_moisture_pct'],
+      aerosolUgM3: values['aerosol_ug_m3'],
+    );
+  }
+
+  /// Egy műszer gázcsatornáiból a vegyületek listája.
+  List<GasReading> _gasesFrom(List<(_ActiveSource, ModbusReadResult)> items) {
+    final out = <GasReading>[];
+    for (final (a, r) in items) {
+      final c = a.source.channel;
+      final name = c.quantity;
+      final unit = ConcentrationUnit.fromSymbol(c.unit);
+      if (c.type != MeasurementType.gasMeasurement || name == null || unit == null) {
+        continue;
+      }
+      out.add(GasReading(
+        name: name,
+        formula: gasFormulaOf(name),
+        concentration: r.value!,
+        unit: unit,
+      ));
+    }
+    return out;
+  }
+
   Future<void> _captureTick(Position? position, {double? minDistance}) async {
     if ((position == null && !_useModbusGps) || _busy || !_isRunning) return;
     _busy = true;
     try {
-      final result = await _session!.read();
-      if (!result.success) {
-        _errorCount++;
-        _lastError = result.errorMessage;
-        if (mounted) setState(() {});
-        return;
+      // Minden kijelölt csatorna egy időpontban, párhuzamosan olvasódik.
+      final actives = List<_ActiveSource>.of(_active);
+      final results =
+          await Future.wait([for (final a in actives) a.session.read()]);
+      final readings = <(_ActiveSource, ModbusReadResult)>[];
+      ModbusReadResult? gpsRead;
+      for (var i = 0; i < actives.length; i++) {
+        final a = actives[i];
+        final r = results[i];
+        if (identical(a.source, _gpsSrc)) gpsRead = r;
+        if (!r.success || r.value == null) {
+          _errorCount++;
+          _lastError = r.errorMessage;
+          continue;
+        }
+        readings.add((a, r));
       }
-      _accumulateDose(result.value!);
-      _addSample(result.value!);
+
+      // Dózis és idődiagram a sikeres olvasásokból (a GPS-szűrés előtt).
+      for (final (a, r) in readings) {
+        final raw = r.value!;
+        if (identical(a.source, _doseSrc)) {
+          _dose.addSample(raw, a.source.channel.unit, DateTime.now());
+        }
+        if (identical(a.source, _chartSrc)) _addSample(raw, a.source);
+      }
 
       final double latitude;
       final double longitude;
       final double? accuracy;
       if (_useModbusGps) {
-        latitude = result.latitude!;
-        longitude = result.longitude!;
+        final lat = gpsRead?.latitude;
+        final lon = gpsRead?.longitude;
+        if (gpsRead == null || !gpsRead.success || lat == null || lon == null) {
+          if (mounted) setState(() {});
+          return;
+        }
+        latitude = lat;
+        longitude = lon;
         accuracy = null;
         if (_mode == _TriggerMode.distance) {
           final last = _lastModbusGpsPosition;
@@ -315,31 +493,96 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       }
 
       final now = DateTime.now();
-      final point = MeasurementPoint(
-        surveySessionId: widget.surveySessionId,
-        latitude: latitude,
-        longitude: longitude,
-        gpsAccuracyMeters: accuracy,
-        type: _type,
-        value: _toDefaultUnit(result.value!),
-        unit: _type.defaultUnit,
-        instrumentId: _instrument!.id,
-        timestamp: now,
-        createdAt: now,
-        updatedAt: now,
-      );
-      await DatabaseHelper.instance.insertMeasurementPoint(point);
+      final points = <MeasurementPoint>[];
 
-      final threshold = await SettingsService().getThreshold(_type);
-      if (threshold != null && _toDefaultUnit(result.value!) >= threshold) {
-        HapticFeedback.heavyImpact();
+      // Sugárzási csatornánként egy pont.
+      for (final (a, r) in readings) {
+        final c = a.source.channel;
+        if (!_isRadiation(c.type)) continue;
+        points.add(_point(
+          type: c.type,
+          value: channelReadingInAppUnit(c, r.value!),
+          unit: c.type.defaultUnit,
+          latitude: latitude,
+          longitude: longitude,
+          accuracy: accuracy,
+          now: now,
+          instrumentId: a.source.instrument.id,
+        ));
       }
 
-      _capturedCount++;
-      _lastValue = _toDefaultUnit(result.value!);
+      // Meteorológia és gáz: műszerenként egy-egy összevont pont.
+      final metaGroups = <int?, List<(_ActiveSource, ModbusReadResult)>>{};
+      final gasGroups = <int?, List<(_ActiveSource, ModbusReadResult)>>{};
+      for (final e in readings) {
+        final t = e.$1.source.channel.type;
+        final id = e.$1.source.instrument.id;
+        if (t == MeasurementType.meteorology) {
+          metaGroups.putIfAbsent(id, () => []).add(e);
+        } else if (t == MeasurementType.gasMeasurement) {
+          gasGroups.putIfAbsent(id, () => []).add(e);
+        }
+      }
+      for (final entry in metaGroups.entries) {
+        final meteo = _meteorologyFrom(entry.value);
+        if (meteo == null) continue;
+        points.add(_point(
+          type: MeasurementType.meteorology,
+          meteorology: meteo,
+          latitude: latitude,
+          longitude: longitude,
+          accuracy: accuracy,
+          now: now,
+          instrumentId: entry.key,
+        ));
+      }
+      for (final entry in gasGroups.entries) {
+        final gases = _gasesFrom(entry.value);
+        if (gases.isEmpty) continue;
+        points.add(_point(
+          type: MeasurementType.gasMeasurement,
+          gases: gases,
+          latitude: latitude,
+          longitude: longitude,
+          accuracy: accuracy,
+          now: now,
+          instrumentId: entry.key,
+        ));
+      }
+
+      for (final p in points) {
+        await DatabaseHelper.instance.insertMeasurementPoint(p);
+      }
+
+      // Küszöb: a sugárzási pontokra, típusonként.
+      for (final (a, r) in readings) {
+        final c = a.source.channel;
+        if (!_isRadiation(c.type)) continue;
+        final threshold = await SettingsService().getThreshold(c.type);
+        if (threshold != null &&
+            channelReadingInAppUnit(c, r.value!) >= threshold) {
+          HapticFeedback.heavyImpact();
+        }
+      }
+
+      _capturedCount += points.length;
+      for (final (a, r) in readings) {
+        if (identical(a.source, _chartSrc)) {
+          _lastValue = channelReadingInAppUnit(a.source.channel, r.value!);
+          _lastUnit = a.source.channel.type.defaultUnit;
+        }
+      }
       if (mounted) setState(() {});
     } finally {
       _busy = false;
+    }
+  }
+
+  Future<void> _closeSessions() async {
+    final actives = _active;
+    _active = [];
+    for (final a in actives) {
+      await a.session.close();
     }
   }
 
@@ -350,8 +593,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     _doseTimer = null;
     await _positionSub?.cancel();
     _positionSub = null;
-    await _session?.close();
-    _session = null;
+    await _closeSessions();
     unawaited(HardwareButtonController.applyScreenWake());
     if (mounted) setState(() => _isRunning = false);
 
@@ -389,7 +631,9 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     // összegzett dózis akkor sem veszhet el.
     if (_isRunning) unawaited(_persistDose());
     _positionSub?.cancel();
-    _session?.close();
+    for (final a in _active) {
+      unawaited(a.session.close());
+    }
     unawaited(HardwareButtonController.applyScreenWake());
     _intervalCtrl.dispose();
     _distanceCtrl.dispose();
@@ -399,6 +643,9 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
+    final selected = _selectedSources;
+    final hasDose =
+        selected.any((s) => s.channel.type == MeasurementType.doseRate);
     return Scaffold(
       appBar: AppBar(title: Text(loc.autoLogMenuItem)),
       body: ListView(
@@ -415,7 +662,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          if (_modbusInstruments.isEmpty)
+          if (_sources.isEmpty)
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -423,38 +670,33 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
               ),
             )
           else ...[
-            DropdownButtonFormField<Instrument>(
-              initialValue: _instrument,
-              decoration: InputDecoration(labelText: loc.instrumentLabel),
-              items: _modbusInstruments
-                  .map((i) => DropdownMenuItem(value: i, child: Text(i.name)))
-                  .toList(),
-              onChanged: _isRunning
-                  ? null
-                  : (i) => setState(() {
-                      _instrument = i;
-                      if (i != null) _type = i.modbusMeasurementType;
-                    }),
+            Text(
+              loc.autoLogSourcesTitle,
+              style: Theme.of(context).textTheme.titleSmall,
             ),
-            const SizedBox(height: 12),
-            // A mért mennyiséget a műszer beállítása adja (Modbus regiszter),
-            // itt csak megjelenítjük.
-            InputDecorator(
-              decoration: InputDecoration(
-                labelText: loc.measurementTypeLabel,
-                helperText: loc.autoLogTypeFromInstrument,
-                helperMaxLines: 2,
-              ),
-              child: Text(
-                _instrument == null || _instrument!.modbusUnit == _type.defaultUnit
-                    ? '${_type.label(context)} (${_type.defaultUnit})'
-                    : '${_type.label(context)} '
-                        '(${_instrument!.modbusUnit} → ${_type.defaultUnit})',
-              ),
+            const SizedBox(height: 4),
+            Text(
+              loc.autoLogSourcesHelper,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
-            if (_type != MeasurementType.doseRate)
+            for (final s in _sources)
+              CheckboxListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                value: s.selected,
+                onChanged: _isRunning
+                    ? null
+                    : (v) => setState(() => s.selected = v ?? false),
+                title: Text(s.instrument.name),
+                subtitle: Text(
+                  '${modbusChannelLabel(loc, s.channel, s.channel.type.label(context))}'
+                  ' (${s.channel.unit})',
+                ),
+              ),
+            if (!hasDose)
               Padding(
-                padding: const EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.only(top: 4),
                 child: Text(
                   loc.autoLogDoseOnlyDoseRate,
                   style: Theme.of(context).textTheme.bodySmall,
@@ -506,7 +748,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
             const SizedBox(height: 24),
             if (!_isRunning)
               FilledButton.icon(
-                onPressed: _starting || _instrument == null ? null : _start,
+                onPressed: _starting || selected.isEmpty ? null : _start,
                 icon: _starting
                     ? const SizedBox(
                         width: 18,
@@ -535,7 +777,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
                       const SizedBox(height: 8),
                       TimeSeriesChart(
                         samples: _samples,
-                        unit: _type.defaultUnit,
+                        unit: _chartUnit,
                         threshold: _threshold,
                       ),
                     ],
@@ -581,7 +823,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
                       if (_lastValue != null)
                         Text(loc.lastValueLabel(
                             '${double.parse(_lastValue!.toStringAsFixed(4))}',
-                            _type.defaultUnit)),
+                            _lastUnit)),
                       if (_errorCount > 0)
                         Text(
                           loc.failedReadingsLabel(_errorCount) +

@@ -2017,6 +2017,28 @@ class AppLocalizationsDe extends AppLocalizations {
       'Für die Berechnung der Messunsicherheit sind mindestens 2 gültige Messwerte nötig; nur der Wert wurde übernommen.';
 
   @override
+  String get modbusNoChannelForType =>
+      'Für diesen Messwerttyp ist an diesem Messgerät kein Modbus-Register eingerichtet.';
+
+  @override
+  String get modbusChannelsTitle => 'Messgrößen und Register';
+
+  @override
+  String get modbusChannelsHelper =>
+      'Pro Messwerttyp kann ein Register und eine Einheit angegeben werden. Abfrage, Mittelung und automatische Protokollierung lesen das Register des gewählten Typs.';
+
+  @override
+  String get modbusAddChannelButton => 'Register hinzufügen';
+
+  @override
+  String get modbusDuplicateChannelType =>
+      'Für diese Größe ist bereits ein Register angelegt. Pro Typ ist nur eines erlaubt.';
+
+  @override
+  String get modbusChannelsRequired =>
+      'Geben Sie mindestens ein Modbus-Register an.';
+
+  @override
   String get measurementErrorLabel => 'Messunsicherheit (±)';
 
   @override
@@ -3879,7 +3901,38 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get btnEnabledHelp =>
-      'Unter Android sendet eine Bluetooth-Fernbedienung mit Medientasten Befehle an die App. Sie funktioniert nur, wenn die App im Vordergrund ist.';
+      'Eine Bluetooth-Fernbedienung mit Medientasten (Wiedergabe, Weiter, Zurück) sowie eine Tastatur- oder Seitenumblätter-Fernbedienung senden Befehle an die App. Sie funktionieren nur, wenn die App im Vordergrund ist. Auf dem iPhone können die Lautstärketasten nicht verwendet werden.';
+
+  @override
+  String get btnKeyboardSectionTitle =>
+      'Tastatur- / Seitenumblätter-Fernbedienung';
+
+  @override
+  String get btnKeyboardHelp =>
+      'Zum Hinzufügen einer Taste die Taste auf der Fernbedienung drücken. Jede gelernte Taste führt einen Befehl aus. Wiedergabe, Weiter und Zurück werden bei den Tasten oben eingestellt.';
+
+  @override
+  String get btnKeyboardAdd => 'Taste hinzufügen';
+
+  @override
+  String get btnKeyboardLearnTitle => 'Taste auf der Fernbedienung drücken';
+
+  @override
+  String get btnKeyboardLearnBody =>
+      'Warte auf einen Tastendruck. Zum Beenden auf Abbrechen tippen.';
+
+  @override
+  String get btnKeyboardEmpty => 'Noch keine Taste hinzugefügt.';
+
+  @override
+  String get pointSavedMessage => 'Messung gespeichert';
+
+  @override
+  String get cameraUnavailableError =>
+      'Die Kamera ist nicht verfügbar. Prüfen Sie die Kamera-Berechtigung.';
+
+  @override
+  String get saveValidationError => 'Einige Felder fehlen oder sind ungültig.';
 
   @override
   String get keepScreenOnLabel => 'Bildschirm dauerhaft aktiv';
@@ -3943,4 +3996,108 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get discardConfirmHint =>
       'Zum Verwerfen innerhalb von 3 Sekunden erneut drücken';
+
+  @override
+  String get modbusChannelQuantityLabel => 'Größe';
+
+  @override
+  String get modbusAverageRadiationOnly =>
+      'Die Mittelwertbildung ist nur für Strahlungsmesstypen verfügbar (Dosisleistung, Oberflächenkontamination, Zählrate).';
+
+  @override
+  String get autoLogSourcesTitle => 'Aufzuzeichnende Kanäle';
+
+  @override
+  String get autoLogSourcesHelper =>
+      'Wählen Sie aus, welche Gerätewerte gespeichert werden. Mehrere Geräte lassen sich gleichzeitig erfassen, z. B. CPS von einem und Gaskonzentration von einem anderen.';
+
+  @override
+  String get autoLogSelectChannel => 'Wählen Sie mindestens einen Kanal aus.';
+
+  @override
+  String get autoLogOneDoseSource =>
+      'Für die Dosisberechnung kann nur ein Dosisleistungskanal ausgewählt werden.';
+
+  @override
+  String get mapColorScaleTitle => 'Gefärbte Größe';
+
+  @override
+  String get mapInterpolationTitle => 'Interpolationsebene';
+
+  @override
+  String get mapInterpolationSubtitle =>
+      'Geschätzte Fläche zwischen den Punkten (IDW). Keine Messung, nur Schätzung.';
+
+  @override
+  String get mapInterpolationLegend => 'Geschätzt (IDW)';
+
+  @override
+  String get mapNoScalableValues =>
+      'In dieser Erhebung gibt es keine färbbaren numerischen Messwerte.';
+
+  @override
+  String get mapToolsTooltip => 'Zeichnen und Messen';
+
+  @override
+  String get mapLayersTooltip => 'Ebenen';
+
+  @override
+  String get mapMeasureStopTooltip => 'Entfernungsmessung beenden';
+
+  @override
+  String get mapVisibilityTitle => 'Anzeige';
+
+  @override
+  String get mapPointsLayerTitle => 'Messpunkte';
+
+  @override
+  String get mapAreasLayerTitle => 'Bereiche';
+
+  @override
+  String get mapSourcesLayerTitle => 'Quellenpositionen';
+
+  @override
+  String get mapDistancesLayerTitle => 'Entfernungen';
+
+  @override
+  String get mapToggleAllLabel => 'Alle ein/aus';
+
+  @override
+  String get mapScaleGroupTypes => 'Messarten';
+
+  @override
+  String get mapLineDeleteConfirm => 'Diese Messlinie löschen?';
+
+  @override
+  String get mapLineDeleteTooltip => 'Messlinie löschen';
+
+  @override
+  String get mapNoDistanceLines => 'Keine gespeicherten Messlinien.';
+
+  @override
+  String get personListFieldsTitle => 'Angezeigte Angaben';
+
+  @override
+  String get personListFieldExpiry => 'Ablaufdaten';
+
+  @override
+  String get personListFieldContact => 'Telefon und E-Mail';
+
+  @override
+  String get personListFieldAnnualDose => 'Jahresdosis';
+
+  @override
+  String get personListFieldDoseBreakdown => 'Dosis nach Quelle';
+
+  @override
+  String get personListFieldLimit => 'Ausschöpfung des Dosisgrenzwerts';
+
+  @override
+  String get personListFieldLastStatus => 'Letzter Status';
+
+  @override
+  String get personFilterAll => 'Alle';
+
+  @override
+  String get personFilterExpired => 'Nur abgelaufene';
 }

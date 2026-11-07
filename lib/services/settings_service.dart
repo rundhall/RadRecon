@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -251,6 +253,34 @@ class SettingsService {
   }
 
   /// Gombonkénti parancs. Ha még nincs mentett érték, a gomb alapértelmezése.
+  static const _learnedKeysKey = 'button_learned_keys';
+
+  Future<List<LearnedKey>> getLearnedKeys() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_learnedKeysKey);
+    if (raw == null) return [];
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) return [];
+      final result = <LearnedKey>[];
+      for (final e in decoded) {
+        final k = LearnedKey.fromJson(e);
+        if (k != null) result.add(k);
+      }
+      return result;
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> setLearnedKeys(List<LearnedKey> keys) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _learnedKeysKey,
+      jsonEncode([for (final k in keys) k.toJson()]),
+    );
+  }
+
   Future<ButtonCommand> getButtonCommand(HardwareButton button) async {
     final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getString('$_buttonCommandPrefix${button.name}');

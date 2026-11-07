@@ -76,9 +76,9 @@
 <li><strong>Units:</strong> the default unit of dose rate (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), activity (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) and distance (m, cm, inch, feet). New measurements start with these units. While recording, another unit can be chosen from a list and the typed number is converted automatically. The dose rate alert threshold is converted too, and the protocol uses the selected units.</li>
 <li><strong>Display units:</strong> the unit of personal dose (automatic: µSv, switching to mSv above 1 mSv; or a fixed unit), surface contamination, temperature, pressure and wind speed. The screens and the protocol use these units. The stored values do not change, and the CSV and JSON exports and the backup file keep the stored units. The alert threshold for surface contamination is entered in Bq/cm².</li>
 <li><strong>Regulatory profile:</strong> International (IAEA) or Hungary (OAH). The Hungarian profile adds the Hungarian categories to the classification of sources, see section 4.</li>
-<li><strong>Decimal separator in the protocol:</strong> automatic (English: point, other languages: comma), or always a comma or always a point. The Word and PDF protocols use it; GPS coordinates always use a point.</li><li><strong>Keep screen on:</strong> while the app is open, the screen does not turn off. This uses more battery.</li><li><strong>Bluetooth button control:</strong> on Android, a Bluetooth remote with media buttons can send commands to the app. See the next section.</li></ul>
+<li><strong>Decimal separator in the protocol:</strong> automatic (English: point, other languages: comma), or always a comma or always a point. The Word and PDF protocols use it; GPS coordinates always use a point.</li><li><strong>Keep screen on:</strong> while the app is open, the screen does not turn off. This uses more battery.</li><li><strong>Bluetooth button control:</strong> on Android and iPhone, a Bluetooth remote (media buttons or keyboard) can send commands to the app. See the next section.</li></ul>
 <h3 id="bluetooth-buttons">Bluetooth buttons</h3>
-<p>On Android, a Bluetooth remote with media buttons can control RadRecon, for example to record points without touching the screen, with gloves or in a protective suit. The buttons work only while RadRecon is open in the foreground. This is not available on iPhone, Windows or macOS.</p>
+<p>On Android and iPhone, a Bluetooth remote can control RadRecon, for example to record points without touching the screen, with gloves or in a protective suit. Remotes with media buttons (play, next, previous) and keyboard or page-turner remotes are supported. A keyboard remote is added in Settings by pressing a key on the remote. The buttons work only while RadRecon is open in the foreground. On iPhone the volume buttons cannot be used. Media-button remotes are not available on Windows, macOS or Linux.</p>
 <p>Under Settings, one command is assigned to each of the five buttons: volume up, volume down, play/pause, next and previous. By default, play/pause saves the point, next opens a new point and previous takes a photo; the volume buttons have no command. The available commands are:</p>
 <ul>
 <li><strong>None</strong></li>
@@ -113,6 +113,7 @@
 <p>For a Modbus instrument also set what the register contains (for example dose rate, surface contamination or count rate) and in which unit the instrument returns it (for example nSv/h). The App converts the value into the default unit when it reads it, and automatic logging records the quantity configured for the instrument.</p>
 
 
+<p>One instrument can provide several quantities. In the <strong>Measured quantities and registers</strong> section you set one register and unit for each measurement type (for example dose rate and count rate); each type can have only one register. Manual reading, averaging and automatic logging use the register of the selected type.</p>
 <h2 id="m4">4. Radiation sources</h2>
 <p>The sources are kept in a registry, opened from the main screen, entered once and attached to measurement points when needed. A source has:</p>
 <ul>
@@ -141,6 +142,8 @@
 
 
 <p>On a person's record you can enter an <strong>Identifier</strong> (for example an internal staff number) and an <strong>Address</strong>, in addition to the name, phone number and e-mail addresses. If the person is injured, you can enter <strong>Sex</strong>, <strong>Age</strong> (years), <strong>Weight</strong> (kg, approximate) and <strong>Height</strong> (cm) in the <strong>Physical data</strong> section. The identifier appears in the protocol; the address does not. At the bottom of the person's record, the <strong>Patient sheets</strong> list shows the surveys where the person was recorded as injured; tap an entry to open that injured-person sheet.</p>
+<p>In the people list menu, the <strong>Displayed details</strong> option decides what appears under each name: expiry dates, phone and e-mail, certificates, identifier, address, physical data, notes, injuries and illnesses, last status, annual dose, dose by source and dose-limit usage. By default only the name, the annual dose and the limit are shown. The choice is kept on the device. The injuries and illnesses field shows the records from all surveys, while the list of a single survey shows only that survey's injuries.</p>
+<p>The people list of a survey can be searched by name and filtered by role, triage category and expired entries only; the displayed details can be set there too.</p>
 <h2 id="m6">6. Doses</h2>
 <p>RadRecon can keep the dose of each person. Doses are stored in µSv. The persons list shows the annual dose of each person, split by source, and has a <strong>Year</strong> selector.</p>
 <ul>
@@ -216,6 +219,10 @@
 <p>Areas let you mark a part of the surveyed site on the map, for example a surveyed, restricted or contaminated area. Press <strong>Mark area</strong> on the map. Enter a <strong>Name</strong> (for example Surveyed area), choose the <strong>Shape</strong> (<strong>Polygon</strong> or <strong>Circle</strong>) and a <strong>Colour</strong>, then press <strong>Draw</strong>. For a polygon, tap the corners in turn and press <strong>Done</strong>; at least 3 corners are needed, and <strong>Undo</strong> removes the last corner. For a circle, tap the centre and then a point on the edge to set the radius. Areas are drawn with a semi-transparent fill in their colour. The <strong>Marked areas</strong> button lists the areas of the survey; the list lets you delete an area after confirmation. The areas are included in the Word and PDF protocols (name, shape, geometry and area in m²) and in the backup file.</p>
 
 <p>You can also place radiation sources on the map: a source selected from the list opened by the source icon appears on the map with its identifier and nuclides. At a sufficient zoom level the label is shown, from further away only the icon. In floor plan mode the calibrated floor plan replaces the map, with points numbered and sources shown with their names.</p>
+<h3>Layers and color</h3>
+<p>The <strong>Layers</strong> button on the map shows or hides measurement points, areas, source positions, distances and the interpolation layer. In the lists of areas and distances you can switch each item on or off separately, and delete it with its delete button (a confirmation is asked first). <strong>Toggle all</strong> switches every item in a list at once.</p>
+<p>In the <strong>Colored quantity</strong> list you choose what the point colors are based on; the list is grouped by <strong>Measurement types</strong>. By default the colors follow the dose rate. The choice is not saved: when you reopen the survey, you have to select it again.</p>
+<p>The <strong>Interpolation layer</strong> estimates the surface between points from the selected quantity (IDW method). It is an estimate, not a measurement; the legend shows it as "Estimated (IDW)". The calculation runs in the background, so the map stays usable meanwhile. Layer settings are saved per survey on the device and are not carried over to another phone by a database transfer.</p>
 <h2 id="m12">12. Tools</h2>
 <p>The tools are in the survey menu (three dots).</p>
 <ul>
@@ -229,6 +236,7 @@
 <p>The automatic logging screen draws a time chart of the readings while it runs, with the alert threshold as a red dashed line, so you can see the change of the measured value. The chart keeps the last 2 hours at one-second sampling and is not saved. The isotope calculator can use the same shielding layers and then shows the unshielded and the shielded result.</p>
 
 
+<p>On the automatic logging screen, the <strong>Channels to record</strong> section lets you select values from several instruments at once, for example the count rate of one instrument and the gas concentration of another. At most one dose-rate channel can be selected for dose calculation.</p>
 <h2 id="m13">13. Closing, exporting and importing</h2>
 <ul>
 <li><strong>Close survey:</strong> the protocol then shows the date as the end time. Points are not locked, so you can still edit them.</li>

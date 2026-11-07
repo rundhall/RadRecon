@@ -43,3 +43,39 @@ enum ButtonCommand {
         orElse: () => ButtonCommand.nothing,
       );
 }
+
+/// Billentyűzetes távirányító (page-turner, Bluetooth-billentyűzet) egy
+/// megtanult gombja. A billentyű azonosítóját a rögzítéskor olvassuk ki.
+class LearnedKey {
+  const LearnedKey({
+    required this.keyId,
+    required this.label,
+    required this.command,
+  });
+
+  final int keyId;
+  final String label;
+  final ButtonCommand command;
+
+  LearnedKey withCommand(ButtonCommand value) =>
+      LearnedKey(keyId: keyId, label: label, command: value);
+
+  Map<String, Object> toJson() => {
+        'keyId': keyId,
+        'label': label,
+        'command': command.storageValue,
+      };
+
+  static LearnedKey? fromJson(Object? raw) {
+    if (raw is! Map) return null;
+    final id = raw['keyId'];
+    final label = raw['label'];
+    final command = raw['command'];
+    if (id is! int || label is! String || command is! String) return null;
+    return LearnedKey(
+      keyId: id,
+      label: label,
+      command: ButtonCommand.fromStorage(command),
+    );
+  }
+}

@@ -76,7 +76,7 @@ class DatabaseHelper {
   // v32: a radiation_sources nuklid-, aktivitás- és gyártási dátum-mezője
   // nullable (talált forrás). A tábla újraépítése a megnyitáskor fut, FK nélkül.
   // v33: forrásonkénti lejárati értesítés (`notify_enabled`, a meglévők bekapcsolva).
-  static const _dbVersion = 43;
+  static const _dbVersion = 44;
 
   /// A jelenlegi séma-verzió (a mentésfájlok kompatibilitás-ellenőrzéséhez).
   static const schemaVersion = _dbVersion;
@@ -663,6 +663,16 @@ class DatabaseHelper {
         await db.execute('ALTER TABLE measurement_points ADD COLUMN group_key TEXT');
       }
     }
+
+    if (oldVersion < 44) {
+      // v44: Modbus-csatornák műszerenként (típus, regiszter, egység) JSON-ban.
+      final instrCols44 = (await db.rawQuery('PRAGMA table_info(instruments)'))
+          .map((c) => c['name'] as String)
+          .toSet();
+      if (!instrCols44.contains('modbus_channels')) {
+        await db.execute("ALTER TABLE instruments ADD COLUMN modbus_channels TEXT NOT NULL DEFAULT '[]'");
+      }
+    }
   }
 
   Future<void> _rebuildRadiationSourcesNullable(Database db) async {
@@ -1064,7 +1074,8 @@ class DatabaseHelper {
         modbus_gps_lat_address INTEGER NOT NULL DEFAULT 426,
         modbus_gps_lon_address INTEGER NOT NULL DEFAULT 428,
         modbus_measurement_type TEXT NOT NULL DEFAULT 'dose_rate',
-        modbus_unit TEXT NOT NULL DEFAULT 'nSv/h'
+        modbus_unit TEXT NOT NULL DEFAULT 'nSv/h',
+        modbus_channels TEXT NOT NULL DEFAULT '[]'
       )
     ''');
 
@@ -1807,6 +1818,49 @@ class DatabaseHelper {
     for (final row in rows) {
       final c = PersonCondition.fromMap(row);
       result.putIfAbsent(c.linkId, () => []).add(c);
+    }
+    return result;
+  }
+
+  /// Minden személy sérülései és betegségei az összes felmérésből, személy
+  /// azonosító szerint csoportosítva (a személylistához).
+  Future<Map<int, List<PersonCondition>>> getPersonConditionsByPerson() async {
+    final db = await database;
+    final rows = await db.rawQuery('''
+      SELECT c.id, c.link_id, c.kind, c.description, sp.person_id AS person_id
+      FROM session_person_conditions c
+      INNER JOIN survey_session_persons sp ON sp.id = c.link_id
+      ORDER BY c.id ASC
+    ''');
+    final result = <int, List<PersonCondition>>{};
+    for (final row in rows) {
+      final c = PersonCondition.fromMap(row);
+      result.putIfAbsent(row['person_id'] as int, () => []).add(c);
+    }
+    return result;
+  }
+
+  /// Minden személy legutóbbi felmérésbeli állapota (szerep, triázs, a felmérés
+  /// kezdete), személy azonosító szerint. A személylistához.
+  Future<Map<int, PersonLatestStatus>> getLatestStatusByPerson() async {
+    final db = await database;
+    final rows = await db.rawQuery('''
+      SELECT sp.person_id AS person_id, sp.role AS link_role,
+             sp.triage AS link_triage, s.started_at AS survey_started_at
+      FROM survey_session_persons sp
+      INNER JOIN survey_sessions s ON s.id = sp.survey_session_id
+      ORDER BY s.started_at DESC, sp.id DESC
+    ''');
+    final result = <int, PersonLatestStatus>{};
+    for (final row in rows) {
+      result.putIfAbsent(
+        row['person_id'] as int,
+        () => (
+          role: SessionPersonRole.fromDbValue(row['link_role'] as String?),
+          triage: TriageCategory.fromDbValue(row['link_triage'] as String?),
+          startedAt: DateTime.parse(row['survey_started_at'] as String),
+        ),
+      );
     }
     return result;
   }

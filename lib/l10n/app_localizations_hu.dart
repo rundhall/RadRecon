@@ -1988,6 +1988,28 @@ class AppLocalizationsHu extends AppLocalizations {
       'A bizonytalanság számításához legalább 2 érvényes minta kell, csak az érték került be.';
 
   @override
+  String get modbusNoChannelForType =>
+      'Ehhez a mérési típushoz nincs Modbus-regiszter beállítva ezen a műszeren.';
+
+  @override
+  String get modbusChannelsTitle => 'Mért mennyiségek és regiszterek';
+
+  @override
+  String get modbusChannelsHelper =>
+      'Mérési típusonként egy regiszter és egység adható meg. A kézi lekérdezés, az átlagolás és az automatikus naplózás a kiválasztott típus regiszterét olvassa.';
+
+  @override
+  String get modbusAddChannelButton => 'Regiszter hozzáadása';
+
+  @override
+  String get modbusDuplicateChannelType =>
+      'Ehhez a mennyiséghez már van regiszter. Típusonként csak egy adható meg.';
+
+  @override
+  String get modbusChannelsRequired =>
+      'Adjon meg legalább egy Modbus-regisztert.';
+
+  @override
   String get measurementErrorLabel => 'Bizonytalanság (±)';
 
   @override
@@ -3851,7 +3873,38 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get btnEnabledHelp =>
-      'Androidon a Bluetooth-os médiagombos távirányító parancsokat küld az appnak. Csak akkor működik, ha az app előtérben van.';
+      'A Bluetooth-os médiagombos távirányító (lejátszás, következő, előző) és a billentyűzetes vagy lapozó távirányító parancsokat küld az appnak. Csak akkor működik, ha az app előtérben van. iPhone-on a hangerő gombok nem használhatók.';
+
+  @override
+  String get btnKeyboardSectionTitle => 'Billentyűzetes / lapozó távirányító';
+
+  @override
+  String get btnKeyboardHelp =>
+      'Billentyű hozzáadásához nyomd meg a gombot a távirányítón. Minden megtanult billentyű egy parancsot futtat. A médiagombok parancsait a fenti gombok adják meg.';
+
+  @override
+  String get btnKeyboardAdd => 'Billentyű hozzáadása';
+
+  @override
+  String get btnKeyboardLearnTitle => 'Nyomd meg a távirányító gombját';
+
+  @override
+  String get btnKeyboardLearnBody =>
+      'Várakozás billentyű lenyomására. A leállításhoz koppints a Mégse gombra.';
+
+  @override
+  String get btnKeyboardEmpty => 'Még nincs hozzáadott billentyű.';
+
+  @override
+  String get pointSavedMessage => 'Mérés mentve';
+
+  @override
+  String get cameraUnavailableError =>
+      'A kamera nem érhető el. Ellenőrizd a kamera engedélyét.';
+
+  @override
+  String get saveValidationError =>
+      'Hiányzó vagy hibás adat van a mezők között.';
 
   @override
   String get keepScreenOnLabel => 'Képernyő folyamatosan ébren';
@@ -3915,4 +3968,108 @@ class AppLocalizationsHu extends AppLocalizations {
   @override
   String get discardConfirmHint =>
       'Még egyszer nyomd meg 3 másodpercen belül a mégsemhez';
+
+  @override
+  String get modbusChannelQuantityLabel => 'Mennyiség';
+
+  @override
+  String get modbusAverageRadiationOnly =>
+      'Az átlagolás csak sugárzási mérési típusnál érhető el (dózisteljesítmény, felületi szennyezés, beütésszám).';
+
+  @override
+  String get autoLogSourcesTitle => 'Rögzítendő csatornák';
+
+  @override
+  String get autoLogSourcesHelper =>
+      'Jelölje ki, mely műszerek mely értékeit mentse. Egyszerre több műszer is rögzíthető, például az egyiké CPS, a másiké gázkoncentráció.';
+
+  @override
+  String get autoLogSelectChannel => 'Jelöljön ki legalább egy csatornát.';
+
+  @override
+  String get autoLogOneDoseSource =>
+      'Dózisszámításhoz legfeljebb egy dózisteljesítmény-csatorna jelölhető ki.';
+
+  @override
+  String get mapColorScaleTitle => 'Színezett mennyiség';
+
+  @override
+  String get mapInterpolationTitle => 'Interpolációs réteg';
+
+  @override
+  String get mapInterpolationSubtitle =>
+      'Becsült felület a pontok között (IDW). Nem mérés, csak becslés.';
+
+  @override
+  String get mapInterpolationLegend => 'Becsült (IDW)';
+
+  @override
+  String get mapNoScalableValues =>
+      'Nincs színezhető numerikus mérés ebben a felmérésben.';
+
+  @override
+  String get mapToolsTooltip => 'Rajzolás és mérés';
+
+  @override
+  String get mapLayersTooltip => 'Rétegek';
+
+  @override
+  String get mapMeasureStopTooltip => 'Távolságmérés befejezése';
+
+  @override
+  String get mapVisibilityTitle => 'Megjelenítés';
+
+  @override
+  String get mapPointsLayerTitle => 'Mérési pontok';
+
+  @override
+  String get mapAreasLayerTitle => 'Területek';
+
+  @override
+  String get mapSourcesLayerTitle => 'Forrás pozíciók';
+
+  @override
+  String get mapDistancesLayerTitle => 'Távolságok';
+
+  @override
+  String get mapToggleAllLabel => 'Összes be/ki';
+
+  @override
+  String get mapScaleGroupTypes => 'Mérési típusok';
+
+  @override
+  String get mapLineDeleteConfirm => 'Törli ezt a mérővonalat?';
+
+  @override
+  String get mapLineDeleteTooltip => 'Mérővonal törlése';
+
+  @override
+  String get mapNoDistanceLines => 'Nincs mentett mérővonal.';
+
+  @override
+  String get personListFieldsTitle => 'Megjelenített adatok';
+
+  @override
+  String get personListFieldExpiry => 'Lejárati dátumok';
+
+  @override
+  String get personListFieldContact => 'Telefon és e-mail';
+
+  @override
+  String get personListFieldAnnualDose => 'Éves dózis';
+
+  @override
+  String get personListFieldDoseBreakdown => 'Dózis forrásonként';
+
+  @override
+  String get personListFieldLimit => 'Dózis-keret kihasználtsága';
+
+  @override
+  String get personListFieldLastStatus => 'Utolsó állapot';
+
+  @override
+  String get personFilterAll => 'Mind';
+
+  @override
+  String get personFilterExpired => 'Csak lejárt';
 }

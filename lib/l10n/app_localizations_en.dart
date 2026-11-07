@@ -1987,6 +1987,27 @@ class AppLocalizationsEn extends AppLocalizations {
       'At least 2 valid samples are needed to calculate the uncertainty; only the value was entered.';
 
   @override
+  String get modbusNoChannelForType =>
+      'No Modbus register is set up for this measurement type on this instrument.';
+
+  @override
+  String get modbusChannelsTitle => 'Measured quantities and registers';
+
+  @override
+  String get modbusChannelsHelper =>
+      'Set one register and unit per measurement type. Manual query, averaging and auto-logging read the register of the selected type.';
+
+  @override
+  String get modbusAddChannelButton => 'Add register';
+
+  @override
+  String get modbusDuplicateChannelType =>
+      'This quantity already has a register. Only one register per type is allowed.';
+
+  @override
+  String get modbusChannelsRequired => 'Enter at least one Modbus register.';
+
+  @override
   String get measurementErrorLabel => 'Uncertainty (±)';
 
   @override
@@ -3840,7 +3861,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get btnEnabledHelp =>
-      'On Android, a Bluetooth media-button remote sends commands to the app. It only works while the app is in the foreground.';
+      'A Bluetooth media-button remote (play, next, previous) and a keyboard or page-turner remote send commands to the app. They only work while the app is in the foreground. On iPhone, the volume buttons cannot be used.';
+
+  @override
+  String get btnKeyboardSectionTitle => 'Keyboard / page-turner remote';
+
+  @override
+  String get btnKeyboardHelp =>
+      'Add a key by pressing it on the remote. Each learned key runs one command. Play, next and previous are set in the buttons above.';
+
+  @override
+  String get btnKeyboardAdd => 'Add key';
+
+  @override
+  String get btnKeyboardLearnTitle => 'Press a key on the remote';
+
+  @override
+  String get btnKeyboardLearnBody =>
+      'Waiting for a key press. Tap Cancel to stop.';
+
+  @override
+  String get btnKeyboardEmpty => 'No keys added yet.';
+
+  @override
+  String get pointSavedMessage => 'Measurement saved';
+
+  @override
+  String get cameraUnavailableError =>
+      'The camera is not available. Check the camera permission.';
+
+  @override
+  String get saveValidationError => 'Some fields are missing or invalid.';
 
   @override
   String get keepScreenOnLabel => 'Keep screen on';
@@ -3902,4 +3953,108 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get discardConfirmHint => 'Press again within 3 seconds to discard';
+
+  @override
+  String get modbusChannelQuantityLabel => 'Quantity';
+
+  @override
+  String get modbusAverageRadiationOnly =>
+      'Averaging is only available for radiation measurement types (dose rate, surface contamination, count rate).';
+
+  @override
+  String get autoLogSourcesTitle => 'Channels to record';
+
+  @override
+  String get autoLogSourcesHelper =>
+      'Select which instrument values to record. Several instruments can be logged at once, e.g. CPS from one and gas concentration from another.';
+
+  @override
+  String get autoLogSelectChannel => 'Select at least one channel.';
+
+  @override
+  String get autoLogOneDoseSource =>
+      'Only one dose rate channel can be selected for dose calculation.';
+
+  @override
+  String get mapColorScaleTitle => 'Colored quantity';
+
+  @override
+  String get mapInterpolationTitle => 'Interpolation layer';
+
+  @override
+  String get mapInterpolationSubtitle =>
+      'Estimated surface between the points (IDW). Not a measurement, only an estimate.';
+
+  @override
+  String get mapInterpolationLegend => 'Estimated (IDW)';
+
+  @override
+  String get mapNoScalableValues =>
+      'There are no colorable numeric measurements in this survey.';
+
+  @override
+  String get mapToolsTooltip => 'Drawing and measuring';
+
+  @override
+  String get mapLayersTooltip => 'Layers';
+
+  @override
+  String get mapMeasureStopTooltip => 'Finish distance measurement';
+
+  @override
+  String get mapVisibilityTitle => 'Display';
+
+  @override
+  String get mapPointsLayerTitle => 'Measurement points';
+
+  @override
+  String get mapAreasLayerTitle => 'Areas';
+
+  @override
+  String get mapSourcesLayerTitle => 'Source positions';
+
+  @override
+  String get mapDistancesLayerTitle => 'Distances';
+
+  @override
+  String get mapToggleAllLabel => 'Toggle all';
+
+  @override
+  String get mapScaleGroupTypes => 'Measurement types';
+
+  @override
+  String get mapLineDeleteConfirm => 'Delete this measurement line?';
+
+  @override
+  String get mapLineDeleteTooltip => 'Delete measurement line';
+
+  @override
+  String get mapNoDistanceLines => 'No saved measurement lines.';
+
+  @override
+  String get personListFieldsTitle => 'Displayed details';
+
+  @override
+  String get personListFieldExpiry => 'Expiry dates';
+
+  @override
+  String get personListFieldContact => 'Phone and e-mail';
+
+  @override
+  String get personListFieldAnnualDose => 'Annual dose';
+
+  @override
+  String get personListFieldDoseBreakdown => 'Dose by source';
+
+  @override
+  String get personListFieldLimit => 'Dose limit usage';
+
+  @override
+  String get personListFieldLastStatus => 'Last status';
+
+  @override
+  String get personFilterAll => 'All';
+
+  @override
+  String get personFilterExpired => 'Expired only';
 }

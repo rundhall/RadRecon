@@ -1,4 +1,5 @@
 import 'dart:io';
+import '../widgets/filter_label.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -514,51 +515,54 @@ class _SurveySessionScreenState extends State<SurveySessionScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      child: DropdownButton<SurveyStatusFilter>(
-                        isExpanded: true,
-                        value: _status,
-                        items: [
-                          for (final f in SurveyStatusFilter.values)
-                            DropdownMenuItem(
-                              value: f,
-                              child: Text(_statusLabel(loc, f)),
-                            ),
-                        ],
-                        onChanged: (v) => setState(() => _status = v ?? _status),
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButton<SurveyStatusFilter>(
+                            isExpanded: true,
+                            value: _status,
+                            items: [
+                              for (final f in SurveyStatusFilter.values)
+                                DropdownMenuItem(
+                                  value: f,
+                                  child: filterLabel(_statusLabel(loc, f)),
+                                ),
+                            ],
+                            onChanged: (v) => setState(() => _status = v ?? _status),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: DropdownButton<SurveyTimeFilter>(
+                            isExpanded: true,
+                            value: _time,
+                            items: [
+                              for (final f in SurveyTimeFilter.values)
+                                DropdownMenuItem(
+                                  value: f,
+                                  child: filterLabel(_timeLabel(loc, f)),
+                                ),
+                            ],
+                            onChanged: _onTimeChanged,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: DropdownButton<SurveyTimeFilter>(
-                        isExpanded: true,
-                        value: _time,
-                        items: [
-                          for (final f in SurveyTimeFilter.values)
-                            DropdownMenuItem(
-                              value: f,
-                              child: Text(_timeLabel(loc, f)),
-                            ),
-                        ],
-                        onChanged: _onTimeChanged,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: DropdownButton<SurveySort>(
-                        isExpanded: true,
-                        value: _sort,
-                        items: [
-                          for (final f in SurveySort.values)
-                            DropdownMenuItem(
-                              value: f,
-                              child: Text(_sortLabel(loc, f)),
-                            ),
-                        ],
-                        onChanged: (v) => setState(() => _sort = v ?? _sort),
-                      ),
+                    const SizedBox(height: 8),
+                    DropdownButton<SurveySort>(
+                      isExpanded: true,
+                      value: _sort,
+                      items: [
+                        for (final f in SurveySort.values)
+                          DropdownMenuItem(
+                            value: f,
+                            child: filterLabel(_sortLabel(loc, f)),
+                          ),
+                      ],
+                      onChanged: (v) => setState(() => _sort = v ?? _sort),
                     ),
                   ],
                 ),

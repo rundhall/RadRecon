@@ -26,12 +26,12 @@ void main() {
   });
 
   test('nem dózisteljesítménynél nincs átváltás', () {
-    const i = Instrument(
-      name: 'x',
-      modbusMeasurementType: MeasurementType.countRate,
-      modbusUnit: 'cps',
+    const ch = ModbusChannel(
+      type: MeasurementType.countRate,
+      address: 0,
+      unit: 'cps',
     );
-    expect(instrumentReadingInAppUnit(i, 123), 123);
+    expect(channelReadingInAppUnit(ch, 123), 123);
   });
 
   test('regiszter-egységek', () {

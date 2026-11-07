@@ -41,6 +41,7 @@ dependencies:
   geolocator: ^11.0.0
   wakelock_plus: ^1.2.8
   image_picker: ^1.0.0
+  camera: ^0.11.0
   intl: ^0.20.3
   archive: ^3.3.0
   image: ^4.3.0

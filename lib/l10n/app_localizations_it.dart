@@ -2013,6 +2013,27 @@ class AppLocalizationsIt extends AppLocalizations {
       'Servono almeno 2 campioni validi per calcolare l\'incertezza; è stato inserito solo il valore.';
 
   @override
+  String get modbusNoChannelForType =>
+      'Nessun registro Modbus è configurato per questo tipo di misura su questo strumento.';
+
+  @override
+  String get modbusChannelsTitle => 'Grandezze misurate e registri';
+
+  @override
+  String get modbusChannelsHelper =>
+      'Un registro e un\'unità per tipo di misura. Lettura manuale, media e registrazione automatica leggono il registro del tipo selezionato.';
+
+  @override
+  String get modbusAddChannelButton => 'Aggiungi registro';
+
+  @override
+  String get modbusDuplicateChannelType =>
+      'Questa grandezza ha già un registro. È consentito un solo registro per tipo.';
+
+  @override
+  String get modbusChannelsRequired => 'Inserisca almeno un registro Modbus.';
+
+  @override
   String get measurementErrorLabel => 'Incertezza (±)';
 
   @override
@@ -3881,7 +3902,38 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get btnEnabledHelp =>
-      'Su Android un telecomando Bluetooth con tasti multimediali invia comandi all\'app. Funziona solo quando l\'app è in primo piano.';
+      'Un telecomando Bluetooth con tasti multimediali (riproduzione, avanti, indietro) e un telecomando a tastiera o per girare le pagine inviano comandi all\'app. Funzionano solo quando l\'app è in primo piano. Su iPhone non si possono usare i tasti del volume.';
+
+  @override
+  String get btnKeyboardSectionTitle =>
+      'Telecomando a tastiera / per girare pagine';
+
+  @override
+  String get btnKeyboardHelp =>
+      'Aggiungi un tasto premendolo sul telecomando. Ogni tasto registrato esegue un comando. Riproduzione, avanti e indietro si impostano nei pulsanti sopra.';
+
+  @override
+  String get btnKeyboardAdd => 'Aggiungi tasto';
+
+  @override
+  String get btnKeyboardLearnTitle => 'Premi un tasto del telecomando';
+
+  @override
+  String get btnKeyboardLearnBody =>
+      'In attesa della pressione di un tasto. Tocca Annulla per interrompere.';
+
+  @override
+  String get btnKeyboardEmpty => 'Nessun tasto aggiunto.';
+
+  @override
+  String get pointSavedMessage => 'Misura salvata';
+
+  @override
+  String get cameraUnavailableError =>
+      'La fotocamera non è disponibile. Controlla l\'autorizzazione alla fotocamera.';
+
+  @override
+  String get saveValidationError => 'Alcuni campi sono mancanti o non validi.';
 
   @override
   String get keepScreenOnLabel => 'Schermo sempre acceso';
@@ -3945,4 +3997,108 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get discardConfirmHint =>
       'Premi di nuovo entro 3 secondi per annullare';
+
+  @override
+  String get modbusChannelQuantityLabel => 'Grandezza';
+
+  @override
+  String get modbusAverageRadiationOnly =>
+      'La media è disponibile solo per i tipi di misura radiometrica (rateo di dose, contaminazione superficiale, rateo di conteggio).';
+
+  @override
+  String get autoLogSourcesTitle => 'Canali da registrare';
+
+  @override
+  String get autoLogSourcesHelper =>
+      'Scelga quali valori degli strumenti registrare. È possibile registrare più strumenti contemporaneamente, ad esempio il CPS di uno e la concentrazione di gas di un altro.';
+
+  @override
+  String get autoLogSelectChannel => 'Selezioni almeno un canale.';
+
+  @override
+  String get autoLogOneDoseSource =>
+      'Per il calcolo della dose può essere selezionato un solo canale di rateo di dose.';
+
+  @override
+  String get mapColorScaleTitle => 'Grandezza colorata';
+
+  @override
+  String get mapInterpolationTitle => 'Livello di interpolazione';
+
+  @override
+  String get mapInterpolationSubtitle =>
+      'Superficie stimata tra i punti (IDW). Non è una misura, solo una stima.';
+
+  @override
+  String get mapInterpolationLegend => 'Stimato (IDW)';
+
+  @override
+  String get mapNoScalableValues =>
+      'In questo rilievo non ci sono misure numeriche colorabili.';
+
+  @override
+  String get mapToolsTooltip => 'Disegno e misura';
+
+  @override
+  String get mapLayersTooltip => 'Livelli';
+
+  @override
+  String get mapMeasureStopTooltip => 'Termina la misura di distanza';
+
+  @override
+  String get mapVisibilityTitle => 'Visualizzazione';
+
+  @override
+  String get mapPointsLayerTitle => 'Punti di misura';
+
+  @override
+  String get mapAreasLayerTitle => 'Aree';
+
+  @override
+  String get mapSourcesLayerTitle => 'Posizioni delle sorgenti';
+
+  @override
+  String get mapDistancesLayerTitle => 'Distanze';
+
+  @override
+  String get mapToggleAllLabel => 'Attiva/disattiva tutti';
+
+  @override
+  String get mapScaleGroupTypes => 'Tipi di misura';
+
+  @override
+  String get mapLineDeleteConfirm => 'Eliminare questa linea di misura?';
+
+  @override
+  String get mapLineDeleteTooltip => 'Elimina linea di misura';
+
+  @override
+  String get mapNoDistanceLines => 'Nessuna linea di misura salvata.';
+
+  @override
+  String get personListFieldsTitle => 'Dati visualizzati';
+
+  @override
+  String get personListFieldExpiry => 'Date di scadenza';
+
+  @override
+  String get personListFieldContact => 'Telefono ed e-mail';
+
+  @override
+  String get personListFieldAnnualDose => 'Dose annuale';
+
+  @override
+  String get personListFieldDoseBreakdown => 'Dose per fonte';
+
+  @override
+  String get personListFieldLimit => 'Utilizzo del limite di dose';
+
+  @override
+  String get personListFieldLastStatus => 'Ultimo stato';
+
+  @override
+  String get personFilterAll => 'Tutti';
+
+  @override
+  String get personFilterExpired => 'Solo scaduti';
 }

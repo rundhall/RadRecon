@@ -76,7 +76,24 @@
 <li><strong>Units:</strong> the default unit of dose rate (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), activity (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) and distance (m, cm, inch, feet). New measurements start with these units. While recording, another unit can be chosen from a list and the typed number is converted automatically. The dose rate alert threshold is converted too, and the protocol uses the selected units.</li>
 <li><strong>Display units:</strong> the unit of personal dose (automatic: µSv, switching to mSv above 1 mSv; or a fixed unit), surface contamination, temperature, pressure and wind speed. The screens and the protocol use these units. The stored values do not change, and the CSV and JSON exports and the backup file keep the stored units. The alert threshold for surface contamination is entered in Bq/cm².</li>
 <li><strong>Regulatory profile:</strong> International (IAEA) or Hungary (OAH). The Hungarian profile adds the Hungarian categories to the classification of sources, see section 4.</li>
+<li><strong>Decimal separator in the protocol:</strong> automatic (English: point, other languages: comma), or always a comma or always a point. The Word and PDF protocols use it; GPS coordinates always use a point.</li><li><strong>Keep screen on:</strong> while the app is open, the screen does not turn off. This uses more battery.</li><li><strong>Bluetooth button control:</strong> on Android, a Bluetooth remote with media buttons can send commands to the app. See the next section.</li></ul>
+<h3 id="bluetooth-buttons">Bluetooth buttons</h3>
+<p>On Android, a Bluetooth remote with media buttons can control RadRecon, for example to record points without touching the screen, with gloves or in a protective suit. The buttons work only while RadRecon is open in the foreground. This is not available on iPhone, Windows or macOS.</p>
+<p>Under Settings, one command is assigned to each of the five buttons: volume up, volume down, play/pause, next and previous. By default, play/pause saves the point, next opens a new point and previous takes a photo; the volume buttons have no command. The available commands are:</p>
+<ul>
+<li><strong>None</strong></li>
+<li><strong>New measurement point</strong></li>
+<li><strong>Take photo</strong></li>
+<li><strong>Query Modbus value</strong></li>
+<li><strong>Save measurement point</strong></li>
+<li><strong>Save and new point</strong></li>
+<li><strong>Discard (without saving):</strong> the first press shows a hint; a second press within 3 seconds closes the point without saving it.</li>
+<li><strong>Next / previous measurement type</strong></li>
+<li><strong>Start / finish Modbus averaging:</strong> finishing accepts the samples collected so far.</li>
+<li><strong>Source position on/off</strong></li>
+<li><strong>Start / stop automatic logging:</strong> from the survey list it opens the automatic logging screen and starts logging. This needs a Modbus instrument.</li>
 </ul>
+<p>A successful command gives a short vibration. If a command cannot run at that moment, for example a Modbus query without a connected instrument, nothing happens.</p>
 <h3>Company documents and permits</h3>
 <p>Every company has documents and permits that carry an identifier and an expiry date, for example the workplace radiation protection rules, the radiation protection description, the physical protection plan or the accident response plan. Open them with the document icon in the top bar of the main survey screen and press <strong>New document</strong>. Enter the <strong>Document name</strong>, the <strong>Identifier (file / permit number)</strong>, the <strong>Issuer / authority</strong>, the issue date, <strong>Valid / review due until</strong> and a note, and attach any number of files with <strong>Attach file</strong>. You can add as many documents as you need.</p>
 <p>The expiry dates of the company documents and of the certificates of persons are part of the expiry notifications. The documents and their files are included in the backup file and in the company switcher.</p>

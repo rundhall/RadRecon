@@ -104,6 +104,9 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
 
   /// Bluetooth-gomb: új mérési pont a felmérésbe.
   bool _onButtonCommand(ButtonCommand command) {
+    // Csak a legfelső képernyő reagáljon: egy másik képernyő (pl. a mérési pont
+    // felvétele) fölött a gomb ne nyisson újabb képernyőt a háttérben lévőből.
+    if (!mounted || ModalRoute.of(context)?.isCurrent == false) return false;
     if (command == ButtonCommand.toggleAutoLog && mounted) {
       Navigator.of(context).push(
         MaterialPageRoute(

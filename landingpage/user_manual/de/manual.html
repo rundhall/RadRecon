@@ -78,7 +78,24 @@
 <li><strong>Anzeigeeinheiten:</strong> die Einheit der Personendosis (automatisch: µSv, ab 1 mSv in mSv; oder eine feste Einheit), der Oberflächenkontamination, der Temperatur, des Drucks und der Windgeschwindigkeit. Bildschirme und Protokoll verwenden diese Einheiten. Die gespeicherten Werte ändern sich nicht; CSV- und JSON-Exporte sowie die Sicherungsdatei behalten die gespeicherten Einheiten. Die Alarmschwelle für die Oberflächenkontamination geben Sie in Bq/cm² ein.</li>
 <li><strong>Regulatorisches Profil:</strong> International (IAEA) oder Ungarn (OAH). Das ungarische Profil ergänzt die Einstufung der Quellen um die ungarischen Kategorien, siehe Abschnitt 4.</li>
 <li>Neben den Daten und Fotos enthält die Sicherungsdatei alle Anhänge: Prüf- und Kalibrierzertifikate der Messgeräte, Zertifikate von Personen, Quellenzertifikate und Firmendokumente.</li>
+<li><strong>Dezimaltrennzeichen im Protokoll:</strong> automatisch (bei englischer App-Sprache Punkt, sonst Komma), oder immer Komma bzw. immer Punkt. Das Word- und PDF-Protokoll verwendet es; GPS-Koordinaten verwenden immer einen Punkt.</li><li><strong>Bildschirm dauerhaft aktiv:</strong> solange die App geöffnet ist, schaltet sich der Bildschirm nicht ab. Das verbraucht mehr Akku.</li><li><strong>Steuerung per Bluetooth-Tasten:</strong> unter Android kann eine Bluetooth-Fernbedienung mit Medientasten Befehle an die App senden. Siehe den nächsten Abschnitt.</li></ul>
+<h3 id="bluetooth-buttons">Bluetooth-Tasten</h3>
+<p>Unter Android kann eine Bluetooth-Fernbedienung mit Medientasten RadRecon steuern, zum Beispiel um Punkte ohne Berührung des Bildschirms zu erfassen, mit Handschuhen oder in Schutzkleidung. Die Tasten funktionieren nur, solange RadRecon geöffnet und im Vordergrund ist. Auf iPhone, Windows und macOS ist das nicht verfügbar.</p>
+<p>In den Einstellungen wird jeder der fünf Tasten ein Befehl zugewiesen: Lautstärke lauter, Lautstärke leiser, Wiedergabe/Pause, Weiter und Zurück. Standardmäßig speichert Wiedergabe/Pause den Punkt, Weiter öffnet einen neuen Punkt und Zurück nimmt ein Foto auf; die Lautstärke-Tasten haben keinen Befehl. Verfügbare Befehle:</p>
+<ul>
+<li><strong>Keine</strong></li>
+<li><strong>Neuer Messpunkt</strong></li>
+<li><strong>Foto aufnehmen</strong></li>
+<li><strong>Modbus-Wert abfragen</strong></li>
+<li><strong>Messpunkt speichern</strong></li>
+<li><strong>Speichern und neuer Punkt</strong></li>
+<li><strong>Verwerfen (ohne Speichern):</strong> der erste Druck zeigt einen Hinweis, ein zweiter Druck innerhalb von 3 Sekunden schließt den Punkt ohne Speichern.</li>
+<li><strong>Nächster / vorheriger Messtyp</strong></li>
+<li><strong>Modbus-Mittelung starten / beenden:</strong> das Beenden übernimmt die bis dahin gesammelten Messwerte.</li>
+<li><strong>Quellenposition ein/aus</strong></li>
+<li><strong>Automatische Aufzeichnung starten / stoppen:</strong> in der Liste der Messkampagnen öffnet der Befehl die automatische Aufzeichnung und startet sie. Dafür ist ein Modbus-Messgerät nötig.</li>
 </ul>
+<p>Ein erfolgreicher Befehl wird mit einer kurzen Vibration bestätigt. Ist ein Befehl im Moment nicht ausführbar, etwa eine Modbus-Abfrage ohne angeschlossenes Messgerät, passiert nichts.</p>
 <h3>Firmendokumente und Genehmigungen</h3>
 <p>Jede Firma hat Dokumente und Genehmigungen mit Kennzeichen und Ablaufdatum, zum Beispiel die Strahlenschutzordnung des Arbeitsplatzes, die Strahlenschutzbeschreibung, den Plan für den physischen Schutz oder den Notfallplan. Öffnen Sie sie über das Dokument-Symbol in der oberen Leiste des Hauptbildschirms und drücken Sie <strong>Neues Dokument</strong>. Geben Sie den Namen des Dokuments, die Kennung (Aktenzeichen / Genehmigungsnummer), die ausstellende Stelle, das Ausstellungsdatum und das Datum „gültig / Überprüfung fällig bis“ ein, schreiben Sie eine Notiz und hängen Sie mit <strong>Datei anhängen</strong> beliebig viele Dateien an. Sie können beliebig viele Dokumente anlegen.</p>
 <p>Die Ablaufdaten der Firmendokumente und der Personenzertifikate gehören zu den Ablaufbenachrichtigungen. Die Dokumente und ihre Dateien sind in der Sicherungsdatei und im Firmenwechsel enthalten.</p>

@@ -78,7 +78,24 @@
 <li><strong>Unità di visualizzazione:</strong> l’unità della dose personale (automatica: µSv, con passaggio a mSv sopra 1 mSv; oppure un’unità fissa), e quelle della contaminazione superficiale, della temperatura, della pressione e della velocità del vento. Le schermate e il protocollo usano queste unità. I valori memorizzati non cambiano; le esportazioni CSV e JSON e il file di backup conservano le unità memorizzate. La soglia di allarme della contaminazione superficiale si inserisce in Bq/cm².</li>
 <li><strong>Profilo normativo:</strong> Internazionale (IAEA) o Ungheria (OAH). Il profilo ungherese aggiunge le categorie ungheresi alla classificazione delle sorgenti, vedere la sezione 4.</li>
 <li>oltre ai dati e alle foto, il file di backup contiene tutti gli allegati: certificati di verifica e taratura degli strumenti, certificati delle persone, certificati delle sorgenti e documenti dell’azienda.</li>
+<li><strong>Separatore decimale nel verbale:</strong> automatico (in inglese: punto, nelle altre lingue: virgola), oppure sempre virgola o sempre punto. Il verbale Word e PDF lo usa; le coordinate GPS usano sempre il punto.</li><li><strong>Schermo sempre acceso:</strong> finché l'app è aperta, lo schermo non si spegne. Questo consuma più batteria.</li><li><strong>Controllo con pulsanti Bluetooth:</strong> su Android un telecomando Bluetooth con tasti multimediali può inviare comandi all'app. Vedi la sezione successiva.</li></ul>
+<h3 id="bluetooth-buttons">Pulsanti Bluetooth</h3>
+<p>Su Android un telecomando Bluetooth con tasti multimediali può controllare RadRecon, per esempio per registrare punti senza toccare lo schermo, con i guanti o con la tuta protettiva. I pulsanti funzionano solo quando l'app RadRecon è aperta in primo piano. Non è disponibile su iPhone, Windows o macOS.</p>
+<p>Nelle impostazioni a ciascuno dei cinque pulsanti viene assegnato un comando: volume su, volume giù, riproduci/pausa, successivo e precedente. Di default riproduci/pausa salva il punto, successivo apre un nuovo punto e precedente scatta una foto; i pulsanti del volume non hanno comandi. Comandi disponibili:</p>
+<ul>
+<li><strong>Nessuna</strong></li>
+<li><strong>Nuovo punto di misura</strong></li>
+<li><strong>Scatta foto</strong></li>
+<li><strong>Leggi valore Modbus</strong></li>
+<li><strong>Salva punto di misura</strong></li>
+<li><strong>Salva e nuovo punto</strong></li>
+<li><strong>Annulla (senza salvare):</strong> la prima pressione mostra un avviso; una seconda pressione entro 3 secondi chiude il punto senza salvarlo.</li>
+<li><strong>Tipo di misura successivo / precedente</strong></li>
+<li><strong>Avvia / termina media Modbus:</strong> la fine accetta i campioni raccolti fino a quel momento.</li>
+<li><strong>Posizione sorgente sì/no</strong></li>
+<li><strong>Avvia / ferma la registrazione automatica:</strong> dall'elenco dei rilevamenti apre la schermata di registrazione automatica e la avvia. Serve uno strumento Modbus.</li>
 </ul>
+<p>Un comando riuscito produce una breve vibrazione. Se un comando non può essere eseguito in quel momento, per esempio una lettura Modbus senza strumento collegato, non succede nulla.</p>
 <h3>Documenti e autorizzazioni dell’azienda</h3>
 <p>Ogni azienda ha documenti e autorizzazioni con un identificativo e una scadenza, per esempio il regolamento di radioprotezione del luogo di lavoro, la descrizione della radioprotezione, il piano di protezione fisica o il piano di intervento in caso di incidente. Apriteli con l’icona del documento nella barra superiore della schermata principale e premete <strong>Nuovo documento</strong>. Inserite il nome del documento, l’identificativo (numero di pratica / autorizzazione), l’ente emittente / l’autorità, la data di emissione e la data «valido / da rivedere fino al», scrivete una nota e allegate quanti file volete con <strong>Allega file</strong>. Potete aggiungere quanti documenti volete.</p>
 <p>Le scadenze dei documenti dell’azienda e dei certificati delle persone fanno parte delle notifiche di scadenza. I documenti e i loro file sono inclusi nel file di backup e nel selettore dell’azienda.</p>

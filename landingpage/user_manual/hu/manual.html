@@ -76,7 +76,24 @@
 <li><strong>Mértékegységek:</strong> a dózisteljesítmény (nSv/h, µSv/h, mSv/h, Sv/h, µR/h, mR/h, R/h, µrem/h, mrem/h, rem/h), az aktivitás (Bq, kBq, MBq, GBq, TBq, µCi, mCi, Ci) és a távolság (m, cm, inch, feet) alapegysége. Új mérésnél ezek az egységek vannak előre kiválasztva. Rögzítéskor legördülő listából másik is választható, és a beírt szám automatikusan átváltódik. A dózisteljesítmény riasztási küszöbe is átváltódik, a jegyzőkönyv pedig a választott egységeket használja.</li>
 <li><strong>Megjelenítési egységek:</strong> a személyes dózis egysége (automatikus: µSv, 1 mSv felett mSv; vagy rögzített egység), a felületi szennyezettség, a hőmérséklet, a nyomás és a szélsebesség egysége. A képernyők és a jegyzőkönyv ezeket használják. A tárolt értékek nem változnak; a CSV- és JSON-exportok és a mentésfájl a tárolt egységeket őrzi. A felületi szennyezettség riasztási küszöbét Bq/cm²-ben kell megadni.</li>
 <li><strong>Szabályozási profil:</strong> Nemzetközi (IAEA) vagy Magyarország (OAH). A magyar profil a források besorolásában a magyar kategóriákat is megmutatja, lásd a 4. fejezetet.</li>
+<li><strong>Tizedesjel a jegyzőkönyvben:</strong> automatikus (angol nyelven pont, más nyelveken vessző), vagy mindig vessző, illetve mindig pont. A Word- és PDF-jegyzőkönyv ezt használja; a GPS-koordináták mindig ponttal jelennek meg.</li><li><strong>Képernyő folyamatosan ébren:</strong> amíg az app nyitva van, a képernyő nem kapcsol ki. Ez több akkumulátort fogyaszt.</li><li><strong>Bluetooth-gombvezérlés:</strong> Androidon egy médiagombos Bluetooth-távirányító parancsokat küldhet az appnak. Lásd a következő részt.</li></ul>
+<h3 id="bluetooth-buttons">Bluetooth-gombok</h3>
+<p>Androidon egy médiagombos Bluetooth-távirányító is vezérelheti a RadRecon-t, például pontok rögzítéséhez érintés nélkül, kesztyűben vagy védőruhában. A gombok csak akkor működnek, ha a RadRecon nyitva van és előtérben fut. iPhone-on, Windowson és macOS-en ez nem érhető el.</p>
+<p>A Beállításokban az öt gomb mindegyikéhez egy parancs rendelhető: hangerő fel, hangerő le, lejátszás/szünet, következő és előző. Alapértelmezetten a lejátszás/szünet menti a pontot, a következő új pontot nyit, az előző fényképet készít; a hangerő-gombokhoz nincs parancs. Elérhető parancsok:</p>
+<ul>
+<li><strong>Nincs</strong></li>
+<li><strong>Új mérési pont</strong></li>
+<li><strong>Fénykép készítése</strong></li>
+<li><strong>Modbus-adat lekérdezése</strong></li>
+<li><strong>Mérési pont mentése</strong></li>
+<li><strong>Mentés és új pont</strong></li>
+<li><strong>Mégse (mentés nélkül):</strong> az első nyomás figyelmeztet, a 3 másodpercen belüli második nyomás a pontot mentés nélkül bezárja.</li>
+<li><strong>Következő / előző mérési típus</strong></li>
+<li><strong>Modbus-átlagolás indítása / kész:</strong> a befejezés elfogadja az eddig gyűjtött mintákat.</li>
+<li><strong>Forrás pozíció be/ki</strong></li>
+<li><strong>Automatikus rögzítés indítása / leállítása:</strong> a felmérések listájából megnyitja az automatikus rögzítés képernyőt, és elindítja a rögzítést. Ehhez Modbus-műszer kell.</li>
 </ul>
+<p>Sikeres parancsnál rövid rezgés jelez. Ha a parancs az adott pillanatban nem hajtható végre, például Modbus-lekérdezés csatlakoztatott műszer nélkül, nem történik semmi.</p>
 <h3>Cég dokumentumai és engedélyei</h3>
 <p>Minden cégnek vannak azonosítóval és lejárattal rendelkező dokumentumai és engedélyei, például a Munkahelyi Sugárvédelmi Szabályzat, a Sugárvédelmi Leírás, a Fizikai Védelmi Terv vagy a Balesetelhárítási Intézkedési Terv. A felmérés főképernyőjének felső sávjában lévő dokumentum ikonnal nyithatod meg őket, az <strong>Új dokumentum</strong> gombbal vehetsz fel újat. Add meg a <strong>Dokumentum megnevezése</strong>, az <strong>Azonosító (iktatószám, engedélyszám)</strong>, a <strong>Kiadó / hatóság</strong>, a <strong>Kiadás vagy hatályba lépés dátuma</strong> és az <strong>Érvényes / felülvizsgálandó eddig</strong> mezőt, írhatsz megjegyzést, és a <strong>Fájl csatolása</strong> gombbal tetszőleges számú fájlt csatolhatsz. Tetszőleges számú dokumentumot felvehetsz.</p>
 <p>A cégdokumentumok és a személyek bizonyítványainak lejárata is része a lejárati értesítéseknek. A dokumentumok és a fájljaik benne vannak a mentésfájlban és a cégváltóban is.</p>

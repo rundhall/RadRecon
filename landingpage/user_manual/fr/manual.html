@@ -78,7 +78,24 @@
 <li><strong>Unités d’affichage :</strong> l’unité de la dose personnelle (automatique : µSv, avec passage aux mSv au-delà de 1 mSv ; ou une unité fixe), ainsi que celles de la contamination de surface, de la température, de la pression et de la vitesse du vent. Les écrans et le protocole utilisent ces unités. Les valeurs enregistrées ne changent pas ; les exports CSV et JSON et le fichier de sauvegarde conservent les unités d’origine. Le seuil d’alerte de la contamination de surface se saisit en Bq/cm².</li>
 <li><strong>Profil réglementaire :</strong> International (AIEA) ou Hongrie (OAH). Le profil hongrois ajoute les catégories hongroises au classement des sources, voir la section 4.</li>
 <li>en plus des données et des photos, le fichier de sauvegarde contient toutes les pièces jointes : certificats de vérification et d’étalonnage des instruments, certificats des personnes, certificats des sources et documents de l’entreprise.</li>
+<li><strong>Séparateur décimal dans le procès-verbal :</strong> automatique (en anglais : point, dans les autres langues : virgule), ou toujours une virgule, ou toujours un point. Le procès-verbal Word et PDF l'utilise ; les coordonnées GPS utilisent toujours un point.</li><li><strong>Écran toujours allumé :</strong> tant que l'application est ouverte, l'écran ne s'éteint pas. Cela consomme davantage de batterie.</li><li><strong>Commande par boutons Bluetooth :</strong> sous Android, une télécommande Bluetooth à touches média peut envoyer des commandes à l'application. Voir la section suivante.</li></ul>
+<h3 id="bluetooth-buttons">Boutons Bluetooth</h3>
+<p>Sous Android, une télécommande Bluetooth à touches média peut piloter RadRecon, par exemple pour enregistrer des points sans toucher l'écran, avec des gants ou en tenue de protection. Les boutons ne fonctionnent que lorsque l'application RadRecon est ouverte au premier plan. Cela n'est pas disponible sur iPhone, Windows ou macOS.</p>
+<p>Dans les réglages, chacun des cinq boutons reçoit une commande : volume +, volume -, lecture/pause, suivant et précédent. Par défaut, lecture/pause enregistre le point, suivant ouvre un nouveau point et précédent prend une photo ; les boutons de volume n'ont pas de commande. Commandes disponibles :</p>
+<ul>
+<li><strong>Aucune</strong></li>
+<li><strong>Nouveau point de mesure</strong></li>
+<li><strong>Prendre une photo</strong></li>
+<li><strong>Interroger la valeur Modbus</strong></li>
+<li><strong>Enregistrer le point de mesure</strong></li>
+<li><strong>Enregistrer et nouveau point</strong></li>
+<li><strong>Annuler (sans enregistrer) :</strong> la première pression affiche un avertissement ; une seconde pression dans les 3 secondes ferme le point sans l'enregistrer.</li>
+<li><strong>Type de mesure suivant / précédent</strong></li>
+<li><strong>Lancer / terminer la moyenne Modbus :</strong> la fin valide les échantillons recueillis jusque-là.</li>
+<li><strong>Position de la source oui/non</strong></li>
+<li><strong>Démarrer / arrêter l'enregistrement automatique :</strong> depuis la liste des relevés, la commande ouvre l'enregistrement automatique et le lance. Un instrument Modbus est nécessaire.</li>
 </ul>
+<p>Une commande réussie produit une brève vibration. Si une commande ne peut pas être exécutée à ce moment, par exemple une interrogation Modbus sans instrument connecté, rien ne se passe.</p>
 <h3>Documents et autorisations de l’entreprise</h3>
 <p>Chaque entreprise possède des documents et des autorisations avec un identifiant et une date d’expiration, par exemple le règlement de radioprotection du lieu de travail, la description de la radioprotection, le plan de protection physique ou le plan d’intervention en cas d’accident. Ouvrez-les avec l’icône de document de la barre supérieure de l’écran principal et appuyez sur <strong>Nouveau document</strong>. Saisissez le nom du document, l’identifiant (numéro de dossier / d’autorisation), l’émetteur / l’autorité, la date d’émission et la date « valable / à réviser jusqu’au », ajoutez une note et joignez autant de fichiers que nécessaire avec <strong>Joindre un fichier</strong>. Vous pouvez ajouter autant de documents que vous le souhaitez.</p>
 <p>Les dates d’expiration des documents de l’entreprise et des certificats des personnes font partie des notifications d’expiration. Les documents et leurs fichiers sont inclus dans la sauvegarde et dans le sélecteur d’entreprise.</p>

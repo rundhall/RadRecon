@@ -78,7 +78,24 @@
 <li><strong>Unidades de visualización:</strong> la unidad de la dosis personal (automática: µSv, con cambio a mSv por encima de 1 mSv; o una unidad fija), y las de contaminación superficial, temperatura, presión y velocidad del viento. La pantalla y el protocolo usan estas unidades. Los valores almacenados no cambian; las exportaciones CSV y JSON y el archivo de copia conservan las unidades almacenadas. El umbral de alerta de la contaminación superficial se introduce en Bq/cm².</li>
 <li><strong>Perfil normativo:</strong> Internacional (OIEA) o Hungría (OAH). El perfil húngaro añade las categorías húngaras a la clasificación de las fuentes, véase la sección 4.</li>
 <li>además de los datos y las fotos, el archivo de copia contiene todos los adjuntos: certificados de verificación y calibración de los instrumentos, certificados de las personas, certificados de las fuentes y documentos de la empresa.</li>
+<li><strong>Separador decimal en el acta:</strong> automático (en inglés: punto, en los demás idiomas: coma), o siempre coma o siempre punto. El acta en Word y PDF lo usa; las coordenadas GPS siempre usan punto.</li><li><strong>Pantalla siempre encendida:</strong> mientras la app está abierta, la pantalla no se apaga. Esto consume más batería.</li><li><strong>Control con botones Bluetooth:</strong> en Android, un mando Bluetooth con botones multimedia puede enviar comandos a la app. Véase la sección siguiente.</li></ul>
+<h3 id="bluetooth-buttons">Botones Bluetooth</h3>
+<p>En Android, un mando Bluetooth con botones multimedia puede controlar RadRecon, por ejemplo para registrar puntos sin tocar la pantalla, con guantes o con traje de protección. Los botones solo funcionan mientras la app RadRecon está abierta en primer plano. No está disponible en iPhone, Windows ni macOS.</p>
+<p>En los ajustes se asigna un comando a cada uno de los cinco botones: subir volumen, bajar volumen, reproducir/pausa, siguiente y anterior. Por defecto, reproducir/pausa guarda el punto, siguiente abre un punto nuevo y anterior hace una foto; los botones de volumen no tienen comando. Comandos disponibles:</p>
+<ul>
+<li><strong>Ninguna</strong></li>
+<li><strong>Nuevo punto de medición</strong></li>
+<li><strong>Hacer foto</strong></li>
+<li><strong>Consultar valor Modbus</strong></li>
+<li><strong>Guardar punto de medición</strong></li>
+<li><strong>Guardar y nuevo punto</strong></li>
+<li><strong>Cancelar (sin guardar):</strong> la primera pulsación muestra un aviso; una segunda pulsación en 3 segundos cierra el punto sin guardarlo.</li>
+<li><strong>Tipo de medición siguiente / anterior</strong></li>
+<li><strong>Iniciar / terminar promedio Modbus:</strong> terminar acepta las muestras recogidas hasta ese momento.</li>
+<li><strong>Posición de la fuente sí/no</strong></li>
+<li><strong>Iniciar / detener el registro automático:</strong> desde la lista de inspecciones abre la pantalla de registro automático y lo inicia. Se necesita un instrumento Modbus.</li>
 </ul>
+<p>Un comando correcto produce una breve vibración. Si un comando no se puede ejecutar en ese momento, por ejemplo una consulta Modbus sin instrumento conectado, no pasa nada.</p>
 <h3>Documentos y permisos de la empresa</h3>
 <p>Cada empresa tiene documentos y permisos con un identificador y una fecha de vencimiento, por ejemplo el reglamento de protección radiológica del lugar de trabajo, la descripción de la protección radiológica, el plan de protección física o el plan de respuesta a accidentes. Ábrelos con el icono de documento de la barra superior de la pantalla principal y pulsa <strong>Nuevo documento</strong>. Introduce el nombre del documento, el identificador (número de expediente / permiso), el emisor / autoridad, la fecha de emisión y la fecha «válido / revisión hasta», escribe una nota y adjunta tantos archivos como quieras con <strong>Adjuntar archivo</strong>. Puedes añadir tantos documentos como necesites.</p>
 <p>Las fechas de vencimiento de los documentos de la empresa y de los certificados de las personas forman parte de las notificaciones de vencimiento. Los documentos y sus archivos están incluidos en la copia de seguridad y en el selector de empresa.</p>

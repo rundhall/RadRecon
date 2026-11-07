@@ -84,6 +84,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get activityUnitLabel => 'Standardeinheit der Aktivität';
 
   @override
+  String get decimalSeparatorLabel => 'Dezimaltrennzeichen im Protokoll';
+
+  @override
+  String get decimalSeparatorHint =>
+      'Zahlen im Protokoll (Word und PDF) verwenden dieses Zeichen. GPS-Koordinaten verwenden immer einen Punkt.';
+
+  @override
+  String get decimalSeparatorAuto => 'Nach App-Sprache';
+
+  @override
+  String get decimalSeparatorComma => 'Komma (1,5)';
+
+  @override
+  String get decimalSeparatorDot => 'Punkt (1.5)';
+
+  @override
   String get distanceUnitLabel => 'Standardeinheit der Entfernung';
 
   @override
@@ -837,10 +853,27 @@ class AppLocalizationsDe extends AppLocalizations {
   String get protocolFormatTitle => 'Protokollformat';
 
   @override
-  String get protocolFormatWord => 'Word (ZIP: .docx + Fotos)';
+  String get protocolFormatWord => 'Word (.docx)';
 
   @override
-  String get protocolFormatPdf => 'PDF (mit Fotos)';
+  String get protocolFormatPdf => 'PDF';
+
+  @override
+  String get protocolIncludeImages => 'Bilder im Protokoll';
+
+  @override
+  String get protocolShrinkImages => 'Bilder verkleinern (max. 1600 px)';
+
+  @override
+  String get protocolAutoRotate => 'Bilder automatisch drehen (EXIF)';
+
+  @override
+  String get pointCopyTooltip => 'Kopie: neue Messung am gleichen Ort';
+
+  @override
+  String pointGroupLabel(String index, String total) {
+    return '$index/$total Messungen';
+  }
 
   @override
   String get sessionDoseLabel => 'Messungsdosis';
@@ -929,13 +962,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get exportProtocolMenuItem => 'Protokoll exportieren';
 
   @override
-  String get exportJsonMenuItem => 'Punkte exportieren (Daten, JSON)';
+  String get exportJsonMenuItem => 'Punkte exportieren (Daten, ZIP)';
 
   @override
   String get exportCsvMenuItem => 'Punkte exportieren (Tabelle, CSV)';
 
   @override
-  String get importJsonMenuItem => 'Punkte importieren (JSON)';
+  String get importJsonMenuItem => 'Punkte importieren (ZIP / JSON)';
 
   @override
   String get newPointButton => 'Neuer Punkt';
@@ -1271,7 +1304,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Aktivität bei der Herstellung (MBq)';
 
   @override
-  String get activityErrorPercentLabel => 'Aktivitätsfehler (±%)';
+  String get activityErrorPercentLabel => 'Aktivitätsunsicherheit (±%)';
 
   @override
   String get manufactureDateLabel => 'Herstellungsdatum';
@@ -1981,20 +2014,20 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get modbusAverageTooFew =>
-      'Für die Fehlerberechnung sind mindestens 2 gültige Messwerte nötig; nur der Wert wurde übernommen.';
+      'Für die Berechnung der Messunsicherheit sind mindestens 2 gültige Messwerte nötig; nur der Wert wurde übernommen.';
 
   @override
-  String get measurementErrorLabel => 'Fehler (±)';
+  String get measurementErrorLabel => 'Messunsicherheit (±)';
 
   @override
   String get measurementErrorHelper =>
-      'Bei einer Mittelwertmessung ist dies der Standardfehler des Mittelwerts (1σ); bei manuell eingegebenen Werten kann er auch von Hand eingetragen werden. Er erscheint im Protokoll.';
+      'Bei einer Mittelwertmessung ist dies die Standardunsicherheit des Mittelwerts (1σ); bei manuell eingegebenen Werten kann sie auch von Hand eingetragen werden. Sie erscheint im Protokoll.';
 
   @override
   String get measurementAveragedLabel => 'Mittelwertmessung';
 
   @override
-  String get csvHeaderValueError => 'Fehler (±)';
+  String get csvHeaderValueError => 'Messunsicherheit (±)';
 
   @override
   String get csvHeaderAveraging => 'Mittelung (Messwerte; s)';
@@ -2489,7 +2522,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get displayUnitsHint =>
-      'Anzeige und Protokoll verwenden diese Einheiten. Datenexporte (CSV, JSON) und Sicherungen behalten immer die gespeicherte Einheit.';
+      'Anzeige und Protokoll verwenden diese Einheiten. Datenexporte (CSV, ZIP) und Sicherungen behalten immer die gespeicherte Einheit.';
 
   @override
   String get displayDoseUnitLabel => 'Einheit der Personendosis';
@@ -2881,7 +2914,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get spectrumFileChangeButton => 'Spektrumdatei ersetzen';
 
   @override
-  String get spectrumFileRequiredError => 'Wähle eine Spektrumdatei (N42) aus.';
+  String get spectrumFileRequiredError =>
+      'Wähle eine Spektrumdatei (N42) aus oder fotografiere das Spektrum.';
 
   @override
   String get spectrumParseError =>
@@ -3546,7 +3580,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get surveyArchiveConfirmTitle => 'Umfrage archivieren?';
 
   @override
-  String get surveyArchiveConfirmMessage => 'Eine archivierte Umfrage erscheint nicht mehr in der Standardliste. Die Daten bleiben unverändert, und die Archivierung kann jederzeit rückgängig gemacht werden.';
+  String get surveyArchiveConfirmMessage =>
+      'Eine archivierte Umfrage erscheint nicht mehr in der Standardliste. Die Daten bleiben unverändert, und die Archivierung kann jederzeit rückgängig gemacht werden.';
 
   @override
   String get surveyUnarchiveAction => 'Aus dem Archiv holen';
@@ -3835,4 +3870,77 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get protoPhantomHeading => 'Körperkarte';
+
+  @override
+  String get btnSectionTitle => 'Bluetooth-Tasten';
+
+  @override
+  String get btnEnabledLabel => 'Steuerung per Bluetooth-Tasten';
+
+  @override
+  String get btnEnabledHelp =>
+      'Unter Android sendet eine Bluetooth-Fernbedienung mit Medientasten Befehle an die App. Sie funktioniert nur, wenn die App im Vordergrund ist.';
+
+  @override
+  String get keepScreenOnLabel => 'Bildschirm dauerhaft aktiv';
+
+  @override
+  String get keepScreenOnHelp =>
+      'Solange die App geöffnet ist, schaltet sich der Bildschirm nicht ab. Verbraucht mehr Akku.';
+
+  @override
+  String get btnKeyVolumeUp => 'Lautstärke lauter';
+
+  @override
+  String get btnKeyVolumeDown => 'Lautstärke leiser';
+
+  @override
+  String get btnKeyPlay => 'Wiedergabe / Pause';
+
+  @override
+  String get btnKeyNext => 'Weiter-Taste';
+
+  @override
+  String get btnKeyPrevious => 'Zurück-Taste';
+
+  @override
+  String get btnCommandNothing => 'Keine';
+
+  @override
+  String get btnCommandNewPoint => 'Neuer Messpunkt';
+
+  @override
+  String get btnCommandTakePhoto => 'Foto aufnehmen';
+
+  @override
+  String get btnCommandModbus => 'Modbus-Wert abfragen';
+
+  @override
+  String get btnCommandSavePoint => 'Messpunkt speichern';
+
+  @override
+  String get btnCommandSaveAndNew => 'Speichern und neuer Punkt';
+
+  @override
+  String get btnCommandDiscard => 'Verwerfen (ohne Speichern)';
+
+  @override
+  String get btnCommandNextType => 'Nächster Messtyp';
+
+  @override
+  String get btnCommandPrevType => 'Vorheriger Messtyp';
+
+  @override
+  String get btnCommandAveraging => 'Modbus-Mittelung starten / beenden';
+
+  @override
+  String get btnCommandSourcePosition => 'Quellenposition ein/aus';
+
+  @override
+  String get btnCommandToggleAutoLog =>
+      'Automatische Aufzeichnung starten / stoppen';
+
+  @override
+  String get discardConfirmHint =>
+      'Zum Verwerfen innerhalb von 3 Sekunden erneut drücken';
 }

@@ -244,6 +244,36 @@ abstract class AppLocalizations {
   /// **'Aktivitás alapegysége'**
   String get activityUnitLabel;
 
+  /// No description provided for @decimalSeparatorLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Tizedesjel a jegyzőkönyvben'**
+  String get decimalSeparatorLabel;
+
+  /// No description provided for @decimalSeparatorHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'A jegyzőkönyv (Word és PDF) számai ezt használják. A GPS-koordináták mindig ponttal jelennek meg.'**
+  String get decimalSeparatorHint;
+
+  /// No description provided for @decimalSeparatorAuto.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az alkalmazás nyelve szerint'**
+  String get decimalSeparatorAuto;
+
+  /// No description provided for @decimalSeparatorComma.
+  ///
+  /// In hu, this message translates to:
+  /// **'Vessző (1,5)'**
+  String get decimalSeparatorComma;
+
+  /// No description provided for @decimalSeparatorDot.
+  ///
+  /// In hu, this message translates to:
+  /// **'Pont (1.5)'**
+  String get decimalSeparatorDot;
+
   /// No description provided for @distanceUnitLabel.
   ///
   /// In hu, this message translates to:
@@ -1585,14 +1615,44 @@ abstract class AppLocalizations {
   /// No description provided for @protocolFormatWord.
   ///
   /// In hu, this message translates to:
-  /// **'Word (ZIP: .docx + fotók)'**
+  /// **'Word (.docx)'**
   String get protocolFormatWord;
 
   /// No description provided for @protocolFormatPdf.
   ///
   /// In hu, this message translates to:
-  /// **'PDF (fotókkal)'**
+  /// **'PDF'**
   String get protocolFormatPdf;
+
+  /// No description provided for @protocolIncludeImages.
+  ///
+  /// In hu, this message translates to:
+  /// **'Képek a jegyzőkönyvben'**
+  String get protocolIncludeImages;
+
+  /// No description provided for @protocolShrinkImages.
+  ///
+  /// In hu, this message translates to:
+  /// **'Képek kicsinyítése (max. 1600 px)'**
+  String get protocolShrinkImages;
+
+  /// No description provided for @protocolAutoRotate.
+  ///
+  /// In hu, this message translates to:
+  /// **'Automatikus forgatás (EXIF)'**
+  String get protocolAutoRotate;
+
+  /// No description provided for @pointCopyTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Másolat: új mérés ugyanezen a helyen'**
+  String get pointCopyTooltip;
+
+  /// No description provided for @pointGroupLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'{index}/{total} mérés'**
+  String pointGroupLabel(String index, String total);
 
   /// No description provided for @sessionDoseLabel.
   ///
@@ -1759,7 +1819,7 @@ abstract class AppLocalizations {
   /// No description provided for @exportJsonMenuItem.
   ///
   /// In hu, this message translates to:
-  /// **'Pontok exportálása (adat, JSON)'**
+  /// **'Pontok exportálása (adat, ZIP)'**
   String get exportJsonMenuItem;
 
   /// No description provided for @exportCsvMenuItem.
@@ -1771,7 +1831,7 @@ abstract class AppLocalizations {
   /// No description provided for @importJsonMenuItem.
   ///
   /// In hu, this message translates to:
-  /// **'Pontok importálása (JSON)'**
+  /// **'Pontok importálása (ZIP / JSON)'**
   String get importJsonMenuItem;
 
   /// No description provided for @newPointButton.
@@ -2364,7 +2424,7 @@ abstract class AppLocalizations {
   /// No description provided for @activityErrorPercentLabel.
   ///
   /// In hu, this message translates to:
-  /// **'Aktivitás hibája (±%)'**
+  /// **'Aktivitás bizonytalansága (±%)'**
   String get activityErrorPercentLabel;
 
   /// No description provided for @manufactureDateLabel.
@@ -3576,19 +3636,19 @@ abstract class AppLocalizations {
   /// No description provided for @modbusAverageTooFew.
   ///
   /// In hu, this message translates to:
-  /// **'A hiba számításához legalább 2 érvényes minta kell, csak az érték került be.'**
+  /// **'A bizonytalanság számításához legalább 2 érvényes minta kell, csak az érték került be.'**
   String get modbusAverageTooFew;
 
   /// No description provided for @measurementErrorLabel.
   ///
   /// In hu, this message translates to:
-  /// **'Hiba (±)'**
+  /// **'Bizonytalanság (±)'**
   String get measurementErrorLabel;
 
   /// No description provided for @measurementErrorHelper.
   ///
   /// In hu, this message translates to:
-  /// **'Átlagolt mérésnél az átlag standard hibája (1σ), kézzel feltöltött értéknél kézzel is megadható. A jegyzőkönyvre kerül.'**
+  /// **'Átlagolt mérésnél az átlag standard bizonytalansága (1σ), kézzel feltöltött értéknél kézzel is megadható. A jegyzőkönyvre kerül.'**
   String get measurementErrorHelper;
 
   /// No description provided for @measurementAveragedLabel.
@@ -3600,7 +3660,7 @@ abstract class AppLocalizations {
   /// No description provided for @csvHeaderValueError.
   ///
   /// In hu, this message translates to:
-  /// **'Hiba (±)'**
+  /// **'Bizonytalanság (±)'**
   String get csvHeaderValueError;
 
   /// No description provided for @csvHeaderAveraging.
@@ -4560,7 +4620,7 @@ abstract class AppLocalizations {
   /// No description provided for @displayUnitsHint.
   ///
   /// In hu, this message translates to:
-  /// **'A megjelenítés és a jegyzőkönyv ezt használja. Az adatexport (CSV, JSON) és a mentés mindig az eredeti, tárolt egységben marad.'**
+  /// **'A megjelenítés és a jegyzőkönyv ezt használja. Az adatexport (CSV, ZIP) és a mentés mindig az eredeti, tárolt egységben marad.'**
   String get displayUnitsHint;
 
   /// No description provided for @displayDoseUnitLabel.
@@ -5249,7 +5309,7 @@ abstract class AppLocalizations {
   /// No description provided for @spectrumFileRequiredError.
   ///
   /// In hu, this message translates to:
-  /// **'Válassz spektrumfájlt (N42).'**
+  /// **'Válassz spektrumfájlt (N42), vagy fotózd le a spektrumot.'**
   String get spectrumFileRequiredError;
 
   /// No description provided for @spectrumParseError.
@@ -7038,6 +7098,144 @@ abstract class AppLocalizations {
   /// In hu, this message translates to:
   /// **'Fantomrajz'**
   String get protoPhantomHeading;
+
+  /// No description provided for @btnSectionTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bluetooth-gombok'**
+  String get btnSectionTitle;
+
+  /// No description provided for @btnEnabledLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bluetooth gombvezérlés'**
+  String get btnEnabledLabel;
+
+  /// No description provided for @btnEnabledHelp.
+  ///
+  /// In hu, this message translates to:
+  /// **'Androidon a Bluetooth-os médiagombos távirányító parancsokat küld az appnak. Csak akkor működik, ha az app előtérben van.'**
+  String get btnEnabledHelp;
+
+  /// No description provided for @keepScreenOnLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Képernyő folyamatosan ébren'**
+  String get keepScreenOnLabel;
+
+  /// No description provided for @keepScreenOnHelp.
+  ///
+  /// In hu, this message translates to:
+  /// **'Amíg az app meg van nyitva, a képernyő nem kapcsol ki. Több akkumulátort fogyaszt.'**
+  String get keepScreenOnHelp;
+
+  /// No description provided for @btnKeyVolumeUp.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hangerő fel'**
+  String get btnKeyVolumeUp;
+
+  /// No description provided for @btnKeyVolumeDown.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hangerő le'**
+  String get btnKeyVolumeDown;
+
+  /// No description provided for @btnKeyPlay.
+  ///
+  /// In hu, this message translates to:
+  /// **'Lejátszás / szünet'**
+  String get btnKeyPlay;
+
+  /// No description provided for @btnKeyNext.
+  ///
+  /// In hu, this message translates to:
+  /// **'Következő gomb'**
+  String get btnKeyNext;
+
+  /// No description provided for @btnKeyPrevious.
+  ///
+  /// In hu, this message translates to:
+  /// **'Előző gomb'**
+  String get btnKeyPrevious;
+
+  /// No description provided for @btnCommandNothing.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs'**
+  String get btnCommandNothing;
+
+  /// No description provided for @btnCommandNewPoint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Új mérési pont'**
+  String get btnCommandNewPoint;
+
+  /// No description provided for @btnCommandTakePhoto.
+  ///
+  /// In hu, this message translates to:
+  /// **'Fénykép készítése'**
+  String get btnCommandTakePhoto;
+
+  /// No description provided for @btnCommandModbus.
+  ///
+  /// In hu, this message translates to:
+  /// **'Modbus-adat lekérdezése'**
+  String get btnCommandModbus;
+
+  /// No description provided for @btnCommandSavePoint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mérési pont mentése'**
+  String get btnCommandSavePoint;
+
+  /// No description provided for @btnCommandSaveAndNew.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mentés és új pont'**
+  String get btnCommandSaveAndNew;
+
+  /// No description provided for @btnCommandDiscard.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mégse (mentés nélkül)'**
+  String get btnCommandDiscard;
+
+  /// No description provided for @btnCommandNextType.
+  ///
+  /// In hu, this message translates to:
+  /// **'Következő mérési típus'**
+  String get btnCommandNextType;
+
+  /// No description provided for @btnCommandPrevType.
+  ///
+  /// In hu, this message translates to:
+  /// **'Előző mérési típus'**
+  String get btnCommandPrevType;
+
+  /// No description provided for @btnCommandAveraging.
+  ///
+  /// In hu, this message translates to:
+  /// **'Modbus-átlagolás indítása / kész'**
+  String get btnCommandAveraging;
+
+  /// No description provided for @btnCommandSourcePosition.
+  ///
+  /// In hu, this message translates to:
+  /// **'Forrás pozíció be/ki'**
+  String get btnCommandSourcePosition;
+
+  /// No description provided for @btnCommandToggleAutoLog.
+  ///
+  /// In hu, this message translates to:
+  /// **'Automatikus rögzítés indítása / leállítása'**
+  String get btnCommandToggleAutoLog;
+
+  /// No description provided for @discardConfirmHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Még egyszer nyomd meg 3 másodpercen belül a mégsemhez'**
+  String get discardConfirmHint;
 }
 
 class _AppLocalizationsDelegate

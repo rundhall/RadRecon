@@ -84,6 +84,23 @@ class AppLocalizationsFr extends AppLocalizations {
   String get activityUnitLabel => 'Unité par défaut de l\'activité';
 
   @override
+  String get decimalSeparatorLabel =>
+      'Séparateur décimal dans le procès-verbal';
+
+  @override
+  String get decimalSeparatorHint =>
+      'Les nombres du procès-verbal (Word et PDF) utilisent ce séparateur. Les coordonnées GPS utilisent toujours un point.';
+
+  @override
+  String get decimalSeparatorAuto => 'Selon la langue de l\'application';
+
+  @override
+  String get decimalSeparatorComma => 'Virgule (1,5)';
+
+  @override
+  String get decimalSeparatorDot => 'Point (1.5)';
+
+  @override
   String get distanceUnitLabel => 'Unité par défaut de la distance';
 
   @override
@@ -841,10 +858,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get protocolFormatTitle => 'Format du protocole';
 
   @override
-  String get protocolFormatWord => 'Word (ZIP : .docx + photos)';
+  String get protocolFormatWord => 'Word (.docx)';
 
   @override
-  String get protocolFormatPdf => 'PDF (avec photos)';
+  String get protocolFormatPdf => 'PDF';
+
+  @override
+  String get protocolIncludeImages => 'Images dans le protocole';
+
+  @override
+  String get protocolShrinkImages => 'Réduire les images (max. 1600 px)';
+
+  @override
+  String get protocolAutoRotate => 'Rotation automatique des images (EXIF)';
+
+  @override
+  String get pointCopyTooltip => 'Copie : nouvelle mesure au même emplacement';
+
+  @override
+  String pointGroupLabel(String index, String total) {
+    return '$index/$total mesures';
+  }
 
   @override
   String get sessionDoseLabel => 'Dose de la mesure';
@@ -933,13 +967,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get exportProtocolMenuItem => 'Exporter le protocole';
 
   @override
-  String get exportJsonMenuItem => 'Exporter les points (données, JSON)';
+  String get exportJsonMenuItem => 'Exporter les points (données, ZIP)';
 
   @override
   String get exportCsvMenuItem => 'Exporter les points (tableau, CSV)';
 
   @override
-  String get importJsonMenuItem => 'Importer des points (JSON)';
+  String get importJsonMenuItem => 'Importer des points (ZIP / JSON)';
 
   @override
   String get newPointButton => 'Nouveau point';
@@ -1272,7 +1306,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get activityAtManufactureLabel => 'Activité à la fabrication (MBq)';
 
   @override
-  String get activityErrorPercentLabel => 'Erreur sur l\'activité (±%)';
+  String get activityErrorPercentLabel => 'Incertitude sur l\'activité (±%)';
 
   @override
   String get manufactureDateLabel => 'Date de fabrication';
@@ -1983,20 +2017,20 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get modbusAverageTooFew =>
-      'Il faut au moins 2 échantillons valides pour calculer l\'erreur ; seule la valeur a été saisie.';
+      'Il faut au moins 2 échantillons valides pour calculer l\'incertitude ; seule la valeur a été saisie.';
 
   @override
-  String get measurementErrorLabel => 'Erreur (±)';
+  String get measurementErrorLabel => 'Incertitude (±)';
 
   @override
   String get measurementErrorHelper =>
-      'Pour une mesure moyennée, c\'est l\'erreur standard de la moyenne (1σ) ; elle peut aussi être saisie à la main pour des valeurs saisies manuellement. Elle figure dans le protocole.';
+      'Pour une mesure moyennée, c\'est l\'incertitude-type de la moyenne (1σ) ; elle peut aussi être saisie à la main pour des valeurs saisies manuellement. Elle figure dans le protocole.';
 
   @override
   String get measurementAveragedLabel => 'Mesure moyennée';
 
   @override
-  String get csvHeaderValueError => 'Erreur (±)';
+  String get csvHeaderValueError => 'Incertitude (±)';
 
   @override
   String get csvHeaderAveraging => 'Moyennage (échantillons ; s)';
@@ -2491,7 +2525,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get displayUnitsHint =>
-      'L\'affichage et le protocole utilisent ces unités. Les exports (CSV, JSON) et les sauvegardes conservent toujours l\'unité enregistrée.';
+      'L\'affichage et le protocole utilisent ces unités. Les exports (CSV, ZIP) et les sauvegardes conservent toujours l\'unité enregistrée.';
 
   @override
   String get displayDoseUnitLabel => 'Unité de dose individuelle';
@@ -2885,7 +2919,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get spectrumFileRequiredError =>
-      'Sélectionnez un fichier de spectre (N42).';
+      'Sélectionnez un fichier de spectre (N42) ou photographiez le spectre.';
 
   @override
   String get spectrumParseError =>
@@ -3551,7 +3585,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get surveyArchiveConfirmTitle => 'Archiver cette enquête ?';
 
   @override
-  String get surveyArchiveConfirmMessage => 'Une enquête archivée ne figure plus dans la liste par défaut. Les données restent inchangées. Elle peut être désarchivée à tout moment.';
+  String get surveyArchiveConfirmMessage =>
+      'Une enquête archivée ne figure plus dans la liste par défaut. Les données restent inchangées. Elle peut être désarchivée à tout moment.';
 
   @override
   String get surveyUnarchiveAction => 'Désarchiver';
@@ -3839,4 +3874,77 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get protoPhantomHeading => 'Schéma corporel';
+
+  @override
+  String get btnSectionTitle => 'Boutons Bluetooth';
+
+  @override
+  String get btnEnabledLabel => 'Commande par boutons Bluetooth';
+
+  @override
+  String get btnEnabledHelp =>
+      'Sous Android, une télécommande Bluetooth à touches média envoie des commandes à l\'application. Elle ne fonctionne que lorsque l\'application est au premier plan.';
+
+  @override
+  String get keepScreenOnLabel => 'Écran toujours allumé';
+
+  @override
+  String get keepScreenOnHelp =>
+      'Tant que l\'application est ouverte, l\'écran ne s\'éteint pas. Consomme davantage de batterie.';
+
+  @override
+  String get btnKeyVolumeUp => 'Volume +';
+
+  @override
+  String get btnKeyVolumeDown => 'Volume -';
+
+  @override
+  String get btnKeyPlay => 'Lecture / pause';
+
+  @override
+  String get btnKeyNext => 'Bouton suivant';
+
+  @override
+  String get btnKeyPrevious => 'Bouton précédent';
+
+  @override
+  String get btnCommandNothing => 'Aucune';
+
+  @override
+  String get btnCommandNewPoint => 'Nouveau point de mesure';
+
+  @override
+  String get btnCommandTakePhoto => 'Prendre une photo';
+
+  @override
+  String get btnCommandModbus => 'Interroger la valeur Modbus';
+
+  @override
+  String get btnCommandSavePoint => 'Enregistrer le point de mesure';
+
+  @override
+  String get btnCommandSaveAndNew => 'Enregistrer et nouveau point';
+
+  @override
+  String get btnCommandDiscard => 'Annuler (sans enregistrer)';
+
+  @override
+  String get btnCommandNextType => 'Type de mesure suivant';
+
+  @override
+  String get btnCommandPrevType => 'Type de mesure précédent';
+
+  @override
+  String get btnCommandAveraging => 'Lancer / terminer la moyenne Modbus';
+
+  @override
+  String get btnCommandSourcePosition => 'Position de la source oui/non';
+
+  @override
+  String get btnCommandToggleAutoLog =>
+      'Démarrer / arrêter l\'enregistrement automatique';
+
+  @override
+  String get discardConfirmHint =>
+      'Appuyez à nouveau dans les 3 secondes pour annuler';
 }

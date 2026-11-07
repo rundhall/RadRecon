@@ -1,4 +1,5 @@
 import 'phantom_figure_service.dart';
+import '../models/decimal_separator.dart';
 import '../models/victim_details.dart';
 import '../models/sample_analysis.dart';
 import '../models/dose_quantity.dart';
@@ -9,7 +10,9 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
+import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:image/image.dart' as img;
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -70,6 +73,42 @@ import 'decommissioning_assessment.dart';
 /// fénykép fájlnevére hivatkozik, a végeredmény pedig egy .zip, ami a
 /// jegyzőkönyv .docx mellett egy "fotok/" mappában tartalmazza az összes
 /// ténylegesen csatolt képet.
+/// A jegyzőkönyv képbeállításai (a formátum-választó ablakban állíthatók).
+class ProtocolExportOptions {
+  const ProtocolExportOptions({
+    this.includeImages = true,
+    this.shrinkImages = true,
+    this.autoRotate = true,
+  });
+
+  /// Fotók és képernyőképek a jegyzőkönyvben. Spektrumábrák és tervrajz mindig benne vannak.
+  final bool includeImages;
+
+  /// Kicsinyítés legfeljebb [_docxImageMaxWidth] pixel szélességre.
+  final bool shrinkImages;
+
+  /// EXIF-alapú automatikus forgatás (a telefonfotók állása miatt).
+  final bool autoRotate;
+}
+
+const _docxImageMaxWidth = 1600;
+
+/// A kép előkészítése (háttér-izolátban fut, ezért top-level): EXIF-forgatás
+/// rögzítése, ha kérik, és szélesség-korlátozás, ha van. Fotónál JPEG-et,
+/// képernyőképnél PNG-t ad vissza.
+Uint8List? _processImage((Uint8List, bool, bool, int?) args) {
+  final (bytes, asJpeg, rotate, maxWidth) = args;
+  final decoded = img.decodeImage(bytes);
+  if (decoded == null) return null;
+  var image = rotate ? img.bakeOrientation(decoded) : decoded;
+  if (maxWidth != null && image.width > maxWidth) {
+    image = img.copyResize(image, width: maxWidth);
+  }
+  return asJpeg
+      ? img.encodeJpg(image, quality: 85)
+      : Uint8List.fromList(img.encodePng(image));
+}
+
 class ProtocolExportService {
   static const _templateAssetPath = 'assets/templates/jegyzokonyv_template.docx';
 
@@ -79,16 +118,74 @@ class ProtocolExportService {
   late DateFormat _dateFormat;
   late DateFormat _dateOnlyFormat;
 
-  void _begin(AppLocalizations loc) {
+  ProtocolExportOptions _options = const ProtocolExportOptions();
+
+  /// Csoportjelölés (ugyanazon hely több mérése): pont-id -> 1/2 mérés felirat.
+  Map<int, String> _groupSuffixById = {};
+
+  /// Csoportonként (azonos group_key, legalább 2 pont) sorszámozza a pontokat
+  /// az időrend szerint.
+  void _prepareGroupLabels(List<MeasurementPoint> points) {
+    _groupSuffixById = {};
+    final byKey = <String, List<MeasurementPoint>>{};
+    for (final pt in points) {
+      final key = pt.groupKey;
+      if (key == null) continue;
+      byKey.putIfAbsent(key, () => []).add(pt);
+    }
+    for (final members in byKey.values) {
+      if (members.length < 2) continue;
+      members.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+      for (var i = 0; i < members.length; i++) {
+        final id = members[i].id;
+        if (id != null) {
+          _groupSuffixById[id] =
+              _l.pointGroupLabel('${i + 1}', '${members.length}');
+        }
+      }
+    }
+  }
+
+  /// A pont helyének szövege; csoportnál a sorszámmal együtt.
+  String _pointLocation(MeasurementPoint point) {
+    final base = point.locationLabel ?? '—';
+    final suffix = point.id == null ? null : _groupSuffixById[point.id];
+    return suffix == null ? base : '$base · $suffix';
+  }
+
+  void _begin(AppLocalizations loc, ProtocolExportOptions options) {
+    _options = options;
     _l = loc;
     _dateFormat = DateFormat(loc.protoDateTimeFormat);
     _dateOnlyFormat = DateFormat(loc.protoDateFormat);
   }
 
-  /// Legenerálja a jegyzőkönyvet, és visszaadja a létrejött .zip fájl elérési
-  /// útját (docx + a hozzá tartozó fotók).
-  Future<File> exportSurvey(int surveySessionId, AppLocalizations loc) async {
-    _begin(loc);
+  /// A kép bájtjai a beállítások szerint: kicsinyítve és/vagy forgatva.
+  /// Ha egyik sincs bekapcsolva, az eredeti bájtok maradnak. Hibánál null.
+  Future<Uint8List?> _preparedImageBytes(File file, {required bool asJpeg}) async {
+    try {
+      final raw = await file.readAsBytes();
+      if (!_options.shrinkImages && !_options.autoRotate) return raw;
+      return await compute(_processImage, (
+        raw,
+        asJpeg,
+        _options.autoRotate,
+        _options.shrinkImages ? _docxImageMaxWidth : null,
+      ));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Legenerálja a Word-jegyzőkönyvet, és visszaadja a .docx fájl elérési útját.
+  /// A fotók, a spektrumábrák és a képernyőképek a dokumentumba kerülnek,
+  /// külön mappa vagy zip nem készül.
+  Future<File> exportSurvey(
+    int surveySessionId,
+    AppLocalizations loc, {
+    ProtocolExportOptions options = const ProtocolExportOptions(),
+  }) async {
+    _begin(loc, options);
     final inputs = await _loadInputs(surveySessionId);
     final session = inputs.session;
     final points = inputs.points;
@@ -97,6 +194,7 @@ class ProtocolExportService {
     final attachedByPointId = inputs.attachedByPointId;
     final personsText = inputs.personsText;
     final phantomFigures = await _phantomFiguresFor(inputs.victims);
+    final screenshots = await ScreenshotService.listScreenshots(surveySessionId);
     final docxBytes = await _generateDocx(
       session,
       points,
@@ -113,61 +211,17 @@ class ProtocolExportService {
       _handoverRows(inputs.victims),
       _identityRows(inputs.surveyors, inputs.victims),
       phantomFigures,
+      screenshots,
     );
 
-    final outputDir = await _prepareOutputDir(session);
-    final docxFile = File(p.join(outputDir.path, 'jegyzokonyv.docx'));
-    await docxFile.writeAsBytes(docxBytes);
-
-    final photosDir = Directory(p.join(outputDir.path, 'fotok'));
-    await photosDir.create(recursive: true);
-    for (final point in points) {
-      final path = point.photoPath;
-      if (path == null) continue;
-      final source = File(path);
-      if (!await source.exists()) continue;
-      final destName = _photoFileName(point);
-      await source.copy(p.join(photosDir.path, destName));
-    }
-
-    // Spektrumok: az eredeti N42 fájl és az ábra (PNG) a "spektrumok" mappába.
-    final spectrumDir = Directory(p.join(outputDir.path, 'spektrumok'));
-    for (final point in points) {
-      final source = point.spectrumPath;
-      if (source == null || !await File(source).exists()) continue;
-      await spectrumDir.create(recursive: true);
-      await File(source).copy(
-        p.join(spectrumDir.path, '${point.id ?? 0}_${p.basename(source)}'),
-      );
-      await _renderSpectrumPng(point, spectrumDir.path);
-    }
-
-    final screenshots = await ScreenshotService.listScreenshots(surveySessionId);
-    if (screenshots.isNotEmpty) {
-      final screenshotsDir = Directory(p.join(outputDir.path, 'kepernyokepek'));
-      await screenshotsDir.create(recursive: true);
-      for (final shot in screenshots) {
-        await shot.copy(p.join(screenshotsDir.path, p.basename(shot.path)));
-      }
-    }
-
-    // A jegyzőkönyv-zip az ideiglenes mappába kerül; a régi példányok törlődnek.
     final tmpDir = await getTemporaryDirectory();
-    await _removeOldProtocolFiles(tmpDir.path, '.zip');
-    if (Platform.isAndroid || Platform.isIOS) {
-      await _removeOldProtocolFiles(
-        (await getApplicationDocumentsDirectory()).path,
-        '.zip',
-      );
-    }
-    final zipFile = File(p.join(
+    await _removeOldProtocolFiles(tmpDir.path, '.docx');
+    final docxFile = File(p.join(
       tmpDir.path,
-      '${_safeFileName(session.title)}_jegyzokonyv.zip',
+      '${_safeFileName(session.title)}.docx',
     ));
-    if (await zipFile.exists()) await zipFile.delete();
-    await ZipFileEncoder().zipDirectoryAsync(outputDir, filename: zipFile.path);
-
-    return zipFile;
+    await docxFile.writeAsBytes(docxBytes);
+    return docxFile;
   }
 
   Future<_ProtocolInputs> _loadInputs(int surveySessionId) async {
@@ -180,6 +234,7 @@ class ProtocolExportService {
     final points = (await db.getMeasurementPoints(surveySessionId))
         .map(withCurrentDoseUnit)
         .toList();
+    _prepareGroupLabels(points);
     final instruments = await db.getInstruments();
     final instrumentById = {for (final i in instruments) i.id: i};
     final calibrationsByInstrument = <int, List<InstrumentCalibration>>{};
@@ -218,12 +273,12 @@ class ProtocolExportService {
     final personsText = surveyors.map((a) {
       final totals = snapshot.totalsFor(a.person.id!);
       if (totals.total <= 0) return a.person.name;
-      final total = formatDoseText(totals.total);
+      final total = _dec(formatDoseText(totals.total));
       final parts = [
         if (totals.session > 0)
-          _l.protoDoseSession(formatDoseText(totals.session)),
+          _l.protoDoseSession(_dec(formatDoseText(totals.session))),
         if (totals.dosimeter > 0)
-          _l.protoDoseDosimeter(formatDoseText(totals.dosimeter)),
+          _l.protoDoseDosimeter(_dec(formatDoseText(totals.dosimeter))),
       ];
       if (parts.length < 2) return _l.protoPersonDose(a.person.name, total);
       return _l.protoPersonDoseBreakdown(
@@ -390,6 +445,22 @@ class ProtocolExportService {
     return '$code ($lifetime)';
   }
 
+  /// A jegyzőkönyvben használt tizedesjel: a Beállítások szerinti választás,
+  /// "auto" esetén az alkalmazás nyelve szerinti (magyar: vessző, angol: pont).
+  String get _sep => switch (DecimalSeparatorController.current) {
+        DecimalSeparatorMode.comma => ',',
+        DecimalSeparatorMode.dot => '.',
+        DecimalSeparatorMode.auto => _l.protoDecimalSep,
+      };
+
+  /// Numerikus szöveg tizedesjelének átírása a jegyzőkönyv tizedesjelére.
+  /// Csak mért vagy számított értékekre hívható: dátumra, azonosítóra és
+  /// a GPS-koordinátákra nem.
+  String _dec(String text) => text.replaceAllMapped(
+        RegExp(r'(\d)[.,](\d)'),
+        (m) => '${m[1]}$_sep${m[2]}',
+      );
+
   /// Három értékes jegyre kerekített szám (a kis S-értékek is látszanak).
   String _sigNum(double value) {
     final abs = value.abs();
@@ -404,7 +475,7 @@ class ProtocolExportService {
       );
       text = value.toStringAsFixed(math.max(0, math.min(10, 2 - exponent)));
     }
-    return text.replaceAll('.', _l.protoDecimalSep);
+    return _dec(text);
   }
 
   /// Az érintettek (áldozatok) táblázatának fejléce és kulcsai — a Word-
@@ -431,10 +502,6 @@ class ProtocolExportService {
     _l.protoColCloud, _l.protoColVisibility, _l.protoColSoil, _l.protoColAerosol,
     _l.protoColOther,
   ];
-  static const _meteoColumnWidths = [
-    400, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000,
-    1000, 1000, 1998,
-  ];
   List<String> get _gasHeaders => [
         '#',
         _l.rrGasSpecies,
@@ -442,9 +509,9 @@ class ProtocolExportService {
         _l.rrGasConcentration,
         _l.protoColUnit,
       ];
-  static const _gasColumnWidths = [500, 4500, 3000, 3000, 4398];
-  static const _victimColumnWidths = [500, 3000, 2600, 4400, 4898];
-  static const _fieldColumnWidths = [4500, 10898];
+  static const _gasColumnWidths = [500, 4300, 2800, 3300, 3058];
+  static const _victimColumnWidths = [500, 3300, 2000, 3900, 4258];
+  static const _fieldColumnWidths = [4500, 9458];
 
   List<Map<String, String>> _victimValueRows(
     List<AttachedPerson> victims,
@@ -482,12 +549,12 @@ class ProtocolExportService {
     };
   }
 
-  /// Szám a magyar jegyzőkönyvhöz (tizedesvessző, legfeljebb két tizedes).
+  /// Szám a jegyzőkönyvhöz (a beállított tizedesjellel, legfeljebb két tizedes).
   String _protoNum(double d) {
     final s = d == d.roundToDouble()
         ? d.toStringAsFixed(0)
         : double.parse(d.toStringAsFixed(2)).toString();
-    return s.replaceAll('.', _l.protoDecimalSep);
+    return _dec(s);
   }
 
   /// A meteorológiai megfigyeléssel rendelkező mérési pontok sorai.
@@ -498,7 +565,7 @@ class ProtocolExportService {
     _l.protoColGeometry,
     _l.protoColAreaSize,
   ];
-  static const _areaColumnWidths = [500, 4000, 2400, 5498, 3000];
+  static const _areaColumnWidths = [500, 3700, 2300, 5158, 2300];
 
   /// A jelölt területek sorai: név, alakzat, geometria és felület (m²).
   List<List<String>> _areaRows(List<MapArea> areas) {
@@ -622,7 +689,7 @@ class ProtocolExportService {
         _l.protoColContamination,
         _l.protoColInjuryLocations,
       ];
-  static const _handoverColumnWidths = [500, 2300, 1200, 800, 1000, 1000, 3800, 4798];
+  static const _handoverColumnWidths = [450, 2200, 900, 800, 1150, 1550, 3450, 3458];
 
   /// Fantomrajzok: érintettenként egy PNG (elöl és hátul), ha van jelölés.
   Future<List<ProtocolFigure>> _phantomFiguresFor(
@@ -650,7 +717,7 @@ class ProtocolExportService {
         _l.rrRoleLabel,
         _l.personIdentifierLabel,
       ];
-  static const _identityColumnWidths = [500, 4500, 3000, 7398];
+  static const _identityColumnWidths = [500, 4000, 2800, 6658];
 
   /// A felmérők és az érintettek azonosítója (cím nélkül), személyenként egy sor.
   List<List<String>> _identityRows(
@@ -718,7 +785,7 @@ class ProtocolExportService {
         _l.rrBioKindLabel,
         _l.rrBioQuantityLabel,
       ];
-  static const _bioColumnWidths = [500, 5500, 3500, 5898];
+  static const _bioColumnWidths = [500, 5000, 3300, 5158];
 
   List<String> get _sampleHeaders => [
         '#',
@@ -729,7 +796,7 @@ class ProtocolExportService {
         _l.analysisResultLabel,
         _l.analysisNotesLabel,
       ];
-  static const _sampleColumnWidths = [500, 1800, 2000, 2200, 2000, 3600, 3298];
+  static const _sampleColumnWidths = [500, 1800, 2000, 2200, 2000, 3000, 2458];
 
   /// A gázmérések sorai: pontonként, vegyületenként egy sor.
   List<List<String>> _gasRows(List<MeasurementPoint> points) {
@@ -758,45 +825,92 @@ class ProtocolExportService {
       '<w:spacing w:after="120" w:before="200"/></w:pPr>'
       '<w:r><w:t xml:space="preserve">${_xmlEscape(_l.protoVictimsHeading)}</w:t></w:r></w:p>';
 
-  /// Word-táblázat a jegyzőkönyv stílusában (sötét fejléc, keretes cellák).
-  String _tableXml(
-    List<String> headers,
-    List<List<String>> rows,
-    List<int> widths, {
-    int fontSize = 18,
-  }) {
-    final sz = '<w:sz w:val="$fontSize"/><w:szCs w:val="$fontSize"/>';
-    final out = StringBuffer(
-      '<w:tbl><w:tblPr><w:tblW w:type="dxa" w:w="15398"/><w:tblBorders>'
+  /// Tábla-szöveg mérete (fél pontban): 10 pt, a nyomtatott olvashatóságért.
+  static const _tableFontSize = 20;
+
+  /// Oldalmargó (2,54 cm) minden oldalon.
+  static const _protocolPageMarginXml =
+      '<w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" '
+      'w:header="708" w:footer="708" w:gutter="0"/>';
+
+  static const _protocolTableBorders =
+      '<w:tblBorders>'
       '<w:top w:val="single" w:color="auto" w:sz="4"/>'
       '<w:left w:val="single" w:color="auto" w:sz="4"/>'
       '<w:bottom w:val="single" w:color="auto" w:sz="4"/>'
       '<w:right w:val="single" w:color="auto" w:sz="4"/>'
       '<w:insideH w:val="single" w:color="auto" w:sz="4"/>'
       '<w:insideV w:val="single" w:color="auto" w:sz="4"/>'
-      '</w:tblBorders></w:tblPr><w:tblGrid>',
+      '</w:tblBorders>';
+
+  static const _protocolTableLayout = '<w:tblLayout w:type="fixed"/>';
+
+  static const _protocolCellMargins =
+      '<w:tblCellMar><w:top w:w="40" w:type="dxa"/>'
+      '<w:left w:w="100" w:type="dxa"/>'
+      '<w:bottom w:w="40" w:type="dxa"/>'
+      '<w:right w:w="100" w:type="dxa"/></w:tblCellMar>';
+
+  /// Oszlopszélességek (twip). Mindegyik összesen 13958 (A4 fekvő, 2,54 cm margóval).
+  static const _pointTableWidths = [450, 1600, 1850, 1150, 1250, 1550, 1750, 1800, 2558];
+  static const _sourceTableWidths = [450, 1900, 2100, 2900, 2300, 2300, 2008];
+  static const _dosimeterTableWidths = [450, 2000, 2400, 2400, 3200, 1900, 1608];
+
+  /// A sablon pontos táblázatából ezek a cellák megszűnnek: az egység az érték,
+  /// a GPS-pontosság a koordináta, a fénykép a megjegyzés mellé kerül.
+  static const _pointRemovedMarkers = [
+    r'${points.unit}',
+    r'${points.accuracy}',
+    r'${points.photo}',
+    r'${lbl_col_unit}',
+    r'${lbl_col_gps_accuracy}',
+    r'${lbl_col_photo}',
+  ];
+
+  /// A meteorológiai táblázat két részének oszlopszélessége (8 oszlop).
+  static const _meteoSplitWidths = [448, 1930, 1930, 1930, 1930, 1930, 1930, 1930];
+
+  /// Word-táblázat a jegyzőkönyv stílusában: sötét fejléc, keretes cellák,
+  /// rögzített oszlopszélesség. A szöveg középre igazodik, kivéve a [leftCols]
+  /// oszlopait. A sorok nem törnek két oldal közé, a fejléc minden oldalon megismétlődik.
+  String _tableXml(
+    List<String> headers,
+    List<List<String>> rows,
+    List<int> widths, {
+    Set<int> leftCols = const {},
+  }) {
+    final total = widths.fold<int>(0, (sum, w) => sum + w);
+    final sz = '<w:sz w:val="$_tableFontSize"/><w:szCs w:val="$_tableFontSize"/>';
+    final out = StringBuffer(
+      '<w:tbl><w:tblPr><w:tblW w:type="dxa" w:w="$total"/>'
+      '$_protocolTableBorders$_protocolTableLayout$_protocolCellMargins'
+      '</w:tblPr><w:tblGrid>',
     );
     for (final w in widths) {
       out.write('<w:gridCol w:w="$w"/>');
     }
-    out.write('</w:tblGrid><w:tr><w:trPr><w:tblHeader/></w:trPr>');
+    out.write('</w:tblGrid>');
+    out.write('<w:tr><w:trPr><w:cantSplit/><w:tblHeader/></w:trPr>');
     for (var i = 0; i < headers.length; i++) {
       out.write(
         '<w:tc><w:tcPr><w:tcW w:type="dxa" w:w="${widths[i]}"/>'
-        '<w:shd w:fill="2F2F2F" w:val="clear"/></w:tcPr>'
-        '<w:p><w:r><w:rPr><w:b/><w:bCs/><w:color w:val="FFFFFF"/>$sz</w:rPr>'
+        '<w:shd w:fill="2F2F2F" w:val="clear"/><w:vAlign w:val="center"/></w:tcPr>'
+        '${_cellParagraphOpen(left: leftCols.contains(i))}'
+        '<w:r><w:rPr><w:b/><w:bCs/><w:color w:val="FFFFFF"/>$sz</w:rPr>'
         '<w:t xml:space="preserve">${_xmlEscape(headers[i])}</w:t>'
         '</w:r></w:p></w:tc>',
       );
     }
     out.write('</w:tr>');
     for (final row in rows) {
-      out.write('<w:tr>');
+      out.write('<w:tr><w:trPr><w:cantSplit/></w:trPr>');
       for (var i = 0; i < widths.length; i++) {
         final value = i < row.length ? row[i] : '—';
         out.write(
-          '<w:tc><w:tcPr><w:tcW w:type="dxa" w:w="${widths[i]}"/></w:tcPr>'
-          '<w:p><w:r><w:rPr>$sz</w:rPr>'
+          '<w:tc><w:tcPr><w:tcW w:type="dxa" w:w="${widths[i]}"/>'
+          '<w:vAlign w:val="center"/></w:tcPr>'
+          '${_cellParagraphOpen(left: leftCols.contains(i))}'
+          '<w:r><w:rPr>$sz</w:rPr>'
           '<w:t xml:space="preserve">${_xmlEscape(value)}</w:t>'
           '</w:r></w:p></w:tc>',
         );
@@ -807,12 +921,153 @@ class ProtocolExportService {
     return out.toString();
   }
 
+  /// A cella bekezdésének nyitó tagja: kis függőleges térköz; a [left] oszlopok
+  /// szövege balra, a többi középre igazodik.
+  String _cellParagraphOpen({required bool left}) =>
+      '<w:p><w:pPr><w:spacing w:before="40" w:after="40" w:line="240" '
+      'w:lineRule="auto"/>${left ? '' : '<w:jc w:val="center"/>'}</w:pPr>';
+
+  /// A sor nem törhet két oldal közé.
+  String _withCantSplit(String row) => row.contains('<w:trPr>')
+      ? row.replaceFirst('<w:trPr>', '<w:trPr><w:cantSplit/>')
+      : row.replaceFirst('<w:tr>', '<w:tr><w:trPr><w:cantSplit/></w:trPr>');
+
+  /// A sablon táblázatait a jegyzőkönyv elrendezéséhez igazítja: oszlopszélesség,
+  /// függőleges és vízszintes igazítás, sortörés-tiltás, egységes betűméret.
+  /// A [removeMarkers]-t tartalmazó cellákat eltávolítja.
+  String _styleTemplateTables(String xml) => xml.replaceAllMapped(
+        RegExp(r'<w:tbl>.*?</w:tbl>', dotAll: true),
+        (m) {
+          final table = m.group(0)!;
+          if (table.contains(r'${points.')) {
+            return _restyleTemplateTable(
+              table,
+              _pointTableWidths,
+              leftCols: const {1, 8},
+              removeMarkers: _pointRemovedMarkers,
+            );
+          }
+          if (table.contains(r'${sources.')) {
+            return _restyleTemplateTable(
+              table,
+              _sourceTableWidths,
+              leftCols: const {1, 3},
+            );
+          }
+          if (table.contains(r'${dosimeters.')) {
+            return _restyleTemplateTable(
+              table,
+              _dosimeterTableWidths,
+              leftCols: const {3},
+            );
+          }
+          return table;
+        },
+      );
+
+  String _restyleTemplateTable(
+    String table,
+    List<int> widths, {
+    required Set<int> leftCols,
+    List<String> removeMarkers = const [],
+  }) {
+    var t = table;
+    if (removeMarkers.isNotEmpty) {
+      t = t.replaceAllMapped(RegExp(r'<w:tc>.*?</w:tc>', dotAll: true), (m) {
+        final cell = m.group(0)!;
+        return removeMarkers.any((mk) => cell.contains(mk)) ? '' : cell;
+      });
+    }
+    t = t.replaceAllMapped(RegExp(r'<w:tr>.*?</w:tr>', dotAll: true), (m) {
+      var col = 0;
+      final row = m.group(0)!.replaceAllMapped(
+        RegExp(r'<w:tc>.*?</w:tc>', dotAll: true),
+        (c) {
+          final i = col++;
+          if (i >= widths.length) return c.group(0)!;
+          return _restyleTemplateCell(
+            c.group(0)!,
+            widths[i],
+            leftCols.contains(i),
+          );
+        },
+      );
+      return _withCantSplit(row);
+    });
+    final total = widths.fold<int>(0, (sum, w) => sum + w);
+    final grid = [for (final w in widths) '<w:gridCol w:w="$w"/>'].join();
+    return t
+        .replaceFirst(
+          RegExp(r'<w:tblW [^>]*/>'),
+          '<w:tblW w:type="dxa" w:w="$total"/>',
+        )
+        .replaceFirst(
+          RegExp(r'<w:tblGrid>.*?</w:tblGrid>', dotAll: true),
+          '<w:tblGrid>$grid</w:tblGrid>',
+        )
+        .replaceFirst(
+          '</w:tblPr>',
+          '$_protocolTableLayout$_protocolCellMargins</w:tblPr>',
+        )
+        .replaceAll(
+          RegExp(r'<w:sz w:val="\d+"/><w:szCs w:val="\d+"/>'),
+          '<w:sz w:val="$_tableFontSize"/><w:szCs w:val="$_tableFontSize"/>',
+        );
+  }
+
+  String _restyleTemplateCell(String cell, int width, bool left) => cell
+      .replaceFirst(
+        RegExp(r'<w:tcW [^>]*/>'),
+        '<w:tcW w:type="dxa" w:w="$width"/>',
+      )
+      .replaceFirst('</w:tcPr>', '<w:vAlign w:val="center"/></w:tcPr>')
+      .replaceFirst('<w:p><w:r>', '${_cellParagraphOpen(left: left)}<w:r>');
+
+  /// A jegyzőkönyv stílusai: nagyobb alapbetű és címsorok a nyomtatáshoz.
+  String _withProtocolStyles(String styles) => styles
+      .replaceFirst(
+        '<w:docDefaults><w:rPrDefault/><w:pPrDefault/></w:docDefaults>',
+        '<w:docDefaults><w:rPrDefault><w:rPr><w:sz w:val="22"/>'
+        '<w:szCs w:val="22"/></w:rPr></w:rPrDefault>'
+        '<w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="276" '
+        'w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>',
+      )
+      .replaceFirst(
+        '<w:color w:val="2E74B5"/><w:sz w:val="32"/><w:szCs w:val="32"/>',
+        '<w:color w:val="2E74B5"/><w:sz w:val="36"/><w:szCs w:val="36"/>',
+      )
+      .replaceFirst(
+        '<w:color w:val="2E74B5"/><w:sz w:val="26"/><w:szCs w:val="26"/>',
+        '<w:color w:val="2E74B5"/><w:sz w:val="30"/><w:szCs w:val="30"/>',
+      );
+
+  /// A meteorológiai táblázat két, egymás alatti részre bontva: a 15 oszlop egy
+  /// sorban olvashatatlanul szűk lenne. Mindkét részben a sorszám szerepel.
+  String _meteoTablesXml(List<List<String>> rows) {
+    final headers = _meteoHeaders;
+    const split = 8;
+    String at(List<String> row, int i) => i < row.length ? row[i] : '—';
+    final rest = [for (var i = split; i < headers.length; i++) i];
+    final first = _tableXml(
+      [for (var i = 0; i < split; i++) headers[i]],
+      [for (final r in rows) [for (var i = 0; i < split; i++) at(r, i)]],
+      _meteoSplitWidths,
+    );
+    final second = _tableXml(
+      [headers[0], for (final i in rest) headers[i]],
+      [for (final r in rows) [at(r, 0), for (final i in rest) at(r, i)]],
+      _meteoSplitWidths,
+    );
+    return '$first<w:p/>$second';
+  }
+
   String _victimTableXml(List<Map<String, String>> rows) => _tableXml(
         _victimHeaders,
         [
           for (final r in rows) [for (final k in _victimKeys) r[k] ?? '—'],
         ],
         _victimColumnWidths,
+        leftCols: const {1, 3, 4},
       );
 
   /// A doziméter-táblázat oszlopainak kulcsai (a sablon `${dosimeters.*}` helyőrzői).
@@ -847,8 +1102,8 @@ class ProtocolExportService {
   Map<String, String> _dosimeterValues(int index, SessionDosimeter d) {
     String reading() {
       if (!d.kind.electronic) return '—';
-      final start = d.startUsv == null ? '—' : formatDoseText(d.startUsv!);
-      final end = d.endUsv == null ? '—' : formatDoseText(d.endUsv!);
+      final start = d.startUsv == null ? '—' : _dec(formatDoseText(d.startUsv!));
+      final end = d.endUsv == null ? '—' : _dec(formatDoseText(d.endUsv!));
       return '$start → $end';
     }
 
@@ -859,7 +1114,7 @@ class ProtocolExportService {
       'identifier': d.identifier,
       'person': d.personName ?? '—',
       'reading': reading(),
-      'dose': dose == null ? '—' : formatDoseText(dose),
+      'dose': dose == null ? '—' : _dec(formatDoseText(dose)),
       'counted': d.includeAnnual ? _l.protoYes : _l.protoNo,
     };
   }
@@ -871,7 +1126,7 @@ class ProtocolExportService {
     final radiation = RadiationKind.fromDbValue(point.radiationKind).localized(_l);
     if (point.type == MeasurementType.doseRate) {
       final q = DoseQuantity.fromDbValue(point.doseQuantity);
-      final depth = point.doseDepthMm == null ? '' : ' d=${point.doseDepthMm} mm';
+      final depth = point.doseDepthMm == null ? '' : ' d=${_dec('${point.doseDepthMm}')} mm';
       return '$base (${q.symbol}$depth; $radiation)';
     }
     if (point.type == MeasurementType.countRate) {
@@ -909,8 +1164,8 @@ class ProtocolExportService {
   String _positionText(double lat, double lon, PlanCalibration? plan) {
     if (plan != null && plan.localCoordinates) {
       final m = planLocalMetres(plan, lat, lon);
-      return '${_l.planLocalCoordLabel}: X ${m.x.toStringAsFixed(2)} m, '
-          'Y ${m.y.toStringAsFixed(2)} m';
+      return '${_l.planLocalCoordLabel}: X ${_dec(m.x.toStringAsFixed(2))} m, '
+          'Y ${_dec(m.y.toStringAsFixed(2))} m';
     }
     return '${lat.toStringAsFixed(6)}, ${lon.toStringAsFixed(6)}';
   }
@@ -936,12 +1191,13 @@ class ProtocolExportService {
 
   /// A térképi források szakasza a Word-jegyzőkönyvbe.
   String _mapSourcesDocxXml(List<MapSourceEntry> sources, PlanCalibration? plan) {
-    final heading = '<w:p><w:r><w:rPr><w:b/><w:sz w:val="26"/></w:rPr>'
+    final heading = '<w:p><w:r><w:rPr><w:b/><w:sz w:val="30"/></w:rPr>'
         '<w:t xml:space="preserve">${_xmlEscape(_l.protoSourcesOnMapHeading)}</w:t></w:r></w:p>';
     return '$heading${_tableXml(
       ['#', _l.protoColIdentifier, _l.nuclideLabel, _l.protoColPosition],
       _mapSourceRowValues(sources, plan),
-      const [700, 3200, 4000, 7498],
+      const [600, 2900, 3600, 6858],
+      leftCols: const {1, 3},
     )}<w:p/>';
   }
 
@@ -1007,26 +1263,29 @@ class ProtocolExportService {
     PlanCalibration? plan,
   ) {
     final instrument = instrumentById[point.instrumentId];
+    final shown = displayValueOf(point);
+    // A mértékegység az érték mellé kerül, így nincs külön egység-oszlop.
+    final unitSuffix = shown.unit.isEmpty ? '' : ' ${shown.unit}';
     return {
       'idx': '${index + 1}',
-      'location': point.locationLabel ?? '—',
+      'location': _pointLocation(point),
       'type': _typeCell(point),
       'value': point.type == MeasurementType.spectrum
-          ? spectrumSummaryLine(_l, point)
-          : displayValueOf(point).value == null
+          ? _dec(spectrumSummaryLine(_l, point))
+          : shown.value == null
           ? '—'
-          : formatValueWithError(displayValueOf(point).value!, displayValueOf(point).error) +
+          : _dec(formatValueWithError(shown.value!, shown.error)) +
+              unitSuffix +
               (point.averagingSamples == null
                   ? ''
                   : ' (n=${point.averagingSamples}'
-                      '${point.averagingSeconds == null ? '' : ', ${point.averagingSeconds} s'})'),
-      'unit': displayValueOf(point).unit,
+                      '${point.averagingSeconds == null ? '' : ', ${_dec('${point.averagingSeconds}')} s'})'),
       'distance': point.distanceFromSourceMeters == null
           ? '—'
-          : double.parse(DistanceUnitController.current
+          : _dec(double.parse(DistanceUnitController.current
                   .fromMeters(point.distanceFromSourceMeters!)
                   .toStringAsFixed(2))
-              .toString(),
+              .toString()),
       'instrument': _instrumentText(
         instrument,
         instrument?.id == null
@@ -1034,16 +1293,30 @@ class ProtocolExportService {
             : (calibrationsByInstrument[instrument!.id!] ?? const []),
         point.timestamp,
       ),
-      'gps': _pointPositionText(point, plan),
-      'accuracy': point.gpsAccuracyMeters == null
-          ? '—'
-          : DistanceUnitController.current
-              .fromMeters(point.gpsAccuracyMeters!)
-              .toStringAsFixed(1),
+      'gps': _gpsWithAccuracy(_pointPositionText(point, plan), point),
       'timestamp': _dateFormat.format(point.timestamp),
-      'photo': point.photoPath == null ? '—' : _photoFileName(point),
-      'notes': _withSpectrumFileNote(_notesWithNuclides(point), point),
+      'notes': _withPhotoNote(
+        _withSpectrumFileNote(_notesWithNuclides(point), point),
+        point,
+      ),
     };
+  }
+
+  /// A GPS-koordináta a pontossággal együtt, pl. "47.4979, 19.0402 (±3.2 m)".
+  String _gpsWithAccuracy(String position, MeasurementPoint point) {
+    final accuracy = point.gpsAccuracyMeters;
+    if (accuracy == null || position == '—') return position;
+    final unit = DistanceUnitController.current;
+    final value = _dec(unit.fromMeters(accuracy).toStringAsFixed(1));
+    return '$position (±$value ${unit.symbol})';
+  }
+
+  /// A fénykép fájlneve a megjegyzés végére kerül (külön oszlop helyett).
+  String _withPhotoNote(String notes, MeasurementPoint point) {
+    if (point.photoPath == null) return notes;
+    final photo = '${_l.protoColPhoto}: ${_photoFileName(point)}';
+    final base = notes.trim();
+    return base.isEmpty || base == '—' ? photo : '$base · $photo';
   }
 
   /// A sugárforrás-elemzés egy sora, vagy null, ha a pontnak nincs hozzárendelt
@@ -1065,25 +1338,25 @@ class ProtocolExportService {
 
     return {
       'idx': '${index + 1}',
-      'location': point.locationLabel ?? '—',
+      'location': _pointLocation(point),
       'estimated_activity': estimatedActivity ?? '—',
       'attached': attached.isEmpty
           ? '—'
           : attached
               .map((a) =>
                   '${a.source.identifier} (${a.source.nuclideName}, '
-                  '${formatDistanceMeters(a.link.distanceMeters)})')
+                  '${_dec(formatDistanceMeters(a.link.distanceMeters))})')
               .join('; '),
       'calculated_total': hasCalculatedTotal
-          ? formatDoseRateUSvH(calculatedTotalUSvH)
+          ? _dec(formatDoseRateUSvH(calculatedTotalUSvH))
           : '—',
       'measured': measuredUSvH != null
-          ? formatDoseRateUSvH(measuredUSvH)
+          ? _dec(formatDoseRateUSvH(measuredUSvH))
           : (point.value == null
               ? '—'
-              : '${point.value!.toStringAsFixed(2)} ${point.unit}'),
+              : '${_dec(point.value!.toStringAsFixed(2))} ${point.unit}'),
       'diff': (measuredUSvH != null && hasCalculatedTotal)
-          ? formatDoseRateUSvH(measuredUSvH - calculatedTotalUSvH)
+          ? _dec(formatDoseRateUSvH(measuredUSvH - calculatedTotalUSvH))
           : '—',
     };
   }
@@ -1091,8 +1364,12 @@ class ProtocolExportService {
   /// A jegyzőkönyv PDF-változata: ugyanazok az adatok (fejléc, mérési pontok,
   /// sugárforrás-elemzés, aláírás-sor), a fényképek a mérési pontra utaló
   /// feliratokkal. Visszaadja a létrehozott .pdf fájlt.
-  Future<File> exportSurveyPdf(int surveySessionId, AppLocalizations loc) async {
-    _begin(loc);
+  Future<File> exportSurveyPdf(
+    int surveySessionId,
+    AppLocalizations loc, {
+    ProtocolExportOptions options = const ProtocolExportOptions(),
+  }) async {
+    _begin(loc, options);
     final inputs = await _loadInputs(surveySessionId);
     final session = inputs.session;
     final points = inputs.points;
@@ -1102,8 +1379,8 @@ class ProtocolExportService {
     final unitSymbol = DistanceUnitController.current.symbol;
 
     const pointKeys = [
-      'idx', 'location', 'type', 'value', 'unit', 'distance', 'instrument',
-      'gps', 'accuracy', 'timestamp', 'notes',
+      'idx', 'location', 'type', 'value', 'distance', 'instrument',
+      'gps', 'timestamp', 'notes',
     ];
     const sourceKeys = [
       'idx', 'location', 'estimated_activity', 'attached',
@@ -1141,7 +1418,7 @@ class ProtocolExportService {
             caption: _l.protoSpectrumCaption(
               '${i + 1}',
               SpectrumKind.fromDbValue(point.spectrumKind).localized(_l),
-              point.locationLabel ?? '—',
+              _pointLocation(point),
             ),
             path: chart,
           ));
@@ -1149,15 +1426,16 @@ class ProtocolExportService {
       }
 
       final photoPath = point.photoPath;
-      if (photoPath != null) {
+      if (photoPath != null && _options.includeImages) {
         photos.add(ProtocolPhoto(
           caption: _l.protoPhotoCaption(
             '${i + 1}',
             point.type.localized(_l),
-            point.locationLabel ?? '—',
+            _pointLocation(point),
             _dateFormat.format(point.timestamp),
           ),
           path: photoPath,
+          bytes: await _preparedImageBytes(File(photoPath), asJpeg: true),
         ));
       }
     }
@@ -1165,16 +1443,23 @@ class ProtocolExportService {
     // A felméréshez mentett képernyőképek (időrendben), a PDF-be ágyazva.
     final shots = await ScreenshotService.listScreenshots(surveySessionId);
     shots.sort((a, b) => a.path.compareTo(b.path));
-    final screenshotItems = [
-      for (final shot in shots)
-        ProtocolPhoto(caption: _screenshotCaption(shot), path: shot.path),
-    ];
+    final screenshotItems = <ProtocolPhoto>[];
+    if (_options.includeImages) {
+      for (final shot in shots) {
+        screenshotItems.add(ProtocolPhoto(
+          caption: _screenshotCaption(shot),
+          path: shot.path,
+          bytes: await _preparedImageBytes(shot, asJpeg: false),
+        ));
+      }
+    }
 
     final classification = await loadSurveyClassification(surveySessionId);
     final mapSources = await _loadMapSources(surveySessionId);
     final planPng = await _planFigureFor(session, points, mapSources);
     final phantomFigures = await _phantomFiguresFor(inputs.victims);
     final data = ProtocolPdfData(
+      decimalSeparator: _sep,
       planImage: planPng,
       planCaption: _l.protoPlanCaption,
       mapSourceHeaders: [
@@ -1204,13 +1489,11 @@ class ProtocolExportService {
         _l.protoLocation,
         _l.protoColType,
         _l.protoColValue,
-        _l.protoColUnit,
         _l.protoColDistance(unitSymbol),
         _l.protoColInstrument,
         session.planCalibration?.localCoordinates == true
             ? _l.planLocalCoordLabel
             : _l.protoColGps,
-        _l.protoColGpsAccuracy(unitSymbol),
         _l.protoColTime,
         _l.protoNotes,
       ],
@@ -1273,7 +1556,7 @@ class ProtocolExportService {
     );
 
     final bytes = await ProtocolPdfBuilder.build(data, _l);
-    // A PDF az ideiglenes mappába kerül; a régi jegyzőkönyv-PDF-ek törlődnek.
+    // A PDF az ideiglenes mappába kerül; a korábbi `_jegyzokonyv` nevű exportok törlődnek.
     final tmpDir = await getTemporaryDirectory();
     await _removeOldProtocolFiles(tmpDir.path, '.pdf');
     if (Platform.isAndroid || Platform.isIOS) {
@@ -1284,7 +1567,7 @@ class ProtocolExportService {
     }
     final pdfFile = File(p.join(
       tmpDir.path,
-      '${_safeFileName(session.title)}_jegyzokonyv.pdf',
+      '${_safeFileName(session.title)}.pdf',
     ));
     await pdfFile.writeAsBytes(bytes);
     return pdfFile;
@@ -1305,15 +1588,6 @@ class ProtocolExportService {
     return '$base · ${_dateFormat.format(when)}';
   }
 
-  Future<Directory> _prepareOutputDir(SurveySession session) async {
-    final tempRoot = await getTemporaryDirectory();
-    final dir = Directory(
-      p.join(tempRoot.path, 'rad_recon_export_${session.id}'),
-    );
-    if (await dir.exists()) await dir.delete(recursive: true);
-    await dir.create(recursive: true);
-    return dir;
-  }
 
   String _photoFileName(MeasurementPoint point) {
     final ext = p.extension(point.photoPath!);
@@ -1332,9 +1606,7 @@ class ProtocolExportService {
     );
     final notes = point.notes;
     if (nuclideText.isEmpty) return notes ?? '—';
-    return notes == null
-        ? _l.protoNuclideIdPrefix(nuclideText)
-        : '${_l.protoNuclideIdPrefix(nuclideText)}. $notes';
+    return notes == null ? nuclideText : '$nuclideText. $notes';
   }
 
   String _safeFileName(String input) =>
@@ -1367,9 +1639,66 @@ class ProtocolExportService {
     return rels.replaceFirst('</Relationships>', '$add</Relationships>');
   }
 
-  String _withPngContentType(String types) {
-    if (types.contains('Extension="png"')) return types;
-    return types.replaceFirst('</Types>', '<Default Extension="png" ContentType="image/png"/></Types>');
+  String _withImageContentTypes(String types, Set<String> exts) {
+    var out = types;
+    for (final ext in exts) {
+      if (out.contains('Extension="$ext"')) continue;
+      out = out.replaceFirst(
+          '</Types>', '<Default Extension="$ext" ContentType="image/$ext"/></Types>');
+    }
+    return out;
+  }
+
+  /// PNG vagy JPEG kép formátuma és pixelmérete a tartalma alapján.
+  /// Más formátumnál vagy olvashatatlan fejlécnél null.
+  ({String ext, int w, int h})? _embeddableImageInfo(List<int> b) {
+    if (b.length >= 24 && b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47) {
+      int be32(int o) => (b[o] << 24) | (b[o + 1] << 16) | (b[o + 2] << 8) | b[o + 3];
+      return (ext: 'png', w: be32(16), h: be32(20));
+    }
+    if (b.length >= 4 && b[0] == 0xFF && b[1] == 0xD8) {
+      var i = 2;
+      while (i + 9 < b.length) {
+        if (b[i] != 0xFF) {
+          i++;
+          continue;
+        }
+        final marker = b[i + 1];
+        if (marker == 0xFF) {
+          i++;
+          continue;
+        }
+        if (marker >= 0xC0 && marker <= 0xCF && marker != 0xC4 && marker != 0xC8 && marker != 0xCC) {
+          final h = (b[i + 5] << 8) | b[i + 6];
+          final w = (b[i + 7] << 8) | b[i + 8];
+          return (ext: 'jpeg', w: w, h: h);
+        }
+        if (marker == 0xD8 || marker == 0x01 || (marker >= 0xD0 && marker <= 0xD7)) {
+          i += 2;
+          continue;
+        }
+        i += 2 + ((b[i + 2] << 8) | b[i + 3]);
+      }
+    }
+    return null;
+  }
+
+  /// Az ábra mérete EMU-ban. A fotó aránya megmarad: szélessége legfeljebb
+  /// 16 cm, magassága legfeljebb 12 cm, így nem torzul.
+  ({int cx, int cy}) _figureExtent(String rId, List<int> bytes) {
+    if (rId.startsWith('rIdPhantom')) return (cx: 3600000, cy: 3130000);
+    final keepAspect = rId.startsWith('rIdPointPhoto') || rId.startsWith('rIdShot');
+    final info = keepAspect ? _embeddableImageInfo(bytes) : null;
+    if (info == null) return (cx: 5760000, cy: 2880000);
+    const maxCx = 5760000;
+    const maxCy = 4320000;
+    var cx = maxCx;
+    var cy = (maxCx * info.h / info.w).round();
+    if (cy > maxCy) {
+      cy = maxCy;
+      cx = (maxCy * info.w / info.h).round();
+    }
+    return (cx: cx, cy: cy);
   }
 
   /// A felmérés besorolása WordprocessingML-ben: összesítő sorok és táblázat.
@@ -1457,14 +1786,14 @@ class ProtocolExportService {
     return out.toString();
   }
 
-  static String _fmtR(double v) {
+  String _fmtR(double v) {
     if (v == 0) return '0';
     final a = v.abs();
-    if (a >= 1e5 || a < 1e-3) return v.toStringAsExponential(2);
-    return v.toStringAsPrecision(3);
+    if (a >= 1e5 || a < 1e-3) return _dec(v.toStringAsExponential(2));
+    return _dec(v.toStringAsPrecision(3));
   }
 
-  /// Törli a korábbi jegyzőkönyv-fájlokat (`_jegyzokonyv.<ext>`) a mappából.
+  /// Törli a korábbi, `_jegyzokonyv.<ext>` nevű exportokat a mappából.
   Future<void> _removeOldProtocolFiles(String dirPath, String extension) async {
     final dir = Directory(dirPath);
     if (!await dir.exists()) return;
@@ -1508,12 +1837,12 @@ class ProtocolExportService {
     if (estimate == null) return null;
     final isotope = Isotope.findByName(nuclideName);
     final buf = StringBuffer(
-        '$nuclideName: ${formatActivityMBq(estimate.unshieldedMBq)} (${_l.protoUnshielded})');
+        '$nuclideName: ${_dec(formatActivityMBq(estimate.unshieldedMBq))} (${_l.protoUnshielded})');
     if (estimate.shieldedMBq != null) {
-      buf.write('; ${_l.protoShieldedActivity(formatActivityMBq(estimate.shieldedMBq!))}');
+      buf.write('; ${_l.protoShieldedActivity(_dec(formatActivityMBq(estimate.shieldedMBq!)))}');
     }
     // Bemenő adatok, hogy a becslés ellenőrizhető legyen.
-    buf.write('. ${_l.protoInputData(formatDoseRateUSvH(measuredUSvH), formatDistanceMeters(distance))}');
+    buf.write('. ${_l.protoInputData(_dec(formatDoseRateUSvH(measuredUSvH)), _dec(formatDistanceMeters(distance)))}');
     if (isotope != null) {
       buf.write(', Γ = ${_plainNumber(isotope.gammaConstant)} µSv·m²/(MBq·h)');
     }
@@ -1530,8 +1859,8 @@ class ProtocolExportService {
     return buf.toString();
   }
 
-  static String _plainNumber(double v) =>
-      double.parse(v.toStringAsPrecision(4)).toString();
+  String _plainNumber(double v) =>
+      _dec(double.parse(v.toStringAsPrecision(4)).toString());
 
   /// A műszer neve + a hitelesítés/kalibrálás adatai a mérés időpontjában
   /// érvényes bejegyzések alapján (lejárt esetén jelölve).
@@ -1621,6 +1950,7 @@ class ProtocolExportService {
     List<List<String>> handoverRows,
     List<List<String>> identityRows,
     List<ProtocolFigure> phantomFigures,
+    List<File> screenshots,
   ) async {
     final templateData = await rootBundle.load(_templateAssetPath);
     final templateArchive =
@@ -1632,7 +1962,15 @@ class ProtocolExportService {
         'A sablonban nem található word/document.xml — sérült sablonfájl.',
       ),
     );
-    var xml = utf8.decode(documentFile.content as List<int>);
+    var xml = _styleTemplateTables(
+      utf8.decode(documentFile.content as List<int>),
+    ).replaceAllMapped(
+      RegExp(r'<w:pgMar [^>]*/>'),
+      (_) => _protocolPageMarginXml,
+    ).replaceAllMapped(
+      RegExp(r'<w:spacing w:after="80"( w:before="\d+")?/>'),
+      (m) => '<w:spacing w:after="160"${m.group(1) ?? ''} w:line="300" w:lineRule="auto"/>',
+    );
 
     // A ${points.*} placeholdereket tartalmazó <w:tr> a repeatelendő sablonsor.
     const rowMarker = r'${points.';
@@ -1778,42 +2116,63 @@ class ProtocolExportService {
           [_l.protoFieldsColField, _l.protoFieldsColValue],
           [for (final (label, value) in protocolFieldPairs) [label, value]],
           _fieldColumnWidths,
+          leftCols: const {0, 1},
         ));
     }
     if (areaRows.isNotEmpty) {
       extraBlock
         ..write(_headingXmlFor(_l.protoAreasHeading))
-        ..write(_tableXml(_areaHeaders, areaRows, _areaColumnWidths));
+        ..write(_tableXml(
+          _areaHeaders,
+          areaRows,
+          _areaColumnWidths,
+          leftCols: const {1, 2, 3},
+        ));
     }
     if (meteo.isNotEmpty) {
       extraBlock
         ..write(_headingXmlFor(_l.protoMeteoHeading))
-        ..write(_tableXml(_meteoHeaders, meteo, _meteoColumnWidths, fontSize: 14));
+        ..write(_meteoTablesXml(meteo));
     }
     if (gas.isNotEmpty) {
       extraBlock
         ..write(_headingXmlFor(_l.protoGasHeading))
-        ..write(_tableXml(_gasHeaders, gas, _gasColumnWidths));
+        ..write(_tableXml(_gasHeaders, gas, _gasColumnWidths, leftCols: const {1}));
     }
     if (bioRows.isNotEmpty) {
       extraBlock
         ..write(_headingXmlFor(_l.protoBioHeading))
-        ..write(_tableXml(_bioHeaders, bioRows, _bioColumnWidths));
+        ..write(_tableXml(_bioHeaders, bioRows, _bioColumnWidths, leftCols: const {1, 2}));
     }
     if (sampleRows.isNotEmpty) {
       extraBlock
         ..write(_headingXmlFor(_l.protoSampleAnalysesHeading))
-        ..write(_tableXml(_sampleHeaders, sampleRows, _sampleColumnWidths));
+        ..write(_tableXml(
+          _sampleHeaders,
+          sampleRows,
+          _sampleColumnWidths,
+          leftCols: const {1, 2, 4, 5, 6},
+        ));
     }
     if (handoverRows.isNotEmpty) {
       extraBlock
         ..write(_headingXmlFor(_l.protoHandoverHeading))
-        ..write(_tableXml(_handoverHeaders, handoverRows, _handoverColumnWidths));
+        ..write(_tableXml(
+          _handoverHeaders,
+          handoverRows,
+          _handoverColumnWidths,
+          leftCols: const {1, 6, 7},
+        ));
     }
     if (identityRows.isNotEmpty) {
       extraBlock
         ..write(_headingXmlFor(_l.protoIdentityHeading))
-        ..write(_tableXml(_identityHeaders, identityRows, _identityColumnWidths));
+        ..write(_tableXml(
+          _identityHeaders,
+          identityRows,
+          _identityColumnWidths,
+          leftCols: const {1, 2, 3},
+        ));
     }
     if (extraBlock.isNotEmpty) {
       xml = xml.replaceRange(signStart, signStart, extraBlock.toString());
@@ -1926,18 +2285,55 @@ class ProtocolExportService {
         caption: _l.protoSpectrumCaption(
           '${points.indexOf(point) + 1}',
           SpectrumKind.fromDbValue(point.spectrumKind).localized(_l),
-          point.locationLabel ?? '—',
+          _pointLocation(point),
         ),
         id: 9000 + n,
+      ));
+    }
+    // Minden pont fotója (JPEG/PNG) bekerül a jegyzőkönyvbe, kicsinyítve.
+    // A HEIC és más formátum nem ágyazható be, ezek a jegyzőkönyvben nem jelennek meg.
+    for (final point in points) {
+      if (!_options.includeImages) break;
+      final photo = point.photoPath;
+      if (photo == null || !await File(photo).exists()) continue;
+      final bytes = await _preparedImageBytes(File(photo), asJpeg: true);
+      final info = bytes == null ? null : _embeddableImageInfo(bytes);
+      if (bytes == null || info == null || info.w <= 0 || info.h <= 0) continue;
+      final n = figures.length + 1;
+      figures.add((
+        rId: 'rIdPointPhoto$n',
+        target: 'media/point_photo_$n.${info.ext}',
+        bytes: bytes,
+        caption: _l.protoPhotoCaption(
+          '${points.indexOf(point) + 1}',
+          point.type.localized(_l),
+          _pointLocation(point),
+          _dateFormat.format(point.timestamp),
+        ),
+        id: 9000 + n,
+      ));
+    }
+    // A képernyőképek is az ábrák közé kerülnek (PNG), mert külön mappa nincs.
+    for (final shot in screenshots) {
+      if (!_options.includeImages) break;
+      final bytes = await _preparedImageBytes(shot, asJpeg: false);
+      final info = bytes == null ? null : _embeddableImageInfo(bytes);
+      if (bytes == null || info == null || info.w <= 0 || info.h <= 0) continue;
+      final n = figures.length + 1;
+      figures.add((
+        rId: 'rIdShot$n',
+        target: 'media/screenshot_$n.${info.ext}',
+        bytes: bytes,
+        caption: _screenshotCaption(shot),
+        id: 9800 + n,
       ));
     }
     if (figures.isNotEmpty) {
       final figuresXml = StringBuffer();
       for (final f in figures) {
-        final phantom = f.rId.startsWith('rIdPhantom');
+        final extent = _figureExtent(f.rId, f.bytes);
         figuresXml.write(_spectrumFigureXml(f.rId, f.id, f.caption,
-            cx: phantom ? 3600000 : 5760000,
-            cy: phantom ? 3130000 : 2880000));
+            cx: extent.cx, cy: extent.cy));
       }
       final sectAt = xml.lastIndexOf('<w:sectPr');
       final insertAt = sectAt >= 0 ? sectAt : xml.lastIndexOf('</w:body>');
@@ -1954,6 +2350,10 @@ class ProtocolExportService {
           newDocumentBytes.length,
           newDocumentBytes,
         ));
+      } else if (file.name == 'word/styles.xml') {
+        final styles = _withProtocolStyles(utf8.decode(file.content as List<int>));
+        final bytes = utf8.encode(styles);
+        outputArchive.addFile(ArchiveFile(file.name, bytes.length, bytes));
       } else if (figures.isNotEmpty && file.name == 'word/_rels/document.xml.rels') {
         final rels = _withImageRels(
           utf8.decode(file.content as List<int>),
@@ -1962,7 +2362,10 @@ class ProtocolExportService {
         final bytes = utf8.encode(rels);
         outputArchive.addFile(ArchiveFile(file.name, bytes.length, bytes));
       } else if (figures.isNotEmpty && file.name == '[Content_Types].xml') {
-        final types = _withPngContentType(utf8.decode(file.content as List<int>));
+        final types = _withImageContentTypes(
+          utf8.decode(file.content as List<int>),
+          {for (final f in figures) p.extension(f.target).substring(1)},
+        );
         final bytes = utf8.encode(types);
         outputArchive.addFile(ArchiveFile(file.name, bytes.length, bytes));
       } else {

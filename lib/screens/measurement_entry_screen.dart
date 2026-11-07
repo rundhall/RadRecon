@@ -14,7 +14,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:file_picker/file_picker.dart';
 import 'package:geolocator/geolocator.dart';
+import 'dart:async';
+
 import 'package:image_picker/image_picker.dart';
+import '../models/hardware_button.dart';
+import '../services/hardware_buttons.dart';
 import 'package:latlong2/latlong.dart' as ll;
 import 'package:file_selector/file_selector.dart' as fs;
 
@@ -76,11 +80,13 @@ String _fmt(double v, int decimals) =>
 class MeasurementEntryScreen extends StatefulWidget {
   final int surveySessionId;
   final MeasurementPoint? existingPoint; // nem null: szerkesztés
+  final MeasurementPoint? templatePoint; // nem null: másolat ennek alapján
 
   const MeasurementEntryScreen({
     super.key,
     required this.surveySessionId,
     this.existingPoint,
+    this.templatePoint,
   });
 
   @override
@@ -89,6 +95,9 @@ class MeasurementEntryScreen extends StatefulWidget {
 
 class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   final _formKey = GlobalKey<FormState>();
+  late final ButtonCommandHandler _buttonHandler = _onButtonCommand;
+  bool _lastSaveOk = false;
+  DateTime? _discardArmedAt;
 
   MeasurementType _type = MeasurementType.doseRate;
   final _locationLabelCtrl = TextEditingController();
@@ -199,6 +208,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
   @override
   void initState() {
     super.initState();
+    HardwareButtons.register(_buttonHandler);
     _editingPoint = widget.existingPoint;
     if (_editingPoint == null) {
       // Új pont: az utoljára használt mérési típussal indul.
@@ -211,6 +221,9 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     if (_editingPoint != null) {
       _prefillFromExisting(_editingPoint!);
       _loadAttachedSources();
+    } else if (widget.templatePoint != null) {
+      _prefillCopyMetadata(widget.templatePoint!);
+      _loadTemplateSources();
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         // Alaprajz módban nincs automatikus GPS-kitöltés: a pozíciót az alaprajz adja.
@@ -257,6 +270,46 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     if (ok != true || id == null || !mounted) return;
     await DatabaseHelper.instance.deleteMeasurementPoint(id);
     if (mounted) Navigator.of(context).pop(true);
+  }
+
+  /// Másolat: a hely és a mérőbeállítások átkerülnek (eszköz, nuklidok,
+  /// árnyékolás, távolság, sugárzás- és dózis-beállítás). A mért érték, a
+  /// mintavétel, a spektrum, a fotó, a gázok és a meteorológia üres marad.
+  void _prefillCopyMetadata(MeasurementPoint t) {
+    _locationLabelCtrl.text = t.locationLabel ?? '';
+    _latCtrl.text = _fmt(t.latitude, 6);
+    _lonCtrl.text = _fmt(t.longitude, 6);
+    _gpsAccuracy = t.gpsAccuracyMeters;
+    _isSourcePosition = t.isSourcePosition;
+    _instrumentId = t.instrumentId;
+    _nuclideStatus = t.nuclideStatus;
+    _nuclides = [...t.nuclides];
+    for (final l in t.shieldingLayers) {
+      final e = _LayerEdit(l.material);
+      e.ctrl.text = QuantityField.formatNumber(e.unit.fromMeters(l.thicknessCm / 100));
+      _layers.add(e);
+    }
+    _distanceCtrl.text = t.distanceFromSourceMeters == null
+        ? ''
+        : QuantityField.formatNumber(
+            _distanceUnit.fromMeters(t.distanceFromSourceMeters!));
+    _radiation = RadiationKind.fromDbValue(t.radiationKind);
+    _doseQuantity = DoseQuantity.fromDbValue(t.doseQuantity);
+    _doseDepthMm = t.doseDepthMm;
+    _notesCtrl.text = t.notes ?? '';
+    if (t.isSample || t.type == MeasurementType.biological) {
+      // Minta vagy biológiai pont másolata megtartja a típusát, hogy az elemzések látszanak.
+      _type = t.type;
+      _isSample = t.isSample;
+      _unitCtrl.text = _displayUnitFor(_type);
+    }
+    if (t.isSample) {
+      _sampleContainerCtrl.text = t.sampleContainerId ?? '';
+      _sampleAmountCtrl.text = t.sampleAmount?.toString() ?? '';
+      _sampleUnit = SampleUnit.matchStored(t.sampleUnit);
+      if (_sampleUnit == SampleUnit.other) _sampleUnitCtrl.text = t.sampleUnit ?? '';
+      _sampleMethodCtrl.text = t.sampleMethod ?? '';
+    }
   }
 
   void _prefillFromExisting(MeasurementPoint p) {
@@ -371,6 +424,15 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     final instruments = await DatabaseHelper.instance.getInstruments();
     if (!mounted) return;
     setState(() => _instruments = instruments);
+  }
+
+  /// Másolatnál a sablon forrásai már látszanak; mentéskor átmásolódnak.
+  Future<void> _loadTemplateSources() async {
+    final id = widget.templatePoint?.id;
+    if (id == null) return;
+    final attached = await DatabaseHelper.instance.getAttachedSources(id);
+    if (!mounted) return;
+    setState(() => _attachedSources = attached);
   }
 
   Future<void> _loadAttachedSources() async {
@@ -1456,7 +1518,100 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     });
   }
 
-  Future<void> _pickPhoto() async {
+  /// Bluetooth-gomb parancsa. Ami ezen a képernyőn nem értelmezhető (pl. új
+  /// pont, automatikus rögzítés), azt false-szal a mögötte lévő képernyőre hagyja.
+  bool _onButtonCommand(ButtonCommand command) {
+    if (!mounted) return false;
+    if (command == ButtonCommand.savePoint) {
+      unawaited(_save());
+      return true;
+    }
+    if (command == ButtonCommand.saveAndNewPoint) {
+      unawaited(_saveAndNewPoint());
+      return true;
+    }
+    if (command == ButtonCommand.discardPoint) {
+      _discardPressed();
+      return true;
+    }
+    if (command == ButtonCommand.takePhoto) {
+      unawaited(_pickPhoto(directCamera: true));
+      return true;
+    }
+    if (command == ButtonCommand.modbusQuery) {
+      if (_selectedInstrument?.isModbusConnected != true || _isQueryingModbus) {
+        return false;
+      }
+      unawaited(_queryModbus());
+      return true;
+    }
+    if (command == ButtonCommand.modbusAveraging) {
+      if (_isAveraging) {
+        setState(() => _avgStop = true);
+        return true;
+      }
+      if (_selectedInstrument?.isModbusConnected != true) return false;
+      unawaited(_startModbusAveraging());
+      return true;
+    }
+    if (command == ButtonCommand.nextMeasurementType) {
+      _stepMeasurementType(1);
+      return true;
+    }
+    if (command == ButtonCommand.previousMeasurementType) {
+      _stepMeasurementType(-1);
+      return true;
+    }
+    if (command == ButtonCommand.toggleSourcePosition) {
+      setState(() => _isSourcePosition = !_isSourcePosition);
+      return true;
+    }
+    return false;
+  }
+
+  /// Mentés, majd új pont ugyanabban a felmérésben. A visszatérés a szerkesztő
+  /// helyére új példányt tesz, így a lista a sikeres mentést látja.
+  Future<void> _saveAndNewPoint() async {
+    await _save(popAfter: false);
+    if (!_lastSaveOk || !mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => MeasurementEntryScreen(
+          surveySessionId: widget.surveySessionId,
+        ),
+      ),
+      result: true,
+    );
+  }
+
+  /// Mérési típus léptetése; ugyanazt teszi, mint a típus-legördülő.
+  void _stepMeasurementType(int step) {
+    final values = MeasurementType.values;
+    final next =
+        values[(values.indexOf(_type) + step + values.length) % values.length];
+    setState(() {
+      _type = next;
+      _unitCtrl.text = _displayUnitFor(next);
+      _isSample = next == MeasurementType.sample;
+    });
+    LastMeasurementTypeController.remember(next);
+  }
+
+  /// Mégse, mentés nélkül. Az első nyomás csak figyelmeztet; a 3 másodpercen
+  /// belüli második nyomás zárja be a képernyőt. Mentett adat nem törlődik.
+  void _discardPressed() {
+    final now = DateTime.now();
+    final armedAt = _discardArmedAt;
+    if (armedAt != null &&
+        now.difference(armedAt) < const Duration(seconds: 3)) {
+      Navigator.of(context).pop(false);
+      return;
+    }
+    _discardArmedAt = now;
+    _showError(AppLocalizations.of(context)!.discardConfirmHint);
+  }
+
+  Future<void> _pickPhoto({bool directCamera = false}) async {
     final loc = AppLocalizations.of(context)!;
     final isDesktop =
         Platform.isWindows || Platform.isLinux || Platform.isMacOS;
@@ -1474,7 +1629,9 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       return;
     }
 
-    final source = await showModalBottomSheet<ImageSource>(
+    final ImageSource? source = directCamera
+        ? ImageSource.camera
+        : await showModalBottomSheet<ImageSource>(
       context: context,
       builder: (context) => SafeArea(
         child: Wrap(
@@ -1951,6 +2108,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     return MeasurementPoint(
       id: id,
       surveySessionId: widget.surveySessionId,
+      groupKey: _editingPoint?.groupKey ?? widget.templatePoint?.groupKey,
       locationLabel: _locationLabelCtrl.text.trim().isEmpty
           ? null
           : _locationLabelCtrl.text.trim(),
@@ -2067,14 +2225,25 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     }
 
     final point = _buildPointFromForm(latitude: latitude, longitude: longitude);
-    final id = await DatabaseHelper.instance.insertMeasurementPoint(point);
+    final id = await _insertNewPoint(point);
     if (!mounted) return null;
     final saved = point.copyWith(id: id);
     setState(() => _editingPoint = saved);
     return saved;
   }
 
-  Future<void> _save() async {
+  /// Új pont beszúrása. Másolatnál a forrás-kapcsolatok is átkerülnek az eredetiről.
+  Future<int> _insertNewPoint(MeasurementPoint point) async {
+    final db = DatabaseHelper.instance;
+    final id = await db.insertMeasurementPoint(point);
+    final sourceId = widget.templatePoint?.id;
+    if (sourceId != null) await db.copyPointSources(sourceId, id);
+    if (sourceId != null) await db.copySampleAnalyses(sourceId, id);
+    return id;
+  }
+
+  Future<void> _save({bool popAfter = true}) async {
+    _lastSaveOk = false;
     if (!_formKey.currentState!.validate()) return;
     final latitude = parseDecimal(_latCtrl.text);
     final longitude = parseDecimal(_lonCtrl.text);
@@ -2083,10 +2252,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       return;
     }
 
-    if (_type == MeasurementType.spectrum && _spectrumPath == null) {
-      _showError(AppLocalizations.of(context)!.spectrumFileRequiredError);
-      return;
-    }
+    // Spektrumpontot N42 fájl és fotó nélkül is lehet menteni; a spektrum
+    // a kiértékelésnél, a pont szerkesztésével később csatolható.
 
     // Azonosított / egyéb nuklidnál legalább egy nuklid nevét meg kell adni.
     if (_type.hasValue &&
@@ -2135,7 +2302,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
     if (!mounted) return;
 
     if (_editingPoint == null) {
-      await DatabaseHelper.instance.insertMeasurementPoint(point);
+      await _insertNewPoint(point);
     } else {
       await DatabaseHelper.instance.updateMeasurementPoint(
         _editingPoint!,
@@ -2143,7 +2310,8 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
       );
     }
 
-    if (mounted) Navigator.of(context).pop(true);
+    _lastSaveOk = true;
+    if (mounted && popAfter) Navigator.of(context).pop(true);
   }
 
   /// A mentés előtt figyelmeztet, ha a mért érték eléri/túllépi a
@@ -2205,6 +2373,7 @@ class _MeasurementEntryScreenState extends State<MeasurementEntryScreen> {
 
   @override
   void dispose() {
+    HardwareButtons.unregister(_buttonHandler);
     _latCtrl.dispose();
     _lonCtrl.dispose();
     _locationLabelCtrl.dispose();

@@ -83,6 +83,22 @@ class AppLocalizationsHu extends AppLocalizations {
   String get activityUnitLabel => 'Aktivitás alapegysége';
 
   @override
+  String get decimalSeparatorLabel => 'Tizedesjel a jegyzőkönyvben';
+
+  @override
+  String get decimalSeparatorHint =>
+      'A jegyzőkönyv (Word és PDF) számai ezt használják. A GPS-koordináták mindig ponttal jelennek meg.';
+
+  @override
+  String get decimalSeparatorAuto => 'Az alkalmazás nyelve szerint';
+
+  @override
+  String get decimalSeparatorComma => 'Vessző (1,5)';
+
+  @override
+  String get decimalSeparatorDot => 'Pont (1.5)';
+
+  @override
   String get distanceUnitLabel => 'Távolság alapegysége';
 
   @override
@@ -828,10 +844,27 @@ class AppLocalizationsHu extends AppLocalizations {
   String get protocolFormatTitle => 'Jegyzőkönyv formátuma';
 
   @override
-  String get protocolFormatWord => 'Word (ZIP: .docx + fotók)';
+  String get protocolFormatWord => 'Word (.docx)';
 
   @override
-  String get protocolFormatPdf => 'PDF (fotókkal)';
+  String get protocolFormatPdf => 'PDF';
+
+  @override
+  String get protocolIncludeImages => 'Képek a jegyzőkönyvben';
+
+  @override
+  String get protocolShrinkImages => 'Képek kicsinyítése (max. 1600 px)';
+
+  @override
+  String get protocolAutoRotate => 'Automatikus forgatás (EXIF)';
+
+  @override
+  String get pointCopyTooltip => 'Másolat: új mérés ugyanezen a helyen';
+
+  @override
+  String pointGroupLabel(String index, String total) {
+    return '$index/$total mérés';
+  }
 
   @override
   String get sessionDoseLabel => 'Felmérési dózis';
@@ -920,13 +953,13 @@ class AppLocalizationsHu extends AppLocalizations {
   String get exportProtocolMenuItem => 'Jegyzőkönyv exportálása';
 
   @override
-  String get exportJsonMenuItem => 'Pontok exportálása (adat, JSON)';
+  String get exportJsonMenuItem => 'Pontok exportálása (adat, ZIP)';
 
   @override
   String get exportCsvMenuItem => 'Pontok exportálása (táblázat, CSV)';
 
   @override
-  String get importJsonMenuItem => 'Pontok importálása (JSON)';
+  String get importJsonMenuItem => 'Pontok importálása (ZIP / JSON)';
 
   @override
   String get newPointButton => 'Új pont';
@@ -1257,7 +1290,7 @@ class AppLocalizationsHu extends AppLocalizations {
   String get activityAtManufactureLabel => 'Aktivitás gyártáskor (MBq)';
 
   @override
-  String get activityErrorPercentLabel => 'Aktivitás hibája (±%)';
+  String get activityErrorPercentLabel => 'Aktivitás bizonytalansága (±%)';
 
   @override
   String get manufactureDateLabel => 'Gyártás dátuma';
@@ -1952,20 +1985,20 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get modbusAverageTooFew =>
-      'A hiba számításához legalább 2 érvényes minta kell, csak az érték került be.';
+      'A bizonytalanság számításához legalább 2 érvényes minta kell, csak az érték került be.';
 
   @override
-  String get measurementErrorLabel => 'Hiba (±)';
+  String get measurementErrorLabel => 'Bizonytalanság (±)';
 
   @override
   String get measurementErrorHelper =>
-      'Átlagolt mérésnél az átlag standard hibája (1σ), kézzel feltöltött értéknél kézzel is megadható. A jegyzőkönyvre kerül.';
+      'Átlagolt mérésnél az átlag standard bizonytalansága (1σ), kézzel feltöltött értéknél kézzel is megadható. A jegyzőkönyvre kerül.';
 
   @override
   String get measurementAveragedLabel => 'Átlagolt mérés';
 
   @override
-  String get csvHeaderValueError => 'Hiba (±)';
+  String get csvHeaderValueError => 'Bizonytalanság (±)';
 
   @override
   String get csvHeaderAveraging => 'Átlagolás (minta; mp)';
@@ -2461,7 +2494,7 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get displayUnitsHint =>
-      'A megjelenítés és a jegyzőkönyv ezt használja. Az adatexport (CSV, JSON) és a mentés mindig az eredeti, tárolt egységben marad.';
+      'A megjelenítés és a jegyzőkönyv ezt használja. Az adatexport (CSV, ZIP) és a mentés mindig az eredeti, tárolt egységben marad.';
 
   @override
   String get displayDoseUnitLabel => 'Személyes dózis egysége';
@@ -2853,7 +2886,8 @@ class AppLocalizationsHu extends AppLocalizations {
   String get spectrumFileChangeButton => 'Spektrumfájl cseréje';
 
   @override
-  String get spectrumFileRequiredError => 'Válassz spektrumfájlt (N42).';
+  String get spectrumFileRequiredError =>
+      'Válassz spektrumfájlt (N42), vagy fotózd le a spektrumot.';
 
   @override
   String get spectrumParseError =>
@@ -3520,7 +3554,8 @@ class AppLocalizationsHu extends AppLocalizations {
   String get surveyArchiveConfirmTitle => 'Archiválod a felmérést?';
 
   @override
-  String get surveyArchiveConfirmMessage => 'Az archivált felmérés kikerül az alapértelmezett listából. Az adatai nem változnak, az archiválás bármikor visszavonható.';
+  String get surveyArchiveConfirmMessage =>
+      'Az archivált felmérés kikerül az alapértelmezett listából. Az adatai nem változnak, az archiválás bármikor visszavonható.';
 
   @override
   String get surveyUnarchiveAction => 'Archiválás visszavonása';
@@ -3807,4 +3842,77 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get protoPhantomHeading => 'Fantomrajz';
+
+  @override
+  String get btnSectionTitle => 'Bluetooth-gombok';
+
+  @override
+  String get btnEnabledLabel => 'Bluetooth gombvezérlés';
+
+  @override
+  String get btnEnabledHelp =>
+      'Androidon a Bluetooth-os médiagombos távirányító parancsokat küld az appnak. Csak akkor működik, ha az app előtérben van.';
+
+  @override
+  String get keepScreenOnLabel => 'Képernyő folyamatosan ébren';
+
+  @override
+  String get keepScreenOnHelp =>
+      'Amíg az app meg van nyitva, a képernyő nem kapcsol ki. Több akkumulátort fogyaszt.';
+
+  @override
+  String get btnKeyVolumeUp => 'Hangerő fel';
+
+  @override
+  String get btnKeyVolumeDown => 'Hangerő le';
+
+  @override
+  String get btnKeyPlay => 'Lejátszás / szünet';
+
+  @override
+  String get btnKeyNext => 'Következő gomb';
+
+  @override
+  String get btnKeyPrevious => 'Előző gomb';
+
+  @override
+  String get btnCommandNothing => 'Nincs';
+
+  @override
+  String get btnCommandNewPoint => 'Új mérési pont';
+
+  @override
+  String get btnCommandTakePhoto => 'Fénykép készítése';
+
+  @override
+  String get btnCommandModbus => 'Modbus-adat lekérdezése';
+
+  @override
+  String get btnCommandSavePoint => 'Mérési pont mentése';
+
+  @override
+  String get btnCommandSaveAndNew => 'Mentés és új pont';
+
+  @override
+  String get btnCommandDiscard => 'Mégse (mentés nélkül)';
+
+  @override
+  String get btnCommandNextType => 'Következő mérési típus';
+
+  @override
+  String get btnCommandPrevType => 'Előző mérési típus';
+
+  @override
+  String get btnCommandAveraging => 'Modbus-átlagolás indítása / kész';
+
+  @override
+  String get btnCommandSourcePosition => 'Forrás pozíció be/ki';
+
+  @override
+  String get btnCommandToggleAutoLog =>
+      'Automatikus rögzítés indítása / leállítása';
+
+  @override
+  String get discardConfirmHint =>
+      'Még egyszer nyomd meg 3 másodpercen belül a mégsemhez';
 }

@@ -11,6 +11,9 @@ import 'package:share_plus/share_plus.dart';
 import '../services/number_input.dart';
 import '../l10n/app_localizations.dart';
 import '../models/activity_unit.dart';
+import '../models/decimal_separator.dart';
+import '../models/hardware_button.dart';
+import '../services/hardware_buttons.dart';
 import '../models/distance_unit.dart';
 import '../models/dose_rate_unit.dart';
 import '../models/measurement_type.dart';
@@ -420,6 +423,94 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 const SizedBox(height: 12),
+                ValueListenableBuilder<DecimalSeparatorMode>(
+                  valueListenable: DecimalSeparatorController.mode,
+                  builder: (context, current, _) {
+                    return DropdownButtonFormField<DecimalSeparatorMode>(
+                      key: ValueKey('decimal-${current.name}'),
+                      initialValue: current,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: loc.decimalSeparatorLabel,
+                        helperText: loc.decimalSeparatorHint,
+                        helperMaxLines: 3,
+                      ),
+                      items: [
+                        DropdownMenuItem(
+                          value: DecimalSeparatorMode.auto,
+                          child: Text(loc.decimalSeparatorAuto),
+                        ),
+                        DropdownMenuItem(
+                          value: DecimalSeparatorMode.comma,
+                          child: Text(loc.decimalSeparatorComma),
+                        ),
+                        DropdownMenuItem(
+                          value: DecimalSeparatorMode.dot,
+                          child: Text(loc.decimalSeparatorDot),
+                        ),
+                      ],
+                      onChanged: (m) {
+                        if (m != null) DecimalSeparatorController.setMode(m);
+                      },
+                    );
+                  },
+                ),
+                const Divider(height: 32),
+                Text(
+                  loc.btnSectionTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                ValueListenableBuilder<bool>(
+                  valueListenable: HardwareButtonController.enabled,
+                  builder: (context, isOn, _) => SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(loc.btnEnabledLabel),
+                    subtitle: Text(loc.btnEnabledHelp),
+                    value: isOn,
+                    onChanged: (v) => HardwareButtonController.setEnabled(v),
+                  ),
+                ),
+                ValueListenableBuilder<bool>(
+                  valueListenable: HardwareButtonController.keepScreenOn,
+                  builder: (context, isOn, _) => SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(loc.keepScreenOnLabel),
+                    subtitle: Text(loc.keepScreenOnHelp),
+                    value: isOn,
+                    onChanged: (v) =>
+                        HardwareButtonController.setKeepScreenOn(v),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                for (final button in HardwareButton.values) ...[
+                  ValueListenableBuilder<ButtonCommand>(
+                    valueListenable: HardwareButtonController.commandOf(button),
+                    builder: (context, current, _) {
+                      return DropdownButtonFormField<ButtonCommand>(
+                        key: ValueKey('button-${button.name}-${current.name}'),
+                        initialValue: current,
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          labelText: _buttonLabel(loc, button),
+                        ),
+                        items: [
+                          for (final c in ButtonCommand.values)
+                            DropdownMenuItem(
+                              value: c,
+                              child: Text(_commandLabel(loc, c)),
+                            ),
+                        ],
+                        onChanged: (c) {
+                          if (c != null) {
+                            HardwareButtonController.setCommand(button, c);
+                          }
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                const SizedBox(height: 12),
                 Text(loc.displayUnitsHint, style: const TextStyle(fontSize: 13)),
                 const SizedBox(height: 8),
                 DisplayUnitDropdown(
@@ -677,3 +768,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
+
+String _buttonLabel(AppLocalizations loc, HardwareButton button) =>
+    switch (button) {
+      HardwareButton.volumeUp => loc.btnKeyVolumeUp,
+      HardwareButton.volumeDown => loc.btnKeyVolumeDown,
+      HardwareButton.play => loc.btnKeyPlay,
+      HardwareButton.next => loc.btnKeyNext,
+      HardwareButton.previous => loc.btnKeyPrevious,
+    };
+
+String _commandLabel(AppLocalizations loc, ButtonCommand command) =>
+    switch (command) {
+      ButtonCommand.nothing => loc.btnCommandNothing,
+      ButtonCommand.newPoint => loc.btnCommandNewPoint,
+      ButtonCommand.takePhoto => loc.btnCommandTakePhoto,
+      ButtonCommand.modbusQuery => loc.btnCommandModbus,
+      ButtonCommand.savePoint => loc.btnCommandSavePoint,
+      ButtonCommand.saveAndNewPoint => loc.btnCommandSaveAndNew,
+      ButtonCommand.discardPoint => loc.btnCommandDiscard,
+      ButtonCommand.nextMeasurementType => loc.btnCommandNextType,
+      ButtonCommand.previousMeasurementType => loc.btnCommandPrevType,
+      ButtonCommand.modbusAveraging => loc.btnCommandAveraging,
+      ButtonCommand.toggleSourcePosition => loc.btnCommandSourcePosition,
+      ButtonCommand.toggleAutoLog => loc.btnCommandToggleAutoLog,
+    };

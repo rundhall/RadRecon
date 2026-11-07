@@ -17,6 +17,8 @@ import '../services/dose_integrator.dart';
 import '../services/dose_unit_controller.dart';
 import '../services/dose_unit_converter.dart';
 import '../services/modbus_reader_service.dart';
+import '../models/hardware_button.dart';
+import '../services/hardware_buttons.dart';
 import '../services/settings_service.dart';
 import '../widgets/dose_widgets.dart';
 import '../widgets/quantity_field.dart';
@@ -36,7 +38,14 @@ enum _TriggerMode { time, distance }
 class AutoLogScreen extends StatefulWidget {
   final int surveySessionId;
 
-  const AutoLogScreen({super.key, required this.surveySessionId});
+  /// Ha igaz, a megnyitás után azonnal indul a rögzítés (Bluetooth-gombról).
+  final bool autoStart;
+
+  const AutoLogScreen({
+    super.key,
+    required this.surveySessionId,
+    this.autoStart = false,
+  });
 
   @override
   State<AutoLogScreen> createState() => _AutoLogScreenState();
@@ -55,6 +64,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
   );
 
   bool _isRunning = false;
+  late final ButtonCommandHandler _buttonHandler = _onButtonCommand;
   bool _starting = false;
   bool _busy = false; // egy tick fut-e éppen (átfedés elkerülése)
 
@@ -90,6 +100,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
   @override
   void initState() {
     super.initState();
+    HardwareButtons.register(_buttonHandler);
     _loadInstruments();
   }
 
@@ -103,6 +114,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
         _type = _instrument!.modbusMeasurementType;
       }
     });
+    if (widget.autoStart && !_isRunning && !_starting) unawaited(_start());
   }
 
   Future<bool> _ensureLocationPermission() async {
@@ -340,7 +352,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     _positionSub = null;
     await _session?.close();
     _session = null;
-    unawaited(WakelockPlus.disable());
+    unawaited(HardwareButtonController.applyScreenWake());
     if (mounted) setState(() => _isRunning = false);
 
     final (count, dose) = await _persistDose();
@@ -357,8 +369,20 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
+  /// Bluetooth-gomb: automatikus rögzítés indítása vagy leállítása.
+  bool _onButtonCommand(ButtonCommand command) {
+    if (!mounted || command != ButtonCommand.toggleAutoLog) return false;
+    if (_isRunning) {
+      unawaited(_stop());
+    } else {
+      unawaited(_start());
+    }
+    return true;
+  }
+
   @override
   void dispose() {
+    HardwareButtons.unregister(_buttonHandler);
     _timer?.cancel();
     _doseTimer?.cancel();
     // Ha a képernyőt a felhasználó leállítás nélkül hagyja el, a már
@@ -366,7 +390,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     if (_isRunning) unawaited(_persistDose());
     _positionSub?.cancel();
     _session?.close();
-    unawaited(WakelockPlus.disable());
+    unawaited(HardwareButtonController.applyScreenWake());
     _intervalCtrl.dispose();
     _distanceCtrl.dispose();
     super.dispose();

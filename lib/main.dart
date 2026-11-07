@@ -10,6 +10,7 @@ import 'services/app_reset.dart';
 import 'services/dose_unit_controller.dart';
 import 'services/display_units.dart';
 import 'services/expiry_notification_service.dart';
+import 'services/hardware_buttons.dart';
 import 'services/locale_controller.dart';
 import 'services/regulatory_profile.dart';
 import 'services/theme_controller.dart';
@@ -65,6 +66,15 @@ void main() async {
   } catch (e, st) {
     debugPrint('[startup] locale load: ERROR $e\n$st');
   }
+
+  try {
+    await HardwareButtonController.load().timeout(const Duration(seconds: 5));
+  } catch (e, st) {
+    debugPrint('[startup] hardware buttons load: ERROR $e $st');
+  }
+  HardwareButtons.init();
+  await HardwareButtons.publishHandled();
+  await HardwareButtonController.applyScreenWake();
 
   try {
     await DoseUnitController.load().timeout(const Duration(seconds: 5));

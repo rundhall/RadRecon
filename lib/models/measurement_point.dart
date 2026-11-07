@@ -86,6 +86,10 @@ class MeasurementPoint {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  /// Másolat-csoport: az ugyanazon a helyen készült pontok (eredeti + másolatok)
+  /// közös, véletlen azonosítója. Nem helyi id, ezért pontcsérénél is megmarad.
+  final String? groupKey;
+
   const MeasurementPoint({
     this.id,
     required this.surveySessionId,
@@ -131,6 +135,7 @@ class MeasurementPoint {
     required this.timestamp,
     required this.createdAt,
     required this.updatedAt,
+    this.groupKey,
   });
 
   MeasurementPoint copyWith({
@@ -179,6 +184,7 @@ class MeasurementPoint {
     DateTime? timestamp,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? groupKey,
   }) {
     return MeasurementPoint(
       id: id ?? this.id,
@@ -228,6 +234,7 @@ class MeasurementPoint {
       timestamp: timestamp ?? this.timestamp,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      groupKey: groupKey ?? this.groupKey,
     );
   }
 
@@ -292,6 +299,7 @@ class MeasurementPoint {
       'timestamp': timestamp.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      'group_key': groupKey,
     };
   }
 
@@ -342,6 +350,7 @@ class MeasurementPoint {
       timestamp: DateTime.parse(map['timestamp'] as String),
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
+      groupKey: map['group_key'] as String?,
     );
   }
 

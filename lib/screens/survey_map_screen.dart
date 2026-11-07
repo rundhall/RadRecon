@@ -1,3 +1,5 @@
+import '../models/hardware_button.dart';
+import '../services/hardware_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:intl/intl.dart';
@@ -42,6 +44,7 @@ class SurveyMapScreen extends StatefulWidget {
 }
 
 class _SurveyMapScreenState extends State<SurveyMapScreen> {
+  late final ButtonCommandHandler _buttonHandler = _onButtonCommand;
   final _mapController = MapController();
   final _dateFormat = DateFormat('MM.dd HH:mm');
   final _mapBoundaryKey = GlobalKey();
@@ -67,7 +70,31 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
   @override
   void initState() {
     super.initState();
+    HardwareButtons.register(_buttonHandler);
     _load();
+  }
+
+  @override
+  void dispose() {
+    HardwareButtons.unregister(_buttonHandler);
+    super.dispose();
+  }
+
+  /// Bluetooth-gomb: új mérési pont a felmérésbe.
+  bool _onButtonCommand(ButtonCommand command) {
+    if (command != ButtonCommand.newPoint || !mounted) return false;
+    Navigator.of(context)
+        .push<bool>(
+          MaterialPageRoute(
+            builder: (_) => MeasurementEntryScreen(
+              surveySessionId: widget.surveySessionId,
+            ),
+          ),
+        )
+        .then((saved) {
+      if (saved == true) _load();
+    });
+    return true;
   }
 
   Future<void> _load() async {
@@ -249,6 +276,67 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
           'Y ${m.y.toStringAsFixed(2)} m';
     }
     return '${p.latitude.toStringAsFixed(5)}, ${p.longitude.toStringAsFixed(5)}';
+  }
+
+  /// Azonos koordinátájú pontok (másolatok) csoportjai: egy jelölő, számlálóval.
+  List<List<MeasurementPoint>> _pointGroups() {
+    final byPos = <String, List<MeasurementPoint>>{};
+    for (final p in _points) {
+      byPos.putIfAbsent('${p.latitude}|${p.longitude}', () => []).add(p);
+    }
+    return byPos.values.toList();
+  }
+
+  Widget _countBadge(int n) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+        decoration: BoxDecoration(
+          color: Colors.black87,
+          borderRadius: BorderRadius.circular(9),
+        ),
+        child: Text(
+          '$n',
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+
+  /// Egy helyen készült mérések listája; tételre koppintva a részletek nyílnak.
+  void _showGroupDetails(List<MeasurementPoint> group) {
+    final loc = AppLocalizations.of(context)!;
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                group.first.locationLabel ?? _positionText(group.first),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            for (final p in group)
+              ListTile(
+                title: Text('${p.type.label(context)} · ${_dateFormat.format(p.timestamp)}'),
+                subtitle: p.value == null
+                    ? null
+                    : Text(loc.valueLabel(
+                        '${double.parse(displayValueOf(p).value!.toStringAsFixed(4))}',
+                        displayValueOf(p).unit)),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _showPointDetails(p);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showPointDetails(MeasurementPoint p) {
@@ -1224,7 +1312,8 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
               ),
               ..._measureLayers(),
               MarkerLayer(
-                markers: _points.map((p) {
+                markers: _pointGroups().map((group) {
+                  final p = group.first;
                   final kind = _kindOf(p);
                   final isDose = kind == MeasurementType.doseRate;
                   final style = _kindStyle[kind];
@@ -1237,8 +1326,15 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
                     height: 36,
                     child: GestureDetector(
                       // Rajzolás közben a pont nem nyit részletet, a koppintás a csúcs.
-                      onTap: d == null && !_measuring ? () => _showPointDetails(p) : null,
-                      child: Icon(
+                      onTap: d == null && !_measuring
+                          ? () => (group.length == 1
+                              ? _showPointDetails(p)
+                              : _showGroupDetails(group))
+                          : null,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                      Icon(
                         p.isSourcePosition
                             ? Icons.warning_amber
                             : (isDose
@@ -1247,6 +1343,10 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
                         color: color,
                         size: 34,
                         shadows: const [Shadow(color: Colors.black45, blurRadius: 3)],
+                      ),
+                        if (group.length > 1)
+                          Positioned(right: -6, top: -6, child: _countBadge(group.length)),
+                        ],
                       ),
                     ),
                   );

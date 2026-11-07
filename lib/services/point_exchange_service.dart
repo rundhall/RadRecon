@@ -6,6 +6,7 @@ import 'spectrum_service.dart';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:archive/archive_io.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -127,14 +128,36 @@ class ImportResult {
 /// Mérési pontok exportálása/importálása — más RadRecon-felhasználónak
 /// való átadáshoz, vagy táblázatkezelőben (Excel) való megtekintéshez.
 ///
-/// A JSON formátum a teljes nyers adatot megőrzi (típus, érték, egység,
-/// GPS-pontosság stb.) és egy másik RadRecon-telepítésbe visszatölthető.
-/// A fényképek NEM részei ennek az exportnak — azokat a jegyzőkönyv-export
-/// (.zip, "fotok/" mappával) viszi át. A CSV egyszerű táblázatos nézet
-/// Excelhez, azt az app nem tudja visszaolvasni.
+/// A pontcsere-export zip-csomag (`.zip`): a `points.json` írja le a pontokat
+/// (típus, érték, egység, GPS-pontosság stb.), a `photos/` a fotókat, a
+/// `spectra/` az N42 spektrumfájlokat tartalmazza. A JSON csak ezek nevére
+/// hivatkozik, képet vagy fájlt nem tartalmaz. A régi, base64-es `.json`
+/// export továbbra is importálható.
+/// A CSV egyszerű táblázatos nézet Excelhez, azt az app nem tudja visszaolvasni.
 class PointExchangeService {
   static const _formatId = ExchangeFormat.jsonCurrentId;
   static const _formatVersion = ExchangeFormat.jsonCurrentVersion;
+  static const _zipDataEntryName = 'points.json';
+  static const _zipPhotosDirName = 'photos';
+  static const _zipPhotosPrefix = '$_zipPhotosDirName/';
+  static const _zipImportDirName = 'pontcsere_import';
+  static const _zipExportDirName = 'pontcsere_export';
+  static const _zipSpectraDirName = 'spectra';
+  static const _zipSpectraPrefix = '$_zipSpectraDirName/';
+
+  /// Kicsomagolt fotó bemásolása az app-mappába, a visszaállításnál használt
+  /// `rad_recon_photos` mappába.
+  static Future<String> _importPhotoFile(File source) async {
+    final docs = await getApplicationDocumentsDirectory();
+    final dir = Directory(p.join(docs.path, 'rad_recon_photos'));
+    await dir.create(recursive: true);
+    final target = p.join(
+      dir.path,
+      '${DateTime.now().millisecondsSinceEpoch}_${p.basename(source.path)}',
+    );
+    await source.copy(target);
+    return target;
+  }
 
   Future<File> exportJson(int surveySessionId) async {
     final db = DatabaseHelper.instance;
@@ -190,14 +213,22 @@ class PointExchangeService {
       }
     }
 
-    // Spektrumfájlok base64-ben: a JSON-ban a mérési pont fájlja is átvihető.
-    final spectrumBase64 = <int?, String>{};
+    // Fotók és N42 spektrumfájlok a zipbe kerülnek; a JSON csak a nevükre hivatkozik.
+    final zipFiles = <String, File>{};
+    final photoEntryById = <int?, String>{};
+    final spectrumEntryById = <int?, String>{};
     for (final pt in points) {
-      final path = pt.spectrumPath;
-      if (path == null) continue;
-      final f = File(path);
-      if (await f.exists()) {
-        spectrumBase64[pt.id] = base64Encode(await f.readAsBytes());
+      final photo = pt.photoPath;
+      if (photo != null && await File(photo).exists()) {
+        final name = '$_zipPhotosPrefix${pt.id}_${p.basename(photo)}';
+        zipFiles[name] = File(photo);
+        photoEntryById[pt.id] = name;
+      }
+      final spectrum = pt.spectrumPath;
+      if (spectrum != null && await File(spectrum).exists()) {
+        final name = '$_zipSpectraPrefix${pt.id}_${p.basename(spectrum)}';
+        zipFiles[name] = File(spectrum);
+        spectrumEntryById[pt.id] = name;
       }
     }
 
@@ -253,6 +284,7 @@ class PointExchangeService {
       'points': points
           .map((pt) => {
                 'location_label': pt.locationLabel,
+                'group_key': pt.groupKey,
                 'latitude': pt.latitude,
                 'longitude': pt.longitude,
                 'gps_accuracy_meters': pt.gpsAccuracyMeters,
@@ -297,18 +329,42 @@ class PointExchangeService {
                 'radiation_kind': pt.radiationKind,
                 'dose_quantity': pt.doseQuantity,
                 'dose_depth_mm': pt.doseDepthMm,
-                'spectrum_file_base64': spectrumBase64[pt.id],
+                'spectrum_file': spectrumEntryById[pt.id],
+                'photo_file': photoEntryById[pt.id],
                 'timestamp': pt.timestamp.toIso8601String(),
               })
           .toList(),
     };
 
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File(
-      p.join(dir.path, '${_safeFileName(session.title)}_pontok.json'),
-    );
-    await file.writeAsString(const JsonEncoder.withIndent('  ').convert(data));
-    return file;
+    // A pontadat (points.json) és a fotók egy zipbe kerülnek. A zip a
+    // dokumentum-mappába készül, a megosztás ebből a fájlból történik.
+    final docs = await getApplicationDocumentsDirectory();
+    final tmp = await getTemporaryDirectory();
+    final work = Directory(p.join(tmp.path, _zipExportDirName));
+    if (await work.exists()) await work.delete(recursive: true);
+    await work.create(recursive: true);
+    try {
+      final dataFile = File(p.join(work.path, _zipDataEntryName));
+      await dataFile.writeAsString(
+        const JsonEncoder.withIndent('  ').convert(data),
+      );
+      final zipFile = File(
+        p.join(docs.path, '${_safeFileName(session.title)}_pontok.zip'),
+      );
+      if (await zipFile.exists()) await zipFile.delete();
+      final encoder = ZipFileEncoder()..create(zipFile.path);
+      try {
+        await encoder.addFile(dataFile, _zipDataEntryName);
+        for (final e in zipFiles.entries) {
+          await encoder.addFile(e.value, e.key);
+        }
+      } finally {
+        await encoder.close();
+      }
+      return zipFile;
+    } finally {
+      await work.delete(recursive: true);
+    }
   }
 
   /// `typeLabel`: a mérési típus nyelvfüggő megjelenítési neve — a
@@ -675,6 +731,8 @@ class PointExchangeService {
     );
   }
 
+  /// `.zip`: kicsomagolás ideiglenes mappába, a fotók onnan kerülnek át.
+  /// `.json`: régi, fotó nélküli export.
   Future<ImportResult> importJson(
     String filePath,
     int targetSurveySessionId, {
@@ -686,8 +744,52 @@ class PointExchangeService {
     if (!await file.exists()) {
       throw StateError('A fájl nem található: $filePath');
     }
-    final raw = await file.readAsString();
-    final data = jsonDecode(raw) as Map<String, dynamic>;
+    if (p.extension(filePath).toLowerCase() != '.zip') {
+      final data =
+          jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+      return _importData(
+        data,
+        targetSurveySessionId,
+        archiveDir: null,
+        unknownTypeWarning: unknownTypeWarning,
+        missingGpsWarning: missingGpsWarning,
+      );
+    }
+
+    final tmp = await getTemporaryDirectory();
+    final dir = Directory(p.join(tmp.path, _zipImportDirName));
+    if (await dir.exists()) await dir.delete(recursive: true);
+    await dir.create(recursive: true);
+    try {
+      extractArchiveToDisk(
+        ZipDecoder().decodeBuffer(InputFileStream(filePath)),
+        dir.path,
+      );
+      final dataFile = File(p.join(dir.path, _zipDataEntryName));
+      if (!await dataFile.exists()) {
+        throw StateError('A zip nem tartalmaz pontadatot (points.json).');
+      }
+      final data =
+          jsonDecode(await dataFile.readAsString()) as Map<String, dynamic>;
+      return await _importData(
+        data,
+        targetSurveySessionId,
+        archiveDir: dir.path,
+        unknownTypeWarning: unknownTypeWarning,
+        missingGpsWarning: missingGpsWarning,
+      );
+    } finally {
+      if (await dir.exists()) await dir.delete(recursive: true);
+    }
+  }
+
+  Future<ImportResult> _importData(
+    Map<String, dynamic> data,
+    int targetSurveySessionId, {
+    required String? archiveDir,
+    required String unknownTypeWarning,
+    required String missingGpsWarning,
+  }) async {
 
     final formatVersion = ExchangeFormat.jsonVersion(data['format'] as String?);
     if (formatVersion == null) {
@@ -827,19 +929,45 @@ class PointExchangeService {
       final instrumentId =
           instrumentName == null ? null : instrumentIdByName[instrumentName];
 
+      // Spektrumfájl: a zip "spectra/" mappájából, régi JSON-nál base64-ben.
       String? spectrumPath;
+      final spectrumRel = entry['spectrum_file'] as String?;
       final spectrumB64 = entry['spectrum_file_base64'] as String?;
-      if (spectrumB64 != null && spectrumB64.isNotEmpty) {
+      final spectrumName = p.basename(
+        entry['spectrum_file_name'] as String? ?? 'spectrum.n42',
+      );
+      if (spectrumRel != null && archiveDir != null) {
+        final src = File(
+          p.join(archiveDir, _zipSpectraDirName, p.basename(spectrumRel)),
+        );
+        if (await src.exists()) {
+          spectrumPath = await SpectrumService.importFile(
+            bytes: await src.readAsBytes(),
+            fileName: spectrumName,
+          );
+        }
+      } else if (spectrumB64 != null && spectrumB64.isNotEmpty) {
         spectrumPath = await SpectrumService.importFile(
           bytes: base64Decode(spectrumB64),
-          fileName: entry['spectrum_file_name'] as String? ?? 'spectrum.n42',
+          fileName: spectrumName,
         );
+      }
+
+      // Fotó: a zip "photos/" mappájából. JSON-importnál nincs archiveDir, így nincs fotó.
+      String? photoPath;
+      final photoRel = entry['photo_file'] as String?;
+      if (photoRel != null && archiveDir != null) {
+        final src = File(
+          p.join(archiveDir, _zipPhotosDirName, p.basename(photoRel)),
+        );
+        if (await src.exists()) photoPath = await _importPhotoFile(src);
       }
 
       final now = DateTime.now();
       final point = MeasurementPoint(
         surveySessionId: targetSurveySessionId,
         locationLabel: entry['location_label'] as String?,
+        groupKey: entry['group_key'] as String?,
         latitude: (entry['latitude'] as num).toDouble(),
         longitude: (entry['longitude'] as num).toDouble(),
         gpsAccuracyMeters: (entry['gps_accuracy_meters'] as num?)?.toDouble(),
@@ -871,6 +999,7 @@ class PointExchangeService {
         spectrumKind: entry['spectrum_kind'] as String?,
         spectrumFileName: entry['spectrum_file_name'] as String?,
         spectrumPath: spectrumPath,
+        photoPath: photoPath,
         spectrumChannels: (entry['spectrum_channels'] as num?)?.toInt(),
         spectrumLiveSeconds: (entry['spectrum_live_seconds'] as num?)?.toDouble(),
         spectrumTotalCounts: (entry['spectrum_total_counts'] as num?)?.toInt(),

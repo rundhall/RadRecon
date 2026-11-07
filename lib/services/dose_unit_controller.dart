@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/activity_unit.dart';
+import '../models/decimal_separator.dart';
 import '../models/distance_unit.dart';
 import '../models/dose_rate_unit.dart';
 import 'settings_service.dart';
@@ -22,6 +23,8 @@ class DoseUnitController {
         await SettingsService().getActivityUnit();
     DistanceUnitController.unit.value =
         await SettingsService().getDistanceUnit();
+    DecimalSeparatorController.mode.value =
+        await SettingsService().getDecimalSeparator();
   }
 
   /// Egységváltás: a mentett dózisteljesítmény-riasztási küszöböt is átváltja,
@@ -66,5 +69,21 @@ class DistanceUnitController {
   static Future<void> setUnit(DistanceUnit value) async {
     await SettingsService().setDistanceUnit(value);
     unit.value = value;
+  }
+}
+
+/// Jegyzőkönyvi tizedesjel (a Beállításokban választható). A Word- és a
+/// PDF-jegyzőkönyv ezt használja; a GPS-koordináták mindig pontot kapnak.
+class DecimalSeparatorController {
+  DecimalSeparatorController._();
+
+  static final ValueNotifier<DecimalSeparatorMode> mode =
+      ValueNotifier<DecimalSeparatorMode>(DecimalSeparatorMode.defaultMode);
+
+  static DecimalSeparatorMode get current => mode.value;
+
+  static Future<void> setMode(DecimalSeparatorMode value) async {
+    await SettingsService().setDecimalSeparator(value);
+    mode.value = value;
   }
 }

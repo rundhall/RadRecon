@@ -1,6 +1,7 @@
 import '../models/victim_details.dart';
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' show Random;
 
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -75,7 +76,7 @@ class DatabaseHelper {
   // v32: a radiation_sources nuklid-, aktivitás- és gyártási dátum-mezője
   // nullable (talált forrás). A tábla újraépítése a megnyitáskor fut, FK nélkül.
   // v33: forrásonkénti lejárati értesítés (`notify_enabled`, a meglévők bekapcsolva).
-  static const _dbVersion = 42;
+  static const _dbVersion = 43;
 
   /// A jelenlegi séma-verzió (a mentésfájlok kompatibilitás-ellenőrzéséhez).
   static const schemaVersion = _dbVersion;
@@ -652,6 +653,16 @@ class DatabaseHelper {
         await db.execute('ALTER TABLE persons ADD COLUMN address TEXT');
       }
     }
+
+    if (oldVersion < 43) {
+      // v43: másolat-csoport azonosító (ugyanazon hely több mérése).
+      final pointCols43 = (await db.rawQuery('PRAGMA table_info(measurement_points)'))
+          .map((c) => c['name'] as String)
+          .toSet();
+      if (!pointCols43.contains('group_key')) {
+        await db.execute('ALTER TABLE measurement_points ADD COLUMN group_key TEXT');
+      }
+    }
   }
 
   Future<void> _rebuildRadiationSourcesNullable(Database db) async {
@@ -1103,6 +1114,7 @@ class DatabaseHelper {
         timestamp TEXT NOT NULL,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
+        group_key TEXT,
         FOREIGN KEY (survey_session_id) REFERENCES survey_sessions (id)
           ON DELETE CASCADE,
         FOREIGN KEY (instrument_id) REFERENCES instruments (id)
@@ -2007,6 +2019,67 @@ class DatabaseHelper {
   // ---------------------------------------------------------------------
   // Measurement points
   // ---------------------------------------------------------------------
+
+  /// A pont csoportkulcsa. Ha még nincs, véletlen kulcsot kap, és az eredeti
+  /// sorban is elmentődik (másolat készítésekor).
+  Future<String> ensureGroupKey(MeasurementPoint point) async {
+    final existing = point.groupKey;
+    if (existing != null) return existing;
+    final rnd = Random.secure();
+    final key = List.generate(32, (_) => rnd.nextInt(16).toRadixString(16)).join();
+    final db = await database;
+    await db.update(
+      'measurement_points',
+      {'group_key': key},
+      where: 'id = ?',
+      whereArgs: [point.id],
+    );
+    return key;
+  }
+
+  /// Forrás-kapcsolatok másolása egyik mérési pontról a másikra.
+  Future<void> copyPointSources(int fromPointId, int toPointId) async {
+    final db = await database;
+    await db.rawInsert(
+      'INSERT INTO measurement_point_sources '
+      '(measurement_point_id, radiation_source_id, distance_meters, created_at) '
+      'SELECT ?, radiation_source_id, distance_meters, ? '
+      'FROM measurement_point_sources WHERE measurement_point_id = ?',
+      [toPointId, DateTime.now().toIso8601String(), fromPointId],
+    );
+  }
+
+  /// Mintaelemzések másolása egyik mérési pontról a másikra. A csatolt fájl
+  /// is másolódik, hogy az egyik pont elemzésének törlése ne törölje a másik fájlját.
+  Future<void> copySampleAnalyses(int fromPointId, int toPointId) async {
+    final rows = await getSampleAnalyses(fromPointId);
+    for (var i = 0; i < rows.length; i++) {
+      final a = rows[i];
+      var filePath = a.filePath;
+      if (filePath != null && await File(filePath).exists()) {
+        final target = join(
+          dirname(filePath),
+          'analysis_${DateTime.now().millisecondsSinceEpoch}_${i}_${basename(filePath)}',
+        );
+        await File(filePath).copy(target);
+        filePath = target;
+      }
+      await insertSampleAnalysis(SampleAnalysis(
+        measurementPointId: toPointId,
+        method: a.method,
+        instrumentName: a.instrumentName,
+        performedAt: a.performedAt,
+        operatorName: a.operatorName,
+        result: a.result,
+        notes: a.notes,
+        filePath: filePath,
+        createdAt: DateTime.now(),
+        pcrTarget: a.pcrTarget,
+        pcrOutcome: a.pcrOutcome,
+        pcrCt: a.pcrCt,
+      ));
+    }
+  }
 
   Future<int> insertMeasurementPoint(MeasurementPoint point) async {
     final db = await database;

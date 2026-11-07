@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/activity_unit.dart';
+import '../models/decimal_separator.dart';
 import '../models/distance_unit.dart';
+import '../models/hardware_button.dart';
 import '../models/dose_rate_unit.dart';
 import '../models/measurement_type.dart';
 
@@ -63,8 +65,12 @@ class SettingsService {
   static const _doseUnitKey = 'dose_rate_unit';
   static const _activityUnitKey = 'activity_unit';
   static const _distanceUnitKey = 'distance_unit';
+  static const _decimalSeparatorKey = 'decimal_separator';
   static const _expiryNotifEnabledKey = 'expiry_notifications_enabled';
   static const _expiryNotifLeadKey = 'expiry_notifications_lead';
+  static const _bluetoothButtonsKey = 'bluetooth_buttons_enabled';
+  static const _keepScreenOnKey = 'keep_screen_on';
+  static const _buttonCommandPrefix = 'button_command_';
 
   /// Régi küszöbkulcs átvétele: a cps-küszöb a beütésszám típusé lesz. A
   /// neutron-beütésszám küszöbe nem kerül át (neutronnál nincs riasztás).
@@ -127,6 +133,18 @@ class SettingsService {
   Future<void> setDistanceUnit(DistanceUnit value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_distanceUnitKey, value.storageValue);
+  }
+
+  Future<DecimalSeparatorMode> getDecimalSeparator() async {
+    final prefs = await SharedPreferences.getInstance();
+    return DecimalSeparatorMode.fromStorage(
+      prefs.getString(_decimalSeparatorKey),
+    );
+  }
+
+  Future<void> setDecimalSeparator(DecimalSeparatorMode value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_decimalSeparatorKey, value.storageValue);
   }
 
   Future<double?> getDoseRateThreshold() =>
@@ -208,5 +226,46 @@ class SettingsService {
   Future<void> setExpiryLeadTime(ExpiryLeadTime value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_expiryNotifLeadKey, value.storageValue);
+  }
+
+  /// Bluetooth-gombvezérlés be/ki. Alapértelmezett: kikapcsolva.
+  Future<bool> getBluetoothButtonsEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_bluetoothButtonsKey) ?? false;
+  }
+
+  Future<void> setBluetoothButtonsEnabled(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_bluetoothButtonsKey, value);
+  }
+
+  /// A képernyő folyamatos ébren tartása. Alapértelmezett: kikapcsolva.
+  Future<bool> getKeepScreenOn() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keepScreenOnKey) ?? false;
+  }
+
+  Future<void> setKeepScreenOn(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keepScreenOnKey, value);
+  }
+
+  /// Gombonkénti parancs. Ha még nincs mentett érték, a gomb alapértelmezése.
+  Future<ButtonCommand> getButtonCommand(HardwareButton button) async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getString('$_buttonCommandPrefix${button.name}');
+    if (stored == null) return button.defaultCommand;
+    return ButtonCommand.fromStorage(stored);
+  }
+
+  Future<void> setButtonCommand(
+    HardwareButton button,
+    ButtonCommand command,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      '$_buttonCommandPrefix${button.name}',
+      command.storageValue,
+    );
   }
 }

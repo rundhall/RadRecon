@@ -6,6 +6,7 @@ void main() {
     expect(ExchangeFormat.jsonVersion('rad_recon_export'), 1);
     expect(ExchangeFormat.jsonVersion('rad_recon_export.v2'), 2);
     expect(ExchangeFormat.jsonVersion('rad_recon_export.v3'), 3);
+    expect(ExchangeFormat.jsonVersion('rad_recon_export.v4'), 4);
     expect(ExchangeFormat.jsonVersion('valami_mas'), isNull);
     expect(ExchangeFormat.jsonVersion(null), isNull);
   });

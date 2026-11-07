@@ -4,6 +4,11 @@
 /// Ezért az újabb formátum saját azonosítót kap. Különben a régi app csendben
 /// kihagyná a forrásokat és a hozzájuk kötött hivatkozásokat.
 ///
+/// v4: zip-csomag (`points.json` + `photos/` + `spectra/`), a JSON képet és
+/// N42 fájlt nem tartalmaz.
+/// A régi app a `.zip` fájlt nem is kínálja fel, és a régi azonosító miatt
+/// nem importál félig.
+///
 /// CSV: az újabb fájlban van `format_version` oszlop, és nincs `nuclide_name`
 /// oszlop. A régi import a hiányzó oszlopnál hibával áll meg.
 class ExchangeFormat {
@@ -12,8 +17,9 @@ class ExchangeFormat {
   static const jsonV1Id = 'rad_recon_export';
   static const jsonV2Id = 'rad_recon_export.v2';
   static const jsonV3Id = 'rad_recon_export.v3';
-  static const jsonCurrentId = jsonV3Id;
-  static const jsonCurrentVersion = 3;
+  static const jsonV4Id = 'rad_recon_export.v4';
+  static const jsonCurrentId = jsonV4Id;
+  static const jsonCurrentVersion = 4;
 
   static const csvCurrentVersion = 2;
   static const csvVersionColumn = 'format_version';
@@ -24,6 +30,7 @@ class ExchangeFormat {
     if (formatId == jsonV1Id) return 1;
     if (formatId == jsonV2Id) return 2;
     if (formatId == jsonV3Id) return 3;
+    if (formatId == jsonV4Id) return 4;
     return null;
   }
 

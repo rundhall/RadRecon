@@ -1,3 +1,5 @@
+import '../models/hardware_button.dart';
+import '../services/hardware_buttons.dart';
 import '../models/bio_agent.dart';
 import '../l10n/domain_labels.dart';
 import '../models/measurement_type.dart';
@@ -69,6 +71,7 @@ class MeasurementListScreen extends StatefulWidget {
 }
 
 class _MeasurementListScreenState extends State<MeasurementListScreen> {
+  late final ButtonCommandHandler _buttonHandler = _onButtonCommand;
   late Future<List<SurveyListItem>> _pointsFuture;
   final _dateFormat = DateFormat('MM.dd HH:mm:ss');
   final _exportService = ProtocolExportService();
@@ -88,8 +91,43 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
   @override
   void initState() {
     super.initState();
+    HardwareButtons.register(_buttonHandler);
     _reload();
     _loadSession();
+  }
+
+  @override
+  void dispose() {
+    HardwareButtons.unregister(_buttonHandler);
+    super.dispose();
+  }
+
+  /// Bluetooth-gomb: új mérési pont a felmérésbe.
+  bool _onButtonCommand(ButtonCommand command) {
+    if (command == ButtonCommand.toggleAutoLog && mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => AutoLogScreen(
+            surveySessionId: widget.surveySessionId,
+            autoStart: true,
+          ),
+        ),
+      );
+      return true;
+    }
+    if (command != ButtonCommand.newPoint || !mounted) return false;
+    Navigator.of(context)
+        .push<bool>(
+          MaterialPageRoute(
+            builder: (_) => MeasurementEntryScreen(
+              surveySessionId: widget.surveySessionId,
+            ),
+          ),
+        )
+        .then((saved) {
+      if (saved == true) _reload();
+    });
+    return true;
   }
 
   Future<void> _loadSession() async {
@@ -269,12 +307,22 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
     }
   }
 
-  Future<void> _openEntryScreen({MeasurementPoint? existing}) async {
+  Future<void> _openEntryScreen({
+    MeasurementPoint? existing,
+    MeasurementPoint? template,
+  }) async {
+    MeasurementPoint? source;
+    if (template != null) {
+      final key = await DatabaseHelper.instance.ensureGroupKey(template);
+      source = template.copyWith(groupKey: key);
+    }
+    if (!mounted) return;
     final saved = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => MeasurementEntryScreen(
           surveySessionId: widget.surveySessionId,
           existingPoint: existing,
+          templatePoint: source,
         ),
       ),
     );
@@ -394,29 +442,75 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
 
   Future<void> _exportProtocol() async {
     final loc = AppLocalizations.of(context)!;
-    final format = await showDialog<ProtocolFormat>(
+    final choice = await showDialog<(ProtocolFormat, ProtocolExportOptions)>(
       context: context,
-      builder: (ctx) => SimpleDialog(
-        title: Text(loc.protocolFormatTitle),
-        children: [
-          SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, ProtocolFormat.word),
-            child: Text(loc.protocolFormatWord),
+      builder: (ctx) {
+        var includeImages = true;
+        var shrinkImages = true;
+        var autoRotate = true;
+        ProtocolExportOptions current() => ProtocolExportOptions(
+              includeImages: includeImages,
+              shrinkImages: shrinkImages,
+              autoRotate: autoRotate,
+            );
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) => AlertDialog(
+            title: Text(loc.protocolFormatTitle),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(loc.protocolIncludeImages),
+                  value: includeImages,
+                  onChanged: (v) =>
+                      setDialogState(() => includeImages = v ?? true),
+                ),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(loc.protocolShrinkImages),
+                  value: shrinkImages,
+                  onChanged: includeImages
+                      ? (v) => setDialogState(() => shrinkImages = v ?? true)
+                      : null,
+                ),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(loc.protocolAutoRotate),
+                  value: autoRotate,
+                  onChanged: includeImages
+                      ? (v) => setDialogState(() => autoRotate = v ?? true)
+                      : null,
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () =>
+                    Navigator.pop(dialogCtx, (ProtocolFormat.word, current())),
+                child: Text(loc.protocolFormatWord),
+              ),
+              FilledButton(
+                onPressed: () =>
+                    Navigator.pop(dialogCtx, (ProtocolFormat.pdf, current())),
+                child: Text(loc.protocolFormatPdf),
+              ),
+            ],
           ),
-          SimpleDialogOption(
-            onPressed: () => Navigator.pop(ctx, ProtocolFormat.pdf),
-            child: Text(loc.protocolFormatPdf),
-          ),
-        ],
-      ),
+        );
+      },
     );
-    if (format == null || !mounted) return;
+    if (choice == null || !mounted) return;
+    final (format, options) = choice;
 
     setState(() => _isExporting = true);
     try {
       final file = format == ProtocolFormat.pdf
-          ? await _exportService.exportSurveyPdf(widget.surveySessionId, loc)
-          : await _exportService.exportSurvey(widget.surveySessionId, loc);
+          ? await _exportService.exportSurveyPdf(
+              widget.surveySessionId, loc, options: options)
+          : await _exportService.exportSurvey(
+              widget.surveySessionId, loc, options: options);
       if (!mounted) return;
       await SharePlus.instance.share(
         ShareParams(
@@ -528,7 +622,7 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
   Future<void> _importJsonData() async {
     final picked = await FilePicker.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['json'],
+      allowedExtensions: ['zip', 'json'],
     );
     if (picked.isEmpty) return;
     final path = picked.first.path;
@@ -956,6 +1050,11 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
                                           ),
                                         ),
                                       ),
+                                    IconButton(
+                                      icon: const Icon(Icons.copy_all),
+                                      tooltip: loc.pointCopyTooltip,
+                                      onPressed: () => _openEntryScreen(template: p),
+                                    ),
                                     if (p.gpsAccuracyMeters != null)
                                       Text('±${formatDistanceMeters(p.gpsAccuracyMeters!)}'),
                                   ],

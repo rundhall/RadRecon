@@ -470,6 +470,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearanceSectionTitle => 'Appearance';
 
   @override
+  String get autoLogChartPointsLabel => 'Auto log: chart points';
+
+  @override
+  String get autoLogChartPointsHint =>
+      'The chart shows at most this many of the latest samples.';
+
+  @override
+  String get autoLogChartPointsAll => 'All';
+
+  @override
+  String get autoLogChartSourceLabel => 'Chart channel';
+
+  @override
+  String get autoLogChartResetTooltip => 'Restart chart';
+
+  @override
   String get themeLight => 'Light';
 
   @override
@@ -4057,4 +4073,147 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get personFilterExpired => 'Expired only';
+
+  @override
+  String get modbusToolTitle => 'Modbus helper';
+
+  @override
+  String get modbusToolEmpty =>
+      'No registers yet. Add one with the \"New register\" button.';
+
+  @override
+  String get modbusToolAddRegister => 'New register';
+
+  @override
+  String get modbusToolEditRegister => 'Edit register';
+
+  @override
+  String get modbusToolReadAll => 'Read all';
+
+  @override
+  String get modbusToolRead => 'Read';
+
+  @override
+  String get modbusToolWrite => 'Write';
+
+  @override
+  String get modbusToolSend => 'Send';
+
+  @override
+  String get modbusToolNameLabel => 'Name';
+
+  @override
+  String get modbusToolKindLabel => 'Type';
+
+  @override
+  String get modbusToolAddressLabel => 'Address';
+
+  @override
+  String get modbusToolAddressHint =>
+      'Zero-based protocol address, hex also accepted (0x10)';
+
+  @override
+  String get modbusToolDataTypeLabel => 'Data type';
+
+  @override
+  String get modbusToolByteOrderLabel => 'Byte order';
+
+  @override
+  String get modbusToolScaleLabel => 'Scale';
+
+  @override
+  String get modbusToolScaleHint => 'Displayed value = raw value × scale';
+
+  @override
+  String get modbusToolNoteHint => 'e.g. 0 = 2400, 1 = 4800, 2 = 9600';
+
+  @override
+  String get modbusToolInvalidAddress => 'Whole number between 0 and 65535';
+
+  @override
+  String get modbusToolInvalidValue => 'Invalid or out-of-range value';
+
+  @override
+  String get modbusToolValueLabel => 'New value';
+
+  @override
+  String get modbusToolWriteWarning =>
+      'The command is sent to the instrument immediately. Changing communication parameters (baud rate, parity, Modbus ID) may drop the connection.';
+
+  @override
+  String modbusToolWriteOk(String name) {
+    return 'Written: $name';
+  }
+
+  @override
+  String modbusToolWriteError(String code) {
+    return 'Modbus error while writing: $code';
+  }
+
+  @override
+  String get modbusToolNotRead => 'Not read yet';
+
+  @override
+  String get modbusToolOn => 'ON';
+
+  @override
+  String get modbusToolOff => 'OFF';
+
+  @override
+  String get modbusToolExport => 'Save to file';
+
+  @override
+  String get modbusToolImport => 'Load from file';
+
+  @override
+  String get modbusToolCopyFrom => 'Copy from another instrument';
+
+  @override
+  String get modbusToolImportModeTitle =>
+      'What to do with the existing registers?';
+
+  @override
+  String get modbusToolImportAppend => 'Add to existing';
+
+  @override
+  String get modbusToolImportReplace => 'Replace existing';
+
+  @override
+  String modbusToolImported(int count) {
+    return '$count registers added';
+  }
+
+  @override
+  String get modbusToolImportInvalid =>
+      'The file contains no Modbus registers.';
+
+  @override
+  String get modbusToolNoOtherSource =>
+      'No other instrument has saved registers.';
+
+  @override
+  String get modbusToolPollTitle => 'Timed polling';
+
+  @override
+  String get modbusToolPollInterval => 'Interval (s)';
+
+  @override
+  String get modbusToolPollStart => 'Start';
+
+  @override
+  String get modbusToolPollStop => 'Stop';
+
+  @override
+  String modbusToolPollSamples(int count) {
+    return '$count polls';
+  }
+
+  @override
+  String get modbusToolPollSave => 'Save polls';
+
+  @override
+  String get modbusToolPollSelectHint => 'Tick the rows to poll.';
+
+  @override
+  String get modbusToolTimeColumn => 'Time';
 }

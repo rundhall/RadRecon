@@ -477,6 +477,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get appearanceSectionTitle => 'Darstellung';
 
   @override
+  String get autoLogChartPointsLabel => 'Automatische Messung: Diagrammpunkte';
+
+  @override
+  String get autoLogChartPointsHint =>
+      'Das Diagramm zeigt höchstens so viele der letzten Messwerte.';
+
+  @override
+  String get autoLogChartPointsAll => 'Alle';
+
+  @override
+  String get autoLogChartSourceLabel => 'Diagrammkanal';
+
+  @override
+  String get autoLogChartResetTooltip => 'Diagramm neu starten';
+
+  @override
   String get themeLight => 'Hell';
 
   @override
@@ -4100,4 +4116,148 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get personFilterExpired => 'Nur abgelaufene';
+
+  @override
+  String get modbusToolTitle => 'Modbus-Assistent';
+
+  @override
+  String get modbusToolEmpty =>
+      'Noch keine Register angelegt. Mit „Neues Register“ hinzufügen.';
+
+  @override
+  String get modbusToolAddRegister => 'Neues Register';
+
+  @override
+  String get modbusToolEditRegister => 'Register bearbeiten';
+
+  @override
+  String get modbusToolReadAll => 'Alle auslesen';
+
+  @override
+  String get modbusToolRead => 'Lesen';
+
+  @override
+  String get modbusToolWrite => 'Schreiben';
+
+  @override
+  String get modbusToolSend => 'Senden';
+
+  @override
+  String get modbusToolNameLabel => 'Bezeichnung';
+
+  @override
+  String get modbusToolKindLabel => 'Typ';
+
+  @override
+  String get modbusToolAddressLabel => 'Adresse';
+
+  @override
+  String get modbusToolAddressHint =>
+      'Nullbasierte Protokolladresse, auch hexadezimal (0x10)';
+
+  @override
+  String get modbusToolDataTypeLabel => 'Datentyp';
+
+  @override
+  String get modbusToolByteOrderLabel => 'Byte-Reihenfolge';
+
+  @override
+  String get modbusToolScaleLabel => 'Faktor';
+
+  @override
+  String get modbusToolScaleHint => 'Angezeigter Wert = Rohwert × Faktor';
+
+  @override
+  String get modbusToolNoteHint => 'z. B. 0 = 2400, 1 = 4800, 2 = 9600';
+
+  @override
+  String get modbusToolInvalidAddress => 'Ganze Zahl zwischen 0 und 65535';
+
+  @override
+  String get modbusToolInvalidValue =>
+      'Ungültiger Wert oder außerhalb des Bereichs';
+
+  @override
+  String get modbusToolValueLabel => 'Neuer Wert';
+
+  @override
+  String get modbusToolWriteWarning =>
+      'Der Befehl wird sofort an das Gerät gesendet. Nach dem Ändern von Kommunikationsparametern (Baudrate, Parität, Modbus-ID) kann die Verbindung abbrechen.';
+
+  @override
+  String modbusToolWriteOk(String name) {
+    return 'Geschrieben: $name';
+  }
+
+  @override
+  String modbusToolWriteError(String code) {
+    return 'Modbus-Fehler beim Schreiben: $code';
+  }
+
+  @override
+  String get modbusToolNotRead => 'Noch nicht ausgelesen';
+
+  @override
+  String get modbusToolOn => 'EIN';
+
+  @override
+  String get modbusToolOff => 'AUS';
+
+  @override
+  String get modbusToolExport => 'In Datei speichern';
+
+  @override
+  String get modbusToolImport => 'Aus Datei laden';
+
+  @override
+  String get modbusToolCopyFrom => 'Von anderem Gerät kopieren';
+
+  @override
+  String get modbusToolImportModeTitle =>
+      'Was soll mit den vorhandenen Registern geschehen?';
+
+  @override
+  String get modbusToolImportAppend => 'Zu vorhandenen hinzufügen';
+
+  @override
+  String get modbusToolImportReplace => 'Vorhandene ersetzen';
+
+  @override
+  String modbusToolImported(int count) {
+    return '$count Register übernommen';
+  }
+
+  @override
+  String get modbusToolImportInvalid =>
+      'Die Datei enthält keine Modbus-Register.';
+
+  @override
+  String get modbusToolNoOtherSource =>
+      'Kein anderes Gerät hat gespeicherte Register.';
+
+  @override
+  String get modbusToolPollTitle => 'Zyklische Abfrage';
+
+  @override
+  String get modbusToolPollInterval => 'Intervall (s)';
+
+  @override
+  String get modbusToolPollStart => 'Start';
+
+  @override
+  String get modbusToolPollStop => 'Stopp';
+
+  @override
+  String modbusToolPollSamples(int count) {
+    return '$count Abfragen';
+  }
+
+  @override
+  String get modbusToolPollSave => 'Abfragen speichern';
+
+  @override
+  String get modbusToolPollSelectHint => 'Markiere die abzufragenden Zeilen.';
+
+  @override
+  String get modbusToolTimeColumn => 'Zeit';
 }

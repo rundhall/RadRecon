@@ -11,6 +11,7 @@ import '../models/instrument.dart';
 import '../models/instrument_calibration.dart';
 import '../services/registry_csv_service.dart';
 import 'instrument_entry_screen.dart';
+import 'modbus_helper_screen.dart';
 
 /// A terepre vitt műszerek listája — innen adhatók hozzá, szerkeszthetők
 /// vagy törölhetők, és ez a lista tölti fel a rögzítő képernyő
@@ -79,7 +80,8 @@ class _InstrumentListScreenState extends State<InstrumentListScreen> {
     final loc = AppLocalizations.of(context)!;
     setState(() => _isTransferring = true);
     try {
-      final file = await _csvService.exportInstruments();
+      final file = await _csvService.exportInstruments(
+          autoDecimalSeparator: loc.protoDecimalSep);
       if (!mounted) return;
       await SharePlus.instance.share(ShareParams(
         files: [XFile(file.path)],
@@ -272,9 +274,27 @@ class _InstrumentListScreenState extends State<InstrumentListScreen> {
                                     }),
                                   ],
                                 ),
-                                trailing: IconButton(
-                                  icon: const Icon(Icons.delete_outline),
-                                  onPressed: () => _confirmDelete(i),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (i.isModbusConnected)
+                                      IconButton(
+                                        icon: const Icon(
+                                            Icons.settings_input_component),
+                                        tooltip: loc.modbusToolTitle,
+                                        onPressed: () =>
+                                            Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => ModbusHelperScreen(
+                                                instrument: i),
+                                          ),
+                                        ),
+                                      ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete_outline),
+                                      onPressed: () => _confirmDelete(i),
+                                    ),
+                                  ],
                                 ),
                                 onTap: () => _openEntry(existing: i),
                               );

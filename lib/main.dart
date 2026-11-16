@@ -19,6 +19,7 @@ import 'widgets/update_check_gate.dart';
 import 'dart:io';
 
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'services/auto_log_chart_controller.dart';
 
 void main() async {
   // A mentett téma- és nyelv-választást még a runApp előtt be kell tölteni,
@@ -81,6 +82,7 @@ void main() async {
     await DisplayUnits.load();
     await BasisUnitController.load();
     await LastMeasurementTypeController.load();
+    await AutoLogChartController.load();
     await SettingsService().migrateLegacyCountRateThreshold();
     SpectrumService.sweepOrphans();
     await RegulatoryProfileController.load()

@@ -155,6 +155,16 @@
   "languageSystemOption": "Lingua del telefono",
   "settingsTitle": "Impostazioni",
   "appearanceSectionTitle": "Aspetto",
+  "autoLogChartPointsLabel": "Misura automatica: punti del grafico",
+  "@autoLogChartPointsLabel": {},
+  "autoLogChartPointsHint": "Il grafico mostra al massimo questo numero degli ultimi campioni.",
+  "@autoLogChartPointsHint": {},
+  "autoLogChartPointsAll": "Tutti",
+  "@autoLogChartPointsAll": {},
+  "autoLogChartSourceLabel": "Canale del grafico",
+  "@autoLogChartSourceLabel": {},
+  "autoLogChartResetTooltip": "Riavvia grafico",
+  "@autoLogChartResetTooltip": {},
   "themeLight": "Chiaro",
   "themeDark": "Scuro",
   "themeSystem": "Sistema",
@@ -2017,5 +2027,115 @@
   "personFilterAll": "Tutti",
   "@personFilterAll": {},
   "personFilterExpired": "Solo scaduti",
-  "@personFilterExpired": {}
+  "@personFilterExpired": {},
+  "modbusToolTitle": "Assistente Modbus",
+  "@modbusToolTitle": {},
+  "modbusToolEmpty": "Nessun registro ancora. Aggiungine uno con il pulsante «Nuovo registro».",
+  "@modbusToolEmpty": {},
+  "modbusToolAddRegister": "Nuovo registro",
+  "@modbusToolAddRegister": {},
+  "modbusToolEditRegister": "Modifica registro",
+  "@modbusToolEditRegister": {},
+  "modbusToolReadAll": "Leggi tutto",
+  "@modbusToolReadAll": {},
+  "modbusToolRead": "Leggi",
+  "@modbusToolRead": {},
+  "modbusToolWrite": "Scrivi",
+  "@modbusToolWrite": {},
+  "modbusToolSend": "Invia",
+  "@modbusToolSend": {},
+  "modbusToolNameLabel": "Nome",
+  "@modbusToolNameLabel": {},
+  "modbusToolKindLabel": "Tipo",
+  "@modbusToolKindLabel": {},
+  "modbusToolAddressLabel": "Indirizzo",
+  "@modbusToolAddressLabel": {},
+  "modbusToolAddressHint": "Indirizzo di protocollo a partire da 0, anche esadecimale (0x10)",
+  "@modbusToolAddressHint": {},
+  "modbusToolDataTypeLabel": "Tipo di dato",
+  "@modbusToolDataTypeLabel": {},
+  "modbusToolByteOrderLabel": "Ordine dei byte",
+  "@modbusToolByteOrderLabel": {},
+  "modbusToolScaleLabel": "Fattore",
+  "@modbusToolScaleLabel": {},
+  "modbusToolScaleHint": "Valore visualizzato = valore grezzo × fattore",
+  "@modbusToolScaleHint": {},
+  "modbusToolNoteHint": "es. 0 = 2400, 1 = 4800, 2 = 9600",
+  "@modbusToolNoteHint": {},
+  "modbusToolInvalidAddress": "Numero intero tra 0 e 65535",
+  "@modbusToolInvalidAddress": {},
+  "modbusToolInvalidValue": "Valore non valido o fuori intervallo",
+  "@modbusToolInvalidValue": {},
+  "modbusToolValueLabel": "Nuovo valore",
+  "@modbusToolValueLabel": {},
+  "modbusToolWriteWarning": "Il comando viene inviato subito allo strumento. Modificando i parametri di comunicazione (baud rate, parità, ID Modbus) la connessione può interrompersi.",
+  "@modbusToolWriteWarning": {},
+  "modbusToolWriteOk": "Scritto: {name}",
+  "@modbusToolWriteOk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "modbusToolWriteError": "Errore Modbus in scrittura: {code}",
+  "@modbusToolWriteError": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "modbusToolNotRead": "Non ancora letto",
+  "@modbusToolNotRead": {},
+  "modbusToolOn": "ON",
+  "@modbusToolOn": {},
+  "modbusToolOff": "OFF",
+  "@modbusToolOff": {},
+  "modbusToolExport": "Salva su file",
+  "@modbusToolExport": {},
+  "modbusToolImport": "Carica da file",
+  "@modbusToolImport": {},
+  "modbusToolCopyFrom": "Copia da un altro strumento",
+  "@modbusToolCopyFrom": {},
+  "modbusToolImportModeTitle": "Cosa fare con i registri esistenti?",
+  "@modbusToolImportModeTitle": {},
+  "modbusToolImportAppend": "Aggiungi agli esistenti",
+  "@modbusToolImportAppend": {},
+  "modbusToolImportReplace": "Sostituisci gli esistenti",
+  "@modbusToolImportReplace": {},
+  "modbusToolImported": "{count} registri aggiunti",
+  "@modbusToolImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modbusToolImportInvalid": "Il file non contiene registri Modbus.",
+  "@modbusToolImportInvalid": {},
+  "modbusToolNoOtherSource": "Nessun altro strumento ha registri salvati.",
+  "@modbusToolNoOtherSource": {},
+  "modbusToolPollTitle": "Interrogazione periodica",
+  "@modbusToolPollTitle": {},
+  "modbusToolPollInterval": "Intervallo (s)",
+  "@modbusToolPollInterval": {},
+  "modbusToolPollStart": "Avvia",
+  "@modbusToolPollStart": {},
+  "modbusToolPollStop": "Ferma",
+  "@modbusToolPollStop": {},
+  "modbusToolPollSamples": "{count} interrogazioni",
+  "@modbusToolPollSamples": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modbusToolPollSave": "Salva interrogazioni",
+  "@modbusToolPollSave": {},
+  "modbusToolPollSelectHint": "Seleziona le righe da interrogare.",
+  "@modbusToolPollSelectHint": {},
+  "modbusToolTimeColumn": "Ora",
+  "@modbusToolTimeColumn": {}
 }

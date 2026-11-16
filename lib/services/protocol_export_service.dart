@@ -56,6 +56,7 @@ import 'protocol_pdf_builder.dart';
 import 'waste_assessment.dart';
 import 'source_classification.dart';
 import 'decommissioning_assessment.dart';
+import 'safe_file_name.dart';
 
 /// A felmérés lezárásakor generálja a Word jegyzőkönyvet a
 /// `assets/templates/jegyzokonyv_template.docx` sablon alapján.
@@ -1609,8 +1610,9 @@ class ProtocolExportService {
     return notes == null ? nuclideText : '$nuclideText. $notes';
   }
 
-  String _safeFileName(String input) =>
-      input.replaceAll(RegExp(r'[^\w\-]'), '_');
+  /// Fájlnévbe írható név: az ékezetes magyar betűk ékezet nélküli párjukra
+  /// cserélődnek (é→e, ő→o stb.), a többi, nem [A-Za-z0-9_-] karakter `_`.
+  String _safeFileName(String input) => safeFileName(input);
 
   /// Egy spektrum-ábra a Word-dokumentumban: kép (inline) és felirat.
   String _spectrumFigureXml(String rId, int id, String caption,

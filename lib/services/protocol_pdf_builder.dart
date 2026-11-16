@@ -606,8 +606,8 @@ class ProtocolPdfBuilder {
   static final Map<int, pw.TableColumnWidth> _pointColumnWidths = {
     0: pw.FixedColumnWidth(26),
     1: pw.FlexColumnWidth(1.1),
-    2: pw.FlexColumnWidth(1.6),
-    3: pw.FlexColumnWidth(2.6),
+    2: pw.FlexColumnWidth(2.3),
+    3: pw.FlexColumnWidth(1.9),
     4: pw.FlexColumnWidth(1.2),
     5: pw.FlexColumnWidth(1.3),
     6: pw.FlexColumnWidth(1.9),

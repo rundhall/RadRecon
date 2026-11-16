@@ -982,6 +982,36 @@ abstract class AppLocalizations {
   /// **'Megjelenés'**
   String get appearanceSectionTitle;
 
+  /// No description provided for @autoLogChartPointsLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Automatikus mérés: diagram pontjai'**
+  String get autoLogChartPointsLabel;
+
+  /// No description provided for @autoLogChartPointsHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az idődiagram legfeljebb ennyi legutóbbi mintát mutat.'**
+  String get autoLogChartPointsHint;
+
+  /// No description provided for @autoLogChartPointsAll.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mind'**
+  String get autoLogChartPointsAll;
+
+  /// No description provided for @autoLogChartSourceLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Diagram csatornája'**
+  String get autoLogChartSourceLabel;
+
+  /// No description provided for @autoLogChartResetTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Diagram újraindítása'**
+  String get autoLogChartResetTooltip;
+
   /// No description provided for @themeLight.
   ///
   /// In hu, this message translates to:
@@ -7524,6 +7554,264 @@ abstract class AppLocalizations {
   /// In hu, this message translates to:
   /// **'Csak lejárt'**
   String get personFilterExpired;
+
+  /// No description provided for @modbusToolTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Modbus segéd'**
+  String get modbusToolTitle;
+
+  /// No description provided for @modbusToolEmpty.
+  ///
+  /// In hu, this message translates to:
+  /// **'Még nincs regiszter felvéve. Az „Új regiszter” gombbal adhatsz hozzá.'**
+  String get modbusToolEmpty;
+
+  /// No description provided for @modbusToolAddRegister.
+  ///
+  /// In hu, this message translates to:
+  /// **'Új regiszter'**
+  String get modbusToolAddRegister;
+
+  /// No description provided for @modbusToolEditRegister.
+  ///
+  /// In hu, this message translates to:
+  /// **'Regiszter szerkesztése'**
+  String get modbusToolEditRegister;
+
+  /// No description provided for @modbusToolReadAll.
+  ///
+  /// In hu, this message translates to:
+  /// **'Összes kiolvasása'**
+  String get modbusToolReadAll;
+
+  /// No description provided for @modbusToolRead.
+  ///
+  /// In hu, this message translates to:
+  /// **'Olvasás'**
+  String get modbusToolRead;
+
+  /// No description provided for @modbusToolWrite.
+  ///
+  /// In hu, this message translates to:
+  /// **'Írás'**
+  String get modbusToolWrite;
+
+  /// No description provided for @modbusToolSend.
+  ///
+  /// In hu, this message translates to:
+  /// **'Küldés'**
+  String get modbusToolSend;
+
+  /// No description provided for @modbusToolNameLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Megnevezés'**
+  String get modbusToolNameLabel;
+
+  /// No description provided for @modbusToolKindLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Típus'**
+  String get modbusToolKindLabel;
+
+  /// No description provided for @modbusToolAddressLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Cím'**
+  String get modbusToolAddressLabel;
+
+  /// No description provided for @modbusToolAddressHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'0-tól számozott protokollcím, hexában is megadható (0x10)'**
+  String get modbusToolAddressHint;
+
+  /// No description provided for @modbusToolDataTypeLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Adattípus'**
+  String get modbusToolDataTypeLabel;
+
+  /// No description provided for @modbusToolByteOrderLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Bájtsorrend'**
+  String get modbusToolByteOrderLabel;
+
+  /// No description provided for @modbusToolScaleLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szorzó'**
+  String get modbusToolScaleLabel;
+
+  /// No description provided for @modbusToolScaleHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kijelzett érték = nyers érték × szorzó'**
+  String get modbusToolScaleHint;
+
+  /// No description provided for @modbusToolNoteHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'pl. 0 = 2400, 1 = 4800, 2 = 9600'**
+  String get modbusToolNoteHint;
+
+  /// No description provided for @modbusToolInvalidAddress.
+  ///
+  /// In hu, this message translates to:
+  /// **'0 és 65535 közötti egész szám'**
+  String get modbusToolInvalidAddress;
+
+  /// No description provided for @modbusToolInvalidValue.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érvénytelen vagy tartományon kívüli érték'**
+  String get modbusToolInvalidValue;
+
+  /// No description provided for @modbusToolValueLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Új érték'**
+  String get modbusToolValueLabel;
+
+  /// No description provided for @modbusToolWriteWarning.
+  ///
+  /// In hu, this message translates to:
+  /// **'A parancs azonnal kimegy a műszernek. A kommunikációs paraméterek (baud rate, paritás, Modbus ID) átírása után a kapcsolat megszakadhat.'**
+  String get modbusToolWriteWarning;
+
+  /// No description provided for @modbusToolWriteOk.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kiírva: {name}'**
+  String modbusToolWriteOk(String name);
+
+  /// No description provided for @modbusToolWriteError.
+  ///
+  /// In hu, this message translates to:
+  /// **'Modbus hiba az írás során: {code}'**
+  String modbusToolWriteError(String code);
+
+  /// No description provided for @modbusToolNotRead.
+  ///
+  /// In hu, this message translates to:
+  /// **'Még nincs kiolvasva'**
+  String get modbusToolNotRead;
+
+  /// No description provided for @modbusToolOn.
+  ///
+  /// In hu, this message translates to:
+  /// **'BE'**
+  String get modbusToolOn;
+
+  /// No description provided for @modbusToolOff.
+  ///
+  /// In hu, this message translates to:
+  /// **'KI'**
+  String get modbusToolOff;
+
+  /// No description provided for @modbusToolExport.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mentés fájlba'**
+  String get modbusToolExport;
+
+  /// No description provided for @modbusToolImport.
+  ///
+  /// In hu, this message translates to:
+  /// **'Beolvasás fájlból'**
+  String get modbusToolImport;
+
+  /// No description provided for @modbusToolCopyFrom.
+  ///
+  /// In hu, this message translates to:
+  /// **'Másolás másik műszerről'**
+  String get modbusToolCopyFrom;
+
+  /// No description provided for @modbusToolImportModeTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mi legyen a meglévő regiszterekkel?'**
+  String get modbusToolImportModeTitle;
+
+  /// No description provided for @modbusToolImportAppend.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hozzáadás a meglévőkhöz'**
+  String get modbusToolImportAppend;
+
+  /// No description provided for @modbusToolImportReplace.
+  ///
+  /// In hu, this message translates to:
+  /// **'Meglévők cseréje'**
+  String get modbusToolImportReplace;
+
+  /// No description provided for @modbusToolImported.
+  ///
+  /// In hu, this message translates to:
+  /// **'{count} regiszter átvéve'**
+  String modbusToolImported(int count);
+
+  /// No description provided for @modbusToolImportInvalid.
+  ///
+  /// In hu, this message translates to:
+  /// **'A fájl nem tartalmaz Modbus regisztereket.'**
+  String get modbusToolImportInvalid;
+
+  /// No description provided for @modbusToolNoOtherSource.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs másik műszer elmentett regiszterekkel.'**
+  String get modbusToolNoOtherSource;
+
+  /// No description provided for @modbusToolPollTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Időzített lekérdezés'**
+  String get modbusToolPollTitle;
+
+  /// No description provided for @modbusToolPollInterval.
+  ///
+  /// In hu, this message translates to:
+  /// **'Időköz (s)'**
+  String get modbusToolPollInterval;
+
+  /// No description provided for @modbusToolPollStart.
+  ///
+  /// In hu, this message translates to:
+  /// **'Indítás'**
+  String get modbusToolPollStart;
+
+  /// No description provided for @modbusToolPollStop.
+  ///
+  /// In hu, this message translates to:
+  /// **'Leállítás'**
+  String get modbusToolPollStop;
+
+  /// No description provided for @modbusToolPollSamples.
+  ///
+  /// In hu, this message translates to:
+  /// **'{count} lekérdezés'**
+  String modbusToolPollSamples(int count);
+
+  /// No description provided for @modbusToolPollSave.
+  ///
+  /// In hu, this message translates to:
+  /// **'Lekérdezések mentése'**
+  String get modbusToolPollSave;
+
+  /// No description provided for @modbusToolPollSelectHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Jelöld be a lekérdezendő sorokat.'**
+  String get modbusToolPollSelectHint;
+
+  /// No description provided for @modbusToolTimeColumn.
+  ///
+  /// In hu, this message translates to:
+  /// **'Idő'**
+  String get modbusToolTimeColumn;
 }
 
 class _AppLocalizationsDelegate

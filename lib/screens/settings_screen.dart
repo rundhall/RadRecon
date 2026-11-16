@@ -31,6 +31,7 @@ import '../services/settings_service.dart';
 import '../services/theme_controller.dart';
 import 'company_switch_screen.dart';
 import 'contributors_screen.dart';
+import '../services/auto_log_chart_controller.dart';
 
 /// Típusonkénti riasztási küszöbértékek beállítása. Ha egy mérési pont
 /// rögzítésekor a mért érték eléri/túllépi a küszöböt, az app figyelmeztet.
@@ -371,6 +372,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       selected: {currentMode},
                       onSelectionChanged: (selection) {
                         ThemeController.setThemeMode(selection.first);
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
+                ValueListenableBuilder<int>(
+                  valueListenable: AutoLogChartController.points,
+                  builder: (context, current, _) {
+                    return DropdownButtonFormField<int>(
+                      key: ValueKey('chart-points-$current'),
+                      initialValue: current,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: loc.autoLogChartPointsLabel,
+                        helperText: loc.autoLogChartPointsHint,
+                      ),
+                      items: [
+                        for (final n in AutoLogChartController.options)
+                          DropdownMenuItem<int>(
+                            value: n,
+                            child: Text(n == 0 ? loc.autoLogChartPointsAll : '$n'),
+                          ),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) AutoLogChartController.setPoints(v);
                       },
                     );
                   },

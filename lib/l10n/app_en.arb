@@ -301,6 +301,16 @@
   "@themeSystem": {},
   "settingsTitle": "Settings",
   "appearanceSectionTitle": "Appearance",
+  "autoLogChartPointsLabel": "Auto log: chart points",
+  "@autoLogChartPointsLabel": {},
+  "autoLogChartPointsHint": "The chart shows at most this many of the latest samples.",
+  "@autoLogChartPointsHint": {},
+  "autoLogChartPointsAll": "All",
+  "@autoLogChartPointsAll": {},
+  "autoLogChartSourceLabel": "Chart channel",
+  "@autoLogChartSourceLabel": {},
+  "autoLogChartResetTooltip": "Restart chart",
+  "@autoLogChartResetTooltip": {},
   "themeLight": "Light",
   "themeDark": "Dark",
   "themeSystem": "System",
@@ -2937,5 +2947,115 @@
   "personFilterAll": "All",
   "@personFilterAll": {},
   "personFilterExpired": "Expired only",
-  "@personFilterExpired": {}
+  "@personFilterExpired": {},
+  "modbusToolTitle": "Modbus helper",
+  "@modbusToolTitle": {},
+  "modbusToolEmpty": "No registers yet. Add one with the \"New register\" button.",
+  "@modbusToolEmpty": {},
+  "modbusToolAddRegister": "New register",
+  "@modbusToolAddRegister": {},
+  "modbusToolEditRegister": "Edit register",
+  "@modbusToolEditRegister": {},
+  "modbusToolReadAll": "Read all",
+  "@modbusToolReadAll": {},
+  "modbusToolRead": "Read",
+  "@modbusToolRead": {},
+  "modbusToolWrite": "Write",
+  "@modbusToolWrite": {},
+  "modbusToolSend": "Send",
+  "@modbusToolSend": {},
+  "modbusToolNameLabel": "Name",
+  "@modbusToolNameLabel": {},
+  "modbusToolKindLabel": "Type",
+  "@modbusToolKindLabel": {},
+  "modbusToolAddressLabel": "Address",
+  "@modbusToolAddressLabel": {},
+  "modbusToolAddressHint": "Zero-based protocol address, hex also accepted (0x10)",
+  "@modbusToolAddressHint": {},
+  "modbusToolDataTypeLabel": "Data type",
+  "@modbusToolDataTypeLabel": {},
+  "modbusToolByteOrderLabel": "Byte order",
+  "@modbusToolByteOrderLabel": {},
+  "modbusToolScaleLabel": "Scale",
+  "@modbusToolScaleLabel": {},
+  "modbusToolScaleHint": "Displayed value = raw value × scale",
+  "@modbusToolScaleHint": {},
+  "modbusToolNoteHint": "e.g. 0 = 2400, 1 = 4800, 2 = 9600",
+  "@modbusToolNoteHint": {},
+  "modbusToolInvalidAddress": "Whole number between 0 and 65535",
+  "@modbusToolInvalidAddress": {},
+  "modbusToolInvalidValue": "Invalid or out-of-range value",
+  "@modbusToolInvalidValue": {},
+  "modbusToolValueLabel": "New value",
+  "@modbusToolValueLabel": {},
+  "modbusToolWriteWarning": "The command is sent to the instrument immediately. Changing communication parameters (baud rate, parity, Modbus ID) may drop the connection.",
+  "@modbusToolWriteWarning": {},
+  "modbusToolWriteOk": "Written: {name}",
+  "@modbusToolWriteOk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "modbusToolWriteError": "Modbus error while writing: {code}",
+  "@modbusToolWriteError": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "modbusToolNotRead": "Not read yet",
+  "@modbusToolNotRead": {},
+  "modbusToolOn": "ON",
+  "@modbusToolOn": {},
+  "modbusToolOff": "OFF",
+  "@modbusToolOff": {},
+  "modbusToolExport": "Save to file",
+  "@modbusToolExport": {},
+  "modbusToolImport": "Load from file",
+  "@modbusToolImport": {},
+  "modbusToolCopyFrom": "Copy from another instrument",
+  "@modbusToolCopyFrom": {},
+  "modbusToolImportModeTitle": "What to do with the existing registers?",
+  "@modbusToolImportModeTitle": {},
+  "modbusToolImportAppend": "Add to existing",
+  "@modbusToolImportAppend": {},
+  "modbusToolImportReplace": "Replace existing",
+  "@modbusToolImportReplace": {},
+  "modbusToolImported": "{count} registers added",
+  "@modbusToolImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modbusToolImportInvalid": "The file contains no Modbus registers.",
+  "@modbusToolImportInvalid": {},
+  "modbusToolNoOtherSource": "No other instrument has saved registers.",
+  "@modbusToolNoOtherSource": {},
+  "modbusToolPollTitle": "Timed polling",
+  "@modbusToolPollTitle": {},
+  "modbusToolPollInterval": "Interval (s)",
+  "@modbusToolPollInterval": {},
+  "modbusToolPollStart": "Start",
+  "@modbusToolPollStart": {},
+  "modbusToolPollStop": "Stop",
+  "@modbusToolPollStop": {},
+  "modbusToolPollSamples": "{count} polls",
+  "@modbusToolPollSamples": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modbusToolPollSave": "Save polls",
+  "@modbusToolPollSave": {},
+  "modbusToolPollSelectHint": "Tick the rows to poll.",
+  "@modbusToolPollSelectHint": {},
+  "modbusToolTimeColumn": "Time",
+  "@modbusToolTimeColumn": {}
 }

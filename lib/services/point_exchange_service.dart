@@ -31,6 +31,8 @@ import 'activity_estimate.dart';
 import 'dose_unit_controller.dart';
 import 'dose_unit_converter.dart';
 import 'unit_format.dart';
+import '../models/decimal_separator.dart';
+import 'safe_file_name.dart';
 
 /// A CSV export nyelvfüggő fejlécei és a igen/nem szövegek — a szolgáltatás
 /// rétegnek nincs `BuildContext`-je, ezért ezt a hívó (egy widget) állítja
@@ -378,6 +380,7 @@ class PointExchangeService {
     int surveySessionId, {
     required String Function(MeasurementType) typeLabel,
     required CsvHeaders csvHeaders,
+    required String autoDecimalSeparator,
   }) async {
     final db = DatabaseHelper.instance;
     final session = await db.getSurveySession(surveySessionId);
@@ -394,6 +397,12 @@ class PointExchangeService {
     final distanceUnit = DistanceUnitController.current;
 
     const sep = ';'; // magyar Excel alapértelmezett listaelválasztója
+    final decSep = decimalSeparatorFor(
+        DecimalSeparatorController.current, autoDecimalSeparator);
+    // A számok tizedesjele a beállítás szerinti. A dátumok, a GPS-koordináták
+    // és a felhasználói szövegek nem változnak.
+    String dec(String s) => s.replaceAllMapped(
+        RegExp(r'(\d)\.(\d)'), (m) => '${m[1]}$decSep${m[2]}');
     final buffer = StringBuffer();
     buffer.writeln([
       csvHeaders.serialNumber, csvHeaders.location, csvHeaders.type,
@@ -413,7 +422,7 @@ class PointExchangeService {
       csvHeaders.spectrum,
       csvHeaders.radiation,
       csvHeaders.quantity,
-    ].join(sep));
+    ].map(_csvField).join(sep));
 
     final calibrationsByInstrument = <int, List<InstrumentCalibration>>{};
     for (final i in instruments) {
@@ -439,44 +448,44 @@ class PointExchangeService {
         typeLabel(pt.type),
         pt.value == null
             ? ''
-            : double.parse(pt.value!.toStringAsPrecision(6)).toString(),
+            : dec(double.parse(pt.value!.toStringAsPrecision(6)).toString()),
         pt.unit,
         pt.distanceFromSourceMeters == null
             ? ''
-            : double.parse(
+            : dec(double.parse(
                 distanceUnit
                     .fromMeters(pt.distanceFromSourceMeters!)
                     .toStringAsFixed(3),
-              ).toString(),
+              ).toString()),
         _csvField(instrument?.name ?? ''),
         pt.latitude.toStringAsFixed(6),
         pt.longitude.toStringAsFixed(6),
         pt.gpsAccuracyMeters == null
             ? ''
-            : distanceUnit.fromMeters(pt.gpsAccuracyMeters!).toStringAsFixed(1),
+            : dec(distanceUnit.fromMeters(pt.gpsAccuracyMeters!).toStringAsFixed(1)),
         pt.timestamp.toIso8601String(),
         pt.isSample ? csvHeaders.yes : csvHeaders.no,
         _csvField(pt.notes ?? ''),
-        _csvField(estimatedActivity ?? ''),
+        _csvField(dec(estimatedActivity ?? '')),
         _csvField(attached.isEmpty
             ? ''
             : attached
                 .map((a) =>
                     '${a.source.identifier} (${a.source.nuclideName}, '
-                    '${formatDistanceMeters(a.link.distanceMeters)})')
+                    '${dec(formatDistanceMeters(a.link.distanceMeters))})')
                 .join('; ')),
         hasCalculatedTotal
-            ? _formatValue(doseUnit.fromMicroSvPerHour(calculatedTotalUSvH))
+            ? dec(_formatValue(doseUnit.fromMicroSvPerHour(calculatedTotalUSvH)))
             : '',
         (measuredUSvH != null && hasCalculatedTotal)
-            ? _formatValue(
-                doseUnit.fromMicroSvPerHour(measuredUSvH - calculatedTotalUSvH))
+            ? dec(_formatValue(
+                doseUnit.fromMicroSvPerHour(measuredUSvH - calculatedTotalUSvH)))
             : '',
-        _csvField(nuclideSummaryText(
+        _csvField(dec(nuclideSummaryText(
           status: pt.nuclideStatus,
           nuclides: pt.nuclides,
           statusLabel: csvHeaders.nuclideStatusLabel,
-        )),
+        ))),
         _csvField(_calibrationText(
           instrument,
           instrument?.id == null
@@ -487,10 +496,10 @@ class PointExchangeService {
         )),
         pt.valueError == null
             ? ''
-            : double.parse(pt.valueError!.toStringAsPrecision(3)).toString(),
+            : dec(double.parse(pt.valueError!.toStringAsPrecision(3)).toString()),
         pt.averagingSamples == null
             ? ''
-            : '${pt.averagingSamples}; ${pt.averagingSeconds ?? ''}',
+            : _csvField('${pt.averagingSamples}; ${pt.averagingSeconds ?? ''}'),
         _csvField(_basisCsv(pt)),
         _csvField(_spectrumCsv(pt)),
         _csvField(_radiationCsv(pt)),
@@ -502,7 +511,8 @@ class PointExchangeService {
     final file = File(
       p.join(dir.path, '${_safeFileName(session.title)}_pontok.csv'),
     );
-    await file.writeAsString(buffer.toString());
+    // BOM elé: enélkül az Excel az UTF-8 fájlt ANSI-ként olvassa (µ, ±, ékezetek).
+    await file.writeAsString('\uFEFF${buffer.toString()}');
     return file;
   }
 
@@ -641,8 +651,7 @@ class PointExchangeService {
     return (total, unknownCount);
   }
 
-  String _safeFileName(String input) =>
-      input.replaceAll(RegExp(r'[^\w\-]'), '_');
+  String _safeFileName(String input) => safeFileName(input);
 
   /// Beolvassa a JSON exportot, és a benne lévő pontokat/műszereket
   /// hozzáadja a megadott felméréshez. A hiányzó nevű műszereket létrehozza,

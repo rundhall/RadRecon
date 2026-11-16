@@ -155,6 +155,16 @@
   "languageSystemOption": "Sprache des Telefons",
   "settingsTitle": "Einstellungen",
   "appearanceSectionTitle": "Darstellung",
+  "autoLogChartPointsLabel": "Automatische Messung: Diagrammpunkte",
+  "@autoLogChartPointsLabel": {},
+  "autoLogChartPointsHint": "Das Diagramm zeigt höchstens so viele der letzten Messwerte.",
+  "@autoLogChartPointsHint": {},
+  "autoLogChartPointsAll": "Alle",
+  "@autoLogChartPointsAll": {},
+  "autoLogChartSourceLabel": "Diagrammkanal",
+  "@autoLogChartSourceLabel": {},
+  "autoLogChartResetTooltip": "Diagramm neu starten",
+  "@autoLogChartResetTooltip": {},
   "themeLight": "Hell",
   "themeDark": "Dunkel",
   "themeSystem": "System",
@@ -2044,5 +2054,115 @@
   "personFilterAll": "Alle",
   "@personFilterAll": {},
   "personFilterExpired": "Nur abgelaufene",
-  "@personFilterExpired": {}
+  "@personFilterExpired": {},
+  "modbusToolTitle": "Modbus-Assistent",
+  "@modbusToolTitle": {},
+  "modbusToolEmpty": "Noch keine Register angelegt. Mit „Neues Register“ hinzufügen.",
+  "@modbusToolEmpty": {},
+  "modbusToolAddRegister": "Neues Register",
+  "@modbusToolAddRegister": {},
+  "modbusToolEditRegister": "Register bearbeiten",
+  "@modbusToolEditRegister": {},
+  "modbusToolReadAll": "Alle auslesen",
+  "@modbusToolReadAll": {},
+  "modbusToolRead": "Lesen",
+  "@modbusToolRead": {},
+  "modbusToolWrite": "Schreiben",
+  "@modbusToolWrite": {},
+  "modbusToolSend": "Senden",
+  "@modbusToolSend": {},
+  "modbusToolNameLabel": "Bezeichnung",
+  "@modbusToolNameLabel": {},
+  "modbusToolKindLabel": "Typ",
+  "@modbusToolKindLabel": {},
+  "modbusToolAddressLabel": "Adresse",
+  "@modbusToolAddressLabel": {},
+  "modbusToolAddressHint": "Nullbasierte Protokolladresse, auch hexadezimal (0x10)",
+  "@modbusToolAddressHint": {},
+  "modbusToolDataTypeLabel": "Datentyp",
+  "@modbusToolDataTypeLabel": {},
+  "modbusToolByteOrderLabel": "Byte-Reihenfolge",
+  "@modbusToolByteOrderLabel": {},
+  "modbusToolScaleLabel": "Faktor",
+  "@modbusToolScaleLabel": {},
+  "modbusToolScaleHint": "Angezeigter Wert = Rohwert × Faktor",
+  "@modbusToolScaleHint": {},
+  "modbusToolNoteHint": "z. B. 0 = 2400, 1 = 4800, 2 = 9600",
+  "@modbusToolNoteHint": {},
+  "modbusToolInvalidAddress": "Ganze Zahl zwischen 0 und 65535",
+  "@modbusToolInvalidAddress": {},
+  "modbusToolInvalidValue": "Ungültiger Wert oder außerhalb des Bereichs",
+  "@modbusToolInvalidValue": {},
+  "modbusToolValueLabel": "Neuer Wert",
+  "@modbusToolValueLabel": {},
+  "modbusToolWriteWarning": "Der Befehl wird sofort an das Gerät gesendet. Nach dem Ändern von Kommunikationsparametern (Baudrate, Parität, Modbus-ID) kann die Verbindung abbrechen.",
+  "@modbusToolWriteWarning": {},
+  "modbusToolWriteOk": "Geschrieben: {name}",
+  "@modbusToolWriteOk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "modbusToolWriteError": "Modbus-Fehler beim Schreiben: {code}",
+  "@modbusToolWriteError": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "modbusToolNotRead": "Noch nicht ausgelesen",
+  "@modbusToolNotRead": {},
+  "modbusToolOn": "EIN",
+  "@modbusToolOn": {},
+  "modbusToolOff": "AUS",
+  "@modbusToolOff": {},
+  "modbusToolExport": "In Datei speichern",
+  "@modbusToolExport": {},
+  "modbusToolImport": "Aus Datei laden",
+  "@modbusToolImport": {},
+  "modbusToolCopyFrom": "Von anderem Gerät kopieren",
+  "@modbusToolCopyFrom": {},
+  "modbusToolImportModeTitle": "Was soll mit den vorhandenen Registern geschehen?",
+  "@modbusToolImportModeTitle": {},
+  "modbusToolImportAppend": "Zu vorhandenen hinzufügen",
+  "@modbusToolImportAppend": {},
+  "modbusToolImportReplace": "Vorhandene ersetzen",
+  "@modbusToolImportReplace": {},
+  "modbusToolImported": "{count} Register übernommen",
+  "@modbusToolImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modbusToolImportInvalid": "Die Datei enthält keine Modbus-Register.",
+  "@modbusToolImportInvalid": {},
+  "modbusToolNoOtherSource": "Kein anderes Gerät hat gespeicherte Register.",
+  "@modbusToolNoOtherSource": {},
+  "modbusToolPollTitle": "Zyklische Abfrage",
+  "@modbusToolPollTitle": {},
+  "modbusToolPollInterval": "Intervall (s)",
+  "@modbusToolPollInterval": {},
+  "modbusToolPollStart": "Start",
+  "@modbusToolPollStart": {},
+  "modbusToolPollStop": "Stopp",
+  "@modbusToolPollStop": {},
+  "modbusToolPollSamples": "{count} Abfragen",
+  "@modbusToolPollSamples": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modbusToolPollSave": "Abfragen speichern",
+  "@modbusToolPollSave": {},
+  "modbusToolPollSelectHint": "Markiere die abzufragenden Zeilen.",
+  "@modbusToolPollSelectHint": {},
+  "modbusToolTimeColumn": "Zeit",
+  "@modbusToolTimeColumn": {}
 }

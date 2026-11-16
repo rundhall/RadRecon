@@ -474,6 +474,22 @@ class AppLocalizationsHu extends AppLocalizations {
   String get appearanceSectionTitle => 'Megjelenés';
 
   @override
+  String get autoLogChartPointsLabel => 'Automatikus mérés: diagram pontjai';
+
+  @override
+  String get autoLogChartPointsHint =>
+      'Az idődiagram legfeljebb ennyi legutóbbi mintát mutat.';
+
+  @override
+  String get autoLogChartPointsAll => 'Mind';
+
+  @override
+  String get autoLogChartSourceLabel => 'Diagram csatornája';
+
+  @override
+  String get autoLogChartResetTooltip => 'Diagram újraindítása';
+
+  @override
   String get themeLight => 'Világos';
 
   @override
@@ -4072,4 +4088,147 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get personFilterExpired => 'Csak lejárt';
+
+  @override
+  String get modbusToolTitle => 'Modbus segéd';
+
+  @override
+  String get modbusToolEmpty =>
+      'Még nincs regiszter felvéve. Az „Új regiszter” gombbal adhatsz hozzá.';
+
+  @override
+  String get modbusToolAddRegister => 'Új regiszter';
+
+  @override
+  String get modbusToolEditRegister => 'Regiszter szerkesztése';
+
+  @override
+  String get modbusToolReadAll => 'Összes kiolvasása';
+
+  @override
+  String get modbusToolRead => 'Olvasás';
+
+  @override
+  String get modbusToolWrite => 'Írás';
+
+  @override
+  String get modbusToolSend => 'Küldés';
+
+  @override
+  String get modbusToolNameLabel => 'Megnevezés';
+
+  @override
+  String get modbusToolKindLabel => 'Típus';
+
+  @override
+  String get modbusToolAddressLabel => 'Cím';
+
+  @override
+  String get modbusToolAddressHint =>
+      '0-tól számozott protokollcím, hexában is megadható (0x10)';
+
+  @override
+  String get modbusToolDataTypeLabel => 'Adattípus';
+
+  @override
+  String get modbusToolByteOrderLabel => 'Bájtsorrend';
+
+  @override
+  String get modbusToolScaleLabel => 'Szorzó';
+
+  @override
+  String get modbusToolScaleHint => 'Kijelzett érték = nyers érték × szorzó';
+
+  @override
+  String get modbusToolNoteHint => 'pl. 0 = 2400, 1 = 4800, 2 = 9600';
+
+  @override
+  String get modbusToolInvalidAddress => '0 és 65535 közötti egész szám';
+
+  @override
+  String get modbusToolInvalidValue =>
+      'Érvénytelen vagy tartományon kívüli érték';
+
+  @override
+  String get modbusToolValueLabel => 'Új érték';
+
+  @override
+  String get modbusToolWriteWarning =>
+      'A parancs azonnal kimegy a műszernek. A kommunikációs paraméterek (baud rate, paritás, Modbus ID) átírása után a kapcsolat megszakadhat.';
+
+  @override
+  String modbusToolWriteOk(String name) {
+    return 'Kiírva: $name';
+  }
+
+  @override
+  String modbusToolWriteError(String code) {
+    return 'Modbus hiba az írás során: $code';
+  }
+
+  @override
+  String get modbusToolNotRead => 'Még nincs kiolvasva';
+
+  @override
+  String get modbusToolOn => 'BE';
+
+  @override
+  String get modbusToolOff => 'KI';
+
+  @override
+  String get modbusToolExport => 'Mentés fájlba';
+
+  @override
+  String get modbusToolImport => 'Beolvasás fájlból';
+
+  @override
+  String get modbusToolCopyFrom => 'Másolás másik műszerről';
+
+  @override
+  String get modbusToolImportModeTitle => 'Mi legyen a meglévő regiszterekkel?';
+
+  @override
+  String get modbusToolImportAppend => 'Hozzáadás a meglévőkhöz';
+
+  @override
+  String get modbusToolImportReplace => 'Meglévők cseréje';
+
+  @override
+  String modbusToolImported(int count) {
+    return '$count regiszter átvéve';
+  }
+
+  @override
+  String get modbusToolImportInvalid =>
+      'A fájl nem tartalmaz Modbus regisztereket.';
+
+  @override
+  String get modbusToolNoOtherSource =>
+      'Nincs másik műszer elmentett regiszterekkel.';
+
+  @override
+  String get modbusToolPollTitle => 'Időzített lekérdezés';
+
+  @override
+  String get modbusToolPollInterval => 'Időköz (s)';
+
+  @override
+  String get modbusToolPollStart => 'Indítás';
+
+  @override
+  String get modbusToolPollStop => 'Leállítás';
+
+  @override
+  String modbusToolPollSamples(int count) {
+    return '$count lekérdezés';
+  }
+
+  @override
+  String get modbusToolPollSave => 'Lekérdezések mentése';
+
+  @override
+  String get modbusToolPollSelectHint => 'Jelöld be a lekérdezendő sorokat.';
+
+  @override
+  String get modbusToolTimeColumn => 'Idő';
 }

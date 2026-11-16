@@ -20,6 +20,7 @@ import '../models/survey_purpose.dart';
 import '../models/survey_session.dart';
 import '../widgets/survey_purpose_dropdown.dart';
 import 'protocol_fields_screen.dart';
+import 'protocol_preview_screen.dart';
 import '../services/point_exchange_service.dart';
 import '../services/measurement_filter.dart';
 import '../services/survey_filter.dart';
@@ -516,12 +517,19 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
           : await _exportService.exportSurvey(
               widget.surveySessionId, loc, options: options);
       if (!mounted) return;
-      await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(file.path)],
-          subject: loc.protocolShareSubject(_displayTitle),
-        ),
-      );
+      final subject = loc.protocolShareSubject(_displayTitle);
+      if (format == ProtocolFormat.pdf) {
+        setState(() => _isExporting = false);
+        await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => ProtocolPreviewScreen(file: file, title: subject),
+          ),
+        );
+      } else {
+        await SharePlus.instance.share(
+          ShareParams(files: [XFile(file.path)], subject: subject),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -565,7 +573,8 @@ class _MeasurementListScreenState extends State<MeasurementListScreen> {
     try {
       final file = await _exchangeService.exportCsv(
         widget.surveySessionId,
-          typeLabel: (t) => t.name,
+          typeLabel: (t) => t.localized(loc),
+        autoDecimalSeparator: loc.protoDecimalSep,
         csvHeaders: CsvHeaders(
           serialNumber: loc.csvHeaderSerialNumber,
           basis: loc.csvHeaderBasis,

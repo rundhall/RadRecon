@@ -1,5 +1,6 @@
 import '../models/victim_details.dart';
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' show Random;
 
@@ -9,6 +10,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../models/sample_analysis.dart';
 import '../models/instrument.dart';
+import '../models/modbus_register.dart';
 import '../models/map_area.dart';
 import '../models/map_measure_line.dart';
 import '../models/company_document.dart';
@@ -76,7 +78,7 @@ class DatabaseHelper {
   // v32: a radiation_sources nuklid-, aktivitás- és gyártási dátum-mezője
   // nullable (talált forrás). A tábla újraépítése a megnyitáskor fut, FK nélkül.
   // v33: forrásonkénti lejárati értesítés (`notify_enabled`, a meglévők bekapcsolva).
-  static const _dbVersion = 44;
+  static const _dbVersion = 45;
 
   /// A jelenlegi séma-verzió (a mentésfájlok kompatibilitás-ellenőrzéséhez).
   static const schemaVersion = _dbVersion;
@@ -673,6 +675,16 @@ class DatabaseHelper {
         await db.execute("ALTER TABLE instruments ADD COLUMN modbus_channels TEXT NOT NULL DEFAULT '[]'");
       }
     }
+
+    if (oldVersion < 45) {
+      // v45: a Modbus segéd elnevezett regiszterei műszerenként, JSON-ban.
+      final instrCols45 = (await db.rawQuery('PRAGMA table_info(instruments)'))
+          .map((c) => c['name'] as String)
+          .toSet();
+      if (!instrCols45.contains('modbus_registers')) {
+        await db.execute("ALTER TABLE instruments ADD COLUMN modbus_registers TEXT NOT NULL DEFAULT '[]'");
+      }
+    }
   }
 
   Future<void> _rebuildRadiationSourcesNullable(Database db) async {
@@ -1075,7 +1087,8 @@ class DatabaseHelper {
         modbus_gps_lon_address INTEGER NOT NULL DEFAULT 428,
         modbus_measurement_type TEXT NOT NULL DEFAULT 'dose_rate',
         modbus_unit TEXT NOT NULL DEFAULT 'nSv/h',
-        modbus_channels TEXT NOT NULL DEFAULT '[]'
+        modbus_channels TEXT NOT NULL DEFAULT '[]',
+        modbus_registers TEXT NOT NULL DEFAULT '[]'
       )
     ''');
 
@@ -2015,6 +2028,43 @@ class DatabaseHelper {
     final db = await database;
     final rows = await db.query('instruments', orderBy: 'name ASC');
     return rows.map(Instrument.fromMap).toList();
+  }
+
+  /// A Modbus segéd elmentett regiszterei. Külön oszlopban élnek, és az
+  /// [Instrument.toMap] nem tartalmazza őket, így a műszer szerkesztése nem
+  /// írja felül a listát.
+  Future<List<ModbusRegisterDef>> getModbusRegisters(int instrumentId) async {
+    final db = await database;
+    final rows = await db.query(
+      'instruments',
+      columns: ['modbus_registers'],
+      where: 'id = ?',
+      whereArgs: [instrumentId],
+    );
+    if (rows.isEmpty) return const [];
+    final raw = rows.first['modbus_registers'];
+    if (raw is! String || raw.isEmpty) return const [];
+    try {
+      return ModbusRegisterDef.listFromJson(jsonDecode(raw));
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  Future<void> saveModbusRegisters(
+    int instrumentId,
+    List<ModbusRegisterDef> registers,
+  ) async {
+    final db = await database;
+    await db.update(
+      'instruments',
+      {
+        'modbus_registers':
+            jsonEncode([for (final r in registers) r.toJson()]),
+      },
+      where: 'id = ?',
+      whereArgs: [instrumentId],
+    );
   }
 
   Future<void> updateInstrument(Instrument instrument) async {

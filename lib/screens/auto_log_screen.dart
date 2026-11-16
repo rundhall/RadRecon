@@ -27,8 +27,24 @@ import '../services/settings_service.dart';
 import '../widgets/dose_widgets.dart';
 import '../widgets/quantity_field.dart';
 import '../widgets/time_series_chart.dart';
+import '../services/auto_log_chart_controller.dart';
+import 'instrument_list_screen.dart';
+import 'package:intl/intl.dart';
 
 enum _TriggerMode { time, distance }
+
+/// Mérési érték nagy kijelzőre: a műszer-kijelzőhöz hasonló, kevés tizedessel,
+/// a helyi tizedesjellel.
+String _formatReading(BuildContext context, double v) {
+  final locale = Localizations.localeOf(context).toString();
+  final a = v.abs();
+  if (a == 0) return '0';
+  if (a >= 1e5 || a < 1e-3) {
+    return NumberFormat('0.00E0', locale).format(v);
+  }
+  final pattern = a >= 100 ? '#,##0' : a >= 10 ? '0.0' : a >= 1 ? '0.00' : '0.0000';
+  return NumberFormat(pattern, locale).format(v);
+}
 
 /// Egy kiválasztható csatorna: melyik műszer, melyik regiszter.
 class _Source {
@@ -124,16 +140,31 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
 
   bool get _useModbusGps => _gpsSrc != null;
 
-  /// A futás alatt olvasott értékek az idődiagramhoz (alapegységben).
-  final List<TimeSample> _samples = [];
+  /// A futás alatt olvasott értékek csatornánként, alapegységben (az
+  /// idődiagramhoz). Minden kijelölt csatorna a saját pufferébe ír.
+  final Map<_Source, List<TimeSample>> _series = {};
   static const _maxSamples = 7200;
   double? _threshold;
-  String _chartUnit = '';
+  String get _chartUnit => _chartSrc?.channel.type.defaultUnit ?? '';
+  List<TimeSample> get _chartSamples => _series[_chartSrc] ?? const [];
+
+  /// A megjelenített csatorna utolsó mért értéke (alapegységben).
+  double? get _currentValue =>
+      _chartSamples.isEmpty ? null : _chartSamples.last.value;
+
+  /// A kijelzőn az érték a küszöb fölött van (riasztási szín).
+  bool get _isAlarm =>
+      _currentValue != null &&
+      _threshold != null &&
+      _currentValue! >= _threshold!;
+
+  /// A csatorna neve a kijelzőn és a legördülőben: műszer · csatorna.
+  String _chartChannelLabel(
+      BuildContext context, AppLocalizations loc, _Source s) =>
+      '${s.instrument.name} · ${modbusChannelLabel(loc, s.channel, s.channel.type.label(context))}';
 
   int _capturedCount = 0;
   int _errorCount = 0;
-  double? _lastValue;
-  String _lastUnit = '';
   String? _lastError;
 
   List<_Source> get _selectedSources => [
@@ -149,13 +180,43 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     return null;
   }
 
+  /// A diagramra került minták: a legutóbbi [limit] db (0 = mind).
+  List<TimeSample> _lastSamples(int limit) {
+    final samples = _chartSamples;
+    if (limit <= 0 || samples.length <= limit) return samples;
+    return samples.sublist(samples.length - limit);
+  }
+
   void _addSample(double raw, _Source s) {
-    _samples.add(
+    final list = _series.putIfAbsent(s, () => <TimeSample>[]);
+    list.add(
       TimeSample(DateTime.now(), channelReadingInAppUnit(s.channel, raw)),
     );
-    if (_samples.length > _maxSamples) {
-      _samples.removeRange(0, _samples.length - _maxSamples);
+    if (list.length > _maxSamples) {
+      list.removeRange(0, list.length - _maxSamples);
     }
+  }
+
+  Future<double?> _loadThreshold(_Source? s) => s == null
+      ? Future.value(null)
+      : SettingsService().getThreshold(s.channel.type);
+
+  /// A diagramon megjelenített csatorna váltása (futás közben is).
+  Future<void> _selectChartSource(_Source s) async {
+    final threshold = await _loadThreshold(s);
+    if (!mounted) return;
+    setState(() {
+      _chartSrc = s;
+      _threshold = threshold;
+    });
+  }
+
+  /// A megjelenített csatorna diagramjának újraindítása: a puffere ürül, a
+  /// többi csatornáé érintetlen. A mérési pontok az adatbázisban maradnak.
+  void _resetChart() {
+    final s = _chartSrc;
+    if (s == null) return;
+    setState(() => _series[s]?.clear());
   }
 
   @override
@@ -165,7 +226,21 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     _loadInstruments();
   }
 
-  Future<void> _loadInstruments() async {
+  Future<void> _openInstruments() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const InstrumentListScreen()),
+    );
+    if (!mounted) return;
+    // A műszerek változhattak: a korábbi diagram csatornája már nem érvényes.
+    setState(() {
+      _chartSrc = null;
+      _threshold = null;
+      _series.clear();
+    });
+    await _loadInstruments(allowAutoStart: false);
+  }
+
+  Future<void> _loadInstruments({bool allowAutoStart = true}) async {
     final all = await DatabaseHelper.instance.getInstruments();
     if (!mounted) return;
     setState(() {
@@ -176,7 +251,9 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       ];
       if (_sources.isNotEmpty) _sources.first.selected = true;
     });
-    if (widget.autoStart && !_isRunning && !_starting) unawaited(_start());
+    if (allowAutoStart && widget.autoStart && !_isRunning && !_starting) {
+      unawaited(_start());
+    }
   }
 
   Future<bool> _ensureLocationPermission() async {
@@ -251,22 +328,17 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     _gpsSrc = gpsCandidate;
     _doseSrc = _firstOf(
         selected, (s) => s.channel.type == MeasurementType.doseRate);
-    _chartSrc = _firstOf(selected, (s) => _isRadiation(s.channel.type));
+    _chartSrc = _firstOf(selected, (s) => _isRadiation(s.channel.type)) ??
+        (selected.isEmpty ? null : selected.first);
 
     unawaited(WakelockPlus.enable());
-    final chart = _chartSrc;
-    _threshold = chart == null
-        ? null
-        : await SettingsService().getThreshold(chart.channel.type);
-    _chartUnit = chart?.channel.type.defaultUnit ?? '';
+    _threshold = await _loadThreshold(_chartSrc);
     setState(() {
-      _samples.clear();
+      _series.clear();
       _isRunning = true;
       _starting = false;
       _capturedCount = 0;
       _errorCount = 0;
-      _lastValue = null;
-      _lastUnit = '';
       _lastError = null;
       _lastModbusGpsPosition = null;
       _dose.reset();
@@ -319,9 +391,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       final value = result.value;
       if (result.success && value != null) {
         _dose.addSample(value, doseActive.source.channel.unit, DateTime.now());
-        if (identical(_chartSrc, _doseSrc)) {
-          _addSample(value, doseActive.source);
-        }
+        _addSample(value, doseActive.source);
         if (mounted) setState(() {});
       }
     } finally {
@@ -456,7 +526,7 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
         if (identical(a.source, _doseSrc)) {
           _dose.addSample(raw, a.source.channel.unit, DateTime.now());
         }
-        if (identical(a.source, _chartSrc)) _addSample(raw, a.source);
+        _addSample(raw, a.source);
       }
 
       final double latitude;
@@ -566,12 +636,6 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       }
 
       _capturedCount += points.length;
-      for (final (a, r) in readings) {
-        if (identical(a.source, _chartSrc)) {
-          _lastValue = channelReadingInAppUnit(a.source.channel, r.value!);
-          _lastUnit = a.source.channel.type.defaultUnit;
-        }
-      }
       if (mounted) setState(() {});
     } finally {
       _busy = false;
@@ -647,7 +711,18 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     final hasDose =
         selected.any((s) => s.channel.type == MeasurementType.doseRate);
     return Scaffold(
-      appBar: AppBar(title: Text(loc.autoLogMenuItem)),
+      appBar: AppBar(
+        title: Text(loc.autoLogMenuItem),
+        actions: [
+          // Futás közben nem nyitható meg: a visszatéréskor újratöltött
+          // műszerlista lecserélné a futó lekérdezés csatornáit.
+          IconButton(
+            icon: const Icon(Icons.sensors),
+            tooltip: loc.instrumentsTooltip,
+            onPressed: _isRunning || _starting ? null : _openInstruments,
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -765,26 +840,96 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
                 label: Text(loc.stopButton),
               ),
             const SizedBox(height: 24),
-            if (_samples.isNotEmpty)
+            if (_chartSrc != null)
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(loc.autoLogChartTitle,
-                          style: Theme.of(context).textTheme.titleSmall),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(loc.autoLogChartTitle,
+                                style: Theme.of(context).textTheme.titleSmall),
+                          ),
+                          IconButton(
+                            tooltip: loc.autoLogChartResetTooltip,
+                            icon: const Icon(Icons.restart_alt),
+                            onPressed: _resetChart,
+                          ),
+                        ],
+                      ),
+                      if (_selectedSources.length > 1) ...[
+                        const SizedBox(height: 4),
+                        DropdownButtonFormField<_Source>(
+                          key: ValueKey(_chartSrc),
+                          initialValue: _chartSrc,
+                          isExpanded: true,
+                          decoration: InputDecoration(
+                            labelText: loc.autoLogChartSourceLabel,
+                          ),
+                          items: [
+                            for (final s in _selectedSources)
+                              DropdownMenuItem<_Source>(
+                                value: s,
+                                child: Text(
+                                  _chartChannelLabel(context, loc, s),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                          ],
+                          onChanged: (s) {
+                            if (s != null) _selectChartSource(s);
+                          },
+                        ),
+                      ],
+                      if (_currentValue != null) ...[
+                        Text(
+                          _chartChannelLabel(context, loc, _chartSrc!),
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                _formatReading(context, _currentValue!),
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displayMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: _isAlarm
+                                          ? Theme.of(context).colorScheme.error
+                                          : null,
+                                    ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _chartUnit,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                          ],
+                        ),
+                      ],
                       const SizedBox(height: 8),
-                      TimeSeriesChart(
-                        samples: _samples,
-                        unit: _chartUnit,
-                        threshold: _threshold,
+                      ValueListenableBuilder<int>(
+                        valueListenable: AutoLogChartController.points,
+                        builder: (context, limit, _) => TimeSeriesChart(
+                          samples: _lastSamples(limit),
+                          unit: _chartUnit,
+                          threshold: _threshold,
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
-            if (_samples.isNotEmpty) const SizedBox(height: 16),
+            if (_chartSrc != null) const SizedBox(height: 16),
             if (_isRunning || _capturedCount > 0 || _errorCount > 0)
               Card(
                 child: Padding(
@@ -820,10 +965,6 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
                           style: TextStyle(
                               color: Theme.of(context).colorScheme.error),
                         ),
-                      if (_lastValue != null)
-                        Text(loc.lastValueLabel(
-                            '${double.parse(_lastValue!.toStringAsFixed(4))}',
-                            _lastUnit)),
                       if (_errorCount > 0)
                         Text(
                           loc.failedReadingsLabel(_errorCount) +

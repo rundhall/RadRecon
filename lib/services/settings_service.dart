@@ -68,6 +68,7 @@ class SettingsService {
   static const _activityUnitKey = 'activity_unit';
   static const _distanceUnitKey = 'distance_unit';
   static const _decimalSeparatorKey = 'decimal_separator';
+  static const _autoLogChartPointsKey = 'auto_log_chart_points';
   static const _expiryNotifEnabledKey = 'expiry_notifications_enabled';
   static const _expiryNotifLeadKey = 'expiry_notifications_lead';
   static const _bluetoothButtonsKey = 'bluetooth_buttons_enabled';
@@ -147,6 +148,17 @@ class SettingsService {
   Future<void> setDecimalSeparator(DecimalSeparatorMode value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_decimalSeparatorKey, value.storageValue);
+  }
+
+  /// Az automatikus mérés diagramjának megjelenített pontjai (0 = mind).
+  Future<int> getAutoLogChartPoints() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_autoLogChartPointsKey) ?? 120;
+  }
+
+  Future<void> setAutoLogChartPoints(int value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_autoLogChartPointsKey, value);
   }
 
   Future<double?> getDoseRateThreshold() =>

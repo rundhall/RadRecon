@@ -155,6 +155,16 @@
   "languageSystemOption": "Langue du téléphone",
   "settingsTitle": "Réglages",
   "appearanceSectionTitle": "Apparence",
+  "autoLogChartPointsLabel": "Mesure automatique : points du graphique",
+  "@autoLogChartPointsLabel": {},
+  "autoLogChartPointsHint": "Le graphique affiche au maximum ce nombre des derniers échantillons.",
+  "@autoLogChartPointsHint": {},
+  "autoLogChartPointsAll": "Tous",
+  "@autoLogChartPointsAll": {},
+  "autoLogChartSourceLabel": "Voie du graphique",
+  "@autoLogChartSourceLabel": {},
+  "autoLogChartResetTooltip": "Redémarrer le graphique",
+  "@autoLogChartResetTooltip": {},
   "themeLight": "Clair",
   "themeDark": "Sombre",
   "themeSystem": "Système",
@@ -2015,5 +2025,115 @@
   "personFilterAll": "Tous",
   "@personFilterAll": {},
   "personFilterExpired": "Expirés uniquement",
-  "@personFilterExpired": {}
+  "@personFilterExpired": {},
+  "modbusToolTitle": "Assistant Modbus",
+  "@modbusToolTitle": {},
+  "modbusToolEmpty": "Aucun registre pour le moment. Ajoutez-en un avec le bouton « Nouveau registre ».",
+  "@modbusToolEmpty": {},
+  "modbusToolAddRegister": "Nouveau registre",
+  "@modbusToolAddRegister": {},
+  "modbusToolEditRegister": "Modifier le registre",
+  "@modbusToolEditRegister": {},
+  "modbusToolReadAll": "Tout lire",
+  "@modbusToolReadAll": {},
+  "modbusToolRead": "Lire",
+  "@modbusToolRead": {},
+  "modbusToolWrite": "Écrire",
+  "@modbusToolWrite": {},
+  "modbusToolSend": "Envoyer",
+  "@modbusToolSend": {},
+  "modbusToolNameLabel": "Nom",
+  "@modbusToolNameLabel": {},
+  "modbusToolKindLabel": "Type",
+  "@modbusToolKindLabel": {},
+  "modbusToolAddressLabel": "Adresse",
+  "@modbusToolAddressLabel": {},
+  "modbusToolAddressHint": "Adresse de protocole à partir de 0, hexadécimal accepté (0x10)",
+  "@modbusToolAddressHint": {},
+  "modbusToolDataTypeLabel": "Type de donnée",
+  "@modbusToolDataTypeLabel": {},
+  "modbusToolByteOrderLabel": "Ordre des octets",
+  "@modbusToolByteOrderLabel": {},
+  "modbusToolScaleLabel": "Facteur",
+  "@modbusToolScaleLabel": {},
+  "modbusToolScaleHint": "Valeur affichée = valeur brute × facteur",
+  "@modbusToolScaleHint": {},
+  "modbusToolNoteHint": "p. ex. 0 = 2400, 1 = 4800, 2 = 9600",
+  "@modbusToolNoteHint": {},
+  "modbusToolInvalidAddress": "Nombre entier entre 0 et 65535",
+  "@modbusToolInvalidAddress": {},
+  "modbusToolInvalidValue": "Valeur invalide ou hors plage",
+  "@modbusToolInvalidValue": {},
+  "modbusToolValueLabel": "Nouvelle valeur",
+  "@modbusToolValueLabel": {},
+  "modbusToolWriteWarning": "La commande est envoyée immédiatement à l’instrument. La modification des paramètres de communication (débit, parité, ID Modbus) peut couper la connexion.",
+  "@modbusToolWriteWarning": {},
+  "modbusToolWriteOk": "Écrit : {name}",
+  "@modbusToolWriteOk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "modbusToolWriteError": "Erreur Modbus lors de l’écriture : {code}",
+  "@modbusToolWriteError": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "modbusToolNotRead": "Pas encore lu",
+  "@modbusToolNotRead": {},
+  "modbusToolOn": "ON",
+  "@modbusToolOn": {},
+  "modbusToolOff": "OFF",
+  "@modbusToolOff": {},
+  "modbusToolExport": "Enregistrer dans un fichier",
+  "@modbusToolExport": {},
+  "modbusToolImport": "Charger depuis un fichier",
+  "@modbusToolImport": {},
+  "modbusToolCopyFrom": "Copier depuis un autre instrument",
+  "@modbusToolCopyFrom": {},
+  "modbusToolImportModeTitle": "Que faire des registres existants ?",
+  "@modbusToolImportModeTitle": {},
+  "modbusToolImportAppend": "Ajouter aux existants",
+  "@modbusToolImportAppend": {},
+  "modbusToolImportReplace": "Remplacer les existants",
+  "@modbusToolImportReplace": {},
+  "modbusToolImported": "{count} registres ajoutés",
+  "@modbusToolImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modbusToolImportInvalid": "Le fichier ne contient aucun registre Modbus.",
+  "@modbusToolImportInvalid": {},
+  "modbusToolNoOtherSource": "Aucun autre instrument n’a de registres enregistrés.",
+  "@modbusToolNoOtherSource": {},
+  "modbusToolPollTitle": "Interrogation périodique",
+  "@modbusToolPollTitle": {},
+  "modbusToolPollInterval": "Intervalle (s)",
+  "@modbusToolPollInterval": {},
+  "modbusToolPollStart": "Démarrer",
+  "@modbusToolPollStart": {},
+  "modbusToolPollStop": "Arrêter",
+  "@modbusToolPollStop": {},
+  "modbusToolPollSamples": "{count} interrogations",
+  "@modbusToolPollSamples": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modbusToolPollSave": "Enregistrer les interrogations",
+  "@modbusToolPollSave": {},
+  "modbusToolPollSelectHint": "Cochez les lignes à interroger.",
+  "@modbusToolPollSelectHint": {},
+  "modbusToolTimeColumn": "Heure",
+  "@modbusToolTimeColumn": {}
 }

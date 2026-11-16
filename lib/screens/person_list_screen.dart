@@ -224,8 +224,10 @@ class _PersonListScreenState extends State<PersonListScreen> {
     setState(() => _isTransferring = true);
     try {
       final file = doses
-          ? await _csvService.exportPersonDoses()
-          : await _csvService.exportPersons();
+          ? await _csvService.exportPersonDoses(
+              autoDecimalSeparator: loc.protoDecimalSep)
+          : await _csvService.exportPersons(
+              autoDecimalSeparator: loc.protoDecimalSep);
       if (!mounted) return;
       await SharePlus.instance.share(ShareParams(
         files: [XFile(file.path)],

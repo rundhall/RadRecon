@@ -12,6 +12,9 @@ import '../models/person_dose.dart';
 import '../models/activity_origin.dart';
 import '../models/radiation_source.dart';
 import '../models/source_nuclide.dart';
+import '../models/decimal_separator.dart';
+import 'dose_unit_controller.dart';
+import 'number_input.dart';
 
 enum DuplicateImportPolicy { replace, skip, keepDuplicate }
 
@@ -30,9 +33,10 @@ class RegistryImportResult {
 /// CSV exchange for the three global registries. Column names are stable and
 /// independent of the app language so exports can be re-imported anywhere.
 class RegistryCsvService {
-  Future<File> exportPersons() async {
+  Future<File> exportPersons({required String autoDecimalSeparator}) async {
+    final sep = decimalSeparatorFor(DecimalSeparatorController.current, autoDecimalSeparator);
     final persons = await DatabaseHelper.instance.getPersons();
-    return _writeCsv('persons.csv', [
+    return _writeCsv('persons.csv', sep, [
       ['name', 'medical_exam_expiry_date', 'training_expiry_date', 'notes', 'created_at', 'updated_at', 'phone', 'emails', 'sex', 'age_years', 'weight_kg', 'height_cm', 'identifier', 'address'],
       ...persons.map((person) => [
             person.name,
@@ -55,9 +59,10 @@ class RegistryCsvService {
 
   /// Személyek dózisai (online / manuális / passzív). A személyt név
   /// azonosítja, ezért importáláskor előbb a persons.csv-t kell betölteni.
-  Future<File> exportPersonDoses() async {
+  Future<File> exportPersonDoses({required String autoDecimalSeparator}) async {
+    final sep = decimalSeparatorFor(DecimalSeparatorController.current, autoDecimalSeparator);
     final rows = await DatabaseHelper.instance.getDoseExportRows();
-    return _writeCsv('person_doses.csv', [
+    return _writeCsv('person_doses.csv', sep, [
       [
         'person_name', 'source', 'dose_usv', 'dose_date', 'period_start',
         'period_end', 'survey_title', 'notes', 'include_annual',
@@ -158,7 +163,8 @@ class RegistryCsvService {
     return RegistryImportResult(imported: imported, replaced: 0, skipped: skipped);
   }
 
-  Future<File> exportRadiationSources() async {
+  Future<File> exportRadiationSources({required String autoDecimalSeparator}) async {
+    final sep = decimalSeparatorFor(DecimalSeparatorController.current, autoDecimalSeparator);
     final db = DatabaseHelper.instance;
     final sources = await db.getRadiationSources();
     final rows = <List<Object?>>[
@@ -193,12 +199,13 @@ class RegistryCsvService {
         ]);
       }
     }
-    return _writeCsv('radiation_sources.csv', rows);
+    return _writeCsv('radiation_sources.csv', sep, rows);
   }
 
-  Future<File> exportInstruments() async {
+  Future<File> exportInstruments({required String autoDecimalSeparator}) async {
+    final sep = decimalSeparatorFor(DecimalSeparatorController.current, autoDecimalSeparator);
     final instruments = await DatabaseHelper.instance.getInstruments();
-    return _writeCsv('instruments.csv', [
+    return _writeCsv('instruments.csv', sep, [
       [
         'name', 'serial_number', 'calibration_date', 'calibration_factor',
         'is_modbus_connected', 'modbus_host', 'modbus_port', 'modbus_unit_id',
@@ -241,8 +248,8 @@ class RegistryCsvService {
             .toList(),
         sex: VictimSex.fromDbValue(_optional(row, 'sex')),
         ageYears: int.tryParse(_optional(row, 'age_years') ?? ''),
-        weightKg: double.tryParse(_optional(row, 'weight_kg') ?? ''),
-        heightCm: double.tryParse(_optional(row, 'height_cm') ?? ''),
+        weightKg: parseDecimal(_optional(row, 'weight_kg') ?? ''),
+        heightCm: parseDecimal(_optional(row, 'height_cm') ?? ''),
         identifier: _optional(row, 'identifier'),
         address: _optional(row, 'address'),
         createdAt: _date(row, 'created_at') ?? now,
@@ -446,15 +453,20 @@ class RegistryCsvService {
     return RegistryImportResult(imported: imported, replaced: replaced, skipped: skipped);
   }
 
-  Future<File> _writeCsv(String filename, List<List<Object?>> rows) async {
+  Future<File> _writeCsv(String filename, String decimalSeparator, List<List<Object?>> rows) async {
     final directory = await getTemporaryDirectory();
     final file = File(p.join(directory.path, filename));
-    await file.writeAsString(rows.map(_encodeRow).join('\r\n'));
+    final text = rows.map((row) => _encodeRow(row, decimalSeparator)).join('\r\n');
+    // BOM elé, hogy az Excel UTF-8-ként nyissa meg (az import úgyis leveszi).
+    await file.writeAsString('\uFEFF$text');
     return file;
   }
 
-  String _encodeRow(List<Object?> fields) => fields.map((field) {
-        final value = field?.toString() ?? '';
+  String _encodeRow(List<Object?> fields, String decimalSeparator) => fields.map((field) {
+        // A tizedes számok (double) a beállított tizedesjellel kerülnek a fájlba.
+        final value = field is double
+            ? field.toString().replaceAll('.', decimalSeparator)
+            : field?.toString() ?? '';
         return '"${value.replaceAll('"', '""')}"';
       }).join(',');
 
@@ -546,7 +558,7 @@ class RegistryCsvService {
   double? _number(Map<String, String> row, String key) {
     final value = _optional(row, key);
     if (value == null) return null;
-    final result = double.tryParse(value);
+    final result = parseDecimal(value);
     if (result == null || !result.isFinite) throw FormatException('Invalid number in "$key".');
     return result;
   }

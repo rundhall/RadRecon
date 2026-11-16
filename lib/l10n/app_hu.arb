@@ -297,6 +297,16 @@
   "settingsTitle": "Beállítások",
   "@settingsTitle": {},
   "appearanceSectionTitle": "Megjelenés",
+  "autoLogChartPointsLabel": "Automatikus mérés: diagram pontjai",
+  "@autoLogChartPointsLabel": {},
+  "autoLogChartPointsHint": "Az idődiagram legfeljebb ennyi legutóbbi mintát mutat.",
+  "@autoLogChartPointsHint": {},
+  "autoLogChartPointsAll": "Mind",
+  "@autoLogChartPointsAll": {},
+  "autoLogChartSourceLabel": "Diagram csatornája",
+  "@autoLogChartSourceLabel": {},
+  "autoLogChartResetTooltip": "Diagram újraindítása",
+  "@autoLogChartResetTooltip": {},
   "@appearanceSectionTitle": {},
   "themeLight": "Világos",
   "@themeLight": {},
@@ -2937,5 +2947,115 @@
   "personFilterAll": "Mind",
   "@personFilterAll": {},
   "personFilterExpired": "Csak lejárt",
-  "@personFilterExpired": {}
+  "@personFilterExpired": {},
+  "modbusToolTitle": "Modbus segéd",
+  "@modbusToolTitle": {},
+  "modbusToolEmpty": "Még nincs regiszter felvéve. Az „Új regiszter” gombbal adhatsz hozzá.",
+  "@modbusToolEmpty": {},
+  "modbusToolAddRegister": "Új regiszter",
+  "@modbusToolAddRegister": {},
+  "modbusToolEditRegister": "Regiszter szerkesztése",
+  "@modbusToolEditRegister": {},
+  "modbusToolReadAll": "Összes kiolvasása",
+  "@modbusToolReadAll": {},
+  "modbusToolRead": "Olvasás",
+  "@modbusToolRead": {},
+  "modbusToolWrite": "Írás",
+  "@modbusToolWrite": {},
+  "modbusToolSend": "Küldés",
+  "@modbusToolSend": {},
+  "modbusToolNameLabel": "Megnevezés",
+  "@modbusToolNameLabel": {},
+  "modbusToolKindLabel": "Típus",
+  "@modbusToolKindLabel": {},
+  "modbusToolAddressLabel": "Cím",
+  "@modbusToolAddressLabel": {},
+  "modbusToolAddressHint": "0-tól számozott protokollcím, hexában is megadható (0x10)",
+  "@modbusToolAddressHint": {},
+  "modbusToolDataTypeLabel": "Adattípus",
+  "@modbusToolDataTypeLabel": {},
+  "modbusToolByteOrderLabel": "Bájtsorrend",
+  "@modbusToolByteOrderLabel": {},
+  "modbusToolScaleLabel": "Szorzó",
+  "@modbusToolScaleLabel": {},
+  "modbusToolScaleHint": "Kijelzett érték = nyers érték × szorzó",
+  "@modbusToolScaleHint": {},
+  "modbusToolNoteHint": "pl. 0 = 2400, 1 = 4800, 2 = 9600",
+  "@modbusToolNoteHint": {},
+  "modbusToolInvalidAddress": "0 és 65535 közötti egész szám",
+  "@modbusToolInvalidAddress": {},
+  "modbusToolInvalidValue": "Érvénytelen vagy tartományon kívüli érték",
+  "@modbusToolInvalidValue": {},
+  "modbusToolValueLabel": "Új érték",
+  "@modbusToolValueLabel": {},
+  "modbusToolWriteWarning": "A parancs azonnal kimegy a műszernek. A kommunikációs paraméterek (baud rate, paritás, Modbus ID) átírása után a kapcsolat megszakadhat.",
+  "@modbusToolWriteWarning": {},
+  "modbusToolWriteOk": "Kiírva: {name}",
+  "@modbusToolWriteOk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "modbusToolWriteError": "Modbus hiba az írás során: {code}",
+  "@modbusToolWriteError": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "modbusToolNotRead": "Még nincs kiolvasva",
+  "@modbusToolNotRead": {},
+  "modbusToolOn": "BE",
+  "@modbusToolOn": {},
+  "modbusToolOff": "KI",
+  "@modbusToolOff": {},
+  "modbusToolExport": "Mentés fájlba",
+  "@modbusToolExport": {},
+  "modbusToolImport": "Beolvasás fájlból",
+  "@modbusToolImport": {},
+  "modbusToolCopyFrom": "Másolás másik műszerről",
+  "@modbusToolCopyFrom": {},
+  "modbusToolImportModeTitle": "Mi legyen a meglévő regiszterekkel?",
+  "@modbusToolImportModeTitle": {},
+  "modbusToolImportAppend": "Hozzáadás a meglévőkhöz",
+  "@modbusToolImportAppend": {},
+  "modbusToolImportReplace": "Meglévők cseréje",
+  "@modbusToolImportReplace": {},
+  "modbusToolImported": "{count} regiszter átvéve",
+  "@modbusToolImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modbusToolImportInvalid": "A fájl nem tartalmaz Modbus regisztereket.",
+  "@modbusToolImportInvalid": {},
+  "modbusToolNoOtherSource": "Nincs másik műszer elmentett regiszterekkel.",
+  "@modbusToolNoOtherSource": {},
+  "modbusToolPollTitle": "Időzített lekérdezés",
+  "@modbusToolPollTitle": {},
+  "modbusToolPollInterval": "Időköz (s)",
+  "@modbusToolPollInterval": {},
+  "modbusToolPollStart": "Indítás",
+  "@modbusToolPollStart": {},
+  "modbusToolPollStop": "Leállítás",
+  "@modbusToolPollStop": {},
+  "modbusToolPollSamples": "{count} lekérdezés",
+  "@modbusToolPollSamples": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "modbusToolPollSave": "Lekérdezések mentése",
+  "@modbusToolPollSave": {},
+  "modbusToolPollSelectHint": "Jelöld be a lekérdezendő sorokat.",
+  "@modbusToolPollSelectHint": {},
+  "modbusToolTimeColumn": "Idő",
+  "@modbusToolTimeColumn": {}
 }

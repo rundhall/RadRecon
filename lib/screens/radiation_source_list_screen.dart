@@ -84,7 +84,8 @@ class _RadiationSourceListScreenState
     final loc = AppLocalizations.of(context)!;
     setState(() => _isTransferring = true);
     try {
-      final file = await _csvService.exportRadiationSources();
+      final file = await _csvService.exportRadiationSources(
+          autoDecimalSeparator: loc.protoDecimalSep);
       if (!mounted) return;
       await SharePlus.instance.share(ShareParams(
         files: [XFile(file.path)],

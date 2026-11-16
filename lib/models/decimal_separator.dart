@@ -17,3 +17,12 @@ enum DecimalSeparatorMode {
         orElse: () => defaultMode,
       );
 }
+
+/// A ténylegesen használt tizedesjel: a beállítás szerint, `auto` esetén
+/// az [autoSeparator] (az app nyelvének `protoDecimalSep` értéke).
+String decimalSeparatorFor(DecimalSeparatorMode mode, String autoSeparator) =>
+    switch (mode) {
+      DecimalSeparatorMode.comma => ',',
+      DecimalSeparatorMode.dot => '.',
+      DecimalSeparatorMode.auto => autoSeparator,
+    };

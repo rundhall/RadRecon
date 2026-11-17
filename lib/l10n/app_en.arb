@@ -3057,5 +3057,68 @@
   "modbusToolPollSelectHint": "Tick the rows to poll.",
   "@modbusToolPollSelectHint": {},
   "modbusToolTimeColumn": "Time",
-  "@modbusToolTimeColumn": {}
+  "@modbusToolTimeColumn": {},
+  "pingButton": "Ping",
+  "@pingButton": {},
+  "pingOkResult": "Reachable ({ms} ms)",
+  "@pingOkResult": {
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "pingFailedResult": "Not reachable: {error}",
+  "@pingFailedResult": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "pingTimeoutResult": "No response (timeout)",
+  "@pingTimeoutResult": {},
+  "scanUnitIdsButton": "Scan",
+  "@scanUnitIdsButton": {},
+  "scanDialogTitle": "Unit ID scan",
+  "@scanDialogTitle": {},
+  "scanFromLabel": "First ID",
+  "@scanFromLabel": {},
+  "scanToLabel": "Last ID",
+  "@scanToLabel": {},
+  "scanRangeHint": "Valid range: 1–247",
+  "@scanRangeHint": {},
+  "scanRangeInvalid": "Enter a number between 1 and 247; the first must not be larger than the last.",
+  "@scanRangeInvalid": {},
+  "scanStartButton": "Start",
+  "@scanStartButton": {},
+  "scanStopButton": "Stop",
+  "@scanStopButton": {},
+  "scanRestartButton": "New scan",
+  "@scanRestartButton": {},
+  "scanProgress": "{done} / {total} checked",
+  "@scanProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "scanFoundItem": "Unit ID {id} – responded",
+  "@scanFoundItem": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "scanNoneFound": "None of the IDs in this range responded.",
+  "@scanNoneFound": {},
+  "scanMultipleHint": "More than one ID responded. Direct TCP connections often answer any ID, so check the correct value in the instrument’s documentation.",
+  "@scanMultipleHint": {},
+  "scanCancelled": "Stopped.",
+  "@scanCancelled": {}
 }

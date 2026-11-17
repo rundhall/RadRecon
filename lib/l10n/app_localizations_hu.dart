@@ -4231,4 +4231,68 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get modbusToolTimeColumn => 'Idő';
+
+  @override
+  String get pingButton => 'Ping';
+
+  @override
+  String pingOkResult(int ms) {
+    return 'Elérhető ($ms ms)';
+  }
+
+  @override
+  String pingFailedResult(String error) {
+    return 'Nem elérhető: $error';
+  }
+
+  @override
+  String get pingTimeoutResult => 'Nem válaszol (időtúllépés)';
+
+  @override
+  String get scanUnitIdsButton => 'Keresés';
+
+  @override
+  String get scanDialogTitle => 'Unit ID keresés';
+
+  @override
+  String get scanFromLabel => 'Első ID';
+
+  @override
+  String get scanToLabel => 'Utolsó ID';
+
+  @override
+  String get scanRangeHint => 'Érvényes tartomány: 1–247';
+
+  @override
+  String get scanRangeInvalid =>
+      '1 és 247 közötti számot adj meg, az első ne legyen nagyobb az utolsónál.';
+
+  @override
+  String get scanStartButton => 'Indítás';
+
+  @override
+  String get scanStopButton => 'Leállítás';
+
+  @override
+  String get scanRestartButton => 'Új keresés';
+
+  @override
+  String scanProgress(int done, int total) {
+    return '$done / $total ellenőrizve';
+  }
+
+  @override
+  String scanFoundItem(int id) {
+    return 'Unit ID $id – válaszolt';
+  }
+
+  @override
+  String get scanNoneFound => 'Ebben a tartományban egyik ID sem válaszolt.';
+
+  @override
+  String get scanMultipleHint =>
+      'Több ID is válaszolt. Közvetlen TCP-kapcsolatnál a műszer gyakran minden ID-ra válaszol, ezért a helyes értéket a műszer dokumentációjából ellenőrizd.';
+
+  @override
+  String get scanCancelled => 'Megszakítva.';
 }

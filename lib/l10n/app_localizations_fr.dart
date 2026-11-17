@@ -4264,4 +4264,68 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get modbusToolTimeColumn => 'Heure';
+
+  @override
+  String get pingButton => 'Ping';
+
+  @override
+  String pingOkResult(int ms) {
+    return 'Joignable ($ms ms)';
+  }
+
+  @override
+  String pingFailedResult(String error) {
+    return 'Injoignable : $error';
+  }
+
+  @override
+  String get pingTimeoutResult => 'Pas de réponse (délai dépassé)';
+
+  @override
+  String get scanUnitIdsButton => 'Rechercher';
+
+  @override
+  String get scanDialogTitle => 'Recherche d’Unit ID';
+
+  @override
+  String get scanFromLabel => 'Premier ID';
+
+  @override
+  String get scanToLabel => 'Dernier ID';
+
+  @override
+  String get scanRangeHint => 'Plage valide : 1–247';
+
+  @override
+  String get scanRangeInvalid =>
+      'Saisissez un nombre entre 1 et 247 ; le premier ne doit pas dépasser le dernier.';
+
+  @override
+  String get scanStartButton => 'Démarrer';
+
+  @override
+  String get scanStopButton => 'Arrêter';
+
+  @override
+  String get scanRestartButton => 'Nouvelle recherche';
+
+  @override
+  String scanProgress(int done, int total) {
+    return '$done / $total vérifiés';
+  }
+
+  @override
+  String scanFoundItem(int id) {
+    return 'Unit ID $id – a répondu';
+  }
+
+  @override
+  String get scanNoneFound => 'Aucun ID de cette plage n’a répondu.';
+
+  @override
+  String get scanMultipleHint =>
+      'Plusieurs ID ont répondu. En TCP direct, l’instrument répond souvent à tous les ID ; vérifiez la bonne valeur dans sa documentation.';
+
+  @override
+  String get scanCancelled => 'Arrêté.';
 }

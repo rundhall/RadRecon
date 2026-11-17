@@ -2137,5 +2137,68 @@
   "modbusToolPollSelectHint": "Seleziona le righe da interrogare.",
   "@modbusToolPollSelectHint": {},
   "modbusToolTimeColumn": "Ora",
-  "@modbusToolTimeColumn": {}
+  "@modbusToolTimeColumn": {},
+  "pingButton": "Ping",
+  "@pingButton": {},
+  "pingOkResult": "Raggiungibile ({ms} ms)",
+  "@pingOkResult": {
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "pingFailedResult": "Non raggiungibile: {error}",
+  "@pingFailedResult": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "pingTimeoutResult": "Nessuna risposta (timeout)",
+  "@pingTimeoutResult": {},
+  "scanUnitIdsButton": "Cerca",
+  "@scanUnitIdsButton": {},
+  "scanDialogTitle": "Ricerca Unit ID",
+  "@scanDialogTitle": {},
+  "scanFromLabel": "Primo ID",
+  "@scanFromLabel": {},
+  "scanToLabel": "Ultimo ID",
+  "@scanToLabel": {},
+  "scanRangeHint": "Intervallo valido: 1–247",
+  "@scanRangeHint": {},
+  "scanRangeInvalid": "Inserisci un numero tra 1 e 247; il primo non deve superare l’ultimo.",
+  "@scanRangeInvalid": {},
+  "scanStartButton": "Avvia",
+  "@scanStartButton": {},
+  "scanStopButton": "Ferma",
+  "@scanStopButton": {},
+  "scanRestartButton": "Nuova ricerca",
+  "@scanRestartButton": {},
+  "scanProgress": "{done} / {total} controllati",
+  "@scanProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "scanFoundItem": "Unit ID {id} – ha risposto",
+  "@scanFoundItem": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "scanNoneFound": "Nessun ID di questo intervallo ha risposto.",
+  "@scanNoneFound": {},
+  "scanMultipleHint": "Hanno risposto più ID. Con connessione TCP diretta lo strumento spesso risponde a qualsiasi ID; verifica il valore corretto nella documentazione.",
+  "@scanMultipleHint": {},
+  "scanCancelled": "Interrotto.",
+  "@scanCancelled": {}
 }

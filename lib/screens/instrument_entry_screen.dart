@@ -15,6 +15,8 @@ import '../l10n/domain_labels.dart';
 import '../models/gas_reading.dart';
 import '../services/modbus_reader_service.dart';
 import '../widgets/calibration_record_dialog.dart';
+import '../services/modbus_probe_service.dart';
+import '../widgets/modbus_unit_scan_dialog.dart';
 
 /// Egy műszer felvétele/szerkesztése: alapadatok, kalibráció, opcionális
 /// Modbus/TCP elérhetőség.
@@ -45,6 +47,7 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
   bool _isModbusConnected = false;
   bool _isModbusGpsEnabled = false;
   bool _isTestingModbus = false;
+  bool _isPinging = false;
   // A szerkesztett Modbus-regiszterek (mérési típusonként egy).
   final List<_ChannelDraft> _channels = [];
   // A törölt sorok: a controllerüket a dispose() szabadítja fel.
@@ -146,6 +149,48 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
       lastDate: DateTime(2100),
     );
     if (picked != null) setState(() => _nextCalibrationDate = picked);
+  }
+
+  /// Ping: TCP-kapcsolódás a Modbus-porton, a késleltetés kiírásával.
+  Future<void> _pingModbusHost() async {
+    final loc = AppLocalizations.of(context)!;
+    final host = _modbusHostCtrl.text.trim();
+    if (host.isEmpty) {
+      _showError(loc.modbusHostLabel);
+      return;
+    }
+    final port = int.tryParse(_modbusPortCtrl.text.trim()) ?? 502;
+    setState(() => _isPinging = true);
+    final result = await tcpPing(host, port);
+    if (!mounted) return;
+    setState(() => _isPinging = false);
+    final String message;
+    if (result.ok) {
+      message = loc.pingOkResult(result.latencyMs);
+    } else if (result.timedOut) {
+      message = loc.pingTimeoutResult;
+    } else {
+      message = loc.pingFailedResult(result.error ?? '');
+    }
+    _showMessage(message);
+  }
+
+  /// Unit ID keresés a megadott tartományban; a kiválasztott ID kerül a mezőbe.
+  Future<void> _scanUnitIds() async {
+    final loc = AppLocalizations.of(context)!;
+    final host = _modbusHostCtrl.text.trim();
+    if (host.isEmpty) {
+      _showError(loc.modbusHostLabel);
+      return;
+    }
+    final port = int.tryParse(_modbusPortCtrl.text.trim()) ?? 502;
+    final picked = await showDialog<int>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => ModbusUnitScanDialog(host: host, port: port),
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _modbusUnitIdCtrl.text = '$picked');
   }
 
   /// Teszteli a beállított Modbus-regisztereket, mindegyiket külön olvassa.
@@ -641,10 +686,29 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
               onChanged: (v) => setState(() => _isModbusConnected = v),
             ),
             if (_isModbusConnected) ...[
-              TextFormField(
-                controller: _modbusHostCtrl,
-                decoration: InputDecoration(labelText: loc.modbusHostLabel),
-                keyboardType: TextInputType.text,
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _modbusHostCtrl,
+                      decoration:
+                          InputDecoration(labelText: loc.modbusHostLabel),
+                      keyboardType: TextInputType.text,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    onPressed: _isPinging ? null : _pingModbusHost,
+                    icon: _isPinging
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.network_ping),
+                    label: Text(loc.pingButton),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -653,12 +717,24 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: _modbusUnitIdCtrl,
-                decoration: InputDecoration(
-                  labelText: loc.modbusUnitIdLabel,
-                ),
-                keyboardType: TextInputType.number,
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _modbusUnitIdCtrl,
+                      decoration: InputDecoration(
+                        labelText: loc.modbusUnitIdLabel,
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    onPressed: _scanUnitIds,
+                    icon: const Icon(Icons.manage_search),
+                    label: Text(loc.scanUnitIdsButton),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               Text(

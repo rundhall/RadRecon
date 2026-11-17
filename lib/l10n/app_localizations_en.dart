@@ -4216,4 +4216,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get modbusToolTimeColumn => 'Time';
+
+  @override
+  String get pingButton => 'Ping';
+
+  @override
+  String pingOkResult(int ms) {
+    return 'Reachable ($ms ms)';
+  }
+
+  @override
+  String pingFailedResult(String error) {
+    return 'Not reachable: $error';
+  }
+
+  @override
+  String get pingTimeoutResult => 'No response (timeout)';
+
+  @override
+  String get scanUnitIdsButton => 'Scan';
+
+  @override
+  String get scanDialogTitle => 'Unit ID scan';
+
+  @override
+  String get scanFromLabel => 'First ID';
+
+  @override
+  String get scanToLabel => 'Last ID';
+
+  @override
+  String get scanRangeHint => 'Valid range: 1–247';
+
+  @override
+  String get scanRangeInvalid =>
+      'Enter a number between 1 and 247; the first must not be larger than the last.';
+
+  @override
+  String get scanStartButton => 'Start';
+
+  @override
+  String get scanStopButton => 'Stop';
+
+  @override
+  String get scanRestartButton => 'New scan';
+
+  @override
+  String scanProgress(int done, int total) {
+    return '$done / $total checked';
+  }
+
+  @override
+  String scanFoundItem(int id) {
+    return 'Unit ID $id – responded';
+  }
+
+  @override
+  String get scanNoneFound => 'None of the IDs in this range responded.';
+
+  @override
+  String get scanMultipleHint =>
+      'More than one ID responded. Direct TCP connections often answer any ID, so check the correct value in the instrument’s documentation.';
+
+  @override
+  String get scanCancelled => 'Stopped.';
 }

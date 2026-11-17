@@ -2135,5 +2135,68 @@
   "modbusToolPollSelectHint": "Cochez les lignes à interroger.",
   "@modbusToolPollSelectHint": {},
   "modbusToolTimeColumn": "Heure",
-  "@modbusToolTimeColumn": {}
+  "@modbusToolTimeColumn": {},
+  "pingButton": "Ping",
+  "@pingButton": {},
+  "pingOkResult": "Joignable ({ms} ms)",
+  "@pingOkResult": {
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "pingFailedResult": "Injoignable : {error}",
+  "@pingFailedResult": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "pingTimeoutResult": "Pas de réponse (délai dépassé)",
+  "@pingTimeoutResult": {},
+  "scanUnitIdsButton": "Rechercher",
+  "@scanUnitIdsButton": {},
+  "scanDialogTitle": "Recherche d’Unit ID",
+  "@scanDialogTitle": {},
+  "scanFromLabel": "Premier ID",
+  "@scanFromLabel": {},
+  "scanToLabel": "Dernier ID",
+  "@scanToLabel": {},
+  "scanRangeHint": "Plage valide : 1–247",
+  "@scanRangeHint": {},
+  "scanRangeInvalid": "Saisissez un nombre entre 1 et 247 ; le premier ne doit pas dépasser le dernier.",
+  "@scanRangeInvalid": {},
+  "scanStartButton": "Démarrer",
+  "@scanStartButton": {},
+  "scanStopButton": "Arrêter",
+  "@scanStopButton": {},
+  "scanRestartButton": "Nouvelle recherche",
+  "@scanRestartButton": {},
+  "scanProgress": "{done} / {total} vérifiés",
+  "@scanProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "scanFoundItem": "Unit ID {id} – a répondu",
+  "@scanFoundItem": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "scanNoneFound": "Aucun ID de cette plage n’a répondu.",
+  "@scanNoneFound": {},
+  "scanMultipleHint": "Plusieurs ID ont répondu. En TCP direct, l’instrument répond souvent à tous les ID ; vérifiez la bonne valeur dans sa documentation.",
+  "@scanMultipleHint": {},
+  "scanCancelled": "Arrêté.",
+  "@scanCancelled": {}
 }

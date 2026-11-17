@@ -3057,5 +3057,68 @@
   "modbusToolPollSelectHint": "Jelöld be a lekérdezendő sorokat.",
   "@modbusToolPollSelectHint": {},
   "modbusToolTimeColumn": "Idő",
-  "@modbusToolTimeColumn": {}
+  "@modbusToolTimeColumn": {},
+  "pingButton": "Ping",
+  "@pingButton": {},
+  "pingOkResult": "Elérhető ({ms} ms)",
+  "@pingOkResult": {
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "pingFailedResult": "Nem elérhető: {error}",
+  "@pingFailedResult": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "pingTimeoutResult": "Nem válaszol (időtúllépés)",
+  "@pingTimeoutResult": {},
+  "scanUnitIdsButton": "Keresés",
+  "@scanUnitIdsButton": {},
+  "scanDialogTitle": "Unit ID keresés",
+  "@scanDialogTitle": {},
+  "scanFromLabel": "Első ID",
+  "@scanFromLabel": {},
+  "scanToLabel": "Utolsó ID",
+  "@scanToLabel": {},
+  "scanRangeHint": "Érvényes tartomány: 1–247",
+  "@scanRangeHint": {},
+  "scanRangeInvalid": "1 és 247 közötti számot adj meg, az első ne legyen nagyobb az utolsónál.",
+  "@scanRangeInvalid": {},
+  "scanStartButton": "Indítás",
+  "@scanStartButton": {},
+  "scanStopButton": "Leállítás",
+  "@scanStopButton": {},
+  "scanRestartButton": "Új keresés",
+  "@scanRestartButton": {},
+  "scanProgress": "{done} / {total} ellenőrizve",
+  "@scanProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "scanFoundItem": "Unit ID {id} – válaszolt",
+  "@scanFoundItem": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "scanNoneFound": "Ebben a tartományban egyik ID sem válaszolt.",
+  "@scanNoneFound": {},
+  "scanMultipleHint": "Több ID is válaszolt. Közvetlen TCP-kapcsolatnál a műszer gyakran minden ID-ra válaszol, ezért a helyes értéket a műszer dokumentációjából ellenőrizd.",
+  "@scanMultipleHint": {},
+  "scanCancelled": "Megszakítva.",
+  "@scanCancelled": {}
 }

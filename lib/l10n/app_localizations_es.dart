@@ -4260,4 +4260,68 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get modbusToolTimeColumn => 'Hora';
+
+  @override
+  String get pingButton => 'Ping';
+
+  @override
+  String pingOkResult(int ms) {
+    return 'Accesible ($ms ms)';
+  }
+
+  @override
+  String pingFailedResult(String error) {
+    return 'No accesible: $error';
+  }
+
+  @override
+  String get pingTimeoutResult => 'Sin respuesta (tiempo agotado)';
+
+  @override
+  String get scanUnitIdsButton => 'Buscar';
+
+  @override
+  String get scanDialogTitle => 'Búsqueda de Unit ID';
+
+  @override
+  String get scanFromLabel => 'Primer ID';
+
+  @override
+  String get scanToLabel => 'Último ID';
+
+  @override
+  String get scanRangeHint => 'Rango válido: 1–247';
+
+  @override
+  String get scanRangeInvalid =>
+      'Introduce un número entre 1 y 247; el primero no puede ser mayor que el último.';
+
+  @override
+  String get scanStartButton => 'Iniciar';
+
+  @override
+  String get scanStopButton => 'Detener';
+
+  @override
+  String get scanRestartButton => 'Nueva búsqueda';
+
+  @override
+  String scanProgress(int done, int total) {
+    return '$done / $total comprobados';
+  }
+
+  @override
+  String scanFoundItem(int id) {
+    return 'Unit ID $id – ha respondido';
+  }
+
+  @override
+  String get scanNoneFound => 'Ningún ID de este rango ha respondido.';
+
+  @override
+  String get scanMultipleHint =>
+      'Han respondido varios ID. En conexiones TCP directas el equipo suele responder a cualquier ID; comprueba el valor correcto en su documentación.';
+
+  @override
+  String get scanCancelled => 'Detenido.';
 }

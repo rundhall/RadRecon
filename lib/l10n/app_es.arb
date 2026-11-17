@@ -2226,5 +2226,68 @@
   "modbusToolPollSelectHint": "Marca las filas que quieres consultar.",
   "@modbusToolPollSelectHint": {},
   "modbusToolTimeColumn": "Hora",
-  "@modbusToolTimeColumn": {}
+  "@modbusToolTimeColumn": {},
+  "pingButton": "Ping",
+  "@pingButton": {},
+  "pingOkResult": "Accesible ({ms} ms)",
+  "@pingOkResult": {
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "pingFailedResult": "No accesible: {error}",
+  "@pingFailedResult": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "pingTimeoutResult": "Sin respuesta (tiempo agotado)",
+  "@pingTimeoutResult": {},
+  "scanUnitIdsButton": "Buscar",
+  "@scanUnitIdsButton": {},
+  "scanDialogTitle": "Búsqueda de Unit ID",
+  "@scanDialogTitle": {},
+  "scanFromLabel": "Primer ID",
+  "@scanFromLabel": {},
+  "scanToLabel": "Último ID",
+  "@scanToLabel": {},
+  "scanRangeHint": "Rango válido: 1–247",
+  "@scanRangeHint": {},
+  "scanRangeInvalid": "Introduce un número entre 1 y 247; el primero no puede ser mayor que el último.",
+  "@scanRangeInvalid": {},
+  "scanStartButton": "Iniciar",
+  "@scanStartButton": {},
+  "scanStopButton": "Detener",
+  "@scanStopButton": {},
+  "scanRestartButton": "Nueva búsqueda",
+  "@scanRestartButton": {},
+  "scanProgress": "{done} / {total} comprobados",
+  "@scanProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "scanFoundItem": "Unit ID {id} – ha respondido",
+  "@scanFoundItem": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "scanNoneFound": "Ningún ID de este rango ha respondido.",
+  "@scanNoneFound": {},
+  "scanMultipleHint": "Han respondido varios ID. En conexiones TCP directas el equipo suele responder a cualquier ID; comprueba el valor correcto en su documentación.",
+  "@scanMultipleHint": {},
+  "scanCancelled": "Detenido.",
+  "@scanCancelled": {}
 }

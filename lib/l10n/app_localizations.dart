@@ -7812,6 +7812,114 @@ abstract class AppLocalizations {
   /// In hu, this message translates to:
   /// **'Idő'**
   String get modbusToolTimeColumn;
+
+  /// No description provided for @pingButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ping'**
+  String get pingButton;
+
+  /// No description provided for @pingOkResult.
+  ///
+  /// In hu, this message translates to:
+  /// **'Elérhető ({ms} ms)'**
+  String pingOkResult(int ms);
+
+  /// No description provided for @pingFailedResult.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nem elérhető: {error}'**
+  String pingFailedResult(String error);
+
+  /// No description provided for @pingTimeoutResult.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nem válaszol (időtúllépés)'**
+  String get pingTimeoutResult;
+
+  /// No description provided for @scanUnitIdsButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Keresés'**
+  String get scanUnitIdsButton;
+
+  /// No description provided for @scanDialogTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Unit ID keresés'**
+  String get scanDialogTitle;
+
+  /// No description provided for @scanFromLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Első ID'**
+  String get scanFromLabel;
+
+  /// No description provided for @scanToLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Utolsó ID'**
+  String get scanToLabel;
+
+  /// No description provided for @scanRangeHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Érvényes tartomány: 1–247'**
+  String get scanRangeHint;
+
+  /// No description provided for @scanRangeInvalid.
+  ///
+  /// In hu, this message translates to:
+  /// **'1 és 247 közötti számot adj meg, az első ne legyen nagyobb az utolsónál.'**
+  String get scanRangeInvalid;
+
+  /// No description provided for @scanStartButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Indítás'**
+  String get scanStartButton;
+
+  /// No description provided for @scanStopButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Leállítás'**
+  String get scanStopButton;
+
+  /// No description provided for @scanRestartButton.
+  ///
+  /// In hu, this message translates to:
+  /// **'Új keresés'**
+  String get scanRestartButton;
+
+  /// No description provided for @scanProgress.
+  ///
+  /// In hu, this message translates to:
+  /// **'{done} / {total} ellenőrizve'**
+  String scanProgress(int done, int total);
+
+  /// No description provided for @scanFoundItem.
+  ///
+  /// In hu, this message translates to:
+  /// **'Unit ID {id} – válaszolt'**
+  String scanFoundItem(int id);
+
+  /// No description provided for @scanNoneFound.
+  ///
+  /// In hu, this message translates to:
+  /// **'Ebben a tartományban egyik ID sem válaszolt.'**
+  String get scanNoneFound;
+
+  /// No description provided for @scanMultipleHint.
+  ///
+  /// In hu, this message translates to:
+  /// **'Több ID is válaszolt. Közvetlen TCP-kapcsolatnál a műszer gyakran minden ID-ra válaszol, ezért a helyes értéket a műszer dokumentációjából ellenőrizd.'**
+  String get scanMultipleHint;
+
+  /// No description provided for @scanCancelled.
+  ///
+  /// In hu, this message translates to:
+  /// **'Megszakítva.'**
+  String get scanCancelled;
 }
 
 class _AppLocalizationsDelegate

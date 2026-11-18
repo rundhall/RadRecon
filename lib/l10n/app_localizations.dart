@@ -7387,12 +7387,6 @@ abstract class AppLocalizations {
   /// **'Jelöljön ki legalább egy csatornát.'**
   String get autoLogSelectChannel;
 
-  /// No description provided for @autoLogOneDoseSource.
-  ///
-  /// In hu, this message translates to:
-  /// **'Dózisszámításhoz legfeljebb egy dózisteljesítmény-csatorna jelölhető ki.'**
-  String get autoLogOneDoseSource;
-
   /// No description provided for @mapColorScaleTitle.
   ///
   /// In hu, this message translates to:
@@ -7906,7 +7900,7 @@ abstract class AppLocalizations {
   /// No description provided for @scanNoneFound.
   ///
   /// In hu, this message translates to:
-  /// **'Ebben a tartományban egyik ID sem válaszolt.'**
+  /// **'Egyik ID sem válaszolt. Ellenőrizd az IP-címet, a portot és a mérési csatorna címét.'**
   String get scanNoneFound;
 
   /// No description provided for @scanMultipleHint.
@@ -7920,6 +7914,336 @@ abstract class AppLocalizations {
   /// In hu, this message translates to:
   /// **'Megszakítva.'**
   String get scanCancelled;
+
+  /// No description provided for @scanProbeChannel.
+  ///
+  /// In hu, this message translates to:
+  /// **'A keresés a mérési csatorna címét kérdezi le (holding regiszter {address}).'**
+  String scanProbeChannel(int address);
+
+  /// No description provided for @scanProbeDefault.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs mérési csatorna megadva, ezért a 0-s holding regisztert és a 0-s coilt kérdezem le. Ha a műszer ezeken nem válaszol, adj meg egy mérési csatornát, és úgy keress újra.'**
+  String get scanProbeDefault;
+
+  /// No description provided for @autoLogPositionTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Pozíció műszerenként'**
+  String get autoLogPositionTitle;
+
+  /// No description provided for @autoLogPositionHelper.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az adott műszer pontjai ezt a pozíciót kapják.'**
+  String get autoLogPositionHelper;
+
+  /// No description provided for @autoLogPositionSourceLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Pozíció forrása'**
+  String get autoLogPositionSourceLabel;
+
+  /// No description provided for @autoLogPositionPhone.
+  ///
+  /// In hu, this message translates to:
+  /// **'Telefon GPS'**
+  String get autoLogPositionPhone;
+
+  /// No description provided for @autoLogPositionFixed.
+  ///
+  /// In hu, this message translates to:
+  /// **'Fix koordináta'**
+  String get autoLogPositionFixed;
+
+  /// No description provided for @autoLogPositionModbus.
+  ///
+  /// In hu, this message translates to:
+  /// **'Műszer GPS (Modbus)'**
+  String get autoLogPositionModbus;
+
+  /// No description provided for @autoLogPositionFixedNotSet.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs koordináta megadva'**
+  String get autoLogPositionFixedNotSet;
+
+  /// No description provided for @autoLogPositionPickMap.
+  ///
+  /// In hu, this message translates to:
+  /// **'Térképen'**
+  String get autoLogPositionPickMap;
+
+  /// No description provided for @autoLogPositionType.
+  ///
+  /// In hu, this message translates to:
+  /// **'Beírás'**
+  String get autoLogPositionType;
+
+  /// No description provided for @autoLogCoordinatesTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Koordináta megadása'**
+  String get autoLogCoordinatesTitle;
+
+  /// No description provided for @autoLogLatLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szélesség (°)'**
+  String get autoLogLatLabel;
+
+  /// No description provided for @autoLogLonLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Hosszúság (°)'**
+  String get autoLogLonLabel;
+
+  /// No description provided for @autoLogCoordinatesInvalid.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szélesség −90…90, hosszúság −180…180 között legyen.'**
+  String get autoLogCoordinatesInvalid;
+
+  /// No description provided for @autoLogPositionModbusError.
+  ///
+  /// In hu, this message translates to:
+  /// **'{name}: nincs Modbus GPS beállítva.'**
+  String autoLogPositionModbusError(String name);
+
+  /// No description provided for @autoLogPositionFixedError.
+  ///
+  /// In hu, this message translates to:
+  /// **'{name}: nincs fix koordináta megadva.'**
+  String autoLogPositionFixedError(String name);
+
+  /// No description provided for @autoLogDistanceNeedsMoving.
+  ///
+  /// In hu, this message translates to:
+  /// **'Távolság módhoz legalább egy telefon- vagy Modbus-GPS-es műszer kell.'**
+  String get autoLogDistanceNeedsMoving;
+
+  /// No description provided for @autoLogNoPosition.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs pozíció ehhez a műszerhez: {name}. A pont kimarad.'**
+  String autoLogNoPosition(String name);
+
+  /// No description provided for @autoLogDoseSourceLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Személyekhez mentett dózis forrása'**
+  String get autoLogDoseSourceLabel;
+
+  /// No description provided for @autoLogDoseSourceHelper.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csak ennek a műszernek a dózisa kerül a személyekhez. A többi dózisa csak a mérés alatt látszik.'**
+  String get autoLogDoseSourceHelper;
+
+  /// No description provided for @autoLogDoseSourceLine.
+  ///
+  /// In hu, this message translates to:
+  /// **'{channel}: {dose}'**
+  String autoLogDoseSourceLine(String channel, String dose);
+
+  /// No description provided for @autoLogDoseSavedMark.
+  ///
+  /// In hu, this message translates to:
+  /// **' · mentésre kerül'**
+  String get autoLogDoseSavedMark;
+
+  /// No description provided for @mapTimeFilterTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Időszűrő'**
+  String get mapTimeFilterTooltip;
+
+  /// No description provided for @mapTimeFilterStart.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kezdet'**
+  String get mapTimeFilterStart;
+
+  /// No description provided for @mapTimeFilterEnd.
+  ///
+  /// In hu, this message translates to:
+  /// **'Vége'**
+  String get mapTimeFilterEnd;
+
+  /// No description provided for @mapTimeFilterPlay.
+  ///
+  /// In hu, this message translates to:
+  /// **'Lejátszás'**
+  String get mapTimeFilterPlay;
+
+  /// No description provided for @mapTimeFilterPause.
+  ///
+  /// In hu, this message translates to:
+  /// **'Szünet'**
+  String get mapTimeFilterPause;
+
+  /// No description provided for @mapTimeFilterReset.
+  ///
+  /// In hu, this message translates to:
+  /// **'Teljes időtartam'**
+  String get mapTimeFilterReset;
+
+  /// No description provided for @mapTimeFilterCount.
+  ///
+  /// In hu, this message translates to:
+  /// **'{count} pont a kiválasztott időszakban'**
+  String mapTimeFilterCount(int count);
+
+  /// No description provided for @mapTimeFilterNoSpan.
+  ///
+  /// In hu, this message translates to:
+  /// **'Minden pont ugyanabban az időpontban készült.'**
+  String get mapTimeFilterNoSpan;
+
+  /// No description provided for @mapTimeFilterStepBack.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egy időponttal vissza'**
+  String get mapTimeFilterStepBack;
+
+  /// No description provided for @mapTimeFilterStepForward.
+  ///
+  /// In hu, this message translates to:
+  /// **'Egy időponttal előre'**
+  String get mapTimeFilterStepForward;
+
+  /// No description provided for @mapTimeFilterSingleMoment.
+  ///
+  /// In hu, this message translates to:
+  /// **'Csak az aktuális időpont'**
+  String get mapTimeFilterSingleMoment;
+
+  /// No description provided for @timelapseMenuTooltip.
+  ///
+  /// In hu, this message translates to:
+  /// **'Időszak exportálása (GIF / PNG)'**
+  String get timelapseMenuTooltip;
+
+  /// No description provided for @timelapseDialogTitle.
+  ///
+  /// In hu, this message translates to:
+  /// **'Időszak exportja'**
+  String get timelapseDialogTitle;
+
+  /// No description provided for @timelapseFormatLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Formátum'**
+  String get timelapseFormatLabel;
+
+  /// No description provided for @timelapseResolutionLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Felbontás (szélesség)'**
+  String get timelapseResolutionLabel;
+
+  /// No description provided for @timelapseFormatGif.
+  ///
+  /// In hu, this message translates to:
+  /// **'GIF'**
+  String get timelapseFormatGif;
+
+  /// No description provided for @timelapseFormatZip.
+  ///
+  /// In hu, this message translates to:
+  /// **'PNG (ZIP)'**
+  String get timelapseFormatZip;
+
+  /// No description provided for @timelapseModeLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Képkockák'**
+  String get timelapseModeLabel;
+
+  /// No description provided for @timelapseModeMoment.
+  ///
+  /// In hu, this message translates to:
+  /// **'Mérési időpontonként'**
+  String get timelapseModeMoment;
+
+  /// No description provided for @timelapseModeStep.
+  ///
+  /// In hu, this message translates to:
+  /// **'Fix időlépés'**
+  String get timelapseModeStep;
+
+  /// No description provided for @timelapseStepLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Időlépés (felmérési másodperc)'**
+  String get timelapseStepLabel;
+
+  /// No description provided for @timelapseDelayLabel.
+  ///
+  /// In hu, this message translates to:
+  /// **'Képkocka-késleltetés (ms)'**
+  String get timelapseDelayLabel;
+
+  /// No description provided for @timelapseFrameCount.
+  ///
+  /// In hu, this message translates to:
+  /// **'{count} képkocka'**
+  String timelapseFrameCount(int count);
+
+  /// No description provided for @timelapseTooMany.
+  ///
+  /// In hu, this message translates to:
+  /// **'Legfeljebb {max} képkocka exportálható. Növeld az időlépést vagy szűkítsd az időszakot.'**
+  String timelapseTooMany(int max);
+
+  /// No description provided for @timelapseStart.
+  ///
+  /// In hu, this message translates to:
+  /// **'Exportálás'**
+  String get timelapseStart;
+
+  /// No description provided for @timelapseNoPoints.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nincs mérési pont az exportáláshoz.'**
+  String get timelapseNoPoints;
+
+  /// No description provided for @timelapseNoFrames.
+  ///
+  /// In hu, this message translates to:
+  /// **'Nem készült képkocka.'**
+  String get timelapseNoFrames;
+
+  /// No description provided for @timelapseProgress.
+  ///
+  /// In hu, this message translates to:
+  /// **'Képkocka {done} / {total}'**
+  String timelapseProgress(int done, int total);
+
+  /// No description provided for @timelapseEncoding.
+  ///
+  /// In hu, this message translates to:
+  /// **'Kódolás…'**
+  String get timelapseEncoding;
+
+  /// No description provided for @timelapseExporting.
+  ///
+  /// In hu, this message translates to:
+  /// **'Exportálás folyamatban'**
+  String get timelapseExporting;
+
+  /// No description provided for @timelapseFailed.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az export nem sikerült: {error}'**
+  String timelapseFailed(String error);
+
+  /// No description provided for @timelapseCancelled.
+  ///
+  /// In hu, this message translates to:
+  /// **'Az export megszakítva.'**
+  String get timelapseCancelled;
 }
 
 class _AppLocalizationsDelegate

@@ -14,10 +14,15 @@ class ModbusUnitScanDialog extends StatefulWidget {
     super.key,
     required this.host,
     required this.port,
+    this.channelAddress,
   });
 
   final String host;
   final int port;
+
+  /// Az első megadott mérési csatorna címe; ezt kérdezi le a keresés.
+  /// Ha nincs, a holding 0 és a coil 0 próbálkozik.
+  final int? channelAddress;
 
   @override
   State<ModbusUnitScanDialog> createState() => _ModbusUnitScanDialogState();
@@ -39,7 +44,12 @@ class _ModbusUnitScanDialogState extends State<ModbusUnitScanDialog> {
   @override
   void initState() {
     super.initState();
-    _scanner = ModbusUnitScanner(host: widget.host, port: widget.port);
+    final address = widget.channelAddress;
+    _scanner = ModbusUnitScanner(
+      host: widget.host,
+      port: widget.port,
+      probes: address == null ? null : [ModbusProbe.holdingChannel(address)],
+    );
   }
 
   @override
@@ -121,6 +131,13 @@ class _ModbusUnitScanDialogState extends State<ModbusUnitScanDialog> {
     final theme = Theme.of(context);
     return switch (_phase) {
       _ScanPhase.input => [
+          Text(
+            widget.channelAddress == null
+                ? loc.scanProbeDefault
+                : loc.scanProbeChannel(widget.channelAddress!),
+            style: theme.textTheme.bodySmall,
+          ),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(

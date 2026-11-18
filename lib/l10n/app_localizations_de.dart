@@ -4031,10 +4031,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get autoLogSelectChannel => 'Wählen Sie mindestens einen Kanal aus.';
 
   @override
-  String get autoLogOneDoseSource =>
-      'Für die Dosisberechnung kann nur ein Dosisleistungskanal ausgewählt werden.';
-
-  @override
   String get mapColorScaleTitle => 'Gefärbte Größe';
 
   @override
@@ -4316,7 +4312,8 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get scanNoneFound => 'In diesem Bereich hat keine ID geantwortet.';
+  String get scanNoneFound =>
+      'Keine ID hat geantwortet. Prüfe IP-Adresse, Port und die Adresse des Messkanals.';
 
   @override
   String get scanMultipleHint =>
@@ -4324,4 +4321,195 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get scanCancelled => 'Abgebrochen.';
+
+  @override
+  String scanProbeChannel(int address) {
+    return 'Die Suche fragt die Adresse des Messkanals ab (Holding-Register $address).';
+  }
+
+  @override
+  String get scanProbeDefault =>
+      'Kein Messkanal angegeben, daher werden Holding-Register 0 und Coil 0 abgefragt. Antwortet das Gerät darauf nicht, lege einen Messkanal fest und suche erneut.';
+
+  @override
+  String get autoLogPositionTitle => 'Position pro Gerät';
+
+  @override
+  String get autoLogPositionHelper =>
+      'Die Punkte jedes Geräts erhalten diese Position.';
+
+  @override
+  String get autoLogPositionSourceLabel => 'Positionsquelle';
+
+  @override
+  String get autoLogPositionPhone => 'Telefon-GPS';
+
+  @override
+  String get autoLogPositionFixed => 'Feste Koordinate';
+
+  @override
+  String get autoLogPositionModbus => 'Geräte-GPS (Modbus)';
+
+  @override
+  String get autoLogPositionFixedNotSet => 'Keine Koordinaten angegeben';
+
+  @override
+  String get autoLogPositionPickMap => 'Auf Karte';
+
+  @override
+  String get autoLogPositionType => 'Eingeben';
+
+  @override
+  String get autoLogCoordinatesTitle => 'Koordinaten eingeben';
+
+  @override
+  String get autoLogLatLabel => 'Breite (°)';
+
+  @override
+  String get autoLogLonLabel => 'Länge (°)';
+
+  @override
+  String get autoLogCoordinatesInvalid =>
+      'Breite muss zwischen −90 und 90, Länge zwischen −180 und 180 liegen.';
+
+  @override
+  String autoLogPositionModbusError(String name) {
+    return '$name: Modbus-GPS ist nicht aktiviert.';
+  }
+
+  @override
+  String autoLogPositionFixedError(String name) {
+    return '$name: keine feste Koordinate angegeben.';
+  }
+
+  @override
+  String get autoLogDistanceNeedsMoving =>
+      'Der Abstandsmodus braucht mindestens ein Gerät mit Telefon- oder Modbus-GPS.';
+
+  @override
+  String autoLogNoPosition(String name) {
+    return 'Keine Position für $name. Der Punkt wird übersprungen.';
+  }
+
+  @override
+  String get autoLogDoseSourceLabel => 'Dosisquelle für Personen';
+
+  @override
+  String get autoLogDoseSourceHelper =>
+      'Nur die Dosis dieses Geräts wird den Personen zugeordnet. Die übrigen werden nur während der Messung angezeigt.';
+
+  @override
+  String autoLogDoseSourceLine(String channel, String dose) {
+    return '$channel: $dose';
+  }
+
+  @override
+  String get autoLogDoseSavedMark => ' · wird gespeichert';
+
+  @override
+  String get mapTimeFilterTooltip => 'Zeitfilter';
+
+  @override
+  String get mapTimeFilterStart => 'Beginn';
+
+  @override
+  String get mapTimeFilterEnd => 'Ende';
+
+  @override
+  String get mapTimeFilterPlay => 'Abspielen';
+
+  @override
+  String get mapTimeFilterPause => 'Pause';
+
+  @override
+  String get mapTimeFilterReset => 'Gesamter Zeitraum';
+
+  @override
+  String mapTimeFilterCount(int count) {
+    return '$count Punkte im gewählten Zeitraum';
+  }
+
+  @override
+  String get mapTimeFilterNoSpan =>
+      'Alle Punkte wurden zur selben Zeit aufgenommen.';
+
+  @override
+  String get mapTimeFilterStepBack => 'Einen Zeitpunkt zurück';
+
+  @override
+  String get mapTimeFilterStepForward => 'Einen Zeitpunkt vor';
+
+  @override
+  String get mapTimeFilterSingleMoment => 'Nur der aktuelle Zeitpunkt';
+
+  @override
+  String get timelapseMenuTooltip => 'Zeitraum exportieren (GIF / PNG)';
+
+  @override
+  String get timelapseDialogTitle => 'Zeitraum exportieren';
+
+  @override
+  String get timelapseFormatLabel => 'Format';
+
+  @override
+  String get timelapseResolutionLabel => 'Auflösung (Breite)';
+
+  @override
+  String get timelapseFormatGif => 'GIF';
+
+  @override
+  String get timelapseFormatZip => 'PNG (ZIP)';
+
+  @override
+  String get timelapseModeLabel => 'Bilder';
+
+  @override
+  String get timelapseModeMoment => 'Pro Messzeitpunkt';
+
+  @override
+  String get timelapseModeStep => 'Fester Zeitschritt';
+
+  @override
+  String get timelapseStepLabel => 'Zeitschritt (Messsekunden)';
+
+  @override
+  String get timelapseDelayLabel => 'Bildverzögerung (ms)';
+
+  @override
+  String timelapseFrameCount(int count) {
+    return '$count Bilder';
+  }
+
+  @override
+  String timelapseTooMany(int max) {
+    return 'Höchstens $max Bilder sind möglich. Erhöhe den Zeitschritt oder verkleinere den Zeitraum.';
+  }
+
+  @override
+  String get timelapseStart => 'Exportieren';
+
+  @override
+  String get timelapseNoPoints => 'Keine Messpunkte zum Exportieren.';
+
+  @override
+  String get timelapseNoFrames => 'Es wurden keine Bilder erstellt.';
+
+  @override
+  String timelapseProgress(int done, int total) {
+    return 'Bild $done / $total';
+  }
+
+  @override
+  String get timelapseEncoding => 'Kodierung…';
+
+  @override
+  String get timelapseExporting => 'Export läuft';
+
+  @override
+  String timelapseFailed(String error) {
+    return 'Export fehlgeschlagen: $error';
+  }
+
+  @override
+  String get timelapseCancelled => 'Export abgebrochen.';
 }

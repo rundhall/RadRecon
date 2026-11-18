@@ -66,20 +66,44 @@ class ModbusScanResult {
   final bool connectionFailed;
 }
 
+/// Egy kérdezési próba: melyik tábla (holding, input, coil, discrete) és
+/// melyik cím. A keresés ezeket sorban próbálja egy unit ID-n.
+class ModbusProbe {
+  const ModbusProbe(this.type, this.address);
+
+  /// A mérési csatorna regisztere: a mérés is holding regisztert olvas.
+  static ModbusProbe holdingChannel(int address) =>
+      ModbusProbe(ModbusElementType.holdingRegister, address);
+
+  final ModbusElementType type;
+  final int address;
+}
+
 /// Modbus unit ID keresés: egy TCP-kapcsolaton végigpróbálja a tartományt.
-/// Minden ID-ra egy holding regiszter olvasását küldi, a per-kérés
-/// unit ID-val, így a kapcsolat egyszer épül fel.
+/// Minden ID-ra a próbákat sorban küldi, az első válaszig. A per-kérés
+/// unit ID-val a kapcsolat egyszer épül fel.
 class ModbusUnitScanner {
-  ModbusUnitScanner({required this.host, required this.port});
+  ModbusUnitScanner({
+    required this.host,
+    required this.port,
+    List<ModbusProbe>? probes,
+  }) : probes = probes == null || probes.isEmpty ? defaultProbes : probes;
+
+  /// Ha nincs mérési csatorna megadva: holding 0 és coil 0.
+  static const List<ModbusProbe> defaultProbes = [
+    ModbusProbe(ModbusElementType.holdingRegister, 0),
+    ModbusProbe(ModbusElementType.coil, 0),
+  ];
 
   final String host;
   final int port;
+  final List<ModbusProbe> probes;
 
   /// Érvényes Modbus slave-címek (0 a broadcast, 248 felett fenntartott).
   static const int minUnitId = 1;
   static const int maxUnitId = 247;
 
-  static const Duration _probeTimeout = Duration(milliseconds: 700);
+  static const Duration _probeTimeout = Duration(milliseconds: 1000);
 
   ModbusClientTcp? _client;
   bool _closed = false;
@@ -102,21 +126,38 @@ class ModbusUnitScanner {
     }
   }
 
-  /// Egy ID próbája. true, ha a műszer válaszolt.
+  /// Egy unit ID próbája: a próbákat sorban, az első válaszig küldi.
   Future<bool> probe(int unitId) async {
-    if (_closed) return false;
-    final element = ModbusUint16Register(
-      name: 'probe',
-      address: 0,
-      type: ModbusElementType.holdingRegister,
-    );
+    for (final p in probes) {
+      if (_closed) return false;
+      if (await _probeOnce(unitId, p)) return true;
+    }
+    return false;
+  }
+
+  Future<bool> _probeOnce(int unitId, ModbusProbe p) async {
+    final ModbusElement element = p.type.isBit
+        ? ModbusBitElement(name: 'probe', address: p.address, type: p.type)
+        : ModbusUint16Register(
+            name: 'probe',
+            address: p.address,
+            type: p.type,
+          );
     final request = element.getReadRequest(
       unitId: unitId,
       responseTimeout: _probeTimeout,
     );
     try {
       final code = await _clientOrCreate().send(request);
-      return answered(code);
+      if (answered(code)) return true;
+      // Időtúllépés után a késve érkező válasz a következő kérésnél rossz
+      // tranzakció-azonosítóval jönne, és hibásan ahhoz párosulna. Ilyenkor
+      // a socketet eldobjuk, a következő kérés újracsatlakozik.
+      if (!code.isStandardModbusExceptionCode &&
+          code != ModbusResponseCode.requestSucceed) {
+        await _clientOrCreate().disconnect();
+      }
+      return false;
     } catch (_) {
       return false;
     }

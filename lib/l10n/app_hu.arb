@@ -656,8 +656,12 @@
   "pointGroupLabel": "{index}/{total} mérés",
   "@pointGroupLabel": {
     "placeholders": {
-      "index": {"type": "String"},
-      "total": {"type": "String"}
+      "index": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
     }
   },
   "sessionDoseLabel": "Felmérési dózis",
@@ -2289,7 +2293,22 @@
   "spectrumEnergyAxis": "Energia",
   "@spectrumEnergyAxis": {},
   "spectrumSummaryText": "{kind} · {channels} csatorna · élő idő {liveTime} · {counts} beütés",
-  "@spectrumSummaryText": {"placeholders": {"kind": {"type": "String"}, "channels": {"type": "String"}, "liveTime": {"type": "String"}, "counts": {"type": "String"}}},
+  "@spectrumSummaryText": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "channels": {
+        "type": "String"
+      },
+      "liveTime": {
+        "type": "String"
+      },
+      "counts": {
+        "type": "String"
+      }
+    }
+  },
   "spectrumNoFileLabel": "Nincs spektrumfájl",
   "@spectrumNoFileLabel": {},
   "basisKindLabel": "Minta alapja",
@@ -2311,9 +2330,27 @@
   "concentrationCalcError": "Adj meg érvényes összes aktivitást és pozitív minta mennyiséget.",
   "@concentrationCalcError": {},
   "protoSpectrumCaption": "Spektrum #{idx} ({kind}): {location}",
-  "@protoSpectrumCaption": {"placeholders": {"idx": {"type": "String"}, "kind": {"type": "String"}, "location": {"type": "String"}}},
+  "@protoSpectrumCaption": {
+    "placeholders": {
+      "idx": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      },
+      "location": {
+        "type": "String"
+      }
+    }
+  },
   "protoSpectrumFile": "Spektrumfájl: {name}",
-  "@protoSpectrumFile": {"placeholders": {"name": {"type": "String"}}},
+  "@protoSpectrumFile": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "spectrumKindNeutron": "Neutron",
   "@spectrumKindNeutron": {},
   "basisMassSettingLabel": "Alapértelmezett tömegegység (koncentráció)",
@@ -2892,8 +2929,6 @@
   "@autoLogSourcesHelper": {},
   "autoLogSelectChannel": "Jelöljön ki legalább egy csatornát.",
   "@autoLogSelectChannel": {},
-  "autoLogOneDoseSource": "Dózisszámításhoz legfeljebb egy dózisteljesítmény-csatorna jelölhető ki.",
-  "@autoLogOneDoseSource": {},
   "mapColorScaleTitle": "Színezett mennyiség",
   "@mapColorScaleTitle": {},
   "mapInterpolationTitle": "Interpolációs réteg",
@@ -3115,10 +3150,186 @@
       }
     }
   },
-  "scanNoneFound": "Ebben a tartományban egyik ID sem válaszolt.",
+  "scanNoneFound": "Egyik ID sem válaszolt. Ellenőrizd az IP-címet, a portot és a mérési csatorna címét.",
   "@scanNoneFound": {},
   "scanMultipleHint": "Több ID is válaszolt. Közvetlen TCP-kapcsolatnál a műszer gyakran minden ID-ra válaszol, ezért a helyes értéket a műszer dokumentációjából ellenőrizd.",
   "@scanMultipleHint": {},
   "scanCancelled": "Megszakítva.",
-  "@scanCancelled": {}
+  "@scanCancelled": {},
+  "scanProbeChannel": "A keresés a mérési csatorna címét kérdezi le (holding regiszter {address}).",
+  "@scanProbeChannel": {
+    "placeholders": {
+      "address": {
+        "type": "int"
+      }
+    }
+  },
+  "scanProbeDefault": "Nincs mérési csatorna megadva, ezért a 0-s holding regisztert és a 0-s coilt kérdezem le. Ha a műszer ezeken nem válaszol, adj meg egy mérési csatornát, és úgy keress újra.",
+  "@scanProbeDefault": {},
+  "autoLogPositionTitle": "Pozíció műszerenként",
+  "@autoLogPositionTitle": {},
+  "autoLogPositionHelper": "Az adott műszer pontjai ezt a pozíciót kapják.",
+  "@autoLogPositionHelper": {},
+  "autoLogPositionSourceLabel": "Pozíció forrása",
+  "@autoLogPositionSourceLabel": {},
+  "autoLogPositionPhone": "Telefon GPS",
+  "@autoLogPositionPhone": {},
+  "autoLogPositionFixed": "Fix koordináta",
+  "@autoLogPositionFixed": {},
+  "autoLogPositionModbus": "Műszer GPS (Modbus)",
+  "@autoLogPositionModbus": {},
+  "autoLogPositionFixedNotSet": "Nincs koordináta megadva",
+  "@autoLogPositionFixedNotSet": {},
+  "autoLogPositionPickMap": "Térképen",
+  "@autoLogPositionPickMap": {},
+  "autoLogPositionType": "Beírás",
+  "@autoLogPositionType": {},
+  "autoLogCoordinatesTitle": "Koordináta megadása",
+  "@autoLogCoordinatesTitle": {},
+  "autoLogLatLabel": "Szélesség (°)",
+  "@autoLogLatLabel": {},
+  "autoLogLonLabel": "Hosszúság (°)",
+  "@autoLogLonLabel": {},
+  "autoLogCoordinatesInvalid": "Szélesség −90…90, hosszúság −180…180 között legyen.",
+  "@autoLogCoordinatesInvalid": {},
+  "autoLogPositionModbusError": "{name}: nincs Modbus GPS beállítva.",
+  "@autoLogPositionModbusError": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogPositionFixedError": "{name}: nincs fix koordináta megadva.",
+  "@autoLogPositionFixedError": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDistanceNeedsMoving": "Távolság módhoz legalább egy telefon- vagy Modbus-GPS-es műszer kell.",
+  "@autoLogDistanceNeedsMoving": {},
+  "autoLogNoPosition": "Nincs pozíció ehhez a műszerhez: {name}. A pont kimarad.",
+  "@autoLogNoPosition": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDoseSourceLabel": "Személyekhez mentett dózis forrása",
+  "@autoLogDoseSourceLabel": {},
+  "autoLogDoseSourceHelper": "Csak ennek a műszernek a dózisa kerül a személyekhez. A többi dózisa csak a mérés alatt látszik.",
+  "@autoLogDoseSourceHelper": {},
+  "autoLogDoseSourceLine": "{channel}: {dose}",
+  "@autoLogDoseSourceLine": {
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      },
+      "dose": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDoseSavedMark": " · mentésre kerül",
+  "@autoLogDoseSavedMark": {},
+  "mapTimeFilterTooltip": "Időszűrő",
+  "@mapTimeFilterTooltip": {},
+  "mapTimeFilterStart": "Kezdet",
+  "@mapTimeFilterStart": {},
+  "mapTimeFilterEnd": "Vége",
+  "@mapTimeFilterEnd": {},
+  "mapTimeFilterPlay": "Lejátszás",
+  "@mapTimeFilterPlay": {},
+  "mapTimeFilterPause": "Szünet",
+  "@mapTimeFilterPause": {},
+  "mapTimeFilterReset": "Teljes időtartam",
+  "@mapTimeFilterReset": {},
+  "mapTimeFilterCount": "{count} pont a kiválasztott időszakban",
+  "@mapTimeFilterCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapTimeFilterNoSpan": "Minden pont ugyanabban az időpontban készült.",
+  "@mapTimeFilterNoSpan": {},
+  "mapTimeFilterStepBack": "Egy időponttal vissza",
+  "@mapTimeFilterStepBack": {},
+  "mapTimeFilterStepForward": "Egy időponttal előre",
+  "@mapTimeFilterStepForward": {},
+  "mapTimeFilterSingleMoment": "Csak az aktuális időpont",
+  "@mapTimeFilterSingleMoment": {},
+  "timelapseMenuTooltip": "Időszak exportálása (GIF / PNG)",
+  "@timelapseMenuTooltip": {},
+  "timelapseDialogTitle": "Időszak exportja",
+  "@timelapseDialogTitle": {},
+  "timelapseFormatLabel": "Formátum",
+  "@timelapseFormatLabel": {},
+  "timelapseResolutionLabel": "Felbontás (szélesség)",
+  "@timelapseResolutionLabel": {},
+  "timelapseFormatGif": "GIF",
+  "@timelapseFormatGif": {},
+  "timelapseFormatZip": "PNG (ZIP)",
+  "@timelapseFormatZip": {},
+  "timelapseModeLabel": "Képkockák",
+  "@timelapseModeLabel": {},
+  "timelapseModeMoment": "Mérési időpontonként",
+  "@timelapseModeMoment": {},
+  "timelapseModeStep": "Fix időlépés",
+  "@timelapseModeStep": {},
+  "timelapseStepLabel": "Időlépés (felmérési másodperc)",
+  "@timelapseStepLabel": {},
+  "timelapseDelayLabel": "Képkocka-késleltetés (ms)",
+  "@timelapseDelayLabel": {},
+  "timelapseFrameCount": "{count} képkocka",
+  "@timelapseFrameCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timelapseTooMany": "Legfeljebb {max} képkocka exportálható. Növeld az időlépést vagy szűkítsd az időszakot.",
+  "@timelapseTooMany": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "timelapseStart": "Exportálás",
+  "@timelapseStart": {},
+  "timelapseNoPoints": "Nincs mérési pont az exportáláshoz.",
+  "@timelapseNoPoints": {},
+  "timelapseNoFrames": "Nem készült képkocka.",
+  "@timelapseNoFrames": {},
+  "timelapseProgress": "Képkocka {done} / {total}",
+  "@timelapseProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "timelapseEncoding": "Kódolás…",
+  "@timelapseEncoding": {},
+  "timelapseExporting": "Exportálás folyamatban",
+  "@timelapseExporting": {},
+  "timelapseFailed": "Az export nem sikerült: {error}",
+  "@timelapseFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "timelapseCancelled": "Az export megszakítva.",
+  "@timelapseCancelled": {}
 }

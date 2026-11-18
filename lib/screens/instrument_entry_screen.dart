@@ -175,6 +175,15 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
     _showMessage(message);
   }
 
+  /// Az első érvényes mérési csatorna címe; a keresés ezt kérdezi le.
+  int? _firstChannelAddress() {
+    for (final d in _channels) {
+      final v = int.tryParse(d.addressCtrl.text.trim());
+      if (v != null) return v;
+    }
+    return null;
+  }
+
   /// Unit ID keresés a megadott tartományban; a kiválasztott ID kerül a mezőbe.
   Future<void> _scanUnitIds() async {
     final loc = AppLocalizations.of(context)!;
@@ -187,7 +196,11 @@ class _InstrumentEntryScreenState extends State<InstrumentEntryScreen> {
     final picked = await showDialog<int>(
       context: context,
       barrierDismissible: false,
-      builder: (_) => ModbusUnitScanDialog(host: host, port: port),
+      builder: (_) => ModbusUnitScanDialog(
+        host: host,
+        port: port,
+        channelAddress: _firstChannelAddress(),
+      ),
     );
     if (picked == null || !mounted) return;
     setState(() => _modbusUnitIdCtrl.text = '$picked');

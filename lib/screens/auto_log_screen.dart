@@ -3,15 +3,18 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart' as ll;
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../database/database_helper.dart';
 import '../l10n/app_localizations.dart';
 import '../l10n/modbus_quantity_labels.dart';
 import '../models/concentration_unit.dart';
+import '../models/decimal_separator.dart';
 import '../models/distance_unit.dart';
 import '../models/gas_reading.dart';
 import '../models/hardware_button.dart';
+import '../models/auto_log_position.dart';
 import '../models/instrument.dart';
 import '../models/measurement_point.dart';
 import '../models/measurement_type.dart';
@@ -29,6 +32,7 @@ import '../widgets/quantity_field.dart';
 import '../widgets/time_series_chart.dart';
 import '../services/auto_log_chart_controller.dart';
 import 'instrument_list_screen.dart';
+import 'map_point_picker_screen.dart';
 import 'package:intl/intl.dart';
 
 enum _TriggerMode { time, distance }
@@ -56,6 +60,26 @@ class _Source {
 }
 
 /// Egy csatorna, amelyhez futás közben nyitott kapcsolat tartozik.
+/// Egy műszer pozíció-beállítása az automatikus méréshez.
+class _InstrumentPosition {
+  const _InstrumentPosition(this.source, {this.latitude, this.longitude});
+
+  final AutoLogPositionSource source;
+  final double? latitude;
+  final double? longitude;
+
+  bool get hasFixed => latitude != null && longitude != null;
+}
+
+/// Egy pont helyzete.
+class _Fix {
+  const _Fix(this.latitude, this.longitude, this.accuracy);
+
+  final double latitude;
+  final double longitude;
+  final double? accuracy;
+}
+
 class _ActiveSource {
   _ActiveSource(this.source, this.session);
 
@@ -80,7 +104,8 @@ _Source? _firstOf(List<_Source> list, bool Function(_Source) test) {
 /// csatornákat egyszerre olvassa: több műszer több csatornája egyidejűleg
 /// rögzíthető. A sugárzási értékek pontonként, a meteorológia és a gázok
 /// tickenként egy-egy összevont pontban mentődnek, közös időponttal és
-/// helyzettel. A GPS az első kijelölt, GPS-es műszertől, különben a telefontól jön.
+/// helyzettel. A pozíciót műszerenként a beállítás adja: telefon GPS, fix
+/// koordináta vagy a műszer Modbus GPS-e.
 ///
 /// FONTOS KORLÁT: a rögzítés csak addig fut, amíg ez a képernyő nyitva /
 /// előtérben van — háttérbe kerülve (kikapcsolt kijelző, másik app) a
@@ -106,11 +131,20 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
   List<_Source> _sources = [];
   List<_ActiveSource> _active = [];
 
-  /// A GPS forrása (ha van Modbus-GPS-es kijelölt műszer).
-  _Source? _gpsSrc;
+  /// Műszerenként a pozíció-beállítás (forrás, fix koordináta).
+  final Map<int, _InstrumentPosition> _positions = {};
 
-  /// Dózisintegráláshoz: legfeljebb egy dózisteljesítmény-csatorna.
+  /// Távolság módban a mozgást adó Modbus-GPS-es műszer, ha nincs telefonos.
+  Instrument? _triggerInstrument;
+
+  /// Dózisteljesítmény-csatornánként egy integrátor (futás közben).
+  final Map<_Source, DoseIntegrator> _doses = {};
+
+  /// A személyekhez mentett dózis forrása (a futás elején rögzül).
   _Source? _doseSrc;
+
+  /// A felhasználó által választott mentési forrás.
+  _Source? _doseChoice;
 
   /// Idődiagram és küszöb: az első kijelölt sugárzási csatorna.
   _Source? _chartSrc;
@@ -133,12 +167,30 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
   /// Távolság-módban telefon-GPS-szel a mérés csak megtett útra triggerel, a
   /// dózis integrálásához ettől függetlenül másodpercenként olvasunk.
   Timer? _doseTimer;
-  final _dose = DoseIntegrator();
   StreamSubscription<Position>? _positionSub;
   Position? _currentPosition;
-  (double, double)? _lastModbusGpsPosition;
+  (double, double)? _lastTriggerPosition;
 
-  bool get _useModbusGps => _gpsSrc != null;
+  /// A kijelölt dózisteljesítmény-csatornák.
+  List<_Source> get _doseSources => [
+        for (final s in _selectedSources)
+          if (s.channel.type == MeasurementType.doseRate) s,
+      ];
+
+  /// A személyekhez mentésre kerülő integrátor, ha van.
+  DoseIntegrator? get _savedDose => _doseSrc == null ? null : _doses[_doseSrc];
+
+  _InstrumentPosition _positionOf(Instrument i) {
+    const fallback = _InstrumentPosition(AutoLogPositionSource.phone);
+    final id = i.id;
+    if (id == null) return fallback;
+    return _positions[id] ?? fallback;
+  }
+
+  /// Legalább egy kijelölt műszer a telefon GPS-ét használja.
+  bool _anyPhoneSource(List<_Source> list) => list.any(
+        (s) => _positionOf(s.instrument).source == AutoLogPositionSource.phone,
+      );
 
   /// A futás alatt olvasott értékek csatornánként, alapegységben (az
   /// idődiagramhoz). Minden kijelölt csatorna a saját pufferébe ír.
@@ -171,14 +223,6 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
         for (final s in _sources)
           if (s.selected) s,
       ];
-
-  _ActiveSource? _activeFor(_Source? s) {
-    if (s == null) return null;
-    for (final a in _active) {
-      if (identical(a.source, s)) return a;
-    }
-    return null;
-  }
 
   /// A diagramra került minták: a legutóbbi [limit] db (0 = mind).
   List<TimeSample> _lastSamples(int limit) {
@@ -243,6 +287,21 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
   Future<void> _loadInstruments({bool allowAutoStart = true}) async {
     final all = await DatabaseHelper.instance.getInstruments();
     if (!mounted) return;
+    _positions.clear();
+    for (final i in all) {
+      final id = i.id;
+      if (id == null) continue;
+      var source = i.autoLogPositionSource;
+      // A Modbus-GPS-t a műszeren ki lehet kapcsolni: akkor a telefon marad.
+      if (source == AutoLogPositionSource.modbus && !i.isModbusGpsEnabled) {
+        source = AutoLogPositionSource.phone;
+      }
+      _positions[id] = _InstrumentPosition(
+        source,
+        latitude: i.autoLogLatitude,
+        longitude: i.autoLogLongitude,
+      );
+    }
     setState(() {
       _sources = [
         for (final i in all)
@@ -282,13 +341,6 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       _showError(loc.autoLogSelectChannel);
       return;
     }
-    final doseCount = selected
-        .where((s) => s.channel.type == MeasurementType.doseRate)
-        .length;
-    if (doseCount > 1) {
-      _showError(loc.autoLogOneDoseSource);
-      return;
-    }
 
     final interval = int.tryParse(_intervalCtrl.text.trim()) ?? 1;
     // A távolságköz méterben (a választott egységből átszámolva).
@@ -303,9 +355,42 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       return;
     }
 
-    final gpsCandidate =
-        _firstOf(selected, (s) => s.instrument.isModbusGpsEnabled);
-    if (gpsCandidate == null && !await _ensureLocationPermission()) return;
+    // Pozíció-beállítások ellenőrzése műszerenként.
+    final instruments = <Instrument>[];
+    for (final s in selected) {
+      if (!instruments.any((i) => identical(i, s.instrument))) {
+        instruments.add(s.instrument);
+      }
+    }
+    for (final i in instruments) {
+      final p = _positionOf(i);
+      if (p.source == AutoLogPositionSource.modbus && !i.isModbusGpsEnabled) {
+        _showError(loc.autoLogPositionModbusError(i.name));
+        return;
+      }
+      if (p.source == AutoLogPositionSource.fixed && !p.hasFixed) {
+        _showError(loc.autoLogPositionFixedError(i.name));
+        return;
+      }
+    }
+    final anyPhone = _anyPhoneSource(selected);
+    _triggerInstrument = null;
+    if (_mode == _TriggerMode.distance && !anyPhone) {
+      // Mozgó pozíció nélkül a távolság nem mérhető: a Modbus-GPS dönt.
+      Instrument? mover;
+      for (final i in instruments) {
+        if (_positionOf(i).source == AutoLogPositionSource.modbus) {
+          mover = i;
+          break;
+        }
+      }
+      if (mover == null) {
+        _showError(loc.autoLogDistanceNeedsMoving);
+        return;
+      }
+      _triggerInstrument = mover;
+    }
+    if (anyPhone && !await _ensureLocationPermission()) return;
 
     setState(() => _starting = true);
     final opened = <_ActiveSource>[];
@@ -325,9 +410,10 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     }
 
     _active = opened;
-    _gpsSrc = gpsCandidate;
-    _doseSrc = _firstOf(
-        selected, (s) => s.channel.type == MeasurementType.doseRate);
+    final doseSources = _doseSources;
+    _doseSrc = doseSources.contains(_doseChoice)
+        ? _doseChoice
+        : (doseSources.isEmpty ? null : doseSources.first);
     _chartSrc = _firstOf(selected, (s) => _isRadiation(s.channel.type)) ??
         (selected.isEmpty ? null : selected.first);
 
@@ -340,36 +426,33 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       _capturedCount = 0;
       _errorCount = 0;
       _lastError = null;
-      _lastModbusGpsPosition = null;
-      _dose.reset();
+      _lastTriggerPosition = null;
+      _doses.clear();
+      for (final s in doseSources) {
+        _doses[s] = DoseIntegrator();
+      }
     });
 
-    if (_useModbusGps) {
-      // Modbus-GPS: a kijelölt műszer helyzetét használjuk, nem a telefonét.
-      // Távolság módban 1 mp-es lekérdezés, a megtett utat a műszer GPS-éből számoljuk.
-      final seconds = _mode == _TriggerMode.time ? interval : 1;
-      _timer = Timer.periodic(
-        Duration(seconds: seconds),
-        (_) => _captureTick(null, minDistance: distance),
-      );
-      return;
-    }
-
     if (_mode == _TriggerMode.time) {
-      // Folyamatosan frissülő pozíció a legfrissebb koordinátákhoz —
-      // nem várjuk meg minden tick-nél külön a GPS-t, mert az lassítaná
-      // a másodperces gyakoriságot.
-      _positionSub = Geolocator.getPositionStream(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.best,
-        ),
-      ).listen((position) => _currentPosition = position);
-
+      // Telefon-GPS esetén a legfrissebb pozíciót folyamatosan frissítjük,
+      // nem várjuk meg minden tick-nél külön a GPS-t.
+      if (anyPhone) {
+        _positionSub = Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.best,
+          ),
+        ).listen((position) => _currentPosition = position);
+      }
       _timer = Timer.periodic(
         Duration(seconds: interval),
         (_) => _captureTick(_currentPosition),
       );
-    } else {
+      return;
+    }
+
+    if (anyPhone) {
+      // Telefonos mozgás-trigger: a megtett út szerint rögzít, minden
+      // műszer a saját pozícióját kapja.
       _positionSub = Geolocator.getPositionStream(
         locationSettings: LocationSettings(
           accuracy: LocationAccuracy.best,
@@ -378,24 +461,48 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       ).listen(_captureTick);
       _doseTimer =
           Timer.periodic(const Duration(seconds: 1), (_) => _doseTick());
+    } else {
+      // Modbus-GPS mozgás-trigger: 1 mp-es lekérdezés, a megtett utat a
+      // kijelölt műszer GPS-éből számoljuk.
+      _timer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) => _captureTick(null, minDistance: distance),
+      );
     }
   }
 
   /// Csak dózis-integráláshoz szükséges olvasás (nem rögzít mérési pontot).
   Future<void> _doseTick() async {
-    final doseActive = _activeFor(_doseSrc);
-    if (_busy || !_isRunning || doseActive == null) return;
+    final doseActives = [
+      for (final a in _active)
+        if (a.source.channel.type == MeasurementType.doseRate) a,
+    ];
+    if (_busy || !_isRunning || doseActives.isEmpty) return;
     _busy = true;
     try {
-      final result = await doseActive.session.read();
-      final value = result.value;
-      if (result.success && value != null) {
-        _dose.addSample(value, doseActive.source.channel.unit, DateTime.now());
-        _addSample(value, doseActive.source);
-        if (mounted) setState(() {});
+      final results = await Future.wait([
+        for (final a in doseActives) a.session.read(withGps: false),
+      ]);
+      var any = false;
+      for (var i = 0; i < doseActives.length; i++) {
+        final a = doseActives[i];
+        final value = results[i].value;
+        if (results[i].success && value != null) {
+          _doses[a.source]
+              ?.addSample(value, a.source.channel.unit, DateTime.now());
+          _addSample(value, a.source);
+          any = true;
+        }
       }
+      if (any && mounted) setState(() {});
     } finally {
       _busy = false;
+    }
+  }
+
+  void _resetDoses() {
+    for (final d in _doses.values) {
+      d.reset();
     }
   }
 
@@ -404,12 +511,13 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
   /// elmentett személyek számát adja vissza, -1-et ha nincs hozzárendelt
   /// személy; `null`, ha nem volt mit menteni.
   Future<(int?, double)> _persistDose() async {
-    if (!_dose.hasData) {
-      _dose.reset();
+    final integrator = _savedDose;
+    if (integrator == null || !integrator.hasData) {
+      _resetDoses();
       return (null, 0.0);
     }
-    final dose = _dose.doseMicroSv;
-    _dose.reset();
+    final dose = integrator.doseMicroSv;
+    _resetDoses();
     final persons = await DatabaseHelper.instance
         .getAttachedPersons(widget.surveySessionId);
     if (persons.isEmpty) return (-1, dose);
@@ -498,20 +606,34 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     return out;
   }
 
-  Future<void> _captureTick(Position? position, {double? minDistance}) async {
-    if ((position == null && !_useModbusGps) || _busy || !_isRunning) return;
+  /// Egy rögzítési kör: a csatornák olvasása, majd pontok írása
+  /// műszerenként a beállított pozícióval.
+  Future<void> _captureTick(Position? phonePosition, {double? minDistance}) async {
+    if (_busy || !_isRunning) return;
     _busy = true;
     try {
+      final loc = AppLocalizations.of(context)!;
       // Minden kijelölt csatorna egy időpontban, párhuzamosan olvasódik.
       final actives = List<_ActiveSource>.of(_active);
-      final results =
-          await Future.wait([for (final a in actives) a.session.read()]);
+      final results = await Future.wait([
+        for (final a in actives) a.session.read(withGps: _isGpsCarrier(a)),
+      ]);
       final readings = <(_ActiveSource, ModbusReadResult)>[];
-      ModbusReadResult? gpsRead;
+      // Műszerenként az első sikeres GPS-olvasás.
+      final gpsByInstrument = <int, (double, double)>{};
       for (var i = 0; i < actives.length; i++) {
         final a = actives[i];
         final r = results[i];
-        if (identical(a.source, _gpsSrc)) gpsRead = r;
+        final id = a.source.instrument.id;
+        final lat = r.latitude;
+        final lon = r.longitude;
+        if (id != null &&
+            r.success &&
+            lat != null &&
+            lon != null &&
+            !gpsByInstrument.containsKey(id)) {
+          gpsByInstrument[id] = (lat, lon);
+        }
         if (!r.success || r.value == null) {
           _errorCount++;
           _lastError = r.errorMessage;
@@ -523,43 +645,56 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       // Dózis és idődiagram a sikeres olvasásokból (a GPS-szűrés előtt).
       for (final (a, r) in readings) {
         final raw = r.value!;
-        if (identical(a.source, _doseSrc)) {
-          _dose.addSample(raw, a.source.channel.unit, DateTime.now());
-        }
+        _doses[a.source]
+            ?.addSample(raw, a.source.channel.unit, DateTime.now());
         _addSample(raw, a.source);
       }
 
-      final double latitude;
-      final double longitude;
-      final double? accuracy;
-      if (_useModbusGps) {
-        final lat = gpsRead?.latitude;
-        final lon = gpsRead?.longitude;
-        if (gpsRead == null || !gpsRead.success || lat == null || lon == null) {
+      // Távolság módban a mozgást adó műszer GPS-e dönti el, rögzítünk-e.
+      final trigger = _triggerInstrument;
+      if (_mode == _TriggerMode.distance && trigger != null) {
+        final moved = gpsByInstrument[trigger.id];
+        if (moved == null) {
           if (mounted) setState(() {});
           return;
         }
-        latitude = lat;
-        longitude = lon;
-        accuracy = null;
-        if (_mode == _TriggerMode.distance) {
-          final last = _lastModbusGpsPosition;
-          if (last != null &&
-              Geolocator.distanceBetween(
-                    last.$1,
-                    last.$2,
-                    latitude,
-                    longitude,
-                  ) <
-                  (minDistance ?? 5)) {
-            return;
-          }
-          _lastModbusGpsPosition = (latitude, longitude);
+        final last = _lastTriggerPosition;
+        if (last != null &&
+            Geolocator.distanceBetween(
+                  last.$1,
+                  last.$2,
+                  moved.$1,
+                  moved.$2,
+                ) <
+                (minDistance ?? 5)) {
+          return;
         }
-      } else {
-        latitude = position!.latitude;
-        longitude = position.longitude;
-        accuracy = position.accuracy;
+        _lastTriggerPosition = moved;
+      }
+
+      // Műszerenként a pozíció: telefon, fix koordináta vagy a műszer GPS-e.
+      final fixes = <int?, _Fix?>{};
+      _Fix? fixFor(Instrument i) {
+        if (fixes.containsKey(i.id)) return fixes[i.id];
+        final p = _positionOf(i);
+        _Fix? fix;
+        switch (p.source) {
+          case AutoLogPositionSource.phone:
+            final pos = phonePosition ?? _currentPosition;
+            if (pos != null) {
+              fix = _Fix(pos.latitude, pos.longitude, pos.accuracy);
+            }
+          case AutoLogPositionSource.fixed:
+            final lat = p.latitude;
+            final lon = p.longitude;
+            if (lat != null && lon != null) fix = _Fix(lat, lon, null);
+          case AutoLogPositionSource.modbus:
+            final id = i.id;
+            final g = id == null ? null : gpsByInstrument[id];
+            if (g != null) fix = _Fix(g.$1, g.$2, null);
+        }
+        fixes[i.id] = fix;
+        return fix;
       }
 
       final now = DateTime.now();
@@ -569,13 +704,18 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
       for (final (a, r) in readings) {
         final c = a.source.channel;
         if (!_isRadiation(c.type)) continue;
+        final fix = fixFor(a.source.instrument);
+        if (fix == null) {
+          _lastError = loc.autoLogNoPosition(a.source.instrument.name);
+          continue;
+        }
         points.add(_point(
           type: c.type,
           value: channelReadingInAppUnit(c, r.value!),
           unit: c.type.defaultUnit,
-          latitude: latitude,
-          longitude: longitude,
-          accuracy: accuracy,
+          latitude: fix.latitude,
+          longitude: fix.longitude,
+          accuracy: fix.accuracy,
           now: now,
           instrumentId: a.source.instrument.id,
         ));
@@ -594,27 +734,39 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
         }
       }
       for (final entry in metaGroups.entries) {
+        final inst = entry.value.first.$1.source.instrument;
+        final fix = fixFor(inst);
+        if (fix == null) {
+          _lastError = loc.autoLogNoPosition(inst.name);
+          continue;
+        }
         final meteo = _meteorologyFrom(entry.value);
         if (meteo == null) continue;
         points.add(_point(
           type: MeasurementType.meteorology,
           meteorology: meteo,
-          latitude: latitude,
-          longitude: longitude,
-          accuracy: accuracy,
+          latitude: fix.latitude,
+          longitude: fix.longitude,
+          accuracy: fix.accuracy,
           now: now,
           instrumentId: entry.key,
         ));
       }
       for (final entry in gasGroups.entries) {
+        final inst = entry.value.first.$1.source.instrument;
+        final fix = fixFor(inst);
+        if (fix == null) {
+          _lastError = loc.autoLogNoPosition(inst.name);
+          continue;
+        }
         final gases = _gasesFrom(entry.value);
         if (gases.isEmpty) continue;
         points.add(_point(
           type: MeasurementType.gasMeasurement,
           gases: gases,
-          latitude: latitude,
-          longitude: longitude,
-          accuracy: accuracy,
+          latitude: fix.latitude,
+          longitude: fix.longitude,
+          accuracy: fix.accuracy,
           now: now,
           instrumentId: entry.key,
         ));
@@ -640,6 +792,19 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     } finally {
       _busy = false;
     }
+  }
+
+  /// A csatorna GPS-t kérjen-e ezen a körön: a GPS-es műszer első csatornája.
+  bool _isGpsCarrier(_ActiveSource a) {
+    final inst = a.source.instrument;
+    final needsGps =
+        _positionOf(inst).source == AutoLogPositionSource.modbus ||
+            identical(inst, _triggerInstrument);
+    if (!needsGps) return false;
+    for (final o in _active) {
+      if (identical(o.source.instrument, inst)) return identical(o, a);
+    }
+    return false;
   }
 
   Future<void> _closeSessions() async {
@@ -702,6 +867,194 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
     _intervalCtrl.dispose();
     _distanceCtrl.dispose();
     super.dispose();
+  }
+
+  Widget _buildDoseSourcePicker(AppLocalizations loc) {
+    final sources = _doseSources;
+    final current =
+        sources.contains(_doseChoice) ? _doseChoice! : sources.first;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: DropdownButtonFormField<_Source>(
+        key: ValueKey<Object>(current),
+        initialValue: current,
+        isExpanded: true,
+        decoration: InputDecoration(
+          labelText: loc.autoLogDoseSourceLabel,
+          helperText: loc.autoLogDoseSourceHelper,
+          isDense: true,
+        ),
+        items: [
+          for (final s in sources)
+            DropdownMenuItem(
+              value: s,
+              child: Text(_chartChannelLabel(context, loc, s)),
+            ),
+        ],
+        onChanged:
+            _isRunning ? null : (v) => setState(() => _doseChoice = v),
+      ),
+    );
+  }
+
+  Widget _buildPositionCard(AppLocalizations loc, List<_Source> selected) {
+    final theme = Theme.of(context);
+    final instruments = <Instrument>[];
+    for (final s in selected) {
+      if (!instruments.any((i) => identical(i, s.instrument))) {
+        instruments.add(s.instrument);
+      }
+    }
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(loc.autoLogPositionTitle, style: theme.textTheme.titleSmall),
+            const SizedBox(height: 4),
+            Text(loc.autoLogPositionHelper, style: theme.textTheme.bodySmall),
+            for (final i in instruments) _positionRow(loc, i),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _positionRow(AppLocalizations loc, Instrument i) {
+    final p = _positionOf(i);
+    final sep = decimalSeparatorFor(
+      DecimalSeparatorController.current,
+      loc.protoDecimalSep,
+    );
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(i.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 4),
+          DropdownButtonFormField<AutoLogPositionSource>(
+            key: ValueKey('pos-${i.id}-${p.source.name}'),
+            initialValue: p.source,
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: loc.autoLogPositionSourceLabel,
+              isDense: true,
+            ),
+            items: [
+              DropdownMenuItem(
+                value: AutoLogPositionSource.phone,
+                child: Text(loc.autoLogPositionPhone),
+              ),
+              DropdownMenuItem(
+                value: AutoLogPositionSource.fixed,
+                child: Text(loc.autoLogPositionFixed),
+              ),
+              if (i.isModbusGpsEnabled)
+                DropdownMenuItem(
+                  value: AutoLogPositionSource.modbus,
+                  child: Text(loc.autoLogPositionModbus),
+                ),
+            ],
+            onChanged: _isRunning
+                ? null
+                : (v) {
+                    if (v != null) unawaited(_setPositionSource(i, v));
+                  },
+          ),
+          if (p.source == AutoLogPositionSource.fixed)
+            Wrap(
+              spacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(
+                  p.hasFixed
+                      ? '${_fmtCoord(p.latitude!, sep)}, '
+                          '${_fmtCoord(p.longitude!, sep)}'
+                      : loc.autoLogPositionFixedNotSet,
+                  style: theme.textTheme.bodySmall,
+                ),
+                TextButton.icon(
+                  onPressed: _isRunning ? null : () => _pickFixedOnMap(i),
+                  icon: const Icon(Icons.map),
+                  label: Text(loc.autoLogPositionPickMap),
+                ),
+                TextButton.icon(
+                  onPressed: _isRunning ? null : () => _typeFixed(i),
+                  icon: const Icon(Icons.edit),
+                  label: Text(loc.autoLogPositionType),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  String _fmtCoord(double v, String sep) =>
+      v.toStringAsFixed(6).replaceAll('.', sep);
+
+  Future<void> _setPositionSource(
+      Instrument i, AutoLogPositionSource src) async {
+    final current = _positionOf(i);
+    await _savePosition(i, src, current.latitude, current.longitude);
+  }
+
+  Future<void> _savePosition(
+    Instrument i,
+    AutoLogPositionSource src,
+    double? lat,
+    double? lon,
+  ) async {
+    final id = i.id;
+    if (id == null) return;
+    await DatabaseHelper.instance.setAutoLogPosition(id, src, lat, lon);
+    if (!mounted) return;
+    setState(() {
+      _positions[id] =
+          _InstrumentPosition(src, latitude: lat, longitude: lon);
+    });
+  }
+
+  Future<void> _pickFixedOnMap(Instrument i) async {
+    final p = _positionOf(i);
+    final pos = _currentPosition;
+    final ll.LatLng initial;
+    if (p.hasFixed) {
+      initial = ll.LatLng(p.latitude!, p.longitude!);
+    } else if (pos != null) {
+      initial = ll.LatLng(pos.latitude, pos.longitude);
+    } else {
+      initial = const ll.LatLng(47.4979, 19.0402); // Budapest, ha nincs helyzet
+    }
+    final picked = await Navigator.of(context).push<ll.LatLng>(
+      MaterialPageRoute(
+        builder: (_) => MapPointPickerScreen(initialCenter: initial),
+      ),
+    );
+    if (picked == null) return;
+    await _savePosition(
+      i,
+      AutoLogPositionSource.fixed,
+      picked.latitude,
+      picked.longitude,
+    );
+  }
+
+  Future<void> _typeFixed(Instrument i) async {
+    final p = _positionOf(i);
+    final result = await showDialog<(double, double)>(
+      context: context,
+      builder: (_) => _CoordinateDialog(
+        latitude: p.latitude,
+        longitude: p.longitude,
+      ),
+    );
+    if (result == null) return;
+    await _savePosition(
+        i, AutoLogPositionSource.fixed, result.$1, result.$2);
   }
 
   @override
@@ -777,6 +1130,8 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
+            if (_doseSources.length > 1) _buildDoseSourcePicker(loc),
+            if (selected.isNotEmpty) _buildPositionCard(loc, selected),
             const SizedBox(height: 16),
             SegmentedButton<_TriggerMode>(
               segments: [
@@ -956,15 +1311,23 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(loc.capturedPointsLabel(_capturedCount)),
-                      if (_dose.hasData)
-                        Text(loc.autoLogDoseLabel(
-                            formatDose(context, _dose.doseMicroSv))),
-                      if (_dose.gapCount > 0)
-                        Text(
-                          loc.autoLogDoseGaps(_dose.gapCount),
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.error),
-                        ),
+                      for (final s in _doseSources) ...[
+                        if (_doses[s]?.hasData ?? false)
+                          Text(
+                            loc.autoLogDoseSourceLine(
+                                  _chartChannelLabel(context, loc, s),
+                                  formatDose(context, _doses[s]!.doseMicroSv),
+                                ) +
+                                (s == _doseSrc ? loc.autoLogDoseSavedMark : ''),
+                          ),
+                        if ((_doses[s]?.gapCount ?? 0) > 0)
+                          Text(
+                            '${_chartChannelLabel(context, loc, s)}: '
+                            '${loc.autoLogDoseGaps(_doses[s]!.gapCount)}',
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.error),
+                          ),
+                      ],
                       if (_errorCount > 0)
                         Text(
                           loc.failedReadingsLabel(_errorCount) +
@@ -981,6 +1344,99 @@ class _AutoLogScreenState extends State<AutoLogScreen> {
           ],
         ],
       ),
+    );
+  }
+}
+
+/// Fix koordináta beírása. A pont és a tizedesvessző is jó.
+class _CoordinateDialog extends StatefulWidget {
+  const _CoordinateDialog({this.latitude, this.longitude});
+
+  final double? latitude;
+  final double? longitude;
+
+  @override
+  State<_CoordinateDialog> createState() => _CoordinateDialogState();
+}
+
+class _CoordinateDialogState extends State<_CoordinateDialog> {
+  late final TextEditingController _lat;
+  late final TextEditingController _lon;
+  bool _invalid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _lat = TextEditingController(
+      text: widget.latitude?.toStringAsFixed(6) ?? '',
+    );
+    _lon = TextEditingController(
+      text: widget.longitude?.toStringAsFixed(6) ?? '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _lat.dispose();
+    _lon.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final lat = parseDecimal(_lat.text);
+    final lon = parseDecimal(_lon.text);
+    if (lat == null ||
+        lon == null ||
+        lat < -90 ||
+        lat > 90 ||
+        lon < -180 ||
+        lon > 180) {
+      setState(() => _invalid = true);
+      return;
+    }
+    Navigator.of(context).pop((lat, lon));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    const numberKeyboard = TextInputType.numberWithOptions(
+      decimal: true,
+      signed: true,
+    );
+    return AlertDialog(
+      title: Text(loc.autoLogCoordinatesTitle),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _lat,
+            keyboardType: numberKeyboard,
+            decoration: InputDecoration(labelText: loc.autoLogLatLabel),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _lon,
+            keyboardType: numberKeyboard,
+            decoration: InputDecoration(labelText: loc.autoLogLonLabel),
+          ),
+          if (_invalid)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                loc.autoLogCoordinatesInvalid,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(loc.cancelButton),
+        ),
+        FilledButton(onPressed: _save, child: Text(loc.saveButton)),
+      ],
     );
   }
 }

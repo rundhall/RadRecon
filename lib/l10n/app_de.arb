@@ -287,8 +287,12 @@
   "pointGroupLabel": "{index}/{total} Messungen",
   "@pointGroupLabel": {
     "placeholders": {
-      "index": {"type": "String"},
-      "total": {"type": "String"}
+      "index": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
     }
   },
   "@protocolFormatPdf": {},
@@ -1396,7 +1400,22 @@
   "spectrumEnergyAxis": "Energie",
   "@spectrumEnergyAxis": {},
   "spectrumSummaryText": "{kind} · {channels} Kanäle · Live-Zeit {liveTime} · {counts} Zählungen",
-  "@spectrumSummaryText": {"placeholders": {"kind": {"type": "String"}, "channels": {"type": "String"}, "liveTime": {"type": "String"}, "counts": {"type": "String"}}},
+  "@spectrumSummaryText": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "channels": {
+        "type": "String"
+      },
+      "liveTime": {
+        "type": "String"
+      },
+      "counts": {
+        "type": "String"
+      }
+    }
+  },
   "spectrumNoFileLabel": "Keine Spektrumdatei",
   "@spectrumNoFileLabel": {},
   "basisKindLabel": "Probenbezug",
@@ -1418,9 +1437,27 @@
   "concentrationCalcError": "Gib eine gültige Gesamtaktivität und eine positive Probenmenge ein.",
   "@concentrationCalcError": {},
   "protoSpectrumCaption": "Spektrum Nr. {idx} ({kind}): {location}",
-  "@protoSpectrumCaption": {"placeholders": {"idx": {"type": "String"}, "kind": {"type": "String"}, "location": {"type": "String"}}},
+  "@protoSpectrumCaption": {
+    "placeholders": {
+      "idx": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      },
+      "location": {
+        "type": "String"
+      }
+    }
+  },
   "protoSpectrumFile": "Spektrumdatei: {name}",
-  "@protoSpectrumFile": {"placeholders": {"name": {"type": "String"}}},
+  "@protoSpectrumFile": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "spectrumKindNeutron": "Neutron",
   "@spectrumKindNeutron": {},
   "basisMassSettingLabel": "Standard-Masseneinheit (Konzentration)",
@@ -1999,8 +2036,6 @@
   "@autoLogSourcesHelper": {},
   "autoLogSelectChannel": "Wählen Sie mindestens einen Kanal aus.",
   "@autoLogSelectChannel": {},
-  "autoLogOneDoseSource": "Für die Dosisberechnung kann nur ein Dosisleistungskanal ausgewählt werden.",
-  "@autoLogOneDoseSource": {},
   "mapColorScaleTitle": "Gefärbte Größe",
   "@mapColorScaleTitle": {},
   "mapInterpolationTitle": "Interpolationsebene",
@@ -2222,10 +2257,186 @@
       }
     }
   },
-  "scanNoneFound": "In diesem Bereich hat keine ID geantwortet.",
+  "scanNoneFound": "Keine ID hat geantwortet. Prüfe IP-Adresse, Port und die Adresse des Messkanals.",
   "@scanNoneFound": {},
   "scanMultipleHint": "Mehrere IDs haben geantwortet. Bei direkter TCP-Verbindung antwortet das Gerät oft auf jede ID; prüfe den richtigen Wert in der Gerätedokumentation.",
   "@scanMultipleHint": {},
   "scanCancelled": "Abgebrochen.",
-  "@scanCancelled": {}
+  "@scanCancelled": {},
+  "scanProbeChannel": "Die Suche fragt die Adresse des Messkanals ab (Holding-Register {address}).",
+  "@scanProbeChannel": {
+    "placeholders": {
+      "address": {
+        "type": "int"
+      }
+    }
+  },
+  "scanProbeDefault": "Kein Messkanal angegeben, daher werden Holding-Register 0 und Coil 0 abgefragt. Antwortet das Gerät darauf nicht, lege einen Messkanal fest und suche erneut.",
+  "@scanProbeDefault": {},
+  "autoLogPositionTitle": "Position pro Gerät",
+  "@autoLogPositionTitle": {},
+  "autoLogPositionHelper": "Die Punkte jedes Geräts erhalten diese Position.",
+  "@autoLogPositionHelper": {},
+  "autoLogPositionSourceLabel": "Positionsquelle",
+  "@autoLogPositionSourceLabel": {},
+  "autoLogPositionPhone": "Telefon-GPS",
+  "@autoLogPositionPhone": {},
+  "autoLogPositionFixed": "Feste Koordinate",
+  "@autoLogPositionFixed": {},
+  "autoLogPositionModbus": "Geräte-GPS (Modbus)",
+  "@autoLogPositionModbus": {},
+  "autoLogPositionFixedNotSet": "Keine Koordinaten angegeben",
+  "@autoLogPositionFixedNotSet": {},
+  "autoLogPositionPickMap": "Auf Karte",
+  "@autoLogPositionPickMap": {},
+  "autoLogPositionType": "Eingeben",
+  "@autoLogPositionType": {},
+  "autoLogCoordinatesTitle": "Koordinaten eingeben",
+  "@autoLogCoordinatesTitle": {},
+  "autoLogLatLabel": "Breite (°)",
+  "@autoLogLatLabel": {},
+  "autoLogLonLabel": "Länge (°)",
+  "@autoLogLonLabel": {},
+  "autoLogCoordinatesInvalid": "Breite muss zwischen −90 und 90, Länge zwischen −180 und 180 liegen.",
+  "@autoLogCoordinatesInvalid": {},
+  "autoLogPositionModbusError": "{name}: Modbus-GPS ist nicht aktiviert.",
+  "@autoLogPositionModbusError": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogPositionFixedError": "{name}: keine feste Koordinate angegeben.",
+  "@autoLogPositionFixedError": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDistanceNeedsMoving": "Der Abstandsmodus braucht mindestens ein Gerät mit Telefon- oder Modbus-GPS.",
+  "@autoLogDistanceNeedsMoving": {},
+  "autoLogNoPosition": "Keine Position für {name}. Der Punkt wird übersprungen.",
+  "@autoLogNoPosition": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDoseSourceLabel": "Dosisquelle für Personen",
+  "@autoLogDoseSourceLabel": {},
+  "autoLogDoseSourceHelper": "Nur die Dosis dieses Geräts wird den Personen zugeordnet. Die übrigen werden nur während der Messung angezeigt.",
+  "@autoLogDoseSourceHelper": {},
+  "autoLogDoseSourceLine": "{channel}: {dose}",
+  "@autoLogDoseSourceLine": {
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      },
+      "dose": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDoseSavedMark": " · wird gespeichert",
+  "@autoLogDoseSavedMark": {},
+  "mapTimeFilterTooltip": "Zeitfilter",
+  "@mapTimeFilterTooltip": {},
+  "mapTimeFilterStart": "Beginn",
+  "@mapTimeFilterStart": {},
+  "mapTimeFilterEnd": "Ende",
+  "@mapTimeFilterEnd": {},
+  "mapTimeFilterPlay": "Abspielen",
+  "@mapTimeFilterPlay": {},
+  "mapTimeFilterPause": "Pause",
+  "@mapTimeFilterPause": {},
+  "mapTimeFilterReset": "Gesamter Zeitraum",
+  "@mapTimeFilterReset": {},
+  "mapTimeFilterCount": "{count} Punkte im gewählten Zeitraum",
+  "@mapTimeFilterCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapTimeFilterNoSpan": "Alle Punkte wurden zur selben Zeit aufgenommen.",
+  "@mapTimeFilterNoSpan": {},
+  "mapTimeFilterStepBack": "Einen Zeitpunkt zurück",
+  "@mapTimeFilterStepBack": {},
+  "mapTimeFilterStepForward": "Einen Zeitpunkt vor",
+  "@mapTimeFilterStepForward": {},
+  "mapTimeFilterSingleMoment": "Nur der aktuelle Zeitpunkt",
+  "@mapTimeFilterSingleMoment": {},
+  "timelapseMenuTooltip": "Zeitraum exportieren (GIF / PNG)",
+  "@timelapseMenuTooltip": {},
+  "timelapseDialogTitle": "Zeitraum exportieren",
+  "@timelapseDialogTitle": {},
+  "timelapseFormatLabel": "Format",
+  "@timelapseFormatLabel": {},
+  "timelapseResolutionLabel": "Auflösung (Breite)",
+  "@timelapseResolutionLabel": {},
+  "timelapseFormatGif": "GIF",
+  "@timelapseFormatGif": {},
+  "timelapseFormatZip": "PNG (ZIP)",
+  "@timelapseFormatZip": {},
+  "timelapseModeLabel": "Bilder",
+  "@timelapseModeLabel": {},
+  "timelapseModeMoment": "Pro Messzeitpunkt",
+  "@timelapseModeMoment": {},
+  "timelapseModeStep": "Fester Zeitschritt",
+  "@timelapseModeStep": {},
+  "timelapseStepLabel": "Zeitschritt (Messsekunden)",
+  "@timelapseStepLabel": {},
+  "timelapseDelayLabel": "Bildverzögerung (ms)",
+  "@timelapseDelayLabel": {},
+  "timelapseFrameCount": "{count} Bilder",
+  "@timelapseFrameCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timelapseTooMany": "Höchstens {max} Bilder sind möglich. Erhöhe den Zeitschritt oder verkleinere den Zeitraum.",
+  "@timelapseTooMany": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "timelapseStart": "Exportieren",
+  "@timelapseStart": {},
+  "timelapseNoPoints": "Keine Messpunkte zum Exportieren.",
+  "@timelapseNoPoints": {},
+  "timelapseNoFrames": "Es wurden keine Bilder erstellt.",
+  "@timelapseNoFrames": {},
+  "timelapseProgress": "Bild {done} / {total}",
+  "@timelapseProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "timelapseEncoding": "Kodierung…",
+  "@timelapseEncoding": {},
+  "timelapseExporting": "Export läuft",
+  "@timelapseExporting": {},
+  "timelapseFailed": "Export fehlgeschlagen: {error}",
+  "@timelapseFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "timelapseCancelled": "Export abgebrochen.",
+  "@timelapseCancelled": {}
 }

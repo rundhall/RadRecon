@@ -1,10 +1,14 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 import '../models/hardware_button.dart';
 import '../services/hardware_buttons.dart';
 import 'dart:convert';
 import 'dart:math' as math;
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+
+import '../services/timelapse_export_service.dart';
 import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:intl/intl.dart';
@@ -163,6 +167,30 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
   final Set<int> _hiddenAreaIds = {}; // egyenként elrejtett területek
   final Set<int> _hiddenLineIds = {}; // egyenként elrejtett mérővonalak
 
+  // Időszűrő: a térkép csak a kiválasztott időtartományba eső pontokat mutatja.
+  bool _timeFilterOpen = false;
+  DateTime? _tMin; // a felmérés első pontjának időpontja
+  DateTime? _tMax; // az utolsó pontjáé
+  DateTime? _rangeStart; // a kiválasztott tartomány kezdete
+  DateTime? _rangeEnd; // és vége
+  List<MeasurementPoint> _shownPoints = []; // a tartományba eső pontok
+  int _shownLo = -1; // a _points-beli szelet határai
+  int _shownHi = -1;
+  int? _manualHi; // léptetéssel beállított végindex (null: az időből számolt)
+  bool _singleMoment = false; // pillanat mód: a kezdet követi a véget
+  bool _exporting = false; // időszak-export fut
+  bool _exportCancel = false; // a felhasználó megszakította
+  DateTime? _exportLabel; // a képkockába írt időbélyeg
+  ImageStream? _planStream; // export: az alaprajz képének élő figyelője
+  ImageStreamListener? _planListener;
+  final _fullDateFormat = DateFormat('yyyy.MM.dd HH:mm:ss');
+  static const _maxTimelapseFrames = 400;
+  Timer? _playTimer;
+  bool _playing = false;
+  int _playSpeed = 60; // felmérési másodperc valós másodpercenként
+  static const _playSpeeds = [10, 60, 300, 1800];
+  static const _playTick = Duration(milliseconds: 100);
+
   @override
   void initState() {
     super.initState();
@@ -173,6 +201,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
 
   @override
   void dispose() {
+    _playTimer?.cancel();
     HardwareButtons.unregister(_buttonHandler);
     super.dispose();
   }
@@ -625,6 +654,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
     if (!mounted) return;
     setState(() {
       _points = points.map(withCurrentDoseUnit).toList();
+      _initTimeRange();
       _areas = areas;
       _lines = lines;
       _georef = plan == null ? null : PlanGeoref(plan);
@@ -762,7 +792,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
 
   List<(MeasurementPoint, double)> _scaleSamples(_ScaleKey key) {
     final out = <(MeasurementPoint, double)>[];
-    for (final p in _points) {
+    for (final p in _shownPoints) {
       final v = _scaleValue(key, p);
       if (v != null) out.add((p, v));
     }
@@ -802,16 +832,18 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
   /// háttérszálon fut, így nem akasztja a térképet; amíg tart, nincs felület.
   /// Ha a pontlista vagy a mennyiség változik, a régi eredményt eldobja.
   List<Polygon> _interpolationPolygons(_ScaleKey key) {
-    final ready = identical(_interpSource, _points) && _interpKey == key;
+    final ready = identical(_interpSource, _shownPoints) && _interpKey == key;
     final inFlight =
-        identical(_interpJobSource, _points) && _interpJobKey == key;
+        identical(_interpJobSource, _shownPoints) && _interpJobKey == key;
     if (ready) return _interpPolys;
+    // Lejátszás közben nem indul minden lépésnél új számítás: szünetben frissül.
+    if (_playing) return _interpPolys;
     if (!inFlight) _startInterpolation(key);
     return const [];
   }
 
   void _startInterpolation(_ScaleKey key) {
-    final src = _points;
+    final src = _shownPoints;
     final token = ++_interpToken;
     final grid = _idwPrepare(_scaleSamples(key));
     if (grid == null) {
@@ -969,7 +1001,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
       AppLocalizations loc, _ScaleOption? active, Map<int, Color> colors) {
     final others = <MeasurementType>{};
     if (_showPoints) {
-      for (final p in _points) {
+      for (final p in _shownPoints) {
         if (!colors.containsKey(p.id)) others.add(_kindOf(p));
       }
     }
@@ -1080,7 +1112,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
   /// Azonos koordinátájú pontok (másolatok) csoportjai: egy jelölő, számlálóval.
   List<List<MeasurementPoint>> _pointGroups() {
     final byPos = <String, List<MeasurementPoint>>{};
-    for (final p in _points) {
+    for (final p in _shownPoints) {
       byPos.putIfAbsent('${p.latitude}|${p.longitude}', () => []).add(p);
     }
     return byPos.values.toList();
@@ -1836,6 +1868,559 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
     );
   }
 
+  // ---- Időszűrő és lejátszás ----
+
+  /// A betöltött pontok határai, és a kiválasztott tartomány igazítása. A
+  /// pontok időrendben érkeznek (orderBy timestamp ASC).
+  void _initTimeRange() {
+    _manualHi = null;
+    if (_points.isEmpty) {
+      _tMin = null;
+      _tMax = null;
+      _rangeStart = null;
+      _rangeEnd = null;
+      _stopPlayback();
+      _shownLo = -1;
+      _shownHi = -1;
+      _shownPoints = [];
+      return;
+    }
+    final prevMax = _tMax;
+    // Ha a tartomány a teljes felmérést fedte, újratöltéskor a bővülést követi.
+    final wasFullEnd = prevMax == null || _rangeEnd == null || _rangeEnd == prevMax;
+    _tMin = _points.first.timestamp;
+    _tMax = _points.last.timestamp;
+    final s = _clampTime(_rangeStart ?? _tMin!);
+    var e = wasFullEnd ? _tMax! : _clampTime(_rangeEnd!);
+    if (e.isBefore(s)) e = s;
+    _rangeStart = s;
+    _rangeEnd = e;
+    _syncStart();
+    _shownLo = -1;
+    _shownHi = -1;
+    _updateShown();
+  }
+
+  DateTime _clampTime(DateTime t) {
+    if (t.isBefore(_tMin!)) return _tMin!;
+    if (t.isAfter(_tMax!)) return _tMax!;
+    return t;
+  }
+
+  /// A tartományba eső pontok szeletének frissítése. A `_shownPoints` csak
+  /// akkor cserélődik, ha a szelet határai változnak.
+  void _updateShown() {
+    final start = _rangeStart;
+    final end = _rangeEnd;
+    if (!(_timeFilterOpen || _exporting) || start == null || end == null) {
+      _setShownSlice(0, _points.length);
+      return;
+    }
+    final lo = _firstIndex((p) => !p.timestamp.isBefore(start));
+    final manual = _manualHi;
+    final int hi;
+    if (manual != null) {
+      hi = manual > _points.length ? _points.length : manual;
+    } else {
+      hi = _firstIndex((p) => p.timestamp.isAfter(end));
+    }
+    _setShownSlice(lo, hi < lo ? lo : hi);
+  }
+
+  void _setShownSlice(int lo, int hi) {
+    if (lo == _shownLo && hi == _shownHi) return;
+    _shownLo = lo;
+    _shownHi = hi;
+    _shownPoints = _points.sublist(lo, hi);
+  }
+
+  /// Az első index a _points-ban, ahol [pastEnd] igaz (bináris keresés).
+  int _firstIndex(bool Function(MeasurementPoint p) pastEnd) {
+    var lo = 0;
+    var hi = _points.length;
+    while (lo < hi) {
+      final mid = (lo + hi) ~/ 2;
+      if (pastEnd(_points[mid])) {
+        hi = mid;
+      } else {
+        lo = mid + 1;
+      }
+    }
+    return lo;
+  }
+
+  /// Egy időponttal előre (+1) vagy hátra (-1). Egy időponthoz tartozó összes
+  /// mérés egyszerre jelenik meg vagy tűnik el; a kezdő csúszka helyben marad.
+  void _stepBy(int delta) {
+    setState(() {
+      _stopPlayback();
+      final lo = _shownLo;
+      final hi = _shownHi;
+      int target;
+      if (delta > 0) {
+        if (hi >= _points.length) return;
+        final t = _points[hi].timestamp;
+        target = _firstIndex((p) => p.timestamp.isAfter(t));
+      } else {
+        if (hi <= lo) return;
+        final t = _points[hi - 1].timestamp;
+        target = _firstIndex((p) => !p.timestamp.isBefore(t));
+        if (target < lo) target = lo;
+      }
+      _manualHi = target;
+      _rangeEnd = target > lo ? _points[target - 1].timestamp : _rangeStart;
+      _syncStart();
+      _updateShown();
+    });
+  }
+
+  void _stepBack() => _stepBy(-1);
+
+  void _stepForward() => _stepBy(1);
+
+  /// Pillanat módban a kezdet a vég alatti legutolsó mérési időpont, így az
+  /// ablak pontosan egy időpont méréseit tartalmazza.
+  void _syncStart() {
+    if (!_singleMoment) return;
+    final end = _rangeEnd;
+    if (end == null || _points.isEmpty) return;
+    final k = _firstIndex((p) => p.timestamp.isAfter(end)) - 1;
+    if (k < 0) return;
+    _rangeStart = _points[k].timestamp;
+  }
+
+  void _setSingleMoment(bool on) {
+    setState(() {
+      _stopPlayback();
+      _manualHi = null;
+      _singleMoment = on;
+      _syncStart();
+      _updateShown();
+    });
+  }
+
+  void _onMomentDragged(double ms) {
+    setState(() {
+      _stopPlayback();
+      _manualHi = null;
+      _rangeEnd = _msToDate(ms);
+      _syncStart();
+      _updateShown();
+    });
+  }
+
+  /// A kiválasztott időszak mérési időpontjai (az eredeti DateTime-okkal).
+  List<DateTime> _momentsIn(DateTime start, DateTime end) {
+    final byMs = <int, DateTime>{};
+    for (final p in _points) {
+      final t = p.timestamp;
+      if (t.isBefore(start) || t.isAfter(end)) continue;
+      byMs.putIfAbsent(t.millisecondsSinceEpoch, () => t);
+    }
+    final keys = byMs.keys.toList()..sort();
+    return [for (final k in keys) byMs[k]!];
+  }
+
+  /// Egy képkocka: a nézet beállítása az időpontra, majd a térkép rögzítése.
+  /// Pillanat módban a kezdet követi a véget; tartománymódban a kezdet a
+  /// kiválasztott időszak kezdete marad, így a kép a kezdettől nő.
+  Future<Uint8List?> _renderFrame(DateTime t, DateTime start,
+      {required bool first, required int width}) async {
+    setState(() {
+      _manualHi = null;
+      if (!_singleMoment) _rangeStart = start;
+      _rangeEnd = t;
+      _syncStart();
+      _updateShown();
+      _exportLabel = t;
+    });
+    await WidgetsBinding.instance.endOfFrame;
+    // Az első képkockánál a térképcsempék betöltésére várunk.
+    if (first) await Future<void>.delayed(const Duration(milliseconds: 900));
+    await _waitForInterpolation();
+    return captureBoundaryPng(_mapBoundaryKey, width: width);
+  }
+
+  /// Ha a becsült felület számítása fut, megvárja, és a kész állapotot rajzolja ki.
+  Future<void> _waitForInterpolation() async {
+    final until = DateTime.now().add(const Duration(seconds: 4));
+    while (_showInterpolation &&
+        _interpJobSource != null &&
+        DateTime.now().isBefore(until)) {
+      await Future<void>.delayed(const Duration(milliseconds: 40));
+    }
+    await WidgetsBinding.instance.endOfFrame;
+  }
+
+  /// Alaprajz módban: a kép dekódolása a rögzítés előtt készen áll, és az élő
+  /// figyelő miatt a dekódolt kép az egész exportig a memóriában marad, akkor
+  /// is, ha nagy képnél a gyorsítótár nem tartaná meg. Nélküle a képkockák
+  /// egy része alaprajz nélkül készülhetne.
+  Future<void> _holdPlanImage() async {
+    final georef = _georef;
+    if (georef == null) return;
+    _releasePlanImage();
+    final done = Completer<void>();
+    final stream = FileImage(File(georef.calibration.imagePath))
+        .resolve(createLocalImageConfiguration(context));
+    final listener = ImageStreamListener(
+      (_, _) {
+        if (!done.isCompleted) done.complete();
+      },
+      onError: (e, st) {
+        if (!done.isCompleted) done.completeError(e, st);
+      },
+    );
+    stream.addListener(listener);
+    _planStream = stream;
+    _planListener = listener;
+    await done.future.timeout(const Duration(seconds: 20));
+  }
+
+  void _releasePlanImage() {
+    final stream = _planStream;
+    final listener = _planListener;
+    if (stream != null && listener != null) stream.removeListener(listener);
+    _planStream = null;
+    _planListener = null;
+  }
+
+  Future<void> _exportTimelapse() async {
+    final loc = AppLocalizations.of(context)!;
+    final tMin = _tMin;
+    final tMax = _tMax;
+    if (_points.isEmpty || tMin == null || tMax == null) {
+      _snack(loc.timelapseNoPoints);
+      return;
+    }
+    // Tartománymódban a kiválasztott tartomány, pillanat módban a teljes felmérés.
+    final useSelection = _timeFilterOpen && !_singleMoment;
+    final start = useSelection && _rangeStart != null ? _rangeStart! : tMin;
+    final end = useSelection && _rangeEnd != null ? _rangeEnd! : tMax;
+    final moments = _momentsIn(start, end);
+    if (moments.isEmpty) {
+      _snack(loc.timelapseNoPoints);
+      return;
+    }
+    final opts = await showDialog<_TimelapseOptions>(
+      context: context,
+      builder: (_) => _TimelapseDialog(
+        moments: moments,
+        span: end.difference(start),
+        maxFrames: _maxTimelapseFrames,
+      ),
+    );
+    if (opts == null || !mounted) return;
+    final times = opts.mode == TimelapseFrameMode.moment
+        ? moments
+        : stepTimes(start, end, opts.stepSeconds);
+    if (times.isEmpty || times.length > _maxTimelapseFrames) return;
+
+    final width = opts.resolution.width;
+    final savedStart = _rangeStart;
+    final savedEnd = _rangeEnd;
+    final progress = ValueNotifier<int>(0);
+    final encoding = ValueNotifier<bool>(false);
+    final names = <String>[];
+    final frames = <Uint8List>[];
+    final stamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+    final frameStamp = DateFormat('yyyyMMdd_HHmmss');
+    _exportCancel = false;
+    setState(() {
+      _stopPlayback();
+      _exporting = true;
+    });
+    var progressOpen = true;
+    unawaited(showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => _TimelapseProgress(
+        progress: progress,
+        encoding: encoding,
+        total: times.length,
+        onCancel: () {
+          _exportCancel = true;
+        },
+      ),
+    ).then((_) {
+      progressOpen = false;
+    }));
+
+    String? error;
+    try {
+      await _holdPlanImage();
+      for (var i = 0; i < times.length && !_exportCancel; i++) {
+        final t = times[i];
+        final png = await _renderFrame(t, start, first: i == 0, width: width);
+        if (png != null) {
+          frames.add(png);
+          names.add(
+              '${(i + 1).toString().padLeft(4, '0')}_${frameStamp.format(t)}.png');
+        }
+        progress.value = i + 1;
+      }
+      if (!_exportCancel) {
+        if (frames.isEmpty) {
+          error = loc.timelapseNoFrames;
+        } else {
+          encoding.value = true;
+          if (opts.format == TimelapseFormat.gif) {
+            final bytes =
+                await encodeTimelapseGif(frames,
+                    delayMs: opts.delayMs, maxWidth: width);
+            await saveAndShareExport(bytes, 'idosor_$stamp.gif');
+          } else {
+            final bytes = await encodeTimelapseZip(frames, names);
+            await saveAndShareExport(bytes, 'idosor_$stamp.zip');
+          }
+        }
+      }
+    } catch (e) {
+      error = loc.timelapseFailed('$e');
+    } finally {
+      _releasePlanImage();
+      if (mounted) {
+        setState(() {
+          _exporting = false;
+          _exportLabel = null;
+          _manualHi = null;
+          _rangeStart = savedStart;
+          _rangeEnd = savedEnd;
+          _updateShown();
+        });
+        if (progressOpen) Navigator.of(context, rootNavigator: true).pop();
+      }
+    }
+    if (!mounted) return;
+    if (error != null) {
+      _snack(error);
+    } else if (_exportCancel) {
+      _snack(loc.timelapseCancelled);
+    }
+  }
+
+  void _toggleTimeFilter() {
+    setState(() {
+      _manualHi = null;
+      _timeFilterOpen = !_timeFilterOpen;
+      if (!_timeFilterOpen) _stopPlayback();
+      _updateShown();
+    });
+  }
+
+  void _resetTimeRange() {
+    setState(() {
+      _stopPlayback();
+      _manualHi = null;
+      _rangeStart = _tMin;
+      _rangeEnd = _tMax;
+      _syncStart();
+      _updateShown();
+    });
+  }
+
+  /// A csúszka kézi húzása megszakítja a lejátszást.
+  void _onRangeDragged(RangeValues v) {
+    setState(() {
+      _stopPlayback();
+      _manualHi = null;
+      _rangeStart = _msToDate(v.start);
+      _rangeEnd = _msToDate(v.end);
+      _updateShown();
+    });
+  }
+
+  DateTime _msToDate(double ms) =>
+      DateTime.fromMillisecondsSinceEpoch(ms.round());
+
+  void _togglePlay() {
+    if (_playing) {
+      setState(_stopPlayback);
+      return;
+    }
+    final tMax = _tMax;
+    final start = _rangeStart;
+    if (tMax == null || start == null) return;
+    setState(() {
+      _manualHi = null;
+      // A vég elérése után a lejátszás a kezdettől indul újra.
+      if (_rangeEnd == null || !_rangeEnd!.isBefore(tMax)) _rangeEnd = start;
+      _playing = true;
+      _syncStart();
+      _updateShown();
+    });
+    _playTimer = Timer.periodic(_playTick, (_) => _playStep());
+  }
+
+  /// Egy lépés: a vége előre megy a felmérési sebességgel, a kezdet áll.
+  void _playStep() {
+    if (!mounted) return;
+    setState(() {
+      final tMax = _tMax;
+      final end = _rangeEnd;
+      if (tMax == null || end == null) {
+        _stopPlayback();
+        return;
+      }
+      final next = end.add(
+          Duration(milliseconds: _playTick.inMilliseconds * _playSpeed));
+      if (next.isBefore(tMax)) {
+        _rangeEnd = next;
+      } else {
+        _rangeEnd = tMax;
+        _stopPlayback();
+      }
+      _syncStart();
+      _updateShown();
+    });
+  }
+
+  /// Csak az állapotot állítja; az anyag hívója gondoskodik a setState-ről.
+  void _stopPlayback() {
+    _playTimer?.cancel();
+    _playTimer = null;
+    _playing = false;
+  }
+
+  Widget _buildTimePanel(AppLocalizations loc) {
+    final theme = Theme.of(context);
+    final tMin = _tMin;
+    final tMax = _tMax;
+    final start = _rangeStart;
+    final end = _rangeEnd;
+    return Material(
+      elevation: 6,
+      color: theme.colorScheme.surface,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (tMin == null ||
+                  tMax == null ||
+                  start == null ||
+                  end == null ||
+                  !tMax.isAfter(tMin))
+                Text(loc.mapTimeFilterNoSpan, textAlign: TextAlign.center)
+              else
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: Text(loc.mapTimeFilterSingleMoment)),
+                        Switch(
+                          value: _singleMoment,
+                          onChanged: _setSingleMoment,
+                        ),
+                      ],
+                    ),
+                    if (_singleMoment)
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(_dateFormat.format(end),
+                              textAlign: TextAlign.center),
+                          Slider(
+                            min: tMin.millisecondsSinceEpoch.toDouble(),
+                            max: tMax.millisecondsSinceEpoch.toDouble(),
+                            value: end.millisecondsSinceEpoch.toDouble(),
+                            onChanged: _onMomentDragged,
+                          ),
+                        ],
+                      )
+                    else
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                    '${loc.mapTimeFilterStart}: ${_dateFormat.format(start)}'),
+                              ),
+                              Text(
+                                  '${loc.mapTimeFilterEnd}: ${_dateFormat.format(end)}'),
+                            ],
+                          ),
+                          RangeSlider(
+                            min: tMin.millisecondsSinceEpoch.toDouble(),
+                            max: tMax.millisecondsSinceEpoch.toDouble(),
+                            values: RangeValues(
+                              start.millisecondsSinceEpoch.toDouble(),
+                              end.millisecondsSinceEpoch.toDouble(),
+                            ),
+                            onChanged: _onRangeDragged,
+                          ),
+                        ],
+                      ),
+                    Row(
+                      children: [
+                        IconButton(
+                          tooltip: _playing
+                              ? loc.mapTimeFilterPause
+                              : loc.mapTimeFilterPlay,
+                          icon: Icon(_playing ? Icons.pause : Icons.play_arrow),
+                          onPressed: _togglePlay,
+                        ),
+                        Expanded(
+                          child: SegmentedButton<int>(
+                            showSelectedIcon: false,
+                            segments: [
+                              for (final v in _playSpeeds)
+                                ButtonSegment<int>(
+                                    value: v, label: Text('×$v')),
+                            ],
+                            selected: {_playSpeed},
+                            onSelectionChanged: (sel) =>
+                                setState(() => _playSpeed = sel.first),
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: loc.mapTimeFilterReset,
+                          icon: const Icon(Icons.restart_alt),
+                          onPressed: _resetTimeRange,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          tooltip: loc.mapTimeFilterStepBack,
+                          icon: const Icon(Icons.skip_previous),
+                          onPressed: _shownHi > _shownLo ? _stepBack : null,
+                        ),
+                        IconButton(
+                          tooltip: loc.mapTimeFilterStepForward,
+                          icon: const Icon(Icons.skip_next),
+                          onPressed:
+                              _shownHi < _points.length ? _stepForward : null,
+                        ),
+                        IconButton(
+                          tooltip: loc.timelapseMenuTooltip,
+                          icon: const Icon(Icons.movie_outlined),
+                          onPressed: _exporting ? null : _exportTimelapse,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              Text(loc.mapTimeFilterCount(_shownPoints.length),
+                  textAlign: TextAlign.center),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) {
@@ -1846,7 +2431,7 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
     final scaleOptions = _scaleOptions(context);
     final activeScale = _activeOption(scaleOptions);
     final colors = _computeColors(activeScale?.key);
-    final routePoints = _points.map((p) => ll.LatLng(p.latitude, p.longitude)).toList();
+    final routePoints = _shownPoints.map((p) => ll.LatLng(p.latitude, p.longitude)).toList();
     final d = _draw;
     final previewColor = d == null ? Colors.blue : Color(d.draft.colorArgb);
     final previewRadius = d == null ? null : _previewRadius(d);
@@ -1856,6 +2441,15 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
         title: Text(loc.mapTitle),
         actions: [
           _buildToolsMenu(loc),
+          if (_points.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.schedule),
+              tooltip: loc.mapTimeFilterTooltip,
+              color: _timeFilterOpen
+                  ? Theme.of(context).colorScheme.primary
+                  : null,
+              onPressed: _toggleTimeFilter,
+            ),
           IconButton(
             icon: const Icon(Icons.layers_outlined),
             tooltip: loc.mapLayersTooltip,
@@ -1878,6 +2472,8 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
             ),
         ],
       ),
+      bottomNavigationBar:
+          _timeFilterOpen && _points.isNotEmpty ? _buildTimePanel(loc) : null,
       body: RepaintBoundary(
         key: _mapBoundaryKey,
         child: Stack(children: [
@@ -2122,6 +2718,32 @@ class _SurveyMapScreenState extends State<SurveyMapScreen> {
               right: 8,
               child: _buildMeasureBar(loc),
             ),
+          if (_exportLabel != null)
+            Positioned(
+              top: 8,
+              left: 0,
+              right: 0,
+              child: IgnorePointer(
+                child: Center(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      _fullDateFormat.format(_exportLabel!),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           if (_points.isEmpty && d == null)
             Positioned(
               top: 8,
@@ -2250,6 +2872,216 @@ class _SourcePickerSheetState extends State<_SourcePickerSheet> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _TimelapseOptions {
+  const _TimelapseOptions({
+    required this.format,
+    required this.mode,
+    required this.stepSeconds,
+    required this.delayMs,
+    required this.resolution,
+  });
+
+  final TimelapseFormat format;
+  final TimelapseFrameMode mode;
+  final int stepSeconds;
+  final int delayMs;
+  final TimelapseResolution resolution;
+}
+
+/// Az export beállításai: formát, felbontást, képkocka-módot, lépésközt, késleltetést.
+class _TimelapseDialog extends StatefulWidget {
+  const _TimelapseDialog({
+    required this.moments,
+    required this.span,
+    required this.maxFrames,
+  });
+
+  final List<DateTime> moments;
+  final Duration span;
+  final int maxFrames;
+
+  @override
+  State<_TimelapseDialog> createState() => _TimelapseDialogState();
+}
+
+class _TimelapseDialogState extends State<_TimelapseDialog> {
+  TimelapseFormat _format = TimelapseFormat.gif;
+  TimelapseFrameMode _mode = TimelapseFrameMode.moment;
+  TimelapseResolution _resolution = TimelapseResolution.medium;
+  final _stepCtrl = TextEditingController(text: '10');
+  final _delayCtrl = TextEditingController(text: '500');
+
+  @override
+  void dispose() {
+    _stepCtrl.dispose();
+    _delayCtrl.dispose();
+    super.dispose();
+  }
+
+  int get _step => int.tryParse(_stepCtrl.text.trim()) ?? 0;
+
+  int get _delay => int.tryParse(_delayCtrl.text.trim()) ?? 0;
+
+  int get _frameCount => _mode == TimelapseFrameMode.moment
+      ? widget.moments.length
+      : stepFrameCount(widget.span, _step);
+
+  bool get _valid =>
+      _frameCount > 0 &&
+      _frameCount <= widget.maxFrames &&
+      (_format == TimelapseFormat.zip || _delay > 0);
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    final count = _frameCount;
+    final tooMany = count > widget.maxFrames;
+    return AlertDialog(
+      title: Text(loc.timelapseDialogTitle),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(loc.timelapseFormatLabel),
+            const SizedBox(height: 4),
+            SegmentedButton<TimelapseFormat>(
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(
+                    value: TimelapseFormat.gif,
+                    label: Text(loc.timelapseFormatGif)),
+                ButtonSegment(
+                    value: TimelapseFormat.zip,
+                    label: Text(loc.timelapseFormatZip)),
+              ],
+              selected: {_format},
+              onSelectionChanged: (sel) => setState(() => _format = sel.first),
+            ),
+            const SizedBox(height: 12),
+            Text(loc.timelapseResolutionLabel),
+            const SizedBox(height: 4),
+            SegmentedButton<TimelapseResolution>(
+              showSelectedIcon: false,
+              segments: [
+                for (final r in TimelapseResolution.values)
+                  ButtonSegment(value: r, label: Text('${r.width} px')),
+              ],
+              selected: {_resolution},
+              onSelectionChanged: (sel) =>
+                  setState(() => _resolution = sel.first),
+            ),
+            const SizedBox(height: 12),
+            Text(loc.timelapseModeLabel),
+            const SizedBox(height: 4),
+            SegmentedButton<TimelapseFrameMode>(
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(
+                    value: TimelapseFrameMode.moment,
+                    label: Text(loc.timelapseModeMoment)),
+                ButtonSegment(
+                    value: TimelapseFrameMode.step,
+                    label: Text(loc.timelapseModeStep)),
+              ],
+              selected: {_mode},
+              onSelectionChanged: (sel) => setState(() => _mode = sel.first),
+            ),
+            if (_mode == TimelapseFrameMode.step) ...[
+              const SizedBox(height: 12),
+              TextField(
+                controller: _stepCtrl,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: loc.timelapseStepLabel),
+                onChanged: (_) => setState(() {}),
+              ),
+            ],
+            if (_format == TimelapseFormat.gif) ...[
+              const SizedBox(height: 12),
+              TextField(
+                controller: _delayCtrl,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: loc.timelapseDelayLabel),
+                onChanged: (_) => setState(() {}),
+              ),
+            ],
+            const SizedBox(height: 12),
+            Text(loc.timelapseFrameCount(count)),
+            if (tooMany)
+              Text(
+                loc.timelapseTooMany(widget.maxFrames),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(loc.cancelButton),
+        ),
+        FilledButton(
+          onPressed: _valid
+              ? () => Navigator.of(context).pop(_TimelapseOptions(
+                    format: _format,
+                    mode: _mode,
+                    stepSeconds: _step,
+                    delayMs: _delay,
+                    resolution: _resolution,
+                  ))
+              : null,
+          child: Text(loc.timelapseStart),
+        ),
+      ],
+    );
+  }
+}
+
+/// Folyamatjelző az export alatt: képkockák, kódolás, megszakítás.
+class _TimelapseProgress extends StatelessWidget {
+  const _TimelapseProgress({
+    required this.progress,
+    required this.encoding,
+    required this.total,
+    required this.onCancel,
+  });
+
+  final ValueNotifier<int> progress;
+  final ValueNotifier<bool> encoding;
+  final int total;
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+    return AlertDialog(
+      title: Text(loc.timelapseExporting),
+      content: ValueListenableBuilder<bool>(
+        valueListenable: encoding,
+        builder: (_, isEncoding, _) => ValueListenableBuilder<int>(
+          valueListenable: progress,
+          builder: (_, done, _) => Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              LinearProgressIndicator(
+                value: isEncoding || total == 0 ? null : done / total,
+              ),
+              const SizedBox(height: 8),
+              Text(isEncoding
+                  ? loc.timelapseEncoding
+                  : loc.timelapseProgress(done, total)),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: onCancel, child: Text(loc.cancelButton)),
+      ],
     );
   }
 }

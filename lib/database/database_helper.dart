@@ -11,6 +11,7 @@ import 'package:sqflite/sqflite.dart';
 import '../models/sample_analysis.dart';
 import '../models/instrument.dart';
 import '../models/modbus_register.dart';
+import '../models/auto_log_position.dart';
 import '../models/map_area.dart';
 import '../models/map_measure_line.dart';
 import '../models/company_document.dart';
@@ -78,7 +79,7 @@ class DatabaseHelper {
   // v32: a radiation_sources nuklid-, aktivitás- és gyártási dátum-mezője
   // nullable (talált forrás). A tábla újraépítése a megnyitáskor fut, FK nélkül.
   // v33: forrásonkénti lejárati értesítés (`notify_enabled`, a meglévők bekapcsolva).
-  static const _dbVersion = 45;
+  static const _dbVersion = 46;
 
   /// A jelenlegi séma-verzió (a mentésfájlok kompatibilitás-ellenőrzéséhez).
   static const schemaVersion = _dbVersion;
@@ -685,6 +686,24 @@ class DatabaseHelper {
         await db.execute("ALTER TABLE instruments ADD COLUMN modbus_registers TEXT NOT NULL DEFAULT '[]'");
       }
     }
+
+    if (oldVersion < 46) {
+      // v46: automatikus mérés pozíció-forrása és fix koordinátája műszerenként.
+      final instrCols46 = (await db.rawQuery('PRAGMA table_info(instruments)'))
+          .map((c) => c['name'] as String)
+          .toSet();
+      if (!instrCols46.contains('auto_log_position_source')) {
+        await db.execute("ALTER TABLE instruments ADD COLUMN auto_log_position_source TEXT NOT NULL DEFAULT 'phone'");
+        // A Modbus-GPS-es műszerek eddig is a saját helyzetüket használták.
+        await db.execute("UPDATE instruments SET auto_log_position_source = 'modbus' WHERE is_modbus_gps_enabled = 1");
+      }
+      if (!instrCols46.contains('auto_log_lat')) {
+        await db.execute('ALTER TABLE instruments ADD COLUMN auto_log_lat REAL');
+      }
+      if (!instrCols46.contains('auto_log_lon')) {
+        await db.execute('ALTER TABLE instruments ADD COLUMN auto_log_lon REAL');
+      }
+    }
   }
 
   Future<void> _rebuildRadiationSourcesNullable(Database db) async {
@@ -1088,7 +1107,10 @@ class DatabaseHelper {
         modbus_measurement_type TEXT NOT NULL DEFAULT 'dose_rate',
         modbus_unit TEXT NOT NULL DEFAULT 'nSv/h',
         modbus_channels TEXT NOT NULL DEFAULT '[]',
-        modbus_registers TEXT NOT NULL DEFAULT '[]'
+        modbus_registers TEXT NOT NULL DEFAULT '[]',
+        auto_log_position_source TEXT NOT NULL DEFAULT 'phone',
+        auto_log_lat REAL,
+        auto_log_lon REAL
       )
     ''');
 
@@ -2061,6 +2083,27 @@ class DatabaseHelper {
       {
         'modbus_registers':
             jsonEncode([for (final r in registers) r.toJson()]),
+      },
+      where: 'id = ?',
+      whereArgs: [instrumentId],
+    );
+  }
+
+  /// Az automatikus mérés pozíció-beállítása egy műszerhez. Külön UPDATE,
+  /// hogy a műszer szerkesztése (toMap) ne írja felül.
+  Future<void> setAutoLogPosition(
+    int instrumentId,
+    AutoLogPositionSource source,
+    double? latitude,
+    double? longitude,
+  ) async {
+    final db = await database;
+    await db.update(
+      'instruments',
+      {
+        'auto_log_position_source': source.dbValue,
+        'auto_log_lat': latitude,
+        'auto_log_lon': longitude,
       },
       where: 'id = ?',
       whereArgs: [instrumentId],

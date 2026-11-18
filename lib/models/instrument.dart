@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'auto_log_position.dart';
 import 'measurement_type.dart';
 import 'modbus_reading.dart';
 
@@ -35,6 +36,13 @@ class Instrument {
   /// régi, egyetlen regiszteres beállítás érvényes.
   final List<ModbusChannel> modbusChannels;
 
+  /// Honnan kapja az automatikus mérés a pozíciót ehhez a műszerhez.
+  final AutoLogPositionSource autoLogPositionSource;
+
+  /// Fix koordináta, ha a forrás fix.
+  final double? autoLogLatitude;
+  final double? autoLogLongitude;
+
   const Instrument({
     this.id,
     required this.name,
@@ -53,6 +61,9 @@ class Instrument {
     this.modbusMeasurementType = MeasurementType.doseRate,
     this.modbusUnit = 'nSv/h',
     this.modbusChannels = const [],
+    this.autoLogPositionSource = AutoLogPositionSource.phone,
+    this.autoLogLatitude,
+    this.autoLogLongitude,
   });
 
   /// A műszer Modbus-csatornái. Ha nincs külön lista, a régi egyetlen
@@ -125,6 +136,8 @@ class Instrument {
     );
   }
 
+  /// A pozíció-beállítás nincs a toMap-ben: külön oszlopokban él
+  /// ([DatabaseHelper.setAutoLogPosition]), így a műszer szerkesztése nem írja felül.
   Map<String, Object?> toMap() {
     return {
       'id': id,
@@ -170,6 +183,10 @@ class Instrument {
       modbusMeasurementType: _typeFromDb(map['modbus_measurement_type']),
       modbusUnit: map['modbus_unit'] as String? ?? 'nSv/h',
       modbusChannels: _channelsFromDb(map['modbus_channels']),
+      autoLogPositionSource:
+          AutoLogPositionSource.fromDb(map['auto_log_position_source']),
+      autoLogLatitude: (map['auto_log_lat'] as num?)?.toDouble(),
+      autoLogLongitude: (map['auto_log_lon'] as num?)?.toDouble(),
     );
   }
 

@@ -43,8 +43,9 @@ Future<ModbusReadResult> _readAll(
   ModbusClientTcp client,
   ModbusFloatRegister valueRegister,
   Instrument instrument,
-  AppLocalizations l10n,
-) async {
+  AppLocalizations l10n, {
+  bool withGps = true,
+}) async {
   final code = await client.send(valueRegister.getReadRequest());
   if (code != ModbusResponseCode.requestSucceed) {
     return ModbusReadResult.error(
@@ -57,7 +58,7 @@ Future<ModbusReadResult> _readAll(
       l10n.instrumentDidNotSendValidValue,
     );
   }
-  if (!instrument.isModbusGpsEnabled) {
+  if (!withGps || !instrument.isModbusGpsEnabled) {
     return ModbusReadResult.ok((value as num).toDouble());
   }
 
@@ -220,9 +221,11 @@ class ModbusLiveSession {
   /// Egy olvasás a már élő kapcsolaton. Hálózati hiba esetén az
   /// `autoConnectAndKeepConnected` mód automatikusan újra kapcsolódik a
   /// következő hívásnál.
-  Future<ModbusReadResult> read() async {
+  /// [withGps] false: csak az érték, a GPS-regisztereket nem olvassa.
+  Future<ModbusReadResult> read({bool withGps = true}) async {
     try {
-      return await _readAll(_client, _register, _instrument, _l10n);
+      return await _readAll(_client, _register, _instrument, _l10n,
+          withGps: withGps);
     } catch (e) {
       return ModbusReadResult.error(
         _l10n.connectionErrorWithDetails(e.toString()),

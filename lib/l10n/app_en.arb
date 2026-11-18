@@ -657,8 +657,12 @@
   "pointGroupLabel": "{index}/{total} measurements",
   "@pointGroupLabel": {
     "placeholders": {
-      "index": {"type": "String"},
-      "total": {"type": "String"}
+      "index": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
     }
   },
   "sessionDoseLabel": "Survey dose",
@@ -2289,7 +2293,22 @@
   "spectrumEnergyAxis": "Energy",
   "@spectrumEnergyAxis": {},
   "spectrumSummaryText": "{kind} · {channels} channels · live time {liveTime} · {counts} counts",
-  "@spectrumSummaryText": {"placeholders": {"kind": {"type": "String"}, "channels": {"type": "String"}, "liveTime": {"type": "String"}, "counts": {"type": "String"}}},
+  "@spectrumSummaryText": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "channels": {
+        "type": "String"
+      },
+      "liveTime": {
+        "type": "String"
+      },
+      "counts": {
+        "type": "String"
+      }
+    }
+  },
   "spectrumNoFileLabel": "No spectrum file",
   "@spectrumNoFileLabel": {},
   "basisKindLabel": "Sample basis",
@@ -2311,9 +2330,27 @@
   "concentrationCalcError": "Enter a valid total activity and a positive sample quantity.",
   "@concentrationCalcError": {},
   "protoSpectrumCaption": "Spectrum #{idx} ({kind}): {location}",
-  "@protoSpectrumCaption": {"placeholders": {"idx": {"type": "String"}, "kind": {"type": "String"}, "location": {"type": "String"}}},
+  "@protoSpectrumCaption": {
+    "placeholders": {
+      "idx": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      },
+      "location": {
+        "type": "String"
+      }
+    }
+  },
   "protoSpectrumFile": "Spectrum file: {name}",
-  "@protoSpectrumFile": {"placeholders": {"name": {"type": "String"}}},
+  "@protoSpectrumFile": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "spectrumKindNeutron": "Neutron",
   "@spectrumKindNeutron": {},
   "basisMassSettingLabel": "Default mass unit (concentration)",
@@ -2892,8 +2929,6 @@
   "@autoLogSourcesHelper": {},
   "autoLogSelectChannel": "Select at least one channel.",
   "@autoLogSelectChannel": {},
-  "autoLogOneDoseSource": "Only one dose rate channel can be selected for dose calculation.",
-  "@autoLogOneDoseSource": {},
   "mapColorScaleTitle": "Colored quantity",
   "@mapColorScaleTitle": {},
   "mapInterpolationTitle": "Interpolation layer",
@@ -3115,10 +3150,186 @@
       }
     }
   },
-  "scanNoneFound": "None of the IDs in this range responded.",
+  "scanNoneFound": "None of the IDs responded. Check the IP address, the port and the measurement channel address.",
   "@scanNoneFound": {},
   "scanMultipleHint": "More than one ID responded. Direct TCP connections often answer any ID, so check the correct value in the instrument’s documentation.",
   "@scanMultipleHint": {},
   "scanCancelled": "Stopped.",
-  "@scanCancelled": {}
+  "@scanCancelled": {},
+  "scanProbeChannel": "The scan reads the measurement channel’s address (holding register {address}).",
+  "@scanProbeChannel": {
+    "placeholders": {
+      "address": {
+        "type": "int"
+      }
+    }
+  },
+  "scanProbeDefault": "No measurement channel is set, so the scan asks holding register 0 and coil 0. If the instrument does not answer on these, set a measurement channel and scan again.",
+  "@scanProbeDefault": {},
+  "autoLogPositionTitle": "Position per instrument",
+  "@autoLogPositionTitle": {},
+  "autoLogPositionHelper": "Points of each instrument get this position.",
+  "@autoLogPositionHelper": {},
+  "autoLogPositionSourceLabel": "Position source",
+  "@autoLogPositionSourceLabel": {},
+  "autoLogPositionPhone": "Phone GPS",
+  "@autoLogPositionPhone": {},
+  "autoLogPositionFixed": "Fixed coordinate",
+  "@autoLogPositionFixed": {},
+  "autoLogPositionModbus": "Instrument GPS (Modbus)",
+  "@autoLogPositionModbus": {},
+  "autoLogPositionFixedNotSet": "No coordinates set",
+  "@autoLogPositionFixedNotSet": {},
+  "autoLogPositionPickMap": "On map",
+  "@autoLogPositionPickMap": {},
+  "autoLogPositionType": "Enter",
+  "@autoLogPositionType": {},
+  "autoLogCoordinatesTitle": "Enter coordinates",
+  "@autoLogCoordinatesTitle": {},
+  "autoLogLatLabel": "Latitude (°)",
+  "@autoLogLatLabel": {},
+  "autoLogLonLabel": "Longitude (°)",
+  "@autoLogLonLabel": {},
+  "autoLogCoordinatesInvalid": "Latitude must be between −90 and 90, longitude between −180 and 180.",
+  "@autoLogCoordinatesInvalid": {},
+  "autoLogPositionModbusError": "{name}: Modbus GPS is not enabled.",
+  "@autoLogPositionModbusError": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogPositionFixedError": "{name}: no fixed coordinate set.",
+  "@autoLogPositionFixedError": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDistanceNeedsMoving": "Distance mode needs at least one instrument using phone or Modbus GPS.",
+  "@autoLogDistanceNeedsMoving": {},
+  "autoLogNoPosition": "No position for {name}. The point is skipped.",
+  "@autoLogNoPosition": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDoseSourceLabel": "Dose source saved to persons",
+  "@autoLogDoseSourceLabel": {},
+  "autoLogDoseSourceHelper": "Only this instrument's dose is saved to persons. The others are shown only during measurement.",
+  "@autoLogDoseSourceHelper": {},
+  "autoLogDoseSourceLine": "{channel}: {dose}",
+  "@autoLogDoseSourceLine": {
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      },
+      "dose": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDoseSavedMark": " · saved",
+  "@autoLogDoseSavedMark": {},
+  "mapTimeFilterTooltip": "Time filter",
+  "@mapTimeFilterTooltip": {},
+  "mapTimeFilterStart": "Start",
+  "@mapTimeFilterStart": {},
+  "mapTimeFilterEnd": "End",
+  "@mapTimeFilterEnd": {},
+  "mapTimeFilterPlay": "Play",
+  "@mapTimeFilterPlay": {},
+  "mapTimeFilterPause": "Pause",
+  "@mapTimeFilterPause": {},
+  "mapTimeFilterReset": "Full time range",
+  "@mapTimeFilterReset": {},
+  "mapTimeFilterCount": "{count} points in the selected period",
+  "@mapTimeFilterCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapTimeFilterNoSpan": "All points were taken at the same time.",
+  "@mapTimeFilterNoSpan": {},
+  "mapTimeFilterStepBack": "One time step back",
+  "@mapTimeFilterStepBack": {},
+  "mapTimeFilterStepForward": "One time step forward",
+  "@mapTimeFilterStepForward": {},
+  "mapTimeFilterSingleMoment": "Current moment only",
+  "@mapTimeFilterSingleMoment": {},
+  "timelapseMenuTooltip": "Export period (GIF / PNG)",
+  "@timelapseMenuTooltip": {},
+  "timelapseDialogTitle": "Export period",
+  "@timelapseDialogTitle": {},
+  "timelapseFormatLabel": "Format",
+  "@timelapseFormatLabel": {},
+  "timelapseResolutionLabel": "Resolution (width)",
+  "@timelapseResolutionLabel": {},
+  "timelapseFormatGif": "GIF",
+  "@timelapseFormatGif": {},
+  "timelapseFormatZip": "PNG (ZIP)",
+  "@timelapseFormatZip": {},
+  "timelapseModeLabel": "Frames",
+  "@timelapseModeLabel": {},
+  "timelapseModeMoment": "Per measurement time",
+  "@timelapseModeMoment": {},
+  "timelapseModeStep": "Fixed time step",
+  "@timelapseModeStep": {},
+  "timelapseStepLabel": "Time step (survey seconds)",
+  "@timelapseStepLabel": {},
+  "timelapseDelayLabel": "Frame delay (ms)",
+  "@timelapseDelayLabel": {},
+  "timelapseFrameCount": "{count} frames",
+  "@timelapseFrameCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timelapseTooMany": "At most {max} frames can be exported. Increase the time step or narrow the period.",
+  "@timelapseTooMany": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "timelapseStart": "Export",
+  "@timelapseStart": {},
+  "timelapseNoPoints": "There are no measurement points to export.",
+  "@timelapseNoPoints": {},
+  "timelapseNoFrames": "No frames were captured.",
+  "@timelapseNoFrames": {},
+  "timelapseProgress": "Frame {done} / {total}",
+  "@timelapseProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "timelapseEncoding": "Encoding…",
+  "@timelapseEncoding": {},
+  "timelapseExporting": "Export in progress",
+  "@timelapseExporting": {},
+  "timelapseFailed": "Export failed: {error}",
+  "@timelapseFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "timelapseCancelled": "Export cancelled.",
+  "@timelapseCancelled": {}
 }

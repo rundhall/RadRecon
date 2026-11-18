@@ -284,8 +284,12 @@
   "pointGroupLabel": "{index}/{total} mesures",
   "@pointGroupLabel": {
     "placeholders": {
-      "index": {"type": "String"},
-      "total": {"type": "String"}
+      "index": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
     }
   },
   "sessionDoseLabel": "Dose de la mesure",
@@ -1367,7 +1371,22 @@
   "spectrumEnergyAxis": "Énergie",
   "@spectrumEnergyAxis": {},
   "spectrumSummaryText": "{kind} · {channels} canaux · temps vif {liveTime} · {counts} coups",
-  "@spectrumSummaryText": {"placeholders": {"kind": {"type": "String"}, "channels": {"type": "String"}, "liveTime": {"type": "String"}, "counts": {"type": "String"}}},
+  "@spectrumSummaryText": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "channels": {
+        "type": "String"
+      },
+      "liveTime": {
+        "type": "String"
+      },
+      "counts": {
+        "type": "String"
+      }
+    }
+  },
   "spectrumNoFileLabel": "Aucun fichier de spectre",
   "@spectrumNoFileLabel": {},
   "basisKindLabel": "Base de l'échantillon",
@@ -1389,9 +1408,27 @@
   "concentrationCalcError": "Saisissez une activité totale valide et une quantité d'échantillon positive.",
   "@concentrationCalcError": {},
   "protoSpectrumCaption": "Spectre n° {idx} ({kind}) : {location}",
-  "@protoSpectrumCaption": {"placeholders": {"idx": {"type": "String"}, "kind": {"type": "String"}, "location": {"type": "String"}}},
+  "@protoSpectrumCaption": {
+    "placeholders": {
+      "idx": {
+        "type": "String"
+      },
+      "kind": {
+        "type": "String"
+      },
+      "location": {
+        "type": "String"
+      }
+    }
+  },
   "protoSpectrumFile": "Fichier de spectre : {name}",
-  "@protoSpectrumFile": {"placeholders": {"name": {"type": "String"}}},
+  "@protoSpectrumFile": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "spectrumKindNeutron": "Neutron",
   "@spectrumKindNeutron": {},
   "basisMassSettingLabel": "Unité de masse par défaut (concentration)",
@@ -1970,8 +2007,6 @@
   "@autoLogSourcesHelper": {},
   "autoLogSelectChannel": "Sélectionnez au moins un canal.",
   "@autoLogSelectChannel": {},
-  "autoLogOneDoseSource": "Un seul canal de débit de dose peut être sélectionné pour le calcul de dose.",
-  "@autoLogOneDoseSource": {},
   "mapColorScaleTitle": "Grandeur colorée",
   "@mapColorScaleTitle": {},
   "mapInterpolationTitle": "Couche d'interpolation",
@@ -2193,10 +2228,186 @@
       }
     }
   },
-  "scanNoneFound": "Aucun ID de cette plage n’a répondu.",
+  "scanNoneFound": "Aucun ID n’a répondu. Vérifiez l’adresse IP, le port et l’adresse du canal de mesure.",
   "@scanNoneFound": {},
   "scanMultipleHint": "Plusieurs ID ont répondu. En TCP direct, l’instrument répond souvent à tous les ID ; vérifiez la bonne valeur dans sa documentation.",
   "@scanMultipleHint": {},
   "scanCancelled": "Arrêté.",
-  "@scanCancelled": {}
+  "@scanCancelled": {},
+  "scanProbeChannel": "La recherche interroge l’adresse du canal de mesure (registre holding {address}).",
+  "@scanProbeChannel": {
+    "placeholders": {
+      "address": {
+        "type": "int"
+      }
+    }
+  },
+  "scanProbeDefault": "Aucun canal de mesure n’est défini : la recherche interroge le registre holding 0 et la coil 0. Si l’instrument ne répond pas, définissez un canal de mesure et relancez la recherche.",
+  "@scanProbeDefault": {},
+  "autoLogPositionTitle": "Position par instrument",
+  "@autoLogPositionTitle": {},
+  "autoLogPositionHelper": "Les points de chaque instrument reçoivent cette position.",
+  "@autoLogPositionHelper": {},
+  "autoLogPositionSourceLabel": "Source de position",
+  "@autoLogPositionSourceLabel": {},
+  "autoLogPositionPhone": "GPS du téléphone",
+  "@autoLogPositionPhone": {},
+  "autoLogPositionFixed": "Coordonnée fixe",
+  "@autoLogPositionFixed": {},
+  "autoLogPositionModbus": "GPS de l’instrument (Modbus)",
+  "@autoLogPositionModbus": {},
+  "autoLogPositionFixedNotSet": "Aucune coordonnée",
+  "@autoLogPositionFixedNotSet": {},
+  "autoLogPositionPickMap": "Sur la carte",
+  "@autoLogPositionPickMap": {},
+  "autoLogPositionType": "Saisir",
+  "@autoLogPositionType": {},
+  "autoLogCoordinatesTitle": "Saisir les coordonnées",
+  "@autoLogCoordinatesTitle": {},
+  "autoLogLatLabel": "Latitude (°)",
+  "@autoLogLatLabel": {},
+  "autoLogLonLabel": "Longitude (°)",
+  "@autoLogLonLabel": {},
+  "autoLogCoordinatesInvalid": "La latitude doit être entre −90 et 90, la longitude entre −180 et 180.",
+  "@autoLogCoordinatesInvalid": {},
+  "autoLogPositionModbusError": "{name} : le GPS Modbus n’est pas activé.",
+  "@autoLogPositionModbusError": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogPositionFixedError": "{name} : aucune coordonnée fixe définie.",
+  "@autoLogPositionFixedError": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDistanceNeedsMoving": "Le mode distance nécessite au moins un instrument utilisant le GPS du téléphone ou Modbus.",
+  "@autoLogDistanceNeedsMoving": {},
+  "autoLogNoPosition": "Pas de position pour {name}. Le point est ignoré.",
+  "@autoLogNoPosition": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDoseSourceLabel": "Source de dose enregistrée pour les personnes",
+  "@autoLogDoseSourceLabel": {},
+  "autoLogDoseSourceHelper": "Seule la dose de cet instrument est enregistrée pour les personnes. Les autres ne sont affichées que pendant la mesure.",
+  "@autoLogDoseSourceHelper": {},
+  "autoLogDoseSourceLine": "{channel}: {dose}",
+  "@autoLogDoseSourceLine": {
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      },
+      "dose": {
+        "type": "String"
+      }
+    }
+  },
+  "autoLogDoseSavedMark": " · enregistrée",
+  "@autoLogDoseSavedMark": {},
+  "mapTimeFilterTooltip": "Filtre temporel",
+  "@mapTimeFilterTooltip": {},
+  "mapTimeFilterStart": "Début",
+  "@mapTimeFilterStart": {},
+  "mapTimeFilterEnd": "Fin",
+  "@mapTimeFilterEnd": {},
+  "mapTimeFilterPlay": "Lecture",
+  "@mapTimeFilterPlay": {},
+  "mapTimeFilterPause": "Pause",
+  "@mapTimeFilterPause": {},
+  "mapTimeFilterReset": "Plage complète",
+  "@mapTimeFilterReset": {},
+  "mapTimeFilterCount": "{count} points dans la période sélectionnée",
+  "@mapTimeFilterCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapTimeFilterNoSpan": "Tous les points ont été pris au même moment.",
+  "@mapTimeFilterNoSpan": {},
+  "mapTimeFilterStepBack": "Un instant en arrière",
+  "@mapTimeFilterStepBack": {},
+  "mapTimeFilterStepForward": "Un instant en avant",
+  "@mapTimeFilterStepForward": {},
+  "mapTimeFilterSingleMoment": "Uniquement l’instant actuel",
+  "@mapTimeFilterSingleMoment": {},
+  "timelapseMenuTooltip": "Exporter la période (GIF / PNG)",
+  "@timelapseMenuTooltip": {},
+  "timelapseDialogTitle": "Exporter la période",
+  "@timelapseDialogTitle": {},
+  "timelapseFormatLabel": "Format",
+  "@timelapseFormatLabel": {},
+  "timelapseResolutionLabel": "Résolution (largeur)",
+  "@timelapseResolutionLabel": {},
+  "timelapseFormatGif": "GIF",
+  "@timelapseFormatGif": {},
+  "timelapseFormatZip": "PNG (ZIP)",
+  "@timelapseFormatZip": {},
+  "timelapseModeLabel": "Images",
+  "@timelapseModeLabel": {},
+  "timelapseModeMoment": "Par instant de mesure",
+  "@timelapseModeMoment": {},
+  "timelapseModeStep": "Pas de temps fixe",
+  "@timelapseModeStep": {},
+  "timelapseStepLabel": "Pas (secondes de mesure)",
+  "@timelapseStepLabel": {},
+  "timelapseDelayLabel": "Délai par image (ms)",
+  "@timelapseDelayLabel": {},
+  "timelapseFrameCount": "{count} images",
+  "@timelapseFrameCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timelapseTooMany": "Au maximum {max} images. Augmentez le pas ou réduisez la période.",
+  "@timelapseTooMany": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "timelapseStart": "Exporter",
+  "@timelapseStart": {},
+  "timelapseNoPoints": "Aucun point de mesure à exporter.",
+  "@timelapseNoPoints": {},
+  "timelapseNoFrames": "Aucune image n’a été produite.",
+  "@timelapseNoFrames": {},
+  "timelapseProgress": "Image {done} / {total}",
+  "@timelapseProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "timelapseEncoding": "Encodage…",
+  "@timelapseEncoding": {},
+  "timelapseExporting": "Export en cours",
+  "@timelapseExporting": {},
+  "timelapseFailed": "Échec de l’export : {error}",
+  "@timelapseFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "timelapseCancelled": "Export annulé.",
+  "@timelapseCancelled": {}
 }

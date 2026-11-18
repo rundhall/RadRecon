@@ -4003,10 +4003,6 @@ class AppLocalizationsHu extends AppLocalizations {
   String get autoLogSelectChannel => 'Jelöljön ki legalább egy csatornát.';
 
   @override
-  String get autoLogOneDoseSource =>
-      'Dózisszámításhoz legfeljebb egy dózisteljesítmény-csatorna jelölhető ki.';
-
-  @override
   String get mapColorScaleTitle => 'Színezett mennyiség';
 
   @override
@@ -4287,7 +4283,8 @@ class AppLocalizationsHu extends AppLocalizations {
   }
 
   @override
-  String get scanNoneFound => 'Ebben a tartományban egyik ID sem válaszolt.';
+  String get scanNoneFound =>
+      'Egyik ID sem válaszolt. Ellenőrizd az IP-címet, a portot és a mérési csatorna címét.';
 
   @override
   String get scanMultipleHint =>
@@ -4295,4 +4292,195 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get scanCancelled => 'Megszakítva.';
+
+  @override
+  String scanProbeChannel(int address) {
+    return 'A keresés a mérési csatorna címét kérdezi le (holding regiszter $address).';
+  }
+
+  @override
+  String get scanProbeDefault =>
+      'Nincs mérési csatorna megadva, ezért a 0-s holding regisztert és a 0-s coilt kérdezem le. Ha a műszer ezeken nem válaszol, adj meg egy mérési csatornát, és úgy keress újra.';
+
+  @override
+  String get autoLogPositionTitle => 'Pozíció műszerenként';
+
+  @override
+  String get autoLogPositionHelper =>
+      'Az adott műszer pontjai ezt a pozíciót kapják.';
+
+  @override
+  String get autoLogPositionSourceLabel => 'Pozíció forrása';
+
+  @override
+  String get autoLogPositionPhone => 'Telefon GPS';
+
+  @override
+  String get autoLogPositionFixed => 'Fix koordináta';
+
+  @override
+  String get autoLogPositionModbus => 'Műszer GPS (Modbus)';
+
+  @override
+  String get autoLogPositionFixedNotSet => 'Nincs koordináta megadva';
+
+  @override
+  String get autoLogPositionPickMap => 'Térképen';
+
+  @override
+  String get autoLogPositionType => 'Beírás';
+
+  @override
+  String get autoLogCoordinatesTitle => 'Koordináta megadása';
+
+  @override
+  String get autoLogLatLabel => 'Szélesség (°)';
+
+  @override
+  String get autoLogLonLabel => 'Hosszúság (°)';
+
+  @override
+  String get autoLogCoordinatesInvalid =>
+      'Szélesség −90…90, hosszúság −180…180 között legyen.';
+
+  @override
+  String autoLogPositionModbusError(String name) {
+    return '$name: nincs Modbus GPS beállítva.';
+  }
+
+  @override
+  String autoLogPositionFixedError(String name) {
+    return '$name: nincs fix koordináta megadva.';
+  }
+
+  @override
+  String get autoLogDistanceNeedsMoving =>
+      'Távolság módhoz legalább egy telefon- vagy Modbus-GPS-es műszer kell.';
+
+  @override
+  String autoLogNoPosition(String name) {
+    return 'Nincs pozíció ehhez a műszerhez: $name. A pont kimarad.';
+  }
+
+  @override
+  String get autoLogDoseSourceLabel => 'Személyekhez mentett dózis forrása';
+
+  @override
+  String get autoLogDoseSourceHelper =>
+      'Csak ennek a műszernek a dózisa kerül a személyekhez. A többi dózisa csak a mérés alatt látszik.';
+
+  @override
+  String autoLogDoseSourceLine(String channel, String dose) {
+    return '$channel: $dose';
+  }
+
+  @override
+  String get autoLogDoseSavedMark => ' · mentésre kerül';
+
+  @override
+  String get mapTimeFilterTooltip => 'Időszűrő';
+
+  @override
+  String get mapTimeFilterStart => 'Kezdet';
+
+  @override
+  String get mapTimeFilterEnd => 'Vége';
+
+  @override
+  String get mapTimeFilterPlay => 'Lejátszás';
+
+  @override
+  String get mapTimeFilterPause => 'Szünet';
+
+  @override
+  String get mapTimeFilterReset => 'Teljes időtartam';
+
+  @override
+  String mapTimeFilterCount(int count) {
+    return '$count pont a kiválasztott időszakban';
+  }
+
+  @override
+  String get mapTimeFilterNoSpan =>
+      'Minden pont ugyanabban az időpontban készült.';
+
+  @override
+  String get mapTimeFilterStepBack => 'Egy időponttal vissza';
+
+  @override
+  String get mapTimeFilterStepForward => 'Egy időponttal előre';
+
+  @override
+  String get mapTimeFilterSingleMoment => 'Csak az aktuális időpont';
+
+  @override
+  String get timelapseMenuTooltip => 'Időszak exportálása (GIF / PNG)';
+
+  @override
+  String get timelapseDialogTitle => 'Időszak exportja';
+
+  @override
+  String get timelapseFormatLabel => 'Formátum';
+
+  @override
+  String get timelapseResolutionLabel => 'Felbontás (szélesség)';
+
+  @override
+  String get timelapseFormatGif => 'GIF';
+
+  @override
+  String get timelapseFormatZip => 'PNG (ZIP)';
+
+  @override
+  String get timelapseModeLabel => 'Képkockák';
+
+  @override
+  String get timelapseModeMoment => 'Mérési időpontonként';
+
+  @override
+  String get timelapseModeStep => 'Fix időlépés';
+
+  @override
+  String get timelapseStepLabel => 'Időlépés (felmérési másodperc)';
+
+  @override
+  String get timelapseDelayLabel => 'Képkocka-késleltetés (ms)';
+
+  @override
+  String timelapseFrameCount(int count) {
+    return '$count képkocka';
+  }
+
+  @override
+  String timelapseTooMany(int max) {
+    return 'Legfeljebb $max képkocka exportálható. Növeld az időlépést vagy szűkítsd az időszakot.';
+  }
+
+  @override
+  String get timelapseStart => 'Exportálás';
+
+  @override
+  String get timelapseNoPoints => 'Nincs mérési pont az exportáláshoz.';
+
+  @override
+  String get timelapseNoFrames => 'Nem készült képkocka.';
+
+  @override
+  String timelapseProgress(int done, int total) {
+    return 'Képkocka $done / $total';
+  }
+
+  @override
+  String get timelapseEncoding => 'Kódolás…';
+
+  @override
+  String get timelapseExporting => 'Exportálás folyamatban';
+
+  @override
+  String timelapseFailed(String error) {
+    return 'Az export nem sikerült: $error';
+  }
+
+  @override
+  String get timelapseCancelled => 'Az export megszakítva.';
 }
